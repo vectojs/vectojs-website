@@ -442,8 +442,8 @@ A clipping viewport (`clipChildren = true`) with wheel + pointer-drag scrolling 
 - `content: Entity` — the scrolled container (public).
 - `add(child): this` / `remove(child): this` — mutate `content` and call `updateContentSize()`.
 - `updateContentSize(): void` — recompute `content.width/height` from children extents (call after mutating children directly) to set the max scroll range.
-- `scrollTo(y: number): void` — scroll to a Y offset where **0 is the top** (internally clamps; public scroll API added in 0.4.1).
-- `scrollToBottom(): void` — jump to the content end (added in 0.4.1).
+- `scrollTo(y: number): void` — scroll to a Y offset where **0 is the top** (internally clamps; public scroll API added in 0.1.1).
+- `scrollToBottom(): void` — jump to the content end (added in 0.1.1).
 - `update(dt, time)` — integrates the spring toward the target offset (called by the render loop).
 
 Wheel scrolling calls `preventDefault()` except with `Ctrl` held (lets the browser zoom). Pointer drag moves content 1:1 with the cursor/finger. Scroll target is clamped to `[-maxScroll, 0]`.
@@ -483,7 +483,7 @@ interface MarkdownTheme {        // all optional; defaults shown
 }
 ```
 
-Parses Markdown with **`marked` (v18, GFM)** into a VMT subtree under a vertical `Stack` (`content`, gap 16). Supported tokens: headings (h1–h6, scaled sizes), paragraphs (word-wrapped `RichText`), fenced code blocks (`CodeBlock` with keyword highlighting), blockquotes (left accent bar), ordered/unordered lists, horizontal rules, inline code, links — and **GFM tables** (rendered via the `Table` component; GFM table support added in 0.4.1). `content.width`/`height` size the component.
+Parses Markdown with **`marked` (v18, GFM)** into a VMT subtree under a vertical `Stack` (`content`, gap 16). Supported tokens: headings (h1–h6, scaled sizes), paragraphs (word-wrapped `RichText`), fenced code blocks (`CodeBlock` with keyword highlighting), blockquotes (left accent bar), ordered/unordered lists, horizontal rules, inline code, links — and **GFM tables** (rendered via the `Table` component; GFM table support added in 0.1.1). `content.width`/`height` size the component.
 
 Two content-update paths — **choosing the right one matters for streaming:**
 
