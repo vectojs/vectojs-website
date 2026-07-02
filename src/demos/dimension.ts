@@ -10,6 +10,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { buildParticlePositions } from './dimension/particle-field';
 import { ThreeAdapter } from '@vectojs/three';
 import { Stack, Text, Toggle, Button } from '@vectojs/ui';
+import { FrameMeter } from './frame-meter';
+import { setupReporter } from './report';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T | null;
@@ -59,6 +61,10 @@ function initDimension(): void {
 
   const state: SceneState = { particleCount: 600, autoOrbit: false, grid: true, spin: false };
 
+  // FrameMeter is an Entity, but startSampling/stopSampling/update don't require a
+  // Scene — drive it by hand from the OUTER loop (the visually-relevant one).
+  const meter = new FrameMeter();
+
   // ---- ambient particle field ----
   const particleMaterial = new THREE.PointsMaterial({
     color: '#5b9cff',
@@ -101,6 +107,7 @@ function initDimension(): void {
   const frame = (now: number): void => {
     const dt = now - last; // frame delta, drives the panel spin below
     last = now;
+    meter.update(dt);
     controls.autoRotate = state.autoOrbit;
     controls.update();
     grid.visible = state.grid;
@@ -251,6 +258,36 @@ function initDimension(): void {
     raycaster.setFromCamera(ndc, camera);
     adapter.updateIntersection(raycaster, 'pointermove');
   };
+
+  // ---- HUD ----
+  const set = (id: string, v: string): void => {
+    const el = $(id);
+    if (el) el.textContent = v;
+  };
+  window.setInterval(() => {
+    set('hud-dimension-fps', String(Math.round(meter.fps)));
+    set('hud-dimension-particles', state.particleCount.toLocaleString());
+    set('hud-dimension-camera', state.autoOrbit ? 'auto' : 'manual');
+  }, 500);
+
+  // ---- export a real-browser performance report (measures the OUTER loop) ----
+  const reportBtn = $('ctl-report');
+  const reportPanel = $('report-panel');
+  const reportPre = $('report-pre');
+  if (reportBtn && reportPanel && reportPre) {
+    setupReporter({
+      button: reportBtn,
+      panel: reportPanel,
+      pre: reportPre,
+      seconds: 4,
+      frameSampler: { start: () => meter.startSampling(), stop: () => meter.stopSampling() },
+      extra: () => ({
+        particles: state.particleCount,
+        autoOrbit: String(state.autoOrbit),
+        panelSpin: String(state.spin),
+      }),
+    });
+  }
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initDimension);
