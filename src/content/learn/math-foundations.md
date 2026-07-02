@@ -20,7 +20,7 @@ Instead of maintaining a heavy tree of browser DOM nodes, VectoJS operates on th
 
 In a traditional UI, layouts are resolved by a browser's reflow engine, which calculates cascading box models and updates CSS render layers. In the VMT, every visual element (an _Entity_) is represented as a localized coordinate system, mapped to its parent through affine algebraic relations:
 
-$$\mathbb{T}_{\text{child}} = \mathbf{M}_{\text{local}} \cdot \mathbb{T}_{\text{parent}}$$
+$$\mathbb{T}\_{\text{child}} = \mathbf{M}\_{\text{local}} \cdot \mathbb{T}\_{\text{parent}}$$
 
 Since there is no underlying HTML markup node or CSS cascade resolution, the tree structure remains extremely lightweight. Traversals and operations do not touch browser APIs, enabling complex parent-child relations to be resolved in microseconds.
 
@@ -31,7 +31,7 @@ To sustain high rendering throughput, the VMT's render walk avoids allocating pe
 - **Threaded Scalar Transforms**: Rather than allocating a matrix object per node, the render walk threads six scalar transform parameters through the recursion directly, avoiding a heap allocation per node per frame.
 - **Flat Scalar Arrays for Text**: `LayoutResultBuffer` packs layout coordinates into pre-allocated, contiguous TypedArrays that are reused across frames, so high-volume text layout can read and write directly to memory without triggering JavaScript's garbage collector.
 
-Note what this _doesn't_ mean: the render walk, hit-testing, and accessibility-sync passes are each still an $O(N)$ traversal per frame — these techniques make each node's own cost close to constant, not the total traversal cost. The main lever for large scenes is `renderMode: 'onDemand'` (skip the traversal entirely when nothing changed), covered in the [Performance guide](./performance.md).
+Note what this _doesn't_ mean: the render walk, hit-testing, and accessibility-sync passes are each still an $O(N)$ traversal per frame — these techniques make each node's own cost close to constant, not the total traversal cost. The main lever for large scenes is `renderMode: 'onDemand'` (skip the traversal entirely when nothing changed), covered in the [Performance guide](/learn/performance/).
 
 ---
 
@@ -243,7 +243,7 @@ $$i = \left\lfloor \frac{x}{S} \right\rfloor, \quad j = \left\lfloor \frac{y}{S}
 
 These grid coordinates are mapped to a single 1D bucket key using a [Cantor pairing function](https://en.wikipedia.org/wiki/Pairing_function), with negative coordinates folded into the non-negative domain first:
 
-$$x = \begin{cases} 2i & i \geq 0 \\ -2i - 1 & i < 0 \end{cases} \qquad y = \begin{cases} 2j & j \geq 0 \\ -2j - 1 & j < 0 \end{cases}$$
+$$x = \begin{cases} 2i & i \geq 0 \\\\ -2i - 1 & i < 0 \end{cases} \qquad y = \begin{cases} 2j & j \geq 0 \\\\ -2j - 1 & j < 0 \end{cases}$$
 
 $$H(i, j) = \frac{(x + y)(x + y + 1)}{2} + y$$
 
@@ -253,7 +253,7 @@ Buckets live in a plain `Map`, not a fixed-capacity table — there's no modulus
 
 - **Viewport Culling**: Instead of checking every entity, the engine queries the hash cells intersecting the viewport bounds. Offscreen entities are skipped entirely.
 - **Hit-Testing**: A mouse hover only tests collision against entities in the cell containing the cursor and its immediate neighbors.
-- _Result_: Spatial query time is reduced from **$O(N)$** to **$O(k)$ average complexity**, where $k$ is the entity count in the queried cells — this assumes entities are roughly evenly distributed for your chosen cell size $S$. A bucket doesn't degrade gracefully if entities cluster heavily into it; see the [Performance guide](./performance.md#3-sea-of-entities-interaction-on2-complexity-catastrophe) for what to do about that.
+- _Result_: Spatial query time is reduced from **$O(N)$** to **$O(k)$ average complexity**, where $k$ is the entity count in the queried cells — this assumes entities are roughly evenly distributed for your chosen cell size $S$. A bucket doesn't degrade gracefully if entities cluster heavily into it; see the [Performance guide](/learn/performance/#3-sea-of-entities-interaction-on2-complexity-catastrophe) for what to do about that.
 
 ---
 
