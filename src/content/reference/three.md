@@ -190,7 +190,10 @@ window.addEventListener('unload', () => adapter.dispose());
 
 The constructor monkey-patches `vectoScene.render` to set `texture.needsUpdate = true` after each VectoJS frame. Three.js then uploads the canvas to the GPU on the next `renderer.render()` call. No polling or manual sync is required.
 
-Hit events dispatched by `updateIntersection` are forwarded to the entity's accessibility DOM element when one exists (which routes them through the a11y shadow layer and fires `click`/`change` on interactive components), or directly as `VectoJSEvent` objects otherwise.
+Hit events dispatched by `updateIntersection` are forwarded to the entity's accessibility DOM element when one exists **and is connected to a live document** (which routes them through the a11y shadow layer and fires `click`/`change` on interactive components), or directly as `VectoJSEvent` objects otherwise.
+
+> [!NOTE]
+> In practice, this means `ThreeAdapter` panels always take the direct `VectoJSEvent` path, never the a11y-DOM path. The adapter's canvas is offscreen by design (it's rendered into a texture, never inserted into the page), so `@vectojs/core`'s a11y shadow root is created but never attached to `document` — a11y elements exist but are permanently disconnected. `@vectojs/three@0.1.1+` correctly detects this and routes through the entity dispatch path instead of attempting a DOM dispatch a disconnected element can't safely receive (earlier versions dispatched to the detached element anyway, which could throw from native APIs like `setPointerCapture` inside a component's own event handlers). This doesn't affect `Toggle`/`Button` click interactions, which work the same either way — but it does mean a panel hosted in `ThreeAdapter` never gets real DOM focus/IME/screen-reader behavior for its projected elements, unlike the same components rendered in a normal, DOM-attached `@vectojs/core` scene.
 
 ---
 
