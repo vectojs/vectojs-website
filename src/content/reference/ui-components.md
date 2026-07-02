@@ -7,7 +7,7 @@ order: 2
 # `@vectojs/ui` — Component Reference
 
 > Reusable high-level components for the VectoJS zero-DOM Canvas engine.
-> Version documented: **0.1.0**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
+> Version documented: **0.1.1**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
 
 Every component is a leaf or container in the Virtual Math Tree (VMT). Nothing here is real DOM — components draw themselves to a Canvas via an `IRenderer`. Accessibility, agent automation, and crawlability come from a parallel **A11y Shadow DOM**: when a component is `interactive`, the `Scene` projects a single hidden, transparent real DOM node positioned over the component's box, built from `getA11yAttributes()`. That is why `page.getByRole('button', { name })` / `fill()` / screen readers work against a pure-Canvas UI.
 
@@ -534,28 +534,254 @@ Canvas-native data grid: header row + body rows with grid borders and custom col
 
 ---
 
+### `RadioGroup`
+
+```ts
+new RadioGroup(opts: RadioGroupOptions)
+
+interface RadioGroupOptions {
+  options: RadioOption[];
+  value?: string;
+  direction?: 'horizontal' | 'vertical';
+  gap?: number;
+  size?: number;
+  font?: string;
+  color?: string;
+  accent?: string;
+  border?: string;
+  onChange?: (value: string) => void;
+}
+
+interface RadioOption {
+  value: string;
+  label: string;
+  disabled?: boolean;
+}
+```
+
+A mutually exclusive group of radio choices. Fully accessible via `{ role: 'radiogroup' }`. Standardized `'change'` event payload carries `{ value }`.
+
+---
+
+### `Tabs`
+
+```ts
+new Tabs(opts: TabsOptions)
+
+interface TabsOptions {
+  tabs: TabItem[];
+  value?: string;
+  width: number;
+  height: number;
+  tabHeight?: number;
+  font?: string;
+  color?: string;
+  selectedColor?: string;
+  borderColor?: string;
+  onChange?: (value: string) => void;
+}
+
+interface TabItem {
+  id: string;
+  label: string;
+  content: Entity;
+}
+```
+
+A tab selection container. Auto-mounts the active tab's content view and translates it inside the remaining space. Projects `{ role: 'tablist' }` for accessibility. Standardized `'change'` event payload carries `{ value }`.
+
+---
+
+### `ProgressBar`
+
+```ts
+new ProgressBar(opts?: ProgressBarOptions)
+
+interface ProgressBarOptions {
+  value: number; // 0..1
+  width?: number;
+  height?: number;
+  radius?: number;
+  bg?: string;
+  accent?: string;
+  showText?: boolean;
+  font?: string;
+  color?: string;
+}
+```
+
+Progress bar displaying progress tracks. Centered text options available. Projects `{ role: 'progressbar', value }` for accessibility.
+
+- `setValue(value: number): void` — Update the value with safety bounds checks.
+
+---
+
+### `Overlay`
+
+```ts
+new Overlay(opts: OverlayOptions)
+
+interface OverlayOptions {
+  target: Entity;
+  content: Entity;
+  placement?: Placement; // 'top' | 'bottom' | 'left' | 'right' | 'top-start' | etc.
+  offset?: number;       // distance in px, default 8
+  autoFlip?: boolean;    // auto-adjust direction if out of viewport boundary
+}
+```
+
+Floating positioning layer engine. Projects no accessibility node natively.
+
+---
+
+### `Tooltip`
+
+```ts
+new Tooltip(opts: TooltipOptions)
+
+interface TooltipOptions {
+  target: Entity;
+  content: string;
+  placement?: Placement;
+  delay?: number; // ms before showing, default 300
+}
+```
+
+Floating hover tooltip helper. Projects tooltip container on hover relative to target.
+
+---
+
+### `Popover`
+
+```ts
+new Popover(opts: PopoverOptions)
+
+interface PopoverOptions {
+  target: Entity;
+  width: number;
+  height: number;
+  placement?: Placement;
+  offset?: number;
+}
+```
+
+Floating click popover panel. Clicking target shows the popover, clicking outside automatically hides it.
+
+---
+
+### `ContextMenu`
+
+```ts
+new ContextMenu(opts: ContextMenuOptions)
+
+interface ContextMenuOptions {
+  items: ContextMenuItem[];
+  width?: number;
+}
+
+type ContextMenuItem =
+  | { label: string; icon?: string; shortcut?: string; disabled?: boolean; onClick?: () => void; children?: ContextMenuItem[] }
+  | { separator: true };
+```
+
+Right-click triggered menu component. Supports icons, shortcuts, dividers, and recursive submenus.
+
+- `showAtPoint(x: number, y: number): void` — Displays the menu at a global screen position.
+
+---
+
+### `VirtualList`
+
+```ts
+new VirtualList(opts: VirtualListOptions)
+
+interface VirtualListOptions {
+  width: number;
+  height: number;
+  itemHeight: number | ((idx: number) => number);
+  itemRenderer: (idx: number) => Entity;
+}
+```
+
+Scrolling list container optimized for high-performance rendering. Only instantiates/renders items currently within the viewport bounds.
+
+---
+
+### `TreeView`
+
+```ts
+new TreeView(opts: TreeViewOptions)
+
+interface TreeViewOptions {
+  nodes: TreeNode[];
+}
+
+interface TreeNode {
+  id: string;
+  label: string;
+  children?: TreeNode[] | (() => Promise<TreeNode[]>);
+}
+```
+
+A nested tree navigator. Supports synchronous children array or asynchronous lazy-loading function resolvers.
+
+---
+
+### `ResizablePanel`
+
+```ts
+new PanelGroup(opts: PanelGroupOptions)
+new Panel(opts: PanelOptions)
+new PanelResizeHandle()
+
+interface PanelGroupOptions {
+  direction: 'horizontal' | 'vertical';
+  width: number;
+  height: number;
+}
+
+interface PanelOptions {
+  minSize?: number;
+  defaultSize?: number; // fraction
+}
+```
+
+A resizable split pane system.
+
+---
+
 ## Quick index
 
-| Component    | Constructor                     | Shadow node / role               |
-| ------------ | ------------------------------- | -------------------------------- |
-| `Text`       | `(text, opts?)`                 | `div` (name = text)              |
-| `RichText`   | `(spans, opts?)`                | `div` + per-link `<a>` hotspots  |
-| `Button`     | `(label, opts?)`                | `button` role=button             |
-| `Link`       | `(label, opts)`                 | `a[href]`                        |
-| `Image`      | `(src, opts)`                   | `img[src,alt]`                   |
-| `Card`       | `(opts)`                        | none, or role=group with `label` |
-| `Stack`      | `(opts?)`                       | none (structural)                |
-| `Flow`       | `(opts?)`                       | none (structural)                |
-| `Input`      | `(opts)`                        | transparent `input`              |
-| `TextArea`   | `(opts)`                        | transparent `textarea`           |
-| `Checkbox`   | `(opts)`                        | `input[type=checkbox]`           |
-| `Toggle`     | `(opts)`                        | role=switch                      |
-| `Slider`     | `(props?)`                      | role=slider                      |
-| `Dropdown`   | `(options, props?)`             | role=combobox + listbox/option   |
-| `ScrollView` | `(opts)`                        | content viewport                 |
-| `Modal`      | `(title, props?)`               | overlay (backdrop + card)        |
-| `Markdown`   | `(text, opts?)`                 | subtree of the above             |
-| `CodeBlock`  | `(code, lang, maxWidth, theme)` | none (decorative)                |
-| `Table`      | `(opts)`                        | role=grid                        |
+| Component     | Constructor                     | Shadow node / role               |
+| ------------- | ------------------------------- | -------------------------------- |
+| `Text`        | `(text, opts?)`                 | `div` (name = text)              |
+| `RichText`    | `(spans, opts?)`                | `div` + per-link `<a>` hotspots  |
+| `Button`      | `(label, opts?)`                | `button` role=button             |
+| `Link`        | `(label, opts)`                 | `a[href]`                        |
+| `Image`       | `(src, opts)`                   | `img[src,alt]`                   |
+| `Card`        | `(opts)`                        | none, or role=group with `label` |
+| `Stack`       | `(opts?)`                       | none (structural)                |
+| `Flow`        | `(opts?)`                       | none (structural)                |
+| `Input`       | `(opts)`                        | transparent `input`              |
+| `TextArea`    | `(opts)`                        | transparent `textarea`           |
+| `Checkbox`    | `(opts)`                        | `input[type=checkbox]`           |
+| `Toggle`      | `(opts)`                        | role=switch                      |
+| `Slider`      | `(props?)`                      | role=slider                      |
+| `Dropdown`    | `(options, props?)`             | role=combobox + listbox/option   |
+| `RadioGroup`  | `(opts)`                        | role=radiogroup                  |
+| `Tabs`        | `(opts)`                        | role=tablist                     |
+| `ProgressBar` | `(opts?)`                       | role=progressbar                 |
+| `Overlay`     | `(opts)`                        | none (structural)                |
+| `Tooltip`     | `(opts)`                        | tooltip                          |
+| `Popover`     | `(opts)`                        | popover panel                    |
+| `ContextMenu` | `(opts)`                        | context menu list                |
+| `VirtualList` | `(opts)`                        | viewport scroll                  |
+| `TreeView`    | `(opts)`                        | tree node view                   |
+| `PanelGroup`  | `(opts)`                        | resizable group                  |
+| `ScrollView`  | `(opts)`                        | content viewport                 |
+| `Modal`       | `(title, props?)`               | overlay (backdrop + card)        |
+| `Markdown`    | `(text, opts?)`                 | subtree of the above             |
+| `CodeBlock`   | `(code, lang, maxWidth, theme)` | none (decorative)                |
+| `Table`       | `(opts)`                        | role=grid                        |
 
 > `Slider`, `Dropdown`, and `Modal` accept loosely-typed (`any`) props in the published `.d.ts`; the option tables above are derived from their source constructors and are the accurate contract.

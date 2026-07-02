@@ -70,9 +70,25 @@ card.add(toggle.setPosition(24, 24));
 scene.add(card.setPosition(100, 100));
 ```
 
+### `ResizablePanel`
+
+A split-panel layout system allowing nested resizing splits (both horizontal and vertical):
+
+```typescript
+import { PanelGroup, Panel, PanelResizeHandle } from '@vectojs/ui';
+
+const group = new PanelGroup({ direction: 'horizontal', width: 600, height: 400 });
+const leftPanel = new Panel({ minSize: 100, defaultSize: 0.3 });
+const rightPanel = new Panel({ minSize: 150 });
+
+group.addPanel(leftPanel);
+group.addPanel(rightPanel);
+scene.add(group);
+```
+
 ## Form Controls
 
-All form controls project a real, transparent shadow DOM node. Agents and screen readers interact through those native elements; the canvas renders the visuals.
+All form controls project a real, transparent shadow DOM node. Agents and screen readers interact through those native elements; the canvas renders the visuals. All form controls have standardized `change` event binding and `onChange` callback execution.
 
 ### `Button`
 
@@ -121,7 +137,7 @@ const toggle = new Toggle({
 });
 ```
 
-Projects `role="switch"` with `aria-checked`. Both canvas clicks and keyboard activation (Enter/Space on the shadow div) route through the same `onChange` callback.
+Projects `role="switch"` with `aria-checked`. Both canvas clicks and keyboard activation route through the `onChange` callback.
 
 ### `Checkbox`
 
@@ -137,6 +153,41 @@ const cb = new Checkbox({
 ```
 
 Backed by `<input type="checkbox">` — natively toggleable by keyboard and assistive tech.
+
+### `RadioGroup`
+
+Mutually exclusive option selections with custom check circles and hover states:
+
+```typescript
+import { RadioGroup } from '@vectojs/ui';
+
+const radio = new RadioGroup({
+  options: [
+    { value: 'light', label: 'Light Mode' },
+    { value: 'dark', label: 'Dark Mode' },
+  ],
+  value: 'dark',
+  onChange: (val) => setTheme(val),
+});
+```
+
+### `Tabs`
+
+A tabbed interface container that dynamically mounts and unmounts child entities:
+
+```typescript
+import { Tabs } from '@vectojs/ui';
+
+const tabs = new Tabs({
+  width: 400,
+  height: 300,
+  tabs: [
+    { id: 'tab1', label: 'Tab 1', content: pane1 },
+    { id: 'tab2', label: 'Tab 2', content: pane2 },
+  ],
+  onChange: (tabId) => console.log('Active tab:', tabId),
+});
+```
 
 ### `Slider`
 
@@ -201,7 +252,99 @@ const rich = new RichText(
 
 For streaming: use `appendSpans(newSpans)` — O(changed paragraph).
 
-## Overlays
+## Overlays & Viewports
+
+### `Overlay`
+
+Base class for absolute positioning overlays. Anchors floating content relative to target entities with automatic viewport collision detection and directional flipping:
+
+```typescript
+import { Overlay } from '@vectojs/ui';
+
+const overlay = new Overlay({
+  target: button,
+  content: popoverCard,
+  placement: 'bottom-start',
+});
+```
+
+### `Tooltip`
+
+Hover-triggered labels anchored relative to target entities:
+
+```typescript
+import { Tooltip } from '@vectojs/ui';
+
+const tooltip = new Tooltip({
+  target: helpIcon,
+  content: 'More information',
+  delay: 200,
+});
+```
+
+### `Popover`
+
+Click-triggered overlays containing arbitrary child layout content:
+
+```typescript
+import { Popover } from '@vectojs/ui';
+
+const popover = new Popover({
+  target: settingsButton,
+  width: 200,
+  height: 150,
+});
+```
+
+### `ContextMenu`
+
+Right-click triggered menus supporting keyboard shortcuts, icons, separators, and nested submenus:
+
+```typescript
+import { ContextMenu } from '@vectojs/ui';
+
+const menu = new ContextMenu({
+  items: [
+    { label: 'Undo', shortcut: 'Ctrl+Z', onClick: () => undo() },
+    { separator: true },
+    { label: 'Settings', children: [{ label: 'Export', onClick: () => export() }] }
+  ]
+});
+scene.add(menu);
+```
+
+### `VirtualList`
+
+A high-performance list container that only renders elements in the viewport, supporting fixed and variable row heights:
+
+```typescript
+import { VirtualList } from '@vectojs/ui';
+
+const list = new VirtualList({
+  width: 300,
+  height: 500,
+  itemHeight: (idx) => measuredHeights[idx], // or number for fixed heights
+  itemRenderer: (idx) => createListItemEntity(idx),
+});
+```
+
+### `TreeView`
+
+A directory-style tree node navigator. Supports lazy-loading child items asynchronously on node expansion:
+
+```typescript
+import { TreeView } from '@vectojs/ui';
+
+const tree = new TreeView({
+  nodes: [
+    {
+      id: 'src',
+      label: 'src',
+      children: async () => [{ id: 'index.ts', label: 'index.ts' }],
+    },
+  ],
+});
+```
 
 ### `Modal`
 
@@ -257,6 +400,19 @@ scene.add(md);
 for await (const token of llmStream) {
   md.appendMarkdown(token);
 }
+```
+
+### `ProgressBar`
+
+A visual progress indicator track:
+
+```typescript
+import { ProgressBar } from '@vectojs/ui';
+
+const progress = new ProgressBar({
+  value: 0.45,
+  showText: true,
+});
 ```
 
 <figure>
