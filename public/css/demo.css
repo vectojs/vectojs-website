@@ -1066,3 +1066,9 @@ body.immersive-lock {
   color: var(--text-muted);
   background: #04060d;
 }
+.dimension-fallback[hidden] {
+  /* The class's own `display: flex` above beats the UA `[hidden] { display: none }`
+     rule (author origin always wins ties), so the WebGL-unavailable message would
+     stay visible over the canvas even while `hidden` is true. Restate it explicitly. */
+  display: none;
+}
