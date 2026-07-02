@@ -156,7 +156,7 @@ Backed by `<input type="checkbox">` — natively toggleable by keyboard and assi
 
 ### `RadioGroup`
 
-Mutually exclusive option selections with custom check circles and hover states:
+Mutually exclusive option selections rendered as labeled circles. Supports keyboard navigation (arrow keys cycle options) and fires an `onChange` callback on selection.
 
 ```typescript
 import { RadioGroup } from '@vectojs/ui';
@@ -164,30 +164,69 @@ import { RadioGroup } from '@vectojs/ui';
 const radio = new RadioGroup({
   options: [
     { value: 'light', label: 'Light Mode' },
-    { value: 'dark', label: 'Dark Mode' },
+    { value: 'dark', label: 'Dark Mode', disabled: false },
+    { value: 'system', label: 'System Default' },
   ],
-  value: 'dark',
+  value: 'dark', // initially selected value
+  gap: 28, // vertical spacing between options, default 28
+  color: '#e2e8f0', // label text color
+  accent: '#00f0ff', // fill color for the selected circle
   onChange: (val) => setTheme(val),
 });
+scene.add(radio.setPosition(40, 40));
 ```
+
+Key options:
+
+| Option     | Type                  | Default     | Description                            |
+| ---------- | --------------------- | ----------- | -------------------------------------- |
+| `options`  | `RadioOption[]`       | —           | Array of `{ value, label, disabled? }` |
+| `value`    | `string`              | `''`        | Initially selected value               |
+| `gap`      | `number`              | `28`        | Vertical gap between rows              |
+| `accent`   | `string`              | `'#00f0ff'` | Selected circle fill                   |
+| `onChange` | `(v: string) => void` | —           | Callback on selection change           |
+
+Call `radio.setValue(val)` at any time to programmatically change the selection. Projects `role="radiogroup"` with individual `role="radio"` + `aria-checked` on each option.
 
 ### `Tabs`
 
-A tabbed interface container that dynamically mounts and unmounts child entities:
+A tabbed panel container — renders a horizontal tab bar and mounts only the active pane's `Entity` into the scene. Switching tabs unmounts the previous pane and mounts the next, keeping the VMT minimal.
 
 ```typescript
 import { Tabs } from '@vectojs/ui';
 
+const settingsPane = new Stack({ direction: 'vertical', gap: 12 });
+const previewPane = new Stack({ direction: 'vertical', gap: 12 });
+
 const tabs = new Tabs({
-  width: 400,
-  height: 300,
+  width: 500,
+  height: 360,
   tabs: [
-    { id: 'tab1', label: 'Tab 1', content: pane1 },
-    { id: 'tab2', label: 'Tab 2', content: pane2 },
+    { id: 'settings', label: 'Settings', content: settingsPane },
+    { id: 'preview', label: 'Preview', content: previewPane },
   ],
+  activeTabId: 'settings', // default: first tab
+  tabHeight: 36, // height of the tab bar, default 36
+  selectedColor: '#00f0ff', // active tab underline / text color
   onChange: (tabId) => console.log('Active tab:', tabId),
 });
+scene.add(tabs.setPosition(20, 20));
+
+// Switch tab programmatically:
+tabs.setActiveTab('preview');
 ```
+
+Key options:
+
+| Option          | Type                   | Default     | Description                      |
+| --------------- | ---------------------- | ----------- | -------------------------------- |
+| `tabs`          | `TabItem[]`            | —           | `{ id, label, content: Entity }` |
+| `activeTabId`   | `string`               | first tab   | Initially visible tab            |
+| `tabHeight`     | `number`               | `36`        | Pixel height of the bar row      |
+| `selectedColor` | `string`               | `'#00f0ff'` | Active tab accent color          |
+| `onChange`      | `(id: string) => void` | —           | Fires on tab switch              |
+
+Projects `role="tablist"` on the bar and `role="tab"` + `aria-selected` on each button. The content area gets `role="tabpanel"`.
 
 ### `Slider`
 
@@ -404,16 +443,39 @@ for await (const token of llmStream) {
 
 ### `ProgressBar`
 
-A visual progress indicator track:
+A read-only progress indicator — renders a rounded track background and a filled accent bar proportional to `value`. Optionally displays a centered percentage label.
 
 ```typescript
 import { ProgressBar } from '@vectojs/ui';
 
 const progress = new ProgressBar({
-  value: 0.45,
-  showText: true,
+  value: 0.45, // 0–1 fraction
+  width: 300,
+  height: 16,
+  showText: true, // render '45%' centered
+  accent: '#00f0ff', // fill color
 });
+scene.add(progress.setPosition(40, 40));
+
+// Update during an async operation:
+for await (const chunk of stream) {
+  progress.setValue(bytesReceived / totalBytes);
+}
 ```
+
+Key options:
+
+| Option     | Type      | Default                   | Description               |
+| ---------- | --------- | ------------------------- | ------------------------- |
+| `value`    | `number`  | —                         | Progress fraction `0`–`1` |
+| `width`    | `number`  | `200`                     | Total track width         |
+| `height`   | `number`  | `16`                      | Track height              |
+| `radius`   | `number`  | `8`                       | Corner radius             |
+| `bg`       | `string`  | `'rgba(255,255,255,0.1)'` | Track background          |
+| `accent`   | `string`  | `'#00f0ff'`               | Filled bar color          |
+| `showText` | `boolean` | `false`                   | Show `"45%"` label        |
+
+Call `progress.setValue(fraction)` to update — the value is clamped to `[0, 1]` and only triggers a redraw when the value actually changes. Projects `role="progressbar"` with `aria-valuenow` set to the rounded percentage.
 
 <figure>
   <img src="/images/component-gallery.svg" alt="VectoJS component gallery showing Button, Text, Input, Card, ScrollView, Slider, Toggle, Checkbox, and Dropdown" class="diagram" />
