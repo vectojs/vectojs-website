@@ -73,7 +73,7 @@ function initDimension(): void {
     opacity: 0.75,
     depthWrite: false,
   });
-  let particles = new THREE.Points(new THREE.BufferGeometry(), particleMaterial);
+  const particles = new THREE.Points(new THREE.BufferGeometry(), particleMaterial);
   const rebuildParticles = (count: number): void => {
     const geo = new THREE.BufferGeometry();
     geo.setAttribute(
@@ -101,55 +101,9 @@ function initDimension(): void {
   };
   window.addEventListener('resize', () => requestAnimationFrame(fit));
 
-  // ---- render loop ----
-  let raf = 0;
-  let last = performance.now();
-  const frame = (now: number): void => {
-    const dt = now - last; // frame delta, drives the panel spin below
-    last = now;
-    meter.update(dt);
-    controls.autoRotate = state.autoOrbit;
-    controls.update();
-    grid.visible = state.grid;
-    if (state.spin) adapter.mesh.rotation.y += dt * 0.0006;
-    refreshHover();
-    renderer.render(scene, camera);
-    raf = requestAnimationFrame(frame);
-  };
-  const start = (): void => {
-    if (!raf) {
-      last = performance.now();
-      raf = requestAnimationFrame(frame);
-    }
-  };
-  const stop = (): void => {
-    if (raf) {
-      cancelAnimationFrame(raf);
-      raf = 0;
-    }
-  };
-
-  fit();
-  start();
-
-  // ---- pause when off-screen / tab hidden (per graph.ts) ----
-  let visible = true;
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(
-      (entries) => {
-        visible = entries[entries.length - 1].isIntersecting;
-        if (visible) start();
-        else stop();
-      },
-      { threshold: 0.01 },
-    ).observe(stage);
-  }
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) stop();
-    else if (visible) start();
-  });
-
   // ---- the floating VectoJS panel (ThreeAdapter) ----
+  // Built before the render loop below, which references it — the panel's own
+  // rAF is brought up/down in lockstep with the outer loop via start()/stop().
   const PANEL_W = 512;
   const PANEL_H = 320;
   const adapter = new ThreeAdapter({ width: PANEL_W, height: PANEL_H });
@@ -220,19 +174,18 @@ function initDimension(): void {
   panel.add(spinToggle);
   panel.setPosition(40, 36);
   adapter.vectoScene.add(panel);
-  adapter.vectoScene.start(); // drives the panel's own inner rAF → texture.needsUpdate
 
   // ---- pointer → raycaster → adapter, using the canvas's own rect (NOT window) ----
   const raycaster = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
-  const setNdc = (e: PointerEvent | WheelEvent): void => {
+  const setNdc = (e: MouseEvent | WheelEvent): void => {
     const r = canvas.getBoundingClientRect();
     ndc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
     ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
   };
   const forward = (
     type: 'pointerdown' | 'pointerup' | 'pointermove' | 'wheel' | 'click',
-    e: PointerEvent | WheelEvent,
+    e: MouseEvent | WheelEvent,
   ): boolean => {
     setNdc(e);
     raycaster.setFromCamera(ndc, camera);
@@ -249,15 +202,62 @@ function initDimension(): void {
     forward('pointerup', e);
     controls.enabled = true;
   });
-  canvas.addEventListener('click', (e) => forward('click', e as unknown as PointerEvent));
+  canvas.addEventListener('click', (e) => forward('click', e));
   canvas.addEventListener('wheel', (e) => forward('wheel', e), { passive: true });
 
-  // Re-raycast each frame so hover stays correct as the camera orbits under a still
-  // cursor (updateIntersection no-ops when the hit target hasn't changed).
-  const refreshHover = (): void => {
-    raycaster.setFromCamera(ndc, camera);
-    adapter.updateIntersection(raycaster, 'pointermove');
+  // ---- render loop ----
+  // The panel is genuinely idle between interactions: nothing here marks the
+  // inner vectoScene dirty on its own, so it only re-renders (and re-uploads the
+  // texture) in response to an actual click/toggle/pointer event reaching it —
+  // matching the "comparatively idle" premise the panel is designed around.
+  let raf = 0;
+  let last = performance.now();
+  const frame = (now: number): void => {
+    const dt = now - last; // frame delta, drives the panel spin below
+    last = now;
+    meter.update(dt);
+    controls.autoRotate = state.autoOrbit;
+    controls.update();
+    grid.visible = state.grid;
+    if (state.spin) adapter.mesh.rotation.y += dt * 0.0006;
+    renderer.render(scene, camera);
+    raf = requestAnimationFrame(frame);
   };
+  const start = (): void => {
+    if (!raf) {
+      last = performance.now();
+      raf = requestAnimationFrame(frame);
+      adapter.vectoScene.start();
+    }
+  };
+  const stop = (): void => {
+    if (raf) {
+      cancelAnimationFrame(raf);
+      raf = 0;
+      adapter.vectoScene.stop();
+    }
+  };
+
+  fit();
+  start();
+
+  // ---- pause when off-screen / tab hidden (per graph.ts); pauses both the outer
+  // Three.js loop and the panel's own inner vectoScene loop together ----
+  let visible = true;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(
+      (entries) => {
+        visible = entries[entries.length - 1].isIntersecting;
+        if (visible) start();
+        else stop();
+      },
+      { threshold: 0.01 },
+    ).observe(stage);
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stop();
+    else if (visible) start();
+  });
 
   // ---- HUD ----
   const set = (id: string, v: string): void => {
