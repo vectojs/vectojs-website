@@ -42,7 +42,7 @@ Through our **Hybrid Indexed Structure**, each pillar is linked to both its rigo
 
 ### 1. The Virtual Math Tree (VMT)
 
-The core tree architecture replacing the traditional browser DOM. It is a pure in-memory, algebraic scene graph of positioned localized coordinate systems. In the VMT, UI hierarchy, transform cascades, and drawing states are entirely resolved as contiguous data models in memory, resulting in Zero-GC pressure and constant-time layout traversal even with over 100,000 active nodes.
+The core tree architecture replacing the traditional browser DOM. It is a pure in-memory, algebraic scene graph of positioned localized coordinate systems. In the VMT, UI hierarchy, transform cascades, and drawing states are entirely resolved as contiguous data models in memory, resulting in Zero-GC pressure and near-constant per-node cost even at over 100,000 active nodes. (The traversal itself is still $O(N)$ per frame — see [Performance](./performance.md) for how `renderMode: 'onDemand'` avoids paying that cost on unchanged frames.)
 
 - 📖 **Mathematical Theory**: [Mathematical Foundations: VMT](./math-foundations.md#1-the-virtual-math-tree-vmt)
 - 🛠️ **Practical Implementation**: [Core Scene Architecture Guide](./core-scene.md)

@@ -148,7 +148,7 @@ for (const ball of balls) {
 grid.clear(); // call once per frame before re-inserting
 ```
 
-The hash grid is exactly what the `ComputeParticleEntity` uses internally for its CPU simulation path. For very large counts (50k+), consider the WebGPU compute path instead.
+Use this pattern yourself when you need real neighbor interaction (ball-vs-ball collision, flocking, repulsion between entities). Note that `ComputeParticleEntity` does **not** use `SpatialHashGrid` internally — its simulation (GPU or CPU) only computes forces relative to fixed points (spring origin, mouse, explosion center), not entity-vs-entity. If you need both high particle counts _and_ real neighbor interaction, you're combining two things the engine doesn't do for you together: you'd run your own `SpatialHashGrid`-based neighbor query on the CPU (as above), or write a custom WGSL compute pass with a neighbor query baked in for the GPU path.
 
 > [!WARNING]
 > Rebuild the hash grid every frame. Stale grid data from a previous frame will produce incorrect neighbor queries and phantom collisions.

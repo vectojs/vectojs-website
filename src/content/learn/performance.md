@@ -239,16 +239,20 @@ VectoJS addresses these computation bottlenecks from first principles by providi
 
 ---
 
-### 1. High-Density Physics & Particle Simulations ($N$-Body Computation)
+### 1. High-Density Particle Simulations (Per-Particle, Not N-Body)
 
-**The Bottleneck**: Simulating spring physics, mouse gravity attraction, or inter-particle collision queries for thousands of entities inside Javascript's main thread is computationally prohibitive. At $N = 10,000$ particles, the naive $O(N^2)$ distance query or even standard $O(N)$ integrations will saturate a single CPU thread, causing frame rates to collapse well below 60 FPS.
+**The Bottleneck**: Simulating spring physics or mouse-gravity attraction for thousands of entities inside JavaScript's main thread is computationally prohibitive. At $N = 10,000$ particles, even a straightforward $O(N)$ per-frame integration will saturate a single CPU thread, causing frame rates to collapse well below 60 FPS.
 
 **The Escape Hatch: WebGPU Compute Shaders (`ComputeParticleEntity`)**
 To bypass CPU execution entirely, VectoJS provides `ComputeParticleEntity`. Under the hood:
 
 - The physics equations (Euler integration, spring tension, and field attraction forces) are compiled into **WGSL (WebGPU Shading Language) Compute Shaders**.
 - At runtime, the data remains resident on GPU VRAM, allowing the WebGPU compute pass to parallelize the simulation across thousands of GPU cores.
-- This architecture offloads CPU calculation entirely to the GPU, enabling smooth 60 FPS simulations of **100,000 to 1,000,000 physical particles** concurrently.
+- The renderer falls back to an equivalent CPU loop (`updateCPU()`) automatically when WebGPU is unavailable or the device is lost.
+
+> [!IMPORTANT] > **This is not $N$-body simulation.** Each particle's force is computed relative to three _fixed_ points only — its spring origin, the mouse cursor, and an optional explosion center. There is no particle-vs-particle interaction and no spatial index involved, which is exactly what makes it embarrassingly parallel and GPU-friendly. If your simulation needs real neighbor interaction (particle-vs-particle collision or repulsion, flocking, N-body gravity), `ComputeParticleEntity` doesn't cover it — you'll need to write your own WGSL compute pass with a neighbor query baked in, or run `SpatialHashGrid`-based neighbor queries on the CPU (see [`SpatialHashGrid`](#3-sea-of-entities-interaction-on2-complexity-catastrophe) below, and the [Physics Engine guide](./physics-engine.md) for a worked CPU example). There is currently no generic "run arbitrary computation on GPU with CPU fallback" abstraction in the engine — `ComputeParticleEntity` is a specific, narrow implementation, not a reusable pattern.
+
+Throughput at the high end (100k+ particles) will depend heavily on your GPU and hasn't been benchmarked in this repo at that scale — treat published particle-count figures as architectural headroom, not a guaranteed number for your hardware. Measure your own scene with the **Export report** button (see [Measuring real performance](#measuring-real-performance) below).
 
 ---
 
@@ -256,12 +260,14 @@ To bypass CPU execution entirely, VectoJS provides `ComputeParticleEntity`. Unde
 
 **The Bottleneck**: Dynamic text layout is one of the most expensive CPU tasks in frontend engineering. It requires dictionary-based word tokenization (`Intl.Segmenter`), BiDi sorting, and browser-level font width measurements (calling the canvas `measureText` API). Attempting to calculate text layouts for tens of thousands of glyphs in a single frame (such as in financial terminals, active log streams, or data grids) will freeze the JS main thread on the "Cold Pass" measurement pipeline.
 
-**The Escape Hatch: Multi-Threaded Workers, Split Layouts & Zero-GC Memory**
+**The Escape Hatch: Off-Thread Layout, Split Layouts & Zero-GC Memory**
 VectoJS provides three levels of text optimization:
 
-- **Off-Thread Layouts (`LayoutWorkerManager`)**: Extremely expensive multi-line typographical layouts can be fully delegated to a pool of background Web Workers. The worker performs segmentation and glyph measurement on background threads, returning a serialized transform coordinate buffer to the main thread, keeping the main UI thread completely responsive.
+- **Off-Thread Layout (`LayoutWorkerManager`)**: Expensive multi-line typographical layout can be delegated to a background Web Worker, debounced per entity. The worker performs segmentation and glyph measurement off the main thread, returning a serialized transform coordinate buffer.
 - **Cold/Hot Separation**: VectoJS separates layouts into "Cold" (text parsing & glyph width measurement) and "Hot" (wrapping computations). When text wraps due to resize, the cold results are reused, avoiding all browser measurement APIs and bringing resize layout complexity to pure $O(\text{word count})$.
 - **Zero-GC TypedArray Buffers (`LayoutResultBuffer`)**: To prevent garbage collection (GC) pauses caused by allocating thousands of temporary layout node objects, developers can use the `LayoutResultBuffer` API. This writes layout coordinates directly into pre-allocated, flat TypedArrays, achieving zero heap allocations per frame.
+
+> [!IMPORTANT] > **`LayoutWorkerManager` is a single background thread, not a pool, and it's wired up for one component only.** It's used internally by `MSDFTextEntity` (the GPU/MSDF-font text primitive) — the default `@vectojs/ui` text components (`Text`, `RichText`) lay out synchronously on the main thread, Cold/Hot split and all. If you're rendering very high volumes of default-component text and hitting a wall, the Cold/Hot split and `LayoutResultBuffer` still apply, but you won't get off-thread layout for free — you'd need to build your own Worker offload, or switch to `MSDFTextEntity`. More generally: outside this one text-layout path, nothing else in the engine runs off the main thread today. VMT traversal, hit-testing, and spring physics are all synchronous.
 
 ---
 
@@ -270,12 +276,14 @@ VectoJS provides three levels of text optimization:
 **The Bottleneck**: When you have $100,000$ active nodes, calculating mouse hover selection or entity-to-entity collisions naively requires nested loops. Testing every element against every other element represents a classic $O(N^2)$ complexity catastrophe. For $100,000$ nodes, $O(N^2)$ means **10 billion operations per frame**—instantly crashing the browser tab.
 
 **The Escape Hatch: Spatial Hashing Grid (`SpatialHashGrid`)**
-To solve this, VectoJS indexes all entities using an ultra-fast **Spatial Hashing Grid**:
+To solve this, VectoJS indexes all entities using a **Spatial Hashing Grid**:
 
-- The 2D coordinate space is discretized into a dynamic hash table indexed by large primes.
+- The 2D coordinate space is discretized into cells of a fixed size you choose; cell coordinates are combined into a single bucket key via a [Cantor pairing function](https://en.wikipedia.org/wiki/Pairing_function), stored in a plain `Map` — not a fixed-capacity hash table.
 - For click detection, the engine only queries the single cell containing the pointer coordinates and its 8 immediate neighboring cells.
 - For local entity-to-entity interactions, elements only query their localized hash grid cells.
-- This algorithms-based optimization reduces culling, picking, and local physics complexity from **$O(N)$ or $O(N^2)$ to an average of $O(1)$**, maintaining constant-time operations regardless of total scene density.
+- This reduces culling, picking, and local physics complexity from **$O(N)$ or $O(N^2)$ to an average of $O(k)$**, where $k$ is however many entities land in the queried cells.
+
+> [!WARNING] > **There is no automatic mitigation for dense buckets.** `SpatialHashGrid` (and the independent spatial hash used by the Knowledge Graph demo) store each cell as a flat set with no internal structure — no adaptive cell sizing, no overflow chaining, no hierarchical/multi-resolution grid. The "$O(1)$ average" figure assumes a roughly uniform distribution of entities across cells for your chosen `cellSize`. If your data can cluster heavily — many entities landing in the same handful of cells (a crowd forming at one point, a zoomed-out view where thousands of nodes overlap a few pixels) — those cells degrade toward $O(k)$ linear scans, same as no index at all. There's no automatic escape hatch for that today: the only lever is picking a `cellSize` appropriate to your entities' size and expected density, and re-evaluating it if your data's clustering behavior changes. If you're building something where extreme, unpredictable clustering is a real possibility, budget for measuring worst-case bucket occupancy yourself rather than assuming the average case holds.
 
 ---
 
@@ -311,17 +319,17 @@ class BenchEntity extends Entity {
 
 ## Quick reference: which knob for which problem
 
-| Symptom                                 | Fix                                                                    |
-| --------------------------------------- | ---------------------------------------------------------------------- |
-| Scene throttles to 2 fps when idle      | Expected — use `markDirty()` between frames, not inside `update()`     |
-| Manually animated entity drops to 2 fps | Call `markDirty()` from an event handler or timer, not from `update()` |
-| Static UI wastes battery                | Switch to `renderMode: 'onDemand'`                                     |
-| 10k+ circles are slow                   | Add `pointBackend: 'webgl'` + implement `getBatchCircle()`             |
-| Offscreen entities waste CPU            | Implement `getBounds()` on the entity                                  |
-| DOM write overhead during animation     | Set `a11ySyncInterval: 100`                                            |
-| Text reflow on resize is slow           | Use `setMaxWidth()` instead of `setText()`                             |
-| 10k+ text glyphs cause GC pauses        | Use `LayoutResultBuffer` + `layoutPreparedIntoBuffer()`                |
-| FPS looks wrong in CI                   | Measure on real GPU hardware — headless is a floor                     |
-| 10k+ dynamic particles freeze CPU       | Use `ComputeParticleEntity` to offload physics simulation to WebGPU    |
-| Multi-line text reflow freezes thread   | Delegate layouts off-thread using `LayoutWorkerManager`                |
-| Sea of entities interaction is $O(N^2)$ | Implement a `SpatialHashGrid` to reduce complexity to average $O(1)$   |
+| Symptom                                 | Fix                                                                                                                       |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Scene throttles to 2 fps when idle      | Expected — use `markDirty()` between frames, not inside `update()`                                                        |
+| Manually animated entity drops to 2 fps | Call `markDirty()` from an event handler or timer, not from `update()`                                                    |
+| Static UI wastes battery                | Switch to `renderMode: 'onDemand'`                                                                                        |
+| 10k+ circles are slow                   | Add `pointBackend: 'webgl'` + implement `getBatchCircle()`                                                                |
+| Offscreen entities waste CPU            | Implement `getBounds()` on the entity                                                                                     |
+| DOM write overhead during animation     | Set `a11ySyncInterval: 100`                                                                                               |
+| Text reflow on resize is slow           | Use `setMaxWidth()` instead of `setText()`                                                                                |
+| 10k+ text glyphs cause GC pauses        | Use `LayoutResultBuffer` + `layoutPreparedIntoBuffer()`                                                                   |
+| FPS looks wrong in CI                   | Measure on real GPU hardware — headless is a floor                                                                        |
+| 10k+ dynamic particles freeze CPU       | Use `ComputeParticleEntity` to offload per-particle physics to WebGPU (fixed-point forces only, not neighbor interaction) |
+| Multi-line text reflow freezes thread   | Delegate `MSDFTextEntity` layout off-thread via `LayoutWorkerManager` (default `Text`/`RichText` stay on the main thread) |
+| Sea of entities interaction is $O(N^2)$ | Implement a `SpatialHashGrid` — reduces to average $O(k)$, not automatic under heavy clustering; size cells for your data |
