@@ -1,14 +1,9 @@
 ---
 title: 'Vertical or Horizontal: How VectoJS Breaks Frontend Ceilings'
 description: 'The history of frontend evolution has been one long horizontal patch. VectoJS asks a different question: what happens when you go vertical instead?'
-author: 'Xuepoo'
-date: '2026-07-02'
----
-
-# Vertical or Horizontal: How VectoJS Breaks Frontend Ceilings
-
-By Xuepoo
-
+date: 2026-07-02
+author: Xuepoo
+tags: [philosophy, architecture, performance]
 ---
 
 There is a phrase I keep returning to when people ask me why VectoJS exists:
