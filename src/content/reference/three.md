@@ -190,6 +190,10 @@ window.addEventListener('unload', () => adapter.dispose());
 
 The constructor monkey-patches `vectoScene.render` to set `texture.needsUpdate = true` after each VectoJS frame. Three.js then uploads the canvas to the GPU on the next `renderer.render()` call. No polling or manual sync is required.
 
+Raycast UV coordinates are mapped into the scene's **logical** coordinate space (`vectoScene.width`/`height` — the dimensions you passed to the constructor), not the offscreen canvas's physical backing-store size. The distinction matters on HiDPI displays: `@vectojs/core`'s `CanvasRenderer` scales the backing store by `devicePixelRatio` for crisp rendering (`canvas.width = logicalWidth × dpr`), while entity layout and hit-testing stay logical.
+
+> [!WARNING] > **On `@vectojs/three` ≤ 0.1.1, UV mapping used the physical canvas size** — so on any display or browser-zoom level where `devicePixelRatio ≠ 1`, every pointer event landed below/right of the cursor by exactly the DPR factor. The symptom is distinctive: clicks activate a control _further down the panel_ than the one under the cursor, with the offset growing the deeper into the panel the target sits — while behaving perfectly on DPR-1 displays and in headless test environments. Fixed in **0.1.2**; upgrade rather than working around it.
+
 Hit events dispatched by `updateIntersection` are forwarded to the entity's accessibility DOM element when one exists **and is connected to a live document** (which routes them through the a11y shadow layer and fires `click`/`change` on interactive components), or directly as `VectoJSEvent` objects otherwise.
 
 > [!NOTE]
@@ -320,15 +324,17 @@ Also verify that you are calling `createLinearGradient()` from `ThreeRenderer` (
 
 ### Text appears blurry on high-DPI displays
 
-`ThreeRenderer` sets `window.devicePixelRatio` automatically in its constructor. If you are using a custom `CanvasRenderer` (the default) via `ThreeAdapter`, verify that the offscreen canvas dimensions account for device pixel ratio:
+Do **not** pre-multiply the constructor dimensions by `window.devicePixelRatio` — `@vectojs/core`'s `CanvasRenderer` already scales the offscreen canvas's backing store by DPR internally (and pre-multiplying would double-scale the buffer while distorting your logical layout space). Browser-level DPR is handled for you.
+
+If panel text still looks soft, the cause is 3D projection, not DPR: the plane's on-screen area exceeds the texture's resolution (camera too close, or mesh scaled too large for the texture size). Increase the requested `width`/`height` — this raises the texture resolution _and_ gives the scene proportionally more logical layout room:
 
 ```ts
-const dpr = window.devicePixelRatio;
-const adapter = new ThreeAdapter({ width: logicalWidth * dpr, height: logicalHeight * dpr });
-adapter.mesh.scale.set(logicalWidth / 100, logicalHeight / 100, 1); // scale in world space
+// Sharper texture: more logical + physical pixels for the same world-space mesh size
+const adapter = new ThreeAdapter({ width: 1024, height: 640 });
+adapter.mesh.scale.set(3.2, 3.2 * (640 / 1024), 1); // world size unchanged; density doubled
 ```
 
-Then set `canvas.style.width` / `canvas.style.height` to logical pixels if the canvas is ever inserted into the DOM.
+Note that entity positions and font sizes are expressed in logical pixels, so doubling the constructor dimensions without adjusting layout leaves your UI occupying a quarter of the panel — scale positions and sizes along with it.
 
 ### Pointer events have no effect on VectoJS components
 

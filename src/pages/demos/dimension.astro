@@ -60,8 +60,9 @@ const demo = demoBySlug('dimension');
           <h4>Clicks raycast through the plane</h4>
           <p>
             A <code>Raycaster</code> turns each pointer event into a UV hit on the plane, which the adapter
-            maps back to canvas coordinates and dispatches into the 2D scene. Flip a toggle or click
-            a stepper button and the 3D world reacts — proof the UI is live, not a screenshot.
+            maps to the panel's logical layout coordinates (not the offscreen canvas's raw pixel buffer,
+            which is DPR-scaled) and dispatches into the 2D scene. Flip a toggle or click a stepper button
+            and the 3D world reacts — proof the UI is live, not a screenshot.
           </p>
         </div>
         <div class="explain-card">
