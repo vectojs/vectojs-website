@@ -64,6 +64,13 @@ export const DEMOS: DemoMeta[] = [
       'An infinite pan/zoom canvas mapping the VectoJS ecosystem — real packages and concepts as a labeled backbone, surrounded by thousands of satellite nodes. Static layout, WebGL-batched, where DOM/SVG graph libraries choke past a couple thousand nodes.',
     tag: 'Infinite canvas · Scale · Graph',
   },
+  {
+    slug: 'dimension',
+    title: 'Dimension',
+    description:
+      'A VectoJS control panel floating in real 3D space — drag to orbit, and every click is raycast through the plane into a fully interactive 2D UI underneath.',
+    tag: 'WebGL · Three.js · 3D',
+  },
 ];
 
 export const demoBySlug = (slug: string): DemoMeta => {

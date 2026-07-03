@@ -1,0 +1,82 @@
+---
+import Base from '../../layouts/Base.astro';
+import { demoBySlug, BUILD_ID } from '../../consts';
+const demo = demoBySlug('dimension');
+---
+
+<Base title={demo.title} description={demo.description}>
+  <link slot="head" rel="stylesheet" href={`/css/demo.css?v=${BUILD_ID}`} />
+  <section class="demo-wrap container">
+    <header class="demo-head">
+      <a class="demo-back" href="/demos/">← All demos</a>
+      <h1>{demo.title}</h1>
+      <p class="demo-lede">{demo.description}</p>
+    </header>
+
+    <div class="stage stage-dimension" id="stage" data-immersive>
+      <canvas id="dimension-canvas"></canvas>
+      <div class="hud">
+        <span>FPS <b id="hud-dimension-fps">60</b></span>
+        <span>Particles <b id="hud-dimension-particles">600</b></span>
+        <span>Camera <b id="hud-dimension-camera">manual</b></span>
+      </div>
+      <div class="nexus-hint">Drag to orbit · scroll to zoom · click the panel</div>
+      <div class="dimension-fallback" id="dimension-fallback" hidden>
+        WebGL isn't available in this browser, so the 3D scene can't render.
+      </div>
+    </div>
+
+    <div class="controls" id="controls">
+      <div class="ctl-actions">
+        <button id="ctl-report" type="button" class="report-btn">Export report</button>
+      </div>
+    </div>
+
+    <div class="report-panel" id="report-panel" hidden>
+      <div class="report-head">
+        <span>Performance report — real browser, real GPU</span>
+        <div class="report-actions">
+          <button type="button" data-report-copy>Copy JSON</button>
+          <button type="button" data-report-download>Download</button>
+          <button type="button" data-report-close aria-label="Close">✕</button>
+        </div>
+      </div>
+      <pre id="report-pre"></pre>
+    </div>
+
+    <section class="demo-explain">
+      <h2>What you're looking at</h2>
+      <div class="explain-grid">
+        <div class="explain-card explain-win">
+          <h4>A 2D UI on a 3D surface</h4>
+          <p>
+            The floating panel is a real VectoJS <code>Scene</code> drawn to an offscreen canvas and
+            mapped onto a plane as a texture by <code>@vectojs/three</code>'s
+            <code>ThreeAdapter</code>. It's the same components as every other demo — just projected
+            into 3D.
+          </p>
+        </div>
+        <div class="explain-card">
+          <h4>Clicks raycast through the plane</h4>
+          <p>
+            A <code>Raycaster</code> turns each pointer event into a UV hit on the plane, which the adapter
+            maps back to canvas coordinates and dispatches into the 2D scene. Flip a toggle or click
+            a stepper button and the 3D world reacts — proof the UI is live, not a screenshot.
+          </p>
+        </div>
+        <div class="explain-card">
+          <h4>Orbit all the way around</h4>
+          <p>
+            <code>OrbitControls</code> drives the camera a full 360°. The panel mesh uses
+            <code>DoubleSide</code> so it stays visible and clickable from behind, too.
+          </p>
+        </div>
+      </div>
+    </section>
+  </section>
+</Base>
+
+<script>
+  import '../../demos/dimension';
+  import '../../demos/immersive';
+</script>

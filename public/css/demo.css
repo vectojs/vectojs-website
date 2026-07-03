@@ -1042,3 +1042,33 @@ body.immersive-lock {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Dimension — 3D floating-panel demo */
+.stage-dimension {
+  background:
+    radial-gradient(1000px 700px at 50% 30%, rgba(37, 99, 235, 0.12), transparent 70%), #04060d;
+}
+#dimension-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.dimension-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  background: #04060d;
+}
+.dimension-fallback[hidden] {
+  /* The class's own `display: flex` above beats the UA `[hidden] { display: none }`
+     rule (author origin always wins ties), so the WebGL-unavailable message would
+     stay visible over the canvas even while `hidden` is true. Restate it explicitly. */
+  display: none;
+}
