@@ -20,6 +20,7 @@ import { buildLayout, CLUSTERS, type GraphLayout } from './graph/layout';
 import { SpatialHash } from './graph/spatial-hash';
 import { FrameMeter } from './frame-meter';
 import { keepSceneLive } from './keep-live';
+import { setupReporter } from './report';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T | null;
@@ -380,6 +381,26 @@ function initGraph(): void {
     if (out) out.textContent = Number(slider.value).toLocaleString();
   }
   $('ctl-graph-reset')?.addEventListener('click', centerView);
+
+  // ---- export a real-browser performance report ----
+  const reportBtn = $('ctl-graph-report');
+  const reportPanel = $('report-panel');
+  const reportPre = $('report-pre');
+  if (reportBtn && reportPanel && reportPre) {
+    setupReporter({
+      button: reportBtn,
+      panel: reportPanel,
+      pre: reportPre,
+      seconds: 4,
+      frameSampler: { start: () => meter.startSampling(), stop: () => meter.stopSampling() },
+      extra: () => ({
+        nodes: layout.nodes.length,
+        satellites: layout.nodes.filter((n) => n.kind === 'satellite').length,
+        edges: layout.edges.length,
+        zoom: zoom.toFixed(2),
+      }),
+    });
+  }
 
   // ---- init ----
   scene.resize(stage.clientWidth, stage.clientHeight);

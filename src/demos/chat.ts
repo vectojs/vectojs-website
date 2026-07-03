@@ -16,6 +16,8 @@ import { MessageView } from './chat/message-view';
 import { renderSpecial } from './chat/render-special';
 import { pacedTokens } from './chat/stream';
 import { SAMPLES } from './chat/corpus';
+import { FrameMeter } from './frame-meter';
+import { setupReporter } from './report';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T | null;
@@ -185,6 +187,11 @@ function initChat(): void {
   if (!canvas || !stage) return;
 
   const scene = new Scene(canvas, { maxFPS: 60 });
+  // Deliberately no keepSceneLive here: chat's idle throttle (~2fps when nothing is
+  // streaming) is correct behavior, not a bug, and the report should show it honestly
+  // rather than being propped up to 60fps artificially.
+  const meter = new FrameMeter();
+  scene.add(meter);
   const scroll = new ScrollView({ width: stage.clientWidth, height: stage.clientHeight });
   const transcript = new Stack({ direction: 'vertical', gap: 28, align: 'start' });
   transcript.setPosition(28, 24);
@@ -413,6 +420,28 @@ function initChat(): void {
     realignBlocks();
     scene.markDirty();
   };
+
+  // ---- export a real-browser performance report ----
+  // Capture this while a reply is actively streaming for a meaningful reading —
+  // token-by-token Markdown layout is the demo's real workload. An idle capture
+  // will correctly show the ~2fps auto-throttle rather than a misleading 60fps.
+  const reportBtn = $('ctl-chat-report');
+  const reportPanel = $('report-panel');
+  const reportPre = $('report-pre');
+  if (reportBtn && reportPanel && reportPre) {
+    setupReporter({
+      button: reportBtn,
+      panel: reportPanel,
+      pre: reportPre,
+      seconds: 4,
+      frameSampler: { start: () => meter.startSampling(), stop: () => meter.stopSampling() },
+      extra: () => ({
+        messages: history.length,
+        mode: readConfig().model ? 'live' : 'prebaked',
+        tokensPerSec: tps(),
+      }),
+    });
+  }
 
   if (location.search.includes('debug')) {
     Object.assign(window as unknown as Record<string, unknown>, {
