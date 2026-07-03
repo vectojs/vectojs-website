@@ -40,17 +40,16 @@ export interface GraphLayout {
   clusters: ClusterDef[];
 }
 
-// A single, unified hue for every cluster. Earlier the four clusters each had
-// their own color (cyan / purple / green / amber), but that read as a confusing
-// rainbow rather than meaningful structure — which package a node belongs to is
-// already conveyed by its position around a labeled hub and by the hover label.
-// Depth now comes from particle size/opacity variation, not from hue.
-const NODE_HUE = '#38bdf8';
+// Per-cluster hue, so which package a node belongs to reads at a glance from the
+// satellite cloud itself, not just from the hub label. (A prior pass unified these
+// into one hue on the theory that four colors read as a "confusing rainbow" —
+// reverted 2026-07-03 after real-device testing found a single color for
+// everything actually less informative, not more.)
 export const CLUSTERS: ClusterDef[] = [
-  { key: 'core', label: '@vectojs/core', color: NODE_HUE },
-  { key: 'ui', label: '@vectojs/ui', color: NODE_HUE },
-  { key: 'three', label: '@vectojs/three', color: NODE_HUE },
-  { key: 'vectomancy', label: 'Vectomancy', color: NODE_HUE },
+  { key: 'core', label: '@vectojs/core', color: '#38bdf8' }, // sky
+  { key: 'ui', label: '@vectojs/ui', color: '#a78bfa' }, // violet
+  { key: 'three', label: '@vectojs/three', color: '#4ade80' }, // green
+  { key: 'vectomancy', label: 'Vectomancy', color: '#fbbf24' }, // amber
 ];
 
 const CONCEPTS: ConceptDef[] = [
