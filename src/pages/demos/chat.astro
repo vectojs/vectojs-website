@@ -41,6 +41,11 @@ const demo = demoBySlug('chat');
           </label>
         </div>
 
+        <div class="chat-side-group">
+          <h4>Performance</h4>
+          <button id="ctl-chat-report" type="button" class="report-btn">Export report</button>
+        </div>
+
         <details class="chat-settings">
           <summary>Model (optional — Ollama or any OpenAI-compatible API)</summary>
           <label
@@ -130,6 +135,18 @@ const demo = demoBySlug('chat');
           <button type="submit">Send</button>
         </form>
       </div>
+    </div>
+
+    <div class="report-panel" id="report-panel" hidden>
+      <div class="report-head">
+        <span>Performance report — real browser, real GPU</span>
+        <div class="report-actions">
+          <button type="button" data-report-copy>Copy JSON</button>
+          <button type="button" data-report-download>Download</button>
+          <button type="button" data-report-close aria-label="Close">✕</button>
+        </div>
+      </div>
+      <pre id="report-pre"></pre>
     </div>
   </section>
 </Base>
