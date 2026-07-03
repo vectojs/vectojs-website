@@ -105,7 +105,9 @@ function initDimension(): void {
   // Built before the render loop below, which references it — the panel's own
   // rAF is brought up/down in lockstep with the outer loop via start()/stop().
   const PANEL_W = 512;
-  const PANEL_H = 320;
+  // Was 320 -- grown to fit the enlarged toggle rows and wider row gaps below
+  // without cramping the layout (see TOGGLE_OPTS and the panel Stack's gap).
+  const PANEL_H = 400;
   const adapter = new ThreeAdapter({ width: PANEL_W, height: PANEL_H });
   // The prebuilt mesh is a 1x1 plane with a FrontSide MeshBasicMaterial. DoubleSide
   // is REQUIRED: the camera orbits a full 360° and the panel can auto-spin, so a
@@ -152,7 +154,15 @@ function initDimension(): void {
     font: '600 30px Inter, system-ui',
     color: '#f8fafc',
   });
+  // Toggle's hit-testable height is its own trackH, defaulting to just 24px --
+  // dramatically smaller than the 62px-tall stepper buttons directly above in
+  // this same panel. With only a 22px gap between rows, a real click that
+  // overshoots a button's bottom edge by ~20-25px (unremarkable human mouse
+  // imprecision) was already inside the next toggle's hit area, registering on
+  // the wrong control. Sized up close to the buttons' own scale.
+  const TOGGLE_OPTS = { width: 72, height: 40, font: '18px sans-serif' };
   const orbitToggle = new Toggle({
+    ...TOGGLE_OPTS,
     label: 'Auto-orbit',
     checked: state.autoOrbit,
     onChange: (v) => {
@@ -160,6 +170,7 @@ function initDimension(): void {
     },
   });
   const gridToggle = new Toggle({
+    ...TOGGLE_OPTS,
     label: 'Floor grid',
     checked: state.grid,
     onChange: (v) => {
@@ -167,6 +178,7 @@ function initDimension(): void {
     },
   });
   const spinToggle = new Toggle({
+    ...TOGGLE_OPTS,
     label: 'Panel spin',
     checked: state.spin,
     onChange: (v) => {
@@ -174,7 +186,9 @@ function initDimension(): void {
     },
   });
 
-  const panel = new Stack({ direction: 'vertical', gap: 22, align: 'start' });
+  // Gap widened from 22 to 32 alongside the toggle-size fix above, for more
+  // margin between every row, not just around the toggles.
+  const panel = new Stack({ direction: 'vertical', gap: 32, align: 'start' });
   panel.add(heading);
   panel.add(stepperRow);
   panel.add(orbitToggle);
