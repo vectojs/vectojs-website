@@ -202,9 +202,27 @@ function initDimension(): void {
 
   // If a pointerdown lands on the panel, suppress OrbitControls so a click on a
   // button doesn't also nudge the camera. Re-enable on release regardless of hit.
-  canvas.addEventListener('pointerdown', (e) => {
-    if (forward('pointerdown', e)) controls.enabled = false;
-  });
+  //
+  // Must run in the capture phase on window, not a bubble-phase listener on the
+  // canvas: OrbitControls registers its OWN pointerdown listener directly on the
+  // canvas in its constructor, which runs earlier in the code than this. Two
+  // bubble-phase listeners on the same element fire in registration order, so a
+  // canvas-level listener here would run AFTER OrbitControls' — by which point
+  // it has already called setPointerCapture() on the canvas (its onPointerDown
+  // checks `scope.enabled` at its very top, but only *before* that capture call
+  // ever happens). A capture-phase listener on an ancestor (window) always runs
+  // before any target-phase listener on the canvas, regardless of registration
+  // order, so controls.enabled is already false by the time OrbitControls' own
+  // handler checks it — with a real mouse (unlike a scripted, pixel-perfect
+  // click) this is what stops the sub-pixel jitter between press and release
+  // from being interpreted as a drag.
+  window.addEventListener(
+    'pointerdown',
+    (e) => {
+      if (forward('pointerdown', e)) controls.enabled = false;
+    },
+    { capture: true },
+  );
   canvas.addEventListener('pointermove', (e) => forward('pointermove', e));
   window.addEventListener('pointerup', (e) => {
     forward('pointerup', e);
