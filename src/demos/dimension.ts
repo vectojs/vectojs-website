@@ -111,7 +111,10 @@ function initDimension(): void {
   // is REQUIRED: the camera orbits a full 360° and the panel can auto-spin, so a
   // single-sided plane would vanish AND stop raycasting for half of every turn.
   (adapter.mesh.material as THREE.MeshBasicMaterial).side = THREE.DoubleSide;
-  adapter.mesh.scale.set(3.2, 3.2 * (PANEL_H / PANEL_W), 1); // keep the 512x320 aspect
+  // Scaled up from an original 3.2 — at the default camera distance (6), 3.2 made
+  // the stepper buttons a ~20px on-screen hit target, reported as hard to press.
+  const PANEL_SCALE = 4.2;
+  adapter.mesh.scale.set(PANEL_SCALE, PANEL_SCALE * (PANEL_H / PANEL_W), 1); // keep the 512x320 aspect
   adapter.mesh.position.set(0, 0.6, 0);
   scene.add(adapter.mesh);
 
@@ -128,11 +131,16 @@ function initDimension(): void {
     rebuildParticles(state.particleCount);
   };
   // Button has no width option — it auto-sizes from its label + padding, which is
-  // exactly what a single-glyph "−"/"+" stepper wants.
+  // exactly what a single-glyph "−"/"+" stepper wants. Sized up from the defaults
+  // (16px font / 12px padding): projected through the panel's mesh onto the 3D
+  // scene, the default size was too small a hit target to click comfortably.
+  const STEPPER_BTN_OPTS = { font: '600 22px sans-serif', padding: 20 };
   const minusBtn = new Button('−', {
+    ...STEPPER_BTN_OPTS,
     onClick: () => setCount(state.particleCount - COUNT_STEP),
   });
   const plusBtn = new Button('+', {
+    ...STEPPER_BTN_OPTS,
     onClick: () => setCount(state.particleCount + COUNT_STEP),
   });
   const stepperRow = new Stack({ direction: 'horizontal', gap: 14, align: 'center' });
