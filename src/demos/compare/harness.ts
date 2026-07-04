@@ -94,7 +94,7 @@ function findFirstBelow(series: SeriesPoint[], threshold: number): number | null
 /** Given an ascending-by-count FPS series, find where it first drops below 60fps and 30fps. */
 export function analyzeCrossover(series: SeriesPoint[]): CrossoverReport {
   return {
-    droppedBelow60At: findFirstBelow(series, 50),
-    droppedBelow30At: findFirstBelow(series, 35),
+    droppedBelow60At: findFirstBelow(series, 60),
+    droppedBelow30At: findFirstBelow(series, 30),
   };
 }

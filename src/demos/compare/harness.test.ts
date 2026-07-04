@@ -59,8 +59,8 @@ describe('fontString', () => {
 describe('analyzeCrossover', () => {
   test('finds the first count where fps drops below each threshold', () => {
     const series = [
-      { count: 200, fps: 60 },
-      { count: 500, fps: 59 },
+      { count: 200, fps: 61 },
+      { count: 500, fps: 60 },
       { count: 1000, fps: 45 },
       { count: 2000, fps: 28 },
       { count: 5000, fps: 12 },
@@ -71,7 +71,7 @@ describe('analyzeCrossover', () => {
   test('reports null for a threshold never crossed in the series', () => {
     const series = [
       { count: 200, fps: 60 },
-      { count: 5000, fps: 58 },
+      { count: 5000, fps: 61 },
     ];
     expect(analyzeCrossover(series)).toEqual({ droppedBelow60At: null, droppedBelow30At: null });
   });
