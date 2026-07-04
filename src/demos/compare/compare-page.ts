@@ -182,7 +182,13 @@ function initCompare(): void {
     for (const count of SWEEP_COUNTS) {
       const specs = withMeasuredWidths(generateWorkload(SEED, count));
 
+      // Each side is cleared while the other is measured: a true isolated
+      // run, not just a paused one, and it keeps `domNodes` below scoped to
+      // the renderer under test (measurePerformance's own `domNodes` field
+      // is `document.querySelectorAll('*').length` — the whole page, which
+      // would otherwise still count the other panel's leftover elements).
       benchmarkBtn.textContent = `Measuring DOM @ ${count}…`;
+      vectoField.setWorkload([]);
       dom.setWorkload(specs);
       dom.start();
       const domReport = await measurePerformance({
@@ -194,11 +200,12 @@ function initCompare(): void {
         count,
         fpsMean: domReport.sceneFpsMean,
         fpsMin: domReport.sceneFpsMin,
-        domNodes: domReport.domNodes,
+        domNodes: dom.nodeCount,
         jankPct: domReport.jankPct,
       });
 
       benchmarkBtn.textContent = `Measuring VectoJS @ ${count}…`;
+      dom.setWorkload([]);
       vectoField.setWorkload(specs);
       scene.start();
       const vectoReport = await measurePerformance({
@@ -213,7 +220,7 @@ function initCompare(): void {
         count,
         fpsMean: vectoReport.sceneFpsMean,
         fpsMin: vectoReport.sceneFpsMin,
-        domNodes: vectoReport.domNodes,
+        domNodes: vectoField.nodeCount,
         jankPct: vectoReport.jankPct,
       });
     }

@@ -37,6 +37,18 @@ export class VectoDanmakuField extends Entity {
     return 0;
   }
 
+  /**
+   * This field drives every item's `.x` by plain assignment in `update()`,
+   * not through `setTransition`/`_drivers` — so without this override,
+   * `Scene`'s idle auto-throttle sees zero pending animations and drops the
+   * render rate to ~2fps despite continuous per-frame motion (the same root
+   * cause as the ScrollView throttle bug: see Entity.hasPendingAnimations's
+   * own doc comment). As long as there's a workload, this is never idle.
+   */
+  hasPendingAnimations(): boolean {
+    return this.items.length > 0;
+  }
+
   setWorkload(specs: CommentSpec[]): void {
     for (const item of this.items) this.remove(item);
     this.items = [];
