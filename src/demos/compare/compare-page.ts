@@ -1,5 +1,6 @@
 import { Scene } from '@vectojs/core';
-import { generateWorkload, fontString, type CommentSpec } from './harness';
+import { generateWorkload, fontString, analyzeCrossover, type CommentSpec } from './harness';
+import { measurePerformance } from '../report';
 import { DomDanmaku } from './dom-danmaku';
 import { VectoDanmakuField } from './vecto-danmaku';
 
@@ -16,7 +17,23 @@ function initCompare(): void {
   const countOut = $('compare-count-out');
   const domHud = $('dom-hud');
   const vectoHud = $('vecto-hud');
-  if (!stage || !domViewport || !canvas || !countSlider || !countOut || !domHud || !vectoHud)
+  const benchmarkBtn = $<HTMLButtonElement>('compare-benchmark');
+  const resultsPanel = $('compare-results');
+  const crossoverEl = $('compare-crossover');
+  const cardsEl = $('compare-cards');
+  if (
+    !stage ||
+    !domViewport ||
+    !canvas ||
+    !countSlider ||
+    !countOut ||
+    !domHud ||
+    !vectoHud ||
+    !benchmarkBtn ||
+    !resultsPanel ||
+    !crossoverEl ||
+    !cardsEl
+  )
     return;
 
   const measureCtx = document.createElement('canvas').getContext('2d');
@@ -93,6 +110,126 @@ function initCompare(): void {
       dom.start();
       scene.start();
     }
+  });
+
+  const SWEEP_COUNTS = [200, 500, 1000, 2000, 3500, 5000];
+  const SWEEP_SECONDS = 3;
+
+  /**
+   * The full per-point measurement used for display. `analyzeCrossover` only
+   * needs `{count, fps}` (kept minimal and separately tested in harness.ts) —
+   * this richer shape is purely for rendering the result cards, so the DOM
+   * node count (the objective, threading-independent proof) and fps-min /
+   * jank% are visible too, not just the mean fps.
+   */
+  interface BenchPoint {
+    count: number;
+    fpsMean: number;
+    fpsMin: number;
+    domNodes: number;
+    jankPct: number;
+  }
+
+  const renderResults = (domSeries: BenchPoint[], vectoSeries: BenchPoint[]): void => {
+    const domCrossover = analyzeCrossover(
+      domSeries.map((p) => ({ count: p.count, fps: p.fpsMean })),
+    );
+    const vectoCrossover = analyzeCrossover(
+      vectoSeries.map((p) => ({ count: p.count, fps: p.fpsMean })),
+    );
+    const ceiling = SWEEP_COUNTS[SWEEP_COUNTS.length - 1];
+
+    crossoverEl.textContent = domCrossover.droppedBelow30At
+      ? `DOM fell below 30fps at ~${domCrossover.droppedBelow30At} comments; VectoJS ${
+          vectoCrossover.droppedBelow30At
+            ? `fell below 30fps at ~${vectoCrossover.droppedBelow30At}`
+            : `held above 30fps through ${ceiling}`
+        } on this hardware.`
+      : `Neither side dropped below 30fps up to ${ceiling} comments on this hardware.`;
+
+    cardsEl.innerHTML = '';
+    for (const { label, series } of [
+      { label: 'Plain DOM', series: domSeries },
+      { label: 'VectoJS', series: vectoSeries },
+    ]) {
+      const card = document.createElement('div');
+      card.className = 'compare-card';
+      const rows = series
+        .map(
+          (p) =>
+            `<tr><td>${p.count}</td><td>${p.fpsMean.toFixed(1)} fps</td><td>${p.fpsMin.toFixed(
+              1,
+            )} fps min</td><td>${p.domNodes} DOM nodes</td><td>${p.jankPct.toFixed(
+              1,
+            )}% jank</td></tr>`,
+        )
+        .join('');
+      card.innerHTML = `<h3>${label}</h3><table><thead><tr><td>Count</td><td>FPS mean</td><td>FPS min</td><td>DOM nodes</td><td>Jank</td></tr></thead>${rows}</table>`;
+      cardsEl.appendChild(card);
+    }
+    resultsPanel.hidden = false;
+  };
+
+  const runBenchmark = async (): Promise<void> => {
+    benchmarkBtn.disabled = true;
+    const originalLabel = benchmarkBtn.textContent;
+    const domSeries: BenchPoint[] = [];
+    const vectoSeries: BenchPoint[] = [];
+
+    dom.stop();
+    scene.stop();
+
+    for (const count of SWEEP_COUNTS) {
+      const specs = withMeasuredWidths(generateWorkload(SEED, count));
+
+      benchmarkBtn.textContent = `Measuring DOM @ ${count}…`;
+      dom.setWorkload(specs);
+      dom.start();
+      const domReport = await measurePerformance({
+        seconds: SWEEP_SECONDS,
+        frameSampler: { start: () => dom.startSampling(), stop: () => dom.stopSampling() },
+      });
+      dom.stop();
+      domSeries.push({
+        count,
+        fpsMean: domReport.sceneFpsMean,
+        fpsMin: domReport.sceneFpsMin,
+        domNodes: domReport.domNodes,
+        jankPct: domReport.jankPct,
+      });
+
+      benchmarkBtn.textContent = `Measuring VectoJS @ ${count}…`;
+      vectoField.setWorkload(specs);
+      scene.start();
+      const vectoReport = await measurePerformance({
+        seconds: SWEEP_SECONDS,
+        frameSampler: {
+          start: () => vectoField.startSampling(),
+          stop: () => vectoField.stopSampling(),
+        },
+      });
+      scene.stop();
+      vectoSeries.push({
+        count,
+        fpsMean: vectoReport.sceneFpsMean,
+        fpsMin: vectoReport.sceneFpsMin,
+        domNodes: vectoReport.domNodes,
+        jankPct: vectoReport.jankPct,
+      });
+    }
+
+    // Restore the live view at the slider's current count.
+    regenerate(Number(countSlider.value));
+    dom.start();
+    scene.start();
+
+    renderResults(domSeries, vectoSeries);
+    benchmarkBtn.disabled = false;
+    benchmarkBtn.textContent = originalLabel;
+  };
+
+  benchmarkBtn.addEventListener('click', () => {
+    void runBenchmark();
   });
 }
 
