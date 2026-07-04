@@ -39,10 +39,17 @@ abstract class UIComponent extends Entity {
   padding: number; // default 0
   isPointInside(globalX: number, globalY: number): boolean;
   getBounds(): Bounds; // { x:0, y:0, width, height }
+
+  // Enter/exit presence helper (0.2.0)
+  protected enterMotion?: MotionSpec; // played on mount
+  protected exitMotion?: MotionSpec; // played by dismiss()
+  dismiss(): Promise<void>; // play exitMotion, then remove from the tree
 }
 ```
 
 Centralizes the box model + axis-aligned (AABB) hit-test shared by every component. `isPointInside` returns whether the point lies in `[0,width] × [0,height]` in local space. `getBounds()` returns the local box so the `Scene` can viewport-cull. Subclasses set `width`/`height` from measured content, implement `render(r)`, and (when interactive) override `getA11yAttributes()`.
+
+**Presence (0.2.0):** declare `enterMotion` / `exitMotion` as a `MotionSpec` (`{ props: { opacity: [0, 1], … }, config? }`) and the component animates in when it mounts to a live scene and out on `dismiss()` — which defers its own removal until the exit animation resolves. One shared implementation over the [core animation system](/reference/core-api/#animation), replacing per-component hand-rolled springs. Motion is suppressed under `prefers-reduced-motion` (opacity fades kept).
 
 ### `getA11yAttributes(): A11yAttributes`
 
@@ -424,9 +431,9 @@ new Modal(title: string, props?: ModalProps)  // props loosely typed (any)
 }
 ```
 
-A full-screen dimming backdrop with a centered `Card` containing the `title` text and a built-in "Close" button. Animates in via `SpringPhysics` (card scales 0 → 1); blocks underlying `click`/`pointerdown`. Show it with `scene.showOverlay(modal)`.
+A full-screen dimming backdrop with a centered `Card` containing the `title` text and a built-in "Close" button. The card scales in on mount (spring) through the shared [animation system](/reference/core-api/#animation); blocks underlying `click`/`pointerdown`. Show it with `scene.showOverlay(modal)`.
 
-- `close(): void` — animates the card scale back to 0; once at rest, `update()` self-unmounts via `scene.hideOverlay(this)` (safe deferred teardown).
+- `close(): Promise<void>` — springs the card scale back to 0, then unmounts via `scene.hideOverlay(this)` once the exit animation resolves (safe deferred teardown). Awaitable.
 - `update(dt, time)` — ticks the spring and marks the scene dirty while animating (called by the render loop).
 
 ### `ScrollView`

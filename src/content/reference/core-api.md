@@ -222,14 +222,38 @@ destroy(): void                              // clear animations + listeners, de
 ### Animation
 
 ```ts
+// Legacy tween (preserved)
 animate(targetProps: Partial<this>, durationMs: number): this
 hasPendingAnimations(): boolean
+
+// Animation system (0.2.0)
+setTransition(config: Partial<Record<AnimatableProp, MotionConfig>>): this
+animateTo(props: Partial<Record<AnimatableProp, number>>, cfg: TweenConfig): Promise<void>
+springTo(props: Partial<Record<AnimatableProp, number>>, cfg?: SpringConfig): Promise<void>
 ```
 
-Queues a tween; multiple calls **chain sequentially**. Only numeric properties
-interpolate. Easing is a fixed ease-out (`p * (2 - p)`). A running `animate()`
-keeps the scene non-static (escapes the idle throttle) and freezes a11y sync
-until it settles.
+`animate()` queues a tween; multiple calls **chain sequentially**. Only numeric
+properties interpolate; easing is a fixed ease-out (`p * (2 - p)`). A running
+`animate()` keeps the scene non-static (escapes the idle throttle) and freezes
+a11y sync until it settles.
+
+**0.2.0 animation system** — spring-first, unifying tweens and springs:
+
+- `setTransition` declares how the six animatable props (`x`, `y`, `scaleX`,
+  `scaleY`, `rotation`, `opacity`) animate; afterward plain assignment
+  (`entity.x = 400`) animates them, retargeting in-flight for continuous motion.
+  These props are accessors with a zero-overhead fast path when no transition is
+  configured — a bare assignment stays a plain field write.
+- `animateTo` / `springTo` drive props imperatively and resolve when the motion
+  settles; unlike `animate()`, they run concurrently and compose with `await`.
+- `MotionConfig = 'spring' | SpringConfig | TweenConfig` (presence of `duration`
+  selects a tween). `TweenConfig.easing` takes an `EasingName` from the `Easing`
+  export or a custom `(t) => number`.
+- Honors `prefers-reduced-motion` (movement snaps, opacity fades). Related:
+  `onMounted()` fires when an entity attaches to a live scene — the UI presence
+  helper uses it to play enter animations.
+
+See [Physics & Animation](/learn/physics-engine/) for usage.
 
 ### Events (`VectoEvent` / capture + bubble)
 

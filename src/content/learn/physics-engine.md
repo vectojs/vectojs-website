@@ -22,7 +22,50 @@ button.animate({ x: 400 }, 300).animate({ y: 200 }, 300).animate({ opacity: 0 },
 While a tween is running, the scene is kept non-static — no need to call `markDirty()`. When the tween settles, `hasPendingAnimations()` returns `false`.
 
 > [!TIP]
-> Chains are sequential (`animate` returns `this`), not concurrent. To animate multiple properties simultaneously, pass them all in one `animate()` call.
+> Chains are sequential (`animate` returns `this`), not concurrent. For concurrent motion, richer easing, springs, and enter/exit on components, use the animation system below.
+
+## Declarative & imperative animation
+
+Added in **0.2.0**, the animation system is spring-first and unifies tweens and springs behind one API — the recommended way to animate any entity's transform or opacity. It's the same engine the built-in components (Modal, Tooltip, …) use to animate themselves.
+
+### Declarative transitions
+
+Declare which properties animate and how; then plain assignment animates them:
+
+```typescript
+entity.setTransition({
+  opacity: 'spring', // default spring
+  x: { duration: 300, easing: 'easeOutCubic' }, // tween
+  scaleX: { stiffness: 200, damping: 18 }, // spring with overrides
+});
+
+entity.opacity = 1; // springs to 1
+entity.x = 400; // tweens over 300ms
+```
+
+Assigning a new target mid-flight **retargets** the running animation — a spring keeps its velocity — so rapidly toggled or gesture-driven UI flows continuously instead of snapping. Properties with no configured transition are written instantly: a bare `entity.x = v` stays a plain field write (measured at ~89µs for 5,000 writes per frame, ~0.5% of a 60 fps budget), so opting into animation never taxes hot paths that don't. The animatable properties are `x`, `y`, `scaleX`, `scaleY`, `rotation`, and `opacity`.
+
+### Imperative one-shots
+
+For choreography, `animateTo` (tween) and `springTo` (spring) drive properties directly and return a Promise that resolves when the motion settles:
+
+```typescript
+await entity.animateTo({ x: 400, opacity: 0 }, { duration: 500, easing: 'easeOutCubic' });
+await entity.springTo({ scaleX: 1, scaleY: 1 }, { stiffness: 200, damping: 18 });
+```
+
+Unlike `animate()` (which chains sequentially), these run concurrently and compose with `async`/`await`.
+
+### Easing
+
+The `Easing` export provides a curated set of curves — `linear`, `easeInOut{Quad,Cubic}`, `easeOut{Quad,Cubic}`, `easeOutBack` (overshoot), and more. Pass a curve name, or your own `(t: number) => number` function, to any tween's `easing` option.
+
+### Reduced motion
+
+The system honors the OS **prefers-reduced-motion** setting automatically: movement (transforms, springs) snaps to its target while opacity fades are preserved — components still appear and disappear, just without motion. No per-component code required.
+
+> [!TIP]
+> Components animate their own enter/exit through this system. Any `UIComponent` subclass can declare `enterMotion`/`exitMotion` and call `dismiss()` to animate out and then unmount — see the [UI Components reference](/reference/ui-components/).
 
 ## SpringPhysics
 
