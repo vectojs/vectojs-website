@@ -20,6 +20,8 @@ export const BASE_URL = `http://127.0.0.1:${PORT}`;
 export interface DemoInfo {
   slug: string;
   canvasId: string;
+  /** Overrides the default `/demos/<slug>/` URL for pages that don't live under /demos/. */
+  path?: string;
 }
 
 // Every demo follows the same <slug>-canvas id convention (verified against
@@ -31,6 +33,7 @@ export const DEMOS: DemoInfo[] = [
   { slug: 'catch', canvasId: 'catch-canvas' },
   { slug: 'graph', canvasId: 'graph-canvas' },
   { slug: 'dimension', canvasId: 'dimension-canvas' },
+  { slug: 'compare', canvasId: 'compare-canvas', path: '/compare/' },
 ];
 
 const MIME: Record<string, string> = {

@@ -34,7 +34,10 @@ async function checkDemo(
   const prefix = demo.slug;
 
   try {
-    await page.goto(`${BASE_URL}/demos/${demo.slug}/`, { waitUntil: 'load', timeout: 30_000 });
+    await page.goto(`${BASE_URL}${demo.path ?? `/demos/${demo.slug}/`}`, {
+      waitUntil: 'load',
+      timeout: 30_000,
+    });
     await page.waitForTimeout(1500); // let init scripts + first frame settle
 
     const canvas = page.locator(`#${demo.canvasId}`);
