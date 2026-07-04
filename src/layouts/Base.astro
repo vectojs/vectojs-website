@@ -22,6 +22,16 @@ const isHome = pathname === '/';
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Paint the dark background before any external CSS resolves. Without this,
+         a cross-document @view-transition (below) can flash the browser's default
+         white canvas on the incoming page for the first frame or two — most visible
+         navigating into a blog post, which also waits on the KaTeX CDN stylesheet. -->
+    <style>
+      html,
+      body {
+        background-color: #0b0f19;
+      }
+    </style>
     <!-- Firefox's WebGPU backend SIGSEGVs the whole browser on some Linux/NVIDIA/Wayland
          setups (MozCrashReason "Queue ... does not exist"), and the engine probes
          navigator.gpu on every Scene. Hide WebGPU on Firefox → CPU/WebGL fallback.
