@@ -767,13 +767,25 @@ body.immersive-lock {
   overflow: hidden;
 }
 
-/* Chat needs its stage to grow in immersive (sidebar + input stay usable) */
+/* Chat needs its stage to grow in immersive (sidebar + input stay usable).
+   Without an explicit row track, .chat-shell (a grid with no
+   grid-template-rows) sizes its single implicit row to content height —
+   a percentage height on .chat-main then resolves against that indefinite
+   track instead of the fixed viewport, so .chat-main grows taller than the
+   screen and the input form (the last flex child) ends up pushed below the
+   visible area. Pinning the row to the container's own height fixes it. */
 .chat-shell.is-immersive {
   padding: 1rem 1.25rem;
   gap: 1.25rem;
+  grid-template-rows: minmax(0, 1fr);
+}
+.chat-shell.is-immersive .chat-side {
+  min-height: 0;
+  overflow-y: auto;
 }
 .chat-shell.is-immersive .chat-main {
   height: 100%;
+  min-height: 0;
 }
 .chat-shell.is-immersive .chat-stage {
   height: auto;

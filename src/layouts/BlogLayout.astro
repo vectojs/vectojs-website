@@ -10,20 +10,43 @@ interface Props {
   readingTime?: number;
 }
 const { title, description, date, author, tags, readingTime } = Astro.props;
+// Frontmatter dates (e.g. `2026-07-04`) parse as UTC midnight. Rendering them
+// in the visitor's local zone can roll the calendar date back (or forward) a
+// day — everyone west of UTC saw every post dated one day earlier. Pin the
+// formatter to UTC so the displayed date always matches what's in the post.
 const dateStr = date
-  ? date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  ? date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      timeZone: 'UTC',
+    })
   : null;
 ---
 
 <Base title={title} description={description}>
   <Fragment slot="head">
-    <!-- KaTeX: render $...$ and $$...$$ math in posts -->
+    <!-- KaTeX: render $...$ and $$...$$ math in posts. Loaded non-blocking (preload +
+         swap) so a slow round-trip to the jsdelivr CDN can never delay first paint of
+         this page — auto-render below already runs after load, so math rendering
+         isn't affected, but an unfired paint just showing the dark background instead
+         of a flash of white while a cross-document @view-transition is in progress. -->
     <link
-      rel="stylesheet"
+      rel="preload"
+      as="style"
       href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
       integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
       crossorigin="anonymous"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+        integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
+        crossorigin="anonymous"
+      />
+    </noscript>
     <script
       defer
       src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
