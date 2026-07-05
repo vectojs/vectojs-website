@@ -58,8 +58,8 @@ async function readParticleCount(page: PlaywrightPage): Promise<string | null | 
 async function findMinusButtonCenter(
   page: PlaywrightPage,
 ): Promise<{ x: number; y: number } | null> {
-  const rect = await page.evaluate(
-    () => document.getElementById('dimension-canvas')?.getBoundingClientRect(),
+  const rect = await page.evaluate(() =>
+    document.getElementById('dimension-canvas')?.getBoundingClientRect(),
   );
   if (!rect) return null;
 

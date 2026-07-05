@@ -26,33 +26,21 @@ const dateStr = date
 
 <Base title={title} description={description}>
   <Fragment slot="head">
-    <!-- KaTeX: render $...$ and $$...$$ math in posts. Loaded non-blocking (preload +
-         swap) so a slow round-trip to the jsdelivr CDN can never delay first paint of
-         this page — auto-render below already runs after load, so math rendering
-         isn't affected, but an unfired paint just showing the dark background instead
-         of a flash of white while a cross-document @view-transition is in progress. -->
+    <!-- KaTeX: render $...$ and $$...$$ math in posts. -->
     <link
-      rel="preload"
-      as="style"
+      rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
       integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
       crossorigin="anonymous"
-      onload="this.onload=null;this.rel='stylesheet'"
     />
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
-        integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
-        crossorigin="anonymous"
-      />
-    </noscript>
     <script
+      is:inline
       defer
       src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
       integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg"
       crossorigin="anonymous"></script>
     <script
+      is:inline
       defer
       src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
       integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk"

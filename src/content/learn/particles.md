@@ -6,7 +6,7 @@ order: 6
 
 # Particle Systems
 
-`ComputeParticleEntity` is VectoJS's high-throughput particle layer. It runs a spring physics simulation entirely on the GPU via a WebGPU compute pass, with a transparent CPU fallback for browsers that do not support WebGPU. A single entity can simulate and render **100,000 to 1,000,000 particles** at 60 fps on modern hardware.
+`ComputeParticleEntity` is VectoJS's high-throughput particle layer. It runs a spring physics simulation through a WebGPU compute pass, with a CPU fallback for browsers that do not support WebGPU. Supported particle count and frame rate depend strongly on GPU, browser, DPR, and rendering configuration; the repository does not currently include a checked-in 100k/1M hardware benchmark.
 
 ## Try it live
 
@@ -24,7 +24,7 @@ order: 6
 | ----------- | --------------------------------------------- | ------------------------------------------ |
 | Physics     | Built-in (spring, mouse repulsion, explosion) | Manual — you update position in `update()` |
 | Backend     | WebGPU compute or CPU                         | WebGL point layer                          |
-| Throughput  | 100k–1M                                       | 10k–100k                                   |
+| Throughput  | Hardware/workload dependent                   | Hardware/workload dependent                |
 | When to use | Self-contained physics fields                 | Point clouds you control directly          |
 
 If you need a particle field that springs into formations, reacts to the cursor, and triggers explosions, `ComputeParticleEntity` is the right tool. If you just want to render many dots at positions you control, implement `getBatchCircle()` on a custom entity.
@@ -132,12 +132,8 @@ The repulsion radius and force are fixed in the shader. When the cursor leaves t
 
 ```typescript
 canvas.addEventListener('dblclick', (e) => {
-  const rect = canvas.getBoundingClientRect();
-  particles.triggerExplosion(
-    e.clientX - rect.left,
-    e.clientY - rect.top,
-    800, // force magnitude
-  );
+  const point = scene.clientToScene(e.clientX, e.clientY);
+  particles.triggerExplosion(point.x, point.y, 800);
 });
 ```
 
@@ -147,18 +143,18 @@ Only one explosion can be queued at a time — calling `triggerExplosion` before
 
 The `particleBackend` option controls which path is used:
 
-| Value              | Behavior                                              |
-| ------------------ | ----------------------------------------------------- |
-| `'auto'` (default) | Tries WebGPU; falls back to CPU on failure or absence |
-| `'webgpu'`         | Requires WebGPU; throws if unavailable                |
-| `'cpu'`            | Forces CPU sim; disables WebGPU even if available     |
+| Value              | Behavior                                                                                      |
+| ------------------ | --------------------------------------------------------------------------------------------- |
+| `'auto'` (default) | Tries WebGPU; falls back to CPU on failure or absence                                         |
+| `'webgpu'`         | Explicitly requests WebGPU; current runtime still falls back to CPU when initialization fails |
+| `'cpu'`            | Forces CPU sim; disables WebGPU even if available                                             |
 
-**When WebGPU is active:** The sim runs as a compute shader on the GPU. Particle state lives in a WebGPU storage buffer. Renders via the WebGL point layer. Throughput: 100k–1M particles.
+**When WebGPU is active:** The sim runs as a compute shader on the GPU. Particle state lives in a WebGPU storage buffer and renders into the Scene's dedicated WebGPU canvas.
 
-**When CPU fallback is active:** The `Scene` calls `entity.updateCPU(dt, mouseX, mouseY, width, height)` each frame (same physics model — spring, repulsion, explosion, velocity cap, bounce). Renders via `fillCircle()` on Canvas2D or the WebGL point layer. Throughput: ~10k particles.
+**When CPU fallback is active:** The `Scene` calls `entity.updateCPU(dt, mouseX, mouseY, width, height)` each frame (same physics model — spring, repulsion, explosion, velocity cap, bounce). Renders via `fillCircle()` on Canvas2D or the optional WebGL point layer. Choose counts from measurements on the target browser and hardware.
 
-> [!NOTE]
-> You can check which path is active: `particles.gpuStorageBuffer !== null` means WebGPU is running. `null` means CPU.
+> [!NOTE] > `particles.gpuStorageBuffer !== null` shows that GPU resources were allocated,
+> but it is not a reliable live backend status after asynchronous device loss.
 
 Device loss is auto-recovered with exponential backoff (3 retries) before permanently disabling WebGPU for the session.
 
@@ -198,14 +194,14 @@ Check in order:
 
 1. **`initRandomParticles()` was not called** — without this, all particle positions are `(0, 0)` and sizes are `0`.
 2. **`resize(w, h)` was not called before `initRandomParticles`** — particles scattered across a `0×0` box are invisible. Check `scene.width` and `scene.height` are non-zero.
-3. **WebGPU unavailable and no CPU fallback** — if `particleBackend: 'webgpu'` was set explicitly, the scene throws if WebGPU fails. Use `'auto'` to get the CPU path.
+3. **WebGPU initialization failed** — the current runtime logs the failure, disables the GPU path, and continues through the CPU fallback even when `'webgpu'` was explicitly requested.
 4. **`pointBackend` not set to `'webgl'`** — the CPU fallback renders via `fillCircle`. Without `'webgl'`, CPU-path particles still appear on Canvas2D, but only if the canvas renderer is active.
 
 ### FPS is much lower than expected
 
-- Verify WebGPU is actually active: `console.log(particles.gpuStorageBuffer !== null)`.
+- Use browser GPU tooling and the WebGPU canvas to verify the active path; a retained `gpuStorageBuffer` alone is not a durable status signal after device loss.
 - In headless / CI environments, WebGPU and WebGL fall back to software renderers (Swiftshader). FPS in headless is not representative. Measure on real GPU hardware.
-- Try reducing `maxParticles` for profiling — CPU throughput caps at ~10,000.
+- Reduce `maxParticles` while profiling and record frame-time percentiles on the target device; this repository does not establish a universal CPU or GPU cap.
 
 ### Particles spring to `(0, 0)` instead of my formation
 

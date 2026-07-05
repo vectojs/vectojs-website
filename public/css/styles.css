@@ -1172,6 +1172,8 @@ body.page-home::before {
 .prose :not(pre) > code {
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 0.875em;
+  white-space: normal;
+  overflow-wrap: anywhere;
   background: rgba(30, 41, 59, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #a5f3fc;

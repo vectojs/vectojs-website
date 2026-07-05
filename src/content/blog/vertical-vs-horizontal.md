@@ -20,7 +20,7 @@ The browser gives us a document renderer. HTML describes structure. CSS describe
 
 **Virtual DOM** (React, Vue) is a horizontal move. It reduces the cost of reconciling two trees of HTML nodes — but it never questions why there are HTML nodes at all. You still ship divs. You still wait for the browser's layout engine to arrange them. You still pay the tax of a general-purpose document renderer trying to be an application runtime.
 
-**CSS methodologies** (BEM, CSS Modules, Tailwind) are horizontal moves. Tailwind in particular is genuinely clever: it solves the _locality_ problem that traditional CSS gets wrong. By co-locating style tokens with markup, it eliminates the fear of touching a class name. But it cannot eliminate layout thrashing. It cannot animate 60,000 nodes at 60 FPS. It cannot make the browser's compositing pipeline care less about z-index stacking contexts. It addressed the authoring problem, not the rendering problem.
+**CSS methodologies** (BEM, CSS Modules, Tailwind) are horizontal moves. Tailwind in particular improves style locality by co-locating tokens with markup. It does not change the browser rendering pipeline or remove the need to profile layout, paint, and compositing at the workload's target scale.
 
 **Server components, partial hydration, islands architecture** — more horizontal moves. All of them brilliant within their domain. All of them ultimately constrained by the same ceiling: **the browser's document model**.
 
@@ -36,13 +36,13 @@ This is what I mean by vertical. Not building higher abstractions on top of the 
 
 Concretely, this means:
 
-**Coordinate transforms become $SE(2)$ Lie group operations.** A VectoJS entity's position, rotation, and scale aren't CSS properties to be parsed, cascade-resolved, and composited. They are $3 \times 3$ affine matrices that compose exactly as matrix multiplication — no side effects, no layout recalculation, no style invalidation. Moving a subtree of 10,000 nodes is a single matrix multiply at the root.
+**Coordinate transforms become affine matrix operations.** A VectoJS entity's position, rotation, and scale compose as $3 \times 3$ affine matrices without CSS style/layout invalidation. Updating a subtree root is one property write; rendering still traverses descendants and composes each world transform.
 
 **Text flow around objects becomes set-difference algebra.** The `RichText` component's exclusion shapes — the "float" concept from CSS — aren't computed by a constraint solver trying to satisfy the cascade. They are computed as geometric intersections between a line's available rectangle and a set of exclusion regions. Pure geometry, pure computation, O(lines × exclusion count) with no global recalculation.
 
 **Animations become second-order ODEs.** CSS transitions are easing curves — lookup tables dressed up as physics. VectoJS's spring animations are actual damped harmonic oscillators, solved numerically each frame. The physics are real. The overshoot, the settling time, the critical damping threshold — all of it follows from the differential equation, not from a cubic-bezier approximation of what physics "feels like."
 
-**Rendering bulk becomes a GPU batching problem.** When you have 100,000 entities, you don't call `fillRect` 100,000 times. VectoJS's WebGL point renderer coalesces consecutive same-color fills into a single draw call. For particle simulations at a million nodes, the WebGPU compute path moves the physics integration off the CPU entirely and runs it in a compute shader — 1,000,000 position updates in a few hundred microseconds.
+**Rendering bulk becomes a GPU batching problem.** At high entity counts, VectoJS can collect representable circle/rectangle leaves into typed WebGL buffers instead of issuing one Canvas path per entity. `ComputeParticleEntity` can move its fixed particle integration model to a WebGPU compute shader. The practical ceiling and timing remain hardware- and workload-dependent; this repository does not currently contain a verified million-particle benchmark.
 
 None of this is clever framework engineering. It's just doing the work that the DOM was abstracted away from — and discovering that, beneath the abstraction, the work is actually very tractable.
 
@@ -54,7 +54,7 @@ The naive path, if you've thrown away the DOM, is to rebuild DOM-like semantics 
 
 VectoJS goes vertical here too — but in both directions simultaneously.
 
-**Downward:** A `<canvas>` element that renders everything as 2D geometry at 60 FPS. No HTML, no ARIA attributes on visual nodes, no layout engine. Pure pixels, driven by math.
+**Downward:** Canvas-backed layers render 2D geometry without one styled HTML node per visual entity. Frame rate remains a workload/device measurement, and eligible controls still project semantic DOM nodes for accessibility and automation.
 
 **Upward:** A transparent shadow DOM layer — `a11yRoot` — floated above the canvas in Z-axis space. For every interactive entity, the `Scene` projects a real, invisible, correctly-positioned HTML element (`<button>`, `<input>`, `<textarea>`, etc.) onto this layer. Screen readers walk this layer. Playwright's `getByRole()` queries this layer. IME composition targets the real `<input>` in this layer, not a canvas simulation of one.
 

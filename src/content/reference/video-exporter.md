@@ -1,19 +1,19 @@
 ---
 title: '@vectojs/video-exporter'
-description: 'Industrial-grade video exporter for VectoJS. Convert your VectoJS canvas animations into flawless 60fps MP4 video streams.'
+description: 'CLI and library for stepping a VectoJS scene frame-by-frame and encoding its canvas output as H.264 MP4 with Chromium and FFmpeg.'
 order: 5
 ---
 
 # `@vectojs/video-exporter`
 
-An industrial-grade video exporter for VectoJS. Convert your VectoJS canvas animations, mathematical rendering, and physics simulations into flawless 60fps MP4 video streams.
+`@vectojs/video-exporter` drives a VectoJS scene in headless Chromium one fixed time step at a time, captures its canvas as PNG frames, and pipes those frames to FFmpeg for H.264 MP4 encoding.
 
 ## Features
 
-- **Deterministic Rendering**: Hijacks the VectoJS internal clock for flawless `1/60s` frame stepping. Zero dropped frames, regardless of calculation complexity.
-- **High-Performance Pipeline**: Uses Puppeteer to drive headless Chromium and streams raw Canvas buffers via CDP directly to FFmpeg.
-- **Hardware/Software Encoding**: Encodes to standard H.264 MP4 directly via FFmpeg.
-- **Zero Config TypeScript DX**: Pass a pure `.ts` or `.tsx` file, and the exporter will automatically spin up an embedded Vite server, wrap it in a Canvas context, and export it invisibly.
+- **Fixed-step scene control**: Stops the normal Scene loop and calls `scene.step(1000 / fps)` before each capture. This makes the requested simulation time deterministic; it does not guarantee that application code using unrelated clocks, network input, or randomness is deterministic.
+- **PNG image pipe**: Calls `canvas.toDataURL('image/png')` in Chromium, decodes the base64 result in Node, and writes each PNG to FFmpeg's stdin.
+- **Standard MP4 output**: Uses FFmpeg's `libx264` encoder and `yuv420p` pixel format.
+- **Local source helper**: For a local module path, starts an embedded Vite server and generates a temporary HTML entry next to that module. Hosted HTTP(S) pages are also accepted.
 
 ---
 
@@ -23,9 +23,16 @@ An industrial-grade video exporter for VectoJS. Convert your VectoJS canvas anim
 bun add @vectojs/video-exporter
 ```
 
+The current release expects Chromium at `/usr/bin/chromium` and `ffmpeg` on `PATH`. Verify both before starting a long export:
+
+```bash
+/usr/bin/chromium --version
+ffmpeg -version
+```
+
 ## Usage (CLI)
 
-Pass a TypeScript file directly (Zero Config):
+Pass a local JavaScript/TypeScript module directly:
 
 ```bash
 bunx vecto-export ./my-animation.ts -o output.mp4 -f 60 -d 5
@@ -60,4 +67,13 @@ await exportVideo({
 });
 ```
 
-_Note: The code being rendered must expose the VectoJS Scene globally as `window.vectoScene` for the exporter to hijack the clock._
+The rendered page must expose a started or startable VectoJS Scene as `window.vectoScene`. The exporter waits up to 10 seconds for it, calls `stop()`, then advances it with `step(dt)`. The first `<canvas>` in the page is captured.
+
+```typescript
+const scene = new Scene(document.querySelector('canvas')!);
+// add entities...
+(window as Window & { vectoScene?: Scene }).vectoScene = scene;
+scene.start();
+```
+
+If FFmpeg exits non-zero, the Promise rejects with its captured stderr. Output duration is `fps × duration` fixed steps; encoding speed may be slower or faster than real time depending on scene and machine performance.

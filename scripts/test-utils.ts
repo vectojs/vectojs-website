@@ -161,7 +161,11 @@ export async function openPage(browser: PlaywrightBrowser, opts: LaunchOptions =
   const consoleErrors: string[] = [];
   const pageErrors: string[] = [];
   page.on('console', (msg) => {
-    if (msg.type() === 'error') consoleErrors.push(msg.text());
+    const text = msg.text();
+    const expectedCapabilityFallback =
+      text.includes('Failed to initialize WebGPU:') &&
+      (text.includes('No GPUAdapter found') || text.includes('WebGPU not supported'));
+    if (msg.type() === 'error' && !expectedCapabilityFallback) consoleErrors.push(text);
   });
   page.on('pageerror', (err) => {
     pageErrors.push(err.message);

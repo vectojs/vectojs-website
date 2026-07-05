@@ -11,7 +11,7 @@ Every object in VectoJS is an `Entity` — a node in the Virtual Math Tree. Buil
 ## Try it live
 
 <figure class="sandbox">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · vectojs@0.9</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/core</span></div>
   <iframe src="/sandbox/custom-entity.html" class="sandbox-frame" loading="lazy" title="Custom Entity interactive example" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Three <code>GaugeWidget</code> custom entities with animated arc fills. Click Randomize to see the <code>animate()</code> tween system in action.</figcaption>
 </figure>
@@ -69,13 +69,13 @@ abstract class Entity {
 }
 ```
 
-If your entity has no interactive area, return `false` from `isPointInside`. If you want hit-testing, use `getGlobalPosition()` to convert:
+If your entity has no interactive area, return `false` from `isPointInside`. For a rectangular hit area, convert the world point with `worldToLocal()` so nested rotation and non-uniform scale are handled exactly:
 
 ```typescript
 isPointInside(gx: number, gy: number): boolean {
-  const pos = this.getGlobalPosition();
-  return gx >= pos.x && gx <= pos.x + this.width
-      && gy >= pos.y && gy <= pos.y + this.height;
+  const local = this.worldToLocal(gx, gy);
+  return !!local && local.x >= 0 && local.x <= this.width
+      && local.y >= 0 && local.y <= this.height;
 }
 ```
 
@@ -139,7 +139,7 @@ render(renderer: IRenderer) {
 
 ## Viewport culling with `getBounds()`
 
-By default, entities are never culled — even offscreen entities run `update()` and `render()`. Override `getBounds()` to return a local-space bounding box and the Scene will skip rendering when the entity is outside the viewport:
+By default, entities are never culled. Override `getBounds()` to return a local-space bounding box and the Scene will skip `render()` when the transformed box is outside the viewport. `update()` still runs so state and animations remain current when the entity returns onscreen:
 
 ```typescript
 getBounds() {
@@ -219,8 +219,8 @@ class Chip extends Entity {
   }
 
   isPointInside(gx: number, gy: number): boolean {
-    const p = this.getGlobalPosition();
-    return gx >= p.x && gx <= p.x + this.width && gy >= p.y && gy <= p.y + this.height;
+    const p = this.worldToLocal(gx, gy);
+    return !!p && p.x >= 0 && p.x <= this.width && p.y >= 0 && p.y <= this.height;
   }
 
   render(renderer: IRenderer) {
@@ -284,7 +284,7 @@ class Particle extends Entity {
   radius = 4;
   color = '#00f0ff';
 
-  // Skip the individual render path entirely — feed the WebGL batch directly.
+  // Feed the WebGL batch when the accumulated transform is representable.
   getBatchCircle() {
     return { radius: this.radius, color: this.color };
   }
@@ -292,17 +292,23 @@ class Particle extends Entity {
   isPointInside() {
     return false;
   }
-  render() {} // never called when getBatchCircle is set
+  // Required fallback for Canvas mode or non-uniform/sheared ancestors.
+  render(renderer: IRenderer) {
+    renderer.beginPath();
+    renderer.arc(0, 0, this.radius, 0, Math.PI * 2);
+    renderer.fill(this.color);
+  }
 }
 ```
 
 Constraints:
 
 - The entity must be a **leaf** (no children).
-- The entity's scale must be **uniform** (`scaleX === scaleY`).
+- The entity's own scale must be **uniform** (`scaleX === scaleY`) for the fast path.
 - Requires `pointBackend: 'webgl'` on the `Scene`.
+- If the accumulated ancestor transform is non-uniform, sheared, or cannot be represented by one radius/rotation, the Scene calls the normal `render()` fallback.
 
-The Scene reads `getBatchCircle()` every frame, so animated `radius`/`color` are honored. Consecutive same-color siblings coalesce into one GPU draw call. For rectangles, use `getBatchRect()` instead:
+The Scene reads `getBatchCircle()` every frame, so animated `radius`/`color` are honored. The point layer uploads many circles in one buffer/draw sequence. For rectangles, use `getBatchRect()` instead:
 
 ```typescript
 getBatchRect() {
@@ -356,8 +362,8 @@ class GaugeWidget extends Entity {
   }
 
   isPointInside(gx: number, gy: number): boolean {
-    const p = this.getGlobalPosition();
-    return gx >= p.x && gx <= p.x + this.width && gy >= p.y && gy <= p.y + this.height;
+    const p = this.worldToLocal(gx, gy);
+    return !!p && p.x >= 0 && p.x <= this.width && p.y >= 0 && p.y <= this.height;
   }
 
   getA11yAttributes(): A11yAttributes {
@@ -435,7 +441,7 @@ Check in order:
 
 ### `isPointInside` never returns `true` / click events don't fire
 
-`isPointInside` receives **global (world-space)** coordinates. If you test them against `this.x` / `this.y` directly without calling `getGlobalPosition()`, children of transformed parents will mis-hit:
+`isPointInside` receives **global (world-space)** coordinates. Testing them against `this.x` / `this.y` fails for nested transforms, while subtracting `getGlobalPosition()` still fails for rotation and non-uniform scale. Invert the complete transform with `worldToLocal()`:
 
 ```typescript
 // Wrong — only works when entity is at scene root with no parent transforms
@@ -443,11 +449,11 @@ isPointInside(gx, gy) {
   return gx >= this.x && gx <= this.x + this.width; // ← breaks in a nested tree
 }
 
-// Correct — always works
+// Correct — handles nested translation, rotation, and non-uniform scale
 isPointInside(gx, gy) {
-  const p = this.getGlobalPosition();
-  return gx >= p.x && gx <= p.x + this.width
-      && gy >= p.y && gy <= p.y + this.height;
+  const p = this.worldToLocal(gx, gy);
+  return !!p && p.x >= 0 && p.x <= this.width
+      && p.y >= 0 && p.y <= this.height;
 }
 ```
 

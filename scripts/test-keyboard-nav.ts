@@ -60,7 +60,13 @@ async function testDemoKeyboardNav(
         return {
           tag: el.tagName,
           role: el.getAttribute('role'),
-          name: el.getAttribute('aria-label') || el.textContent?.trim() || null,
+          name:
+            el.getAttribute('aria-label') ||
+            ('labels' in el
+              ? (el as HTMLInputElement).labels?.[0]?.textContent?.trim()
+              : undefined) ||
+            el.textContent?.trim() ||
+            null,
         };
       });
       if (focused) {

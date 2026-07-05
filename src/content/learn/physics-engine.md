@@ -43,7 +43,7 @@ entity.opacity = 1; // springs to 1
 entity.x = 400; // tweens over 300ms
 ```
 
-Assigning a new target mid-flight **retargets** the running animation — a spring keeps its velocity — so rapidly toggled or gesture-driven UI flows continuously instead of snapping. Properties with no configured transition are written instantly: a bare `entity.x = v` stays a plain field write (measured at ~89µs for 5,000 writes per frame, ~0.5% of a 60 fps budget), so opting into animation never taxes hot paths that don't. The animatable properties are `x`, `y`, `scaleX`, `scaleY`, `rotation`, and `opacity`.
+Assigning a new target mid-flight **retargets** the running animation — a spring keeps its velocity — so rapidly toggled or gesture-driven UI flows continuously instead of snapping. Properties with no configured transition are written immediately through the normal setter, without creating a driver. The animatable properties are `x`, `y`, `scaleX`, `scaleY`, `rotation`, and `opacity`.
 
 ### Imperative one-shots
 
@@ -116,17 +116,17 @@ class BallEntity extends Entity {
 
   override update(dt: number) {
     super.update(dt); // advance queued animate() tweens
-    this.x += this.vx * dt;
-    this.y += this.vy * dt;
+    const seconds = dt / 1000;
+    this.x += this.vx * seconds;
+    this.y += this.vy * seconds;
     this.vx *= this.friction;
     this.vy *= this.friction;
   }
 
   isPointInside(gx: number, gy: number) {
-    const { x, y } = this.getGlobalPosition();
-    const cx = x + this.radius,
-      cy = y + this.radius;
-    return (gx - cx) ** 2 + (gy - cy) ** 2 <= this.radius ** 2;
+    const local = this.worldToLocal(gx, gy);
+    if (!local) return false;
+    return (local.x - this.radius) ** 2 + (local.y - this.radius) ** 2 <= this.radius ** 2;
   }
 
   render(r: IRenderer) {
@@ -146,8 +146,9 @@ const BOUNCE = 0.75;
 
 override update(dt: number) {
   super.update(dt);
-  this.x += this.vx * dt;
-  this.y += this.vy * dt;
+  const seconds = dt / 1000;
+  this.x += this.vx * seconds;
+  this.y += this.vy * seconds;
 
   const { width, height } = this.scene!;
 
@@ -164,11 +165,11 @@ override update(dt: number) {
 }
 ```
 
-This is exactly how the **Nexus** particle demo was built — simulating 15,000+ interacting nodes at smooth 60 FPS.
+This pattern is appropriate for small application-managed collections. The Nexus demo instead uses `ComputeParticleEntity`'s fixed spring/mouse/explosion model; it does not simulate entity-to-entity interaction.
 
-## SpatialHashGrid: O(1) Neighbor Queries
+## SpatialHashGrid: Application-Managed Neighbor Candidates
 
-For N-body interactions (repulsion, collision), a naive O(N²) loop breaks down above ~1000 nodes. Use `SpatialHashGrid` for O(1) average-case neighbor lookups:
+For N-body interactions (repulsion, collision), a naive pairwise loop is O(N²). Use `SpatialHashGrid` to retrieve candidates from the cells overlapped by a query, then run exact tests on that smaller set:
 
 ```typescript
 import { SpatialHashGrid } from '@vectojs/core';

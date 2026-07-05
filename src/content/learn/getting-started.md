@@ -76,7 +76,7 @@ scene.start();
 ## Try it live
 
 <figure class="sandbox">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · vectojs@0.9</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/core</span></div>
   <iframe src="/sandbox/getting-started.html" class="sandbox-frame" loading="lazy" title="Getting Started interactive example" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Counter + Toggle + Slider — all running on canvas with no DOM components. Click and interact.</figcaption>
 </figure>

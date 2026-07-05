@@ -20,18 +20,18 @@ Instead of maintaining a heavy tree of browser DOM nodes, VectoJS operates on th
 
 In a traditional UI, layouts are resolved by a browser's reflow engine, which calculates cascading box models and updates CSS render layers. In the VMT, every visual element (an _Entity_) is represented as a localized coordinate system, mapped to its parent through affine algebraic relations:
 
-$$\mathbb{T}\_{\text{child}} = \mathbf{M}\_{\text{local}} \cdot \mathbb{T}\_{\text{parent}}$$
+$$\mathbf{M}\_{\text{world, child}} = \mathbf{M}\_{\text{world, parent}} \cdot \mathbf{M}\_{\text{local}}$$
 
-Since there is no underlying HTML markup node or CSS cascade resolution, the tree structure remains extremely lightweight. Traversals and operations do not touch browser APIs, enabling complex parent-child relations to be resolved in microseconds.
+The visual tree does not require one styled HTML node per drawable. Render traversal composes numeric transforms in JavaScript; accessibility synchronization and DOM portals are separate browser-facing phases whose cost must still be measured.
 
-### Zero-GC Allocation Strategy
+### Allocation-Aware Hot Paths
 
 To sustain high rendering throughput, the VMT's render walk avoids allocating per-node during traversal.
 
 - **Threaded Scalar Transforms**: Rather than allocating a matrix object per node, the render walk threads six scalar transform parameters through the recursion directly, avoiding a heap allocation per node per frame.
-- **Flat Scalar Arrays for Text**: `LayoutResultBuffer` packs layout coordinates into pre-allocated, contiguous TypedArrays that are reused across frames, so high-volume text layout can read and write directly to memory without triggering JavaScript's garbage collector.
+- **Flat Scalar Arrays for Text**: `LayoutResultBuffer` packs layout coordinates into pre-allocated, contiguous TypedArrays that can be reused across frames, reducing layout-node allocation pressure. This does not make the entire Scene or caller zero-allocation.
 
-Note what this _doesn't_ mean: the render walk, hit-testing, and accessibility-sync passes are each still an $O(N)$ traversal per frame — these techniques make each node's own cost close to constant, not the total traversal cost. The main lever for large scenes is `renderMode: 'onDemand'` (skip the traversal entirely when nothing changed), covered in the [Performance guide](/learn/performance/).
+Note what this _doesn't_ mean: the render walk, hit-testing, and accessibility-sync passes are still $O(N)$ when they run. `renderMode: 'onDemand'` skips drawing and entity traversal for a static frame, although the Scene continues polling rAF and checking dirty/animation state.
 
 ---
 
@@ -65,7 +65,7 @@ Because the shadow DOM is composed of standard, native HTML tags:
 
 ---
 
-## 3. Affine Transformations & $SE(2)$ Lie Group Theory
+## 3. Affine Transformations
 
 VectoJS completely abandons CSS layout properties like `absolute`, `relative`, or `flex` positioning. Instead, the spatial relationship of every node in the Virtual Math Tree is compressed into a $3 \times 3$ homogeneous **affine transformation matrix** in the Euclidean plane.
 
@@ -73,7 +73,13 @@ VectoJS completely abandons CSS layout properties like `absolute`, `relative`, o
 
 An entity's translation $(t_x, t_y)$, scale $(s_x, s_y)$, and rotation $\theta$ (in radians) are combined into a single matrix $M \in \text{Aff}(2)$:
 
-$$M = \begin{bmatrix} s_x \cos\theta & -s_y \sin\theta & t_x \\\\ s_x \sin\theta & s_y \cos\theta & t_y \\\\ 0 & 0 & 1 \end{bmatrix}$$
+VectoJS applies local transforms as $T \cdot S \cdot R$:
+
+$$M = \begin{bmatrix} s_x \cos\theta & -s_x \sin\theta & t_x \\\\ s_y \sin\theta & s_y \cos\theta & t_y \\\\ 0 & 0 & 1 \end{bmatrix}$$
+
+Translation plus rotation alone is the rigid-motion group $SE(2)$; adding scale
+(and shear produced by nested non-uniform scale plus rotation) requires the more
+general affine group.
 
 ### Cascading Transforms (Matrix Multiplication)
 
@@ -93,7 +99,7 @@ const globalY = parent.m10 * local.x + parent.m11 * local.y + parent.m12;
 
 To reverse-map coordinates (e.g., translating screen-space mouse clicks or 3D raycast coordinates back into a local entity's coordinate space), VectoJS computes the inverse matrix $M_{\text{global}}^{-1}$.
 
-Instead of running slow Gauss-Jordan elimination, VectoJS solves the inverse analytically using **Cramer's Rule** for $3 \times 3$ matrices:
+VectoJS uses the closed-form inverse of the six-scalar affine matrix rather than a general matrix solver:
 
 $$M^{-1} = \frac{1}{\det(M)} \begin{bmatrix} m_{11}m_{22} - m_{12}m_{21} & m_{02}m_{21} - m_{01}m_{22} & m_{01}m_{12} - m_{02}m_{11} \\\\ m_{12}m_{20} - m_{10}m_{22} & m_{00}m_{22} - m_{02}m_{20} & m_{02}m_{10} - m_{00}m_{12} \\\\ m_{10}m_{21} - m_{11}m_{20} & m_{01}m_{20} - m_{00}m_{21} & m_{00}m_{11} - m_{01}m_{10} \end{bmatrix}$$
 
@@ -101,7 +107,7 @@ Since the third row of our homogeneous matrix is always $\begin{bmatrix} 0 & 0 &
 
 $$\det(M) = m_{00} \cdot m_{11} - m_{01} \cdot m_{10}$$
 
-If $\det(M) \neq 0$, the inverse coordinates are solved in constant time ($O(1)$) with zero heap allocation.
+If $\det(M) \neq 0$, `worldToLocal()` solves the inverse coordinates in constant arithmetic time and returns a `{ x, y }` point. Singular transforms return `null`.
 
 ---
 
@@ -123,9 +129,9 @@ When a text block is resized (e.g., dragging the window or animating a responsiv
 
 - Avoids all `Intl.Segmenter` or canvas measurement API queries.
 - Reads cached glyph widths directly from the `PreparedText` map.
-- Computes line breaks, vertical wrapping offsets, and paragraph margins using ultra-fast, pure-integer mathematical bounds.
+- Computes line breaks, vertical wrapping offsets, and paragraph margins with numeric operations over cached advances.
 
-By splitting layout into a cold metadata pass and a hot positioning pass, reflow costs are bounded to $O(\text{word count})$ rather than $O(\text{character count})$, completely eliminating layout layout thrashing. Combined with **Paragraph-level Memoization**, it drops the time complexity of LLM streaming text layouts from $O(\text{Total Document})$ to $O(\text{New Tokens})$.
+Splitting cold preparation from hot positioning lets width changes reuse segmentation and measurement. Paragraph memoization also reuses unchanged leading paragraphs during append operations. The changed paragraph still scales with its own length, and Markdown lexing remains document-wide.
 
 ---
 
@@ -158,37 +164,23 @@ This allows complex typographic wrapping to be solved as a deterministic, flat i
 
 ---
 
-## 6. Parametric Spline Geometry & Analytical Hit-Testing
+## 6. Sampled Spline Hit-Testing
 
 Traditional canvas frameworks hit-test curves by drawing them invisibly and reading color pixels, or checking if clicks lie inside the rectangular bounding box (AABB) enclosing the curve. The former is slow, and the latter is highly inaccurate.
 
-VectoJS (via the Vectomancy engine) solves this analytically. A cubic Bézier curve segment is represented as a parametric vector function $P(t)$ for $t \in [0, 1]$:
+`SplineEntity` represents each cubic segment as a Bézier curve $P(t)$ for $t \in [0, 1]$:
 
 $$P(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t) t^2 P_2 + t^3 P_3$$
 
 Where $P_0, P_1, P_2, P_3 \in \mathbb{R}^2$ are the control points.
 
-### The Minimum Distance Problem
+### Polyline approximation
 
-To determine if a pointer click $C(x, y)$ hits the spline curve within a tolerance threshold $\epsilon$, the engine solves for the minimum distance:
+The current implementation samples each Bézier segment into a fixed-resolution `Float32Array` polyline and caches it. For a pointer $C(x, y)$, it computes the squared distance to each adjacent line segment and accepts the hit when:
 
-$$\text{find } t \in [0, 1] \text{ that minimizes } f(t) = \|P(t) - C\|^2$$
+$$d^2(C, \overline{P_iP_{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
 
-Expanding this leads to finding the roots of the derivative:
-
-$$f'(t) = 2(P(t) - C) \cdot P'(t) = 0$$
-
-Since $P(t)$ is a cubic polynomial (degree 3) and $P'(t)$ is quadratic (degree 2), their dot product $f'(t)$ yields a **5th-degree polynomial**. By Abel-Ruffini's theorem, a general 5th-degree polynomial cannot be solved algebraically in radicals.
-
-### Numerical Root Finding
-
-To solve this efficiently at runtime, VectoJS combines two numerical techniques:
-
-1. **Bézier Subdivision (Interval Halving)**: The curve is subdivided into segments using de Casteljau's algorithm to approximate the closest interval.
-2. **Newton-Raphson Iteration**: Once a close interval $t_k$ is found, the root is refined iteratively:
-   $$t_{k+1} = t_k - \frac{f'(t_k)}{f''(t_k)}$$
-
-This converges to float-level precision in $3$ to $5$ iterations, checking if the final distance $\|P(t_{\text{min}}) - C\| \le \frac{\text{lineWidth}}{2} + \epsilon$. This guarantees pixel-perfect click detection along complex vector shapes.
+The cached approximation makes repeated hits cheap and deterministic. It is not an analytical quintic/Newton solver: very high-curvature segments can deviate between samples, so choose `hitTolerance` with that approximation in mind. `hitTest: 'aabb'` skips the refinement entirely.
 
 ---
 
@@ -224,15 +216,15 @@ Because the solver calculates forces dynamically based on the current value $x_t
 
 ---
 
-## 8. Spatial Hashing & $O(1)$ Viewport Culling
+## 8. SpatialHashGrid Utility
 
-In a scene containing $N$ entities, testing which elements are hovered or visible inside the viewport naively requires an $O(N)$ sweep. At $N = 100,000$, this drops frame rates significantly.
+In a scene containing $N$ entities, built-in hit testing and viewport-culling traversal are $O(N)$. Whether that is material depends on entity work and target hardware.
 
-VectoJS maps the 2D infinite coordinate plane to a **Spatial Hash Grid** to bound complexity.
+VectoJS exports a **SpatialHashGrid** applications can explicitly populate to bound local AABB query cost. The Scene's built-in `findEntityAt()` and viewport culling do not use it automatically; both still traverse the entity tree.
 
 <figure>
   <iframe src="/sandbox/diagram-spatial-hash.html" class="diagram-frame" loading="lazy" title="A spatial hash grid where a moving cursor only tests its own cell and eight neighbours, rendered live by VectoJS" sandbox="allow-scripts allow-same-origin"></iframe>
-  <figcaption>Only the cursor's cell and its eight neighbours are ever hit-tested — the rest of the grid is skipped. <em>(Rendered live by VectoJS.)</em></figcaption>
+  <figcaption>A spatial-grid application can query only cells overlapping a local pointer/AABB region. <em>(Concept rendered live by VectoJS.)</em></figcaption>
 </figure>
 
 ### The Hash Function
@@ -251,23 +243,23 @@ Buckets live in a plain `Map`, not a fixed-capacity table — there's no modulus
 
 ### Complexity Reduction
 
-- **Viewport Culling**: Instead of checking every entity, the engine queries the hash cells intersecting the viewport bounds. Offscreen entities are skipped entirely.
-- **Hit-Testing**: A mouse hover only tests collision against entities in the cell containing the cursor and its immediate neighbors.
-- _Result_: Spatial query time is reduced from **$O(N)$** to **$O(k)$ average complexity**, where $k$ is the entity count in the queried cells — this assumes entities are roughly evenly distributed for your chosen cell size $S$. A bucket doesn't degrade gracefully if entities cluster heavily into it; see the [Performance guide](/learn/performance/#3-sea-of-entities-interaction-on2-complexity-catastrophe) for what to do about that.
+- **Application-managed indexing**: Call `insert(id, x, y, w, h)` as entities move, or `clear()` and rebuild for a dynamic frame.
+- **AABB query**: `query(x, y, w, h)` visits every grid cell overlapped by that box and returns a deduplicated `Set<string>`.
+- _Result_: Query time is proportional to overlapped cells plus returned IDs. It is near-constant only for small, similarly sized, uniformly distributed entities; dense buckets degrade toward linear scans. See the [Performance guide](/learn/performance/#3-sea-of-entities-interaction-on2-complexity-catastrophe).
 
 ---
 
 ## Summary of Mathematical Advantages
 
-| Dimension         | Browser / DOM              | VectoJS                      | Math Principle                 |
-| ----------------- | -------------------------- | ---------------------------- | ------------------------------ |
-| **Scene Graph**   | HTML DOM Tree              | Virtual Math Tree (VMT)      | Contiguous Memory Scene Graph  |
-| **Accessibility** | Browser Reflow Tree        | Semantic Shadow DOM          | High-Fidelity DOM Projection   |
-| **Transforms**    | CSS Layout Engine          | 3x3 Homogeneous Matrices     | Linear Algebra / $SE(2)$ Group |
-| **Reflow**        | Single-Threaded Reflow     | Cold/Hot Split Layout        | Cached Word Segmentation       |
-| **Text wrap**     | Reflow trial-and-error     | Segment Interval Subtraction | Set Difference Algebra         |
-| **Picking**       | Bounding box / DOM overlay | Analytical Polynomial Solver | Newton-Raphson Iteration       |
-| **Animation**     | Cubic Bezier timelines     | Mass-Spring-Damper Solver    | Second-Order ODE Integration   |
-| **Culling**       | Render tree comparison     | 2D Hash Mapping              | Spatial Hash Indexing          |
+| Dimension         | Browser / DOM                | VectoJS                      | Math Principle                |
+| ----------------- | ---------------------------- | ---------------------------- | ----------------------------- |
+| **Scene Graph**   | HTML DOM Tree                | Virtual Math Tree (VMT)      | Contiguous Memory Scene Graph |
+| **Accessibility** | Native semantic DOM          | Semantic projection overlay  | DOM state synchronization     |
+| **Transforms**    | CSS transform/layout         | 3x3 homogeneous matrices     | Affine linear algebra         |
+| **Reflow**        | Single-Threaded Reflow       | Cold/Hot Split Layout        | Cached Word Segmentation      |
+| **Text wrap**     | Reflow trial-and-error       | Segment Interval Subtraction | Set Difference Algebra        |
+| **Curve picking** | Pixel read / broad AABB      | Cached sampled polyline      | Point-to-segment distance     |
+| **Animation**     | Cubic Bezier timelines       | Mass-Spring-Damper Solver    | Second-Order ODE Integration  |
+| **Culling**       | Browser rendering heuristics | Optional local AABB bounds   | Transformed AABB overlap      |
 
 > **Next:** [Getting Started](/learn/getting-started/) — install the packages and write your first scene.

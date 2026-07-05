@@ -70,9 +70,9 @@ import { SITE } from '../consts';
         <div class="feature-icon">⚡</div>
         <h3>WebGL &amp; WebGPU acceleration</h3>
         <p>
-          Batch layer coalesces same-color shapes into one draw call. WebGPU compute simulates
-          100k–1M spring particles on the GPU. Idle auto-throttle drops to ~2 fps when nothing is
-          animating, conserving CPU and battery.
+          Batch layer coalesces compatible shapes into GPU draws. WebGPU compute simulates spring
+          particles; capacity depends on the target GPU and workload. Idle auto-throttle drops to ~2
+          fps when nothing is animating, conserving CPU and battery.
         </p>
       </div>
 
@@ -80,9 +80,9 @@ import { SITE } from '../consts';
         <div class="feature-icon">◎</div>
         <h3>Streaming-first Markdown</h3>
         <p>
-          <code>appendMarkdown(delta)</code> appends in O(changed paragraph), not O(document). Tables,
-          code fences, images, math (MathJax), Mermaid, and ABC notation are all rendered natively —
-          built for LLM chat and live feeds.
+          <code>appendMarkdown(delta)</code> re-lexes the source but reuses unchanged rendered entities.
+          Tables, code fences, images, math (MathJax), Mermaid, and ABC notation are supported for LLM
+          chat and live feeds.
         </p>
       </div>
 
@@ -90,19 +90,19 @@ import { SITE } from '../consts';
         <div class="feature-icon">◉</div>
         <h3>Three.js &amp; 2.5D depth</h3>
         <p>
-          <code>ThreeAdapter</code> renders a full VectoJS scene as a
-          <code>THREE.CanvasTexture</code> with UV raycasting for pointer events. A built-in depth sort
-          handles pseudo-3D layering without a raw WebGL depth buffer.
+          <code>ThreeAdapter</code> renders a VectoJS scene as a
+          <code>THREE.CanvasTexture</code> with UV raycasting for pointer events. The mesh participates
+          in the host Three.js scene's normal transform and depth behavior.
         </p>
       </div>
 
       <div class="feature-card">
         <div class="feature-icon">◇</div>
-        <h3>Zero-GC &amp; O(1) culling</h3>
+        <h3>Reusable buffers &amp; bounds culling</h3>
         <p>
-          Particle data lives in contiguous <code>Float32Array</code> buffers — no per-frame heap allocations.
-          A constant-time spatial index skips every offscreen entity. Modular subpath imports keep bundles
-          small.
+          Particle and text hot paths can reuse contiguous typed buffers. Entity-provided bounds
+          skip offscreen drawing during the normal O(N) tree traversal. Modular subpath imports keep
+          bundles small.
         </p>
       </div>
     </div>

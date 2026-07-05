@@ -14,7 +14,20 @@ if ! command -v wrangler &>/dev/null; then
 fi
 
 echo "Deploying to Cloudflare Pages..."
-log_file=$(mktemp)
+workspace_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+mkdir -p "$workspace_root/tmp"
+log_file=$(mktemp "$workspace_root/tmp/vecto-pages-deploy.XXXXXX.log")
+wrangler_pid=""
+
+cleanup() {
+    if [ -n "$wrangler_pid" ] && kill -0 "$wrangler_pid" 2>/dev/null; then
+        kill "$wrangler_pid" 2>/dev/null || true
+        wait "$wrangler_pid" 2>/dev/null || true
+    fi
+    rm -f "$log_file"
+}
+
+trap cleanup EXIT
 
 # Clear proxies because wrangler fetch fails when using them
 env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy \
@@ -58,14 +71,6 @@ if [ -f "$log_file" ]; then
         tail -n +"$((last_line_count + 1))" "$log_file"
     fi
 fi
-
-# Clean up wrangler process
-if kill -0 "$wrangler_pid" 2>/dev/null; then
-    kill "$wrangler_pid" 2>/dev/null || true
-    wait "$wrangler_pid" 2>/dev/null || true
-fi
-
-rm -f "$log_file"
 
 if [ "$success" = true ]; then
     echo "✨ Cloudflare Pages deployment finished successfully!"

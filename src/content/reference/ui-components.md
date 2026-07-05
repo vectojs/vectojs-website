@@ -7,7 +7,7 @@ order: 2
 # `@vectojs/ui` — Component Reference
 
 > Reusable high-level components for the VectoJS zero-DOM Canvas engine.
-> Version documented: **0.1.1**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
+> Version documented: **0.2.2**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
 
 Every component is a leaf or container in the Virtual Math Tree (VMT). Nothing here is real DOM — components draw themselves to a Canvas via an `IRenderer`. Accessibility, agent automation, and crawlability come from a parallel **A11y Shadow DOM**: when a component is `interactive`, the `Scene` projects a single hidden, transparent real DOM node positioned over the component's box, built from `getA11yAttributes()`. That is why `page.getByRole('button', { name })` / `fill()` / screen readers work against a pure-Canvas UI.
 
@@ -15,20 +15,20 @@ Every component is a leaf or container in the Virtual Math Tree (VMT). Nothing h
 
 All components extend `UIComponent`, which extends the core `Entity`. The following inherited members are used constantly and are **not** repeated per-component below.
 
-| Member              | Signature                                          | Notes                                                                                                                                |
-| ------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `setPosition`       | `setPosition(x, y): this`                          | Local-space placement; chainable.                                                                                                    |
-| `add` / `remove`    | `add(child: Entity): this` / `remove(child): this` | Child management (containers override `add` to re-layout).                                                                           |
-| `on` / `off`        | `on(event, cb, { capture? }): this`                | DOM-like capture+bubble. Events: `click hover pointerdown pointerup pointermove pointerleave change focus blur wheel keydown keyup`. |
-| `emit`              | `emit(event, payload): void`                       | Direct self-only dispatch (no tree propagation).                                                                                     |
-| `getGlobalPosition` | `getGlobalPosition(): Point`                       | World-space position accumulating ancestor transforms.                                                                               |
-| `scene`             | `get scene`                                        | Nearest attached `Scene`; use `this.scene?.markDirty()` to request a repaint in `onDemand` scenes.                                   |
-| `interactive`       | `interactive: boolean`                             | When true, the component projects an A11y shadow node and receives pointer/keyboard events.                                          |
-| `clipChildren`      | `clipChildren: boolean`                            | Clip children to local box (Canvas2D only). Used by `ScrollView`.                                                                    |
-| `width` / `height`  | `number`                                           | The component's box; drives hit-testing and viewport culling.                                                                        |
-| `padding`           | `number`                                           | Inner padding (default `0`); box-style components default it higher.                                                                 |
-| transforms          | `x y scaleX scaleY rotation opacity`               | Affine, inherited by children.                                                                                                       |
-| `animate`           | `animate(targetProps, durationMs): this`           | Queues numeric tweens.                                                                                                               |
+| Member              | Signature                                          | Notes                                                                                                                                                                                          |
+| ------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `setPosition`       | `setPosition(x, y): this`                          | Local-space placement; chainable.                                                                                                                                                              |
+| `add` / `remove`    | `add(child: Entity): this` / `remove(child): this` | Child management (containers override `add` to re-layout).                                                                                                                                     |
+| `on` / `off`        | `on(event, cb, { capture? }): this`                | DOM-like capture+bubble. Events: `click hover pointerdown pointerup pointermove pointerleave change focus blur wheel keydown keyup`.                                                           |
+| `emit`              | `emit(event, payload): void`                       | Direct self-only dispatch (no tree propagation).                                                                                                                                               |
+| `getGlobalPosition` | `getGlobalPosition(): Point`                       | World-space position accumulating ancestor transforms.                                                                                                                                         |
+| `scene`             | `get scene`                                        | Nearest attached `Scene`; use `this.scene?.markDirty()` to request a repaint in `onDemand` scenes.                                                                                             |
+| `interactive`       | `interactive: boolean`                             | When true, the component projects an A11y shadow node and receives pointer/keyboard events.                                                                                                    |
+| `clipChildren`      | `clipChildren: boolean`                            | Clip normal child draws to the local box. Canvas/SVG are exact; Three uses an AABB scissor for rotated/sheared clips. GPU point/WebGPU overlay paths do not participate. Used by `ScrollView`. |
+| `width` / `height`  | `number`                                           | The component's box; drives hit-testing and viewport culling.                                                                                                                                  |
+| `padding`           | `number`                                           | Inner padding (default `0`); box-style components default it higher.                                                                                                                           |
+| transforms          | `x y scaleX scaleY rotation opacity`               | Affine transforms and multiplicative opacity are inherited by children.                                                                                                                        |
+| `animate`           | `animate(targetProps, durationMs): this`           | Queues numeric tweens.                                                                                                                                                                         |
 
 ---
 
@@ -387,7 +387,7 @@ new Slider(props?: SliderProps)   // props is loosely typed (any) in the .d.ts
 }
 ```
 
-Horizontal slider with a circular thumb. Public: `min`, `max`, `value`. Dragging (`pointerdown` → `pointermove` → `pointerup`) maps `clientX` to a value, **rounded to the nearest integer**, and emits a `change` event with `{ value }` (subscribe via `on('change', e => e.value)`). A11y: `{ role: 'slider', value, valuemin, valuemax }`. No built-in keyboard handling.
+Horizontal slider with a circular thumb. Public: `min`, `max`, `value`. Dragging (`pointerdown` → `pointermove` → `pointerup`) maps pointer `localX` to a value, **rounded to the nearest integer**, and emits a `change` event with `{ value }` (subscribe via `on('change', e => e.value)`). A11y: `{ role: 'slider', value, valuemin, valuemax }`. No built-in keyboard handling.
 
 ### `Dropdown`
 
@@ -495,14 +495,14 @@ Parses Markdown with **`marked` (v18, GFM)** into a VMT subtree under a vertical
 Two content-update paths — **choosing the right one matters for streaming:**
 
 - `setContent(markdown): this` — **full rebuild**: tears down every child and re-renders from scratch. Use for one-shot/replacement.
-- `appendMarkdown(chunk): this` — **the correct streaming/token path**. Appends to the raw buffer, re-lexes, diffs tokens by raw source, reuses unchanged prefix entities, and updates the last (growing) paragraph in-place via `RichText.setSpans`. Cost is O(changed paragraph), not O(document).
+- `appendMarkdown(chunk): this` — **the correct streaming/token path**. Appends to the raw buffer, re-lexes the complete Markdown source, diffs tokens by raw source, reuses unchanged prefix entities, and updates the last (growing) paragraph in-place via `RichText.setSpans`. It avoids a full entity-tree rebuild, but lexing still scales with document length.
 
 > Gotcha: do **not** stream by calling `setContent(fullSoFar)` on every token. That rebuilds the entire tree each token (O(document) per token) and makes layout cost grow with the document. Feed only the new delta to `appendMarkdown(chunk)`.
 
 ```ts
 const md = new Markdown('', { maxWidth: 600 });
 scene.add(md.setPosition(40, 40));
-for await (const token of llmStream) md.appendMarkdown(token); // O(changed paragraph)
+for await (const token of llmStream) md.appendMarkdown(token); // reuses unchanged rendered prefix
 ```
 
 ### `CodeBlock`
@@ -566,7 +566,7 @@ interface RadioOption {
 }
 ```
 
-A mutually exclusive group of radio choices. Fully accessible via `{ role: 'radiogroup' }`. Standardized `'change'` event payload carries `{ value }`.
+A mutually exclusive group of radio choices projected with `{ role: 'radiogroup' }`; applications should still verify labels and keyboard/focus behavior. Standardized `'change'` event payload carries `{ value }`.
 
 ---
 

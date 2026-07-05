@@ -11,7 +11,7 @@ VectoJS uses a DOM-like **capture + bubble** event model. If you have used brows
 ## Try it live
 
 <figure class="sandbox">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · vectojs@0.9</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/core</span></div>
   <iframe src="/sandbox/events.html" class="sandbox-frame" loading="lazy" title="Events & Hit-Testing interactive example" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Three custom Entity subclasses — hover to scale, click to count. Each wires <code>on('hover')</code>, <code>on('pointerleave')</code>, and <code>on('click')</code>.</figcaption>
 </figure>
@@ -90,24 +90,33 @@ interface VectoJSEvent {
 
   defaultPrevented: boolean;
 
-  // Pointer events
-  clientX: number;
-  clientY: number;
+  // Browser viewport coordinates from the native event
+  clientX?: number;
+  clientY?: number;
+
+  // Scene logical coordinates, then coordinates local to currentTarget
+  sceneX?: number;
+  sceneY?: number;
+  localX?: number;
+  localY?: number;
 
   // Wheel events
-  deltaX: number;
-  deltaY: number;
+  deltaX?: number;
+  deltaY?: number;
 
   // Keyboard events
-  key: string;
+  key?: string;
   shiftKey: boolean;
   ctrlKey: boolean;
+  altKey: boolean;
   metaKey: boolean;
 
   // The original native DOM event
   nativeEvent?: Event;
 }
 ```
+
+`localX`/`localY` are recomputed for each listener's `currentTarget`, including nested rotation and non-uniform scale. Use them inside controls. Use `sceneX`/`sceneY` when comparing against another entity or storing a scene-space pointer. `clientX`/`clientY` remain raw browser viewport values.
 
 ## `emit()` vs `dispatchEvent()`
 
@@ -266,7 +275,11 @@ scene.add(overlay); // a dropdown, modal backdrop, etc.
 scene.getRoot().on(
   'click',
   (e) => {
-    if (!overlay.isPointInside(e.clientX, e.clientY)) {
+    if (
+      e.sceneX !== undefined &&
+      e.sceneY !== undefined &&
+      !overlay.isPointInside(e.sceneX, e.sceneY)
+    ) {
       closeOverlay();
     }
   },
@@ -317,8 +330,8 @@ class HoverCard extends Entity {
   }
 
   isPointInside(gx: number, gy: number): boolean {
-    const p = this.getGlobalPosition();
-    return gx >= p.x && gx <= p.x + this.width && gy >= p.y && gy <= p.y + this.height;
+    const p = this.worldToLocal(gx, gy);
+    return !!p && p.x >= 0 && p.x <= this.width && p.y >= 0 && p.y <= this.height;
   }
 
   getA11yAttributes() {
@@ -347,7 +360,7 @@ If the wrong entity intercepts during the **capture phase**, check for `stopProp
 
 Event listeners added with `on()` are permanent until `off()` is called. If listeners appear to stop, check:
 
-1. The entity was removed from the scene (`scene.remove(entity)` destroys it and its listeners).
+1. The entity was removed from the scene. `scene.remove(entity)` detaches it but does not erase its listeners, so it can be added again later.
 2. A parent listener calls `e.stopPropagation()` before the event reaches your entity.
 3. You accidentally called `off()` — sometimes via a cleanup function that runs earlier than expected.
 
@@ -364,8 +377,8 @@ myEntity.on('wheel', (e) => {
 
 Note: `ScrollView` does this automatically for its own wheel events (except with `Ctrl` held).
 
-### `e.clientX` / `e.clientY` are `0` for keyboard events
+### `e.clientX` / `e.clientY` are missing for keyboard events
 
-`clientX`/`clientY` are pointer-event fields and are `0` for keyboard events. For keyboard events, use `e.key`, `e.shiftKey`, `e.ctrlKey`, `e.metaKey`.
+`clientX`/`clientY` are pointer-event fields and are `undefined` when the native event does not provide them. For keyboard events, use `e.key`, `e.shiftKey`, `e.ctrlKey`, `e.altKey`, and `e.metaKey`.
 
 > **Next:** [Physics & Animation](/learn/physics-engine/) — springs, spatial hashing, and the `update()` loop.

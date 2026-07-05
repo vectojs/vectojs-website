@@ -74,10 +74,11 @@ const demo = demoBySlug('graph');
         <div class="explain-card">
           <h4>Static layout, WebGL-batched satellites</h4>
           <p>
-            No force-directed simulation — positions are computed once by formula, so 20,000 nodes
-            costs the same layout pass as 500. Satellites render through the same
-            <code>ComputeParticleEntity</code> WebGL-batching that pushes 150,000 points in the
-            <a href="/demos/nexus/">Nexus</a> demo — one instance per cluster.
+            No force-directed simulation — positions are recomputed only when the count changes,
+            with work proportional to that count. Satellites use one <code
+              >ComputeParticleEntity</code
+            > per cluster, the same particle primitive exercised at user-selectable counts in the
+            <a href="/demos/nexus/">Nexus</a> demo.
           </p>
         </div>
         <div class="explain-card">

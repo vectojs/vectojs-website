@@ -28,7 +28,7 @@ import { Scene } from '@vectojs/core';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
 const scene = new Scene(canvas, {
-  pointBackend: 'webgl', // Use WebGL2 for batch circles/rects (10-100× faster)
+  pointBackend: 'webgl', // Opt compatible batch circles/rects into the WebGL2 layer
   maxFPS: 60,
 });
 scene.start();
@@ -38,10 +38,10 @@ The `Scene` inserts two transparent `<div>`s into the canvas's **parent** elemen
 
 ### Render Modes
 
-| Mode                 | Behavior                                                     | Use when                             |
-| -------------------- | ------------------------------------------------------------ | ------------------------------------ |
-| `'always'` (default) | Re-render every frame, capped by `maxFPS`.                   | Continuous animation, particle sims. |
-| `'onDemand'`         | Only render when dirty or a tween is pending. Idle cost ≈ 0. | Static/event-driven UIs.             |
+| Mode                 | Behavior                                                                          | Use when                             |
+| -------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
+| `'always'` (default) | Re-render every frame, capped by `maxFPS`.                                        | Continuous animation, particle sims. |
+| `'onDemand'`         | Only draw when dirty or motion is pending; static rAF ticks still check the tree. | Static/event-driven UIs.             |
 
 ```typescript
 scene.renderMode = 'onDemand';
@@ -68,17 +68,17 @@ An `Entity` owns:
 
 ### Full property reference
 
-| Property           | Type      | Default | Notes                                                           |
-| ------------------ | --------- | ------- | --------------------------------------------------------------- |
-| `x`, `y`           | `number`  | `0`     | Local position                                                  |
-| `scaleX`, `scaleY` | `number`  | `1`     | Local scale                                                     |
-| `rotation`         | `number`  | `0`     | Radians                                                         |
-| `opacity`          | `number`  | `1`     | `[0,1]`                                                         |
-| `width`, `height`  | `number`  | `0`     | Hit box size                                                    |
-| `interactive`      | `boolean` | `false` | Enables shadow DOM node + events                                |
-| `clipChildren`     | `boolean` | `false` | Clip children to `[0,0]–[width,height]` (Canvas2D only)         |
-| `a11yFullViewport` | `boolean` | `false` | Creates a viewport-filling shadow node (for boundless surfaces) |
-| `a11yOffsetX/Y`    | `number`  | `0`     | Fine-tune shadow node placement                                 |
+| Property           | Type      | Default | Notes                                                                                                                                                                                     |
+| ------------------ | --------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `x`, `y`           | `number`  | `0`     | Local position                                                                                                                                                                            |
+| `scaleX`, `scaleY` | `number`  | `1`     | Local scale                                                                                                                                                                               |
+| `rotation`         | `number`  | `0`     | Radians                                                                                                                                                                                   |
+| `opacity`          | `number`  | `1`     | `[0,1]`; multiplied by ancestor opacity across normal, batch, WebGPU, and portal paths.                                                                                                   |
+| `width`, `height`  | `number`  | `0`     | Hit box size                                                                                                                                                                              |
+| `interactive`      | `boolean` | `false` | Enables shadow DOM node + events                                                                                                                                                          |
+| `clipChildren`     | `boolean` | `false` | Clip normal child draws to `[0,0]–[width,height]`; Canvas/SVG are exact, while Three uses a world-AABB scissor for rotated/sheared clips. GPU point/WebGPU overlay paths are not clipped. |
+| `a11yFullViewport` | `boolean` | `false` | Creates a viewport-filling shadow node (for boundless surfaces)                                                                                                                           |
+| `a11yOffsetX/Y`    | `number`  | `0`     | Fine-tune shadow node placement                                                                                                                                                           |
 
 ### Subclassing Entity
 
@@ -90,10 +90,9 @@ class GlowRect extends Entity {
   color = '#6366f1';
 
   isPointInside(gx: number, gy: number): boolean {
-    // gx/gy are in global (world) coordinates.
-    const local = this.getGlobalPosition();
+    const local = this.worldToLocal(gx, gy);
     return (
-      gx >= local.x && gx <= local.x + this.width && gy >= local.y && gy <= local.y + this.height
+      !!local && local.x >= 0 && local.x <= this.width && local.y >= 0 && local.y <= this.height
     );
   }
 
@@ -115,7 +114,7 @@ scene.add(rect);
 
 ### Hit-Testing and Events
 
-Set `entity.interactive = true` to receive pointer events. The `Scene` calls `entity.isPointInside(x, y)` every frame — the first entity (depth-first, front to back) whose method returns `true` is the hit target. There is no interactive filter during traversal: if a non-interactive entity implements `isPointInside`, it can still be returned.
+Set `entity.interactive = true` to project an input-capable accessibility node in a normal canvas scene. When hit-testing is requested, `findEntityAt(x, y)` returns the first entity (depth-first, front to back) whose `isPointInside()` returns `true`. There is no interactive filter during traversal: programmatic hit tests and adapters can still return a non-interactive entity.
 
 ```typescript
 rect.interactive = true;
@@ -195,11 +194,11 @@ getBatchCircle() {
 }
 ```
 
-Batched leaves skip the full `save/translate/render/restore` path; consecutive same-color siblings coalesce into a single GPU draw call.
+Representable batched leaves skip the full `save/translate/render/restore` path and enter the WebGL buffer. Canvas mode or unsupported accumulated transforms use the entity's normal `render()` fallback.
 
 ### Viewport culling
 
-Override `getBounds()` to return an AABB. Entities outside the viewport skip rendering entirely:
+Override `getBounds()` to return a local AABB. Entities outside the viewport skip their `render()` call, while traversal and `update()` continue:
 
 ```typescript
 getBounds() {
@@ -211,4 +210,4 @@ getBounds() {
 
 ### On-demand rendering
 
-Switch `scene.renderMode = 'onDemand'` for mostly-static UIs. Idle frames cost nothing. Call `scene.markDirty()` from event handlers.
+Switch `scene.renderMode = 'onDemand'` for mostly-static UIs. Static ticks skip update/render and GPU work while continuing to poll rAF for dirty/animation state. Call `scene.markDirty()` from event handlers.

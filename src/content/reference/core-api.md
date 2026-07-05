@@ -62,16 +62,16 @@ no-op so headless layout / `toSVG()` still work.
 
 ### SceneOptions
 
-| Option                 | Type                          | Default          | Effect                                                                                                                                                                                                                                                                                                                                                |
-| ---------------------- | ----------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pointBackend`         | `'canvas' \| 'webgl'`         | `'canvas'`       | Backend for `getBatchCircle()`/`getBatchRect()` point clouds. `'webgl'` stacks a WebGL2 canvas (`z-index:5`) drawing all such primitives in a few draw calls (10–100× for 100k+). Auto-falls back to `'canvas'` if WebGL2 is unavailable. The GL layer composites **above** the 2D content, so its points do not interleave per-entity with 2D draws. |
-| `particleBackend`      | `'auto' \| 'webgpu' \| 'cpu'` | `'auto'`         | `ComputeParticleEntity` backend. `'auto'` tries WebGPU, falls back to CPU on failure/absence. `'cpu'` forces the CPU sim (sets `webgpuDisabled`).                                                                                                                                                                                                     |
-| `maxFPS`               | `number`                      | `60`             | Frame-rate cap. `0` = uncapped (native refresh). Continuous animations still run, just less often. (Internally `0` under `NODE_ENV=test`/`VITEST`.) Also settable live via `scene.maxFPS`.                                                                                                                                                            |
-| `respectReducedMotion` | `boolean`                     | `true`           | When the OS requests `prefers-reduced-motion`, cap to `REDUCED_MOTION_FPS` (30) — or the lower of that and `maxFPS`. `false` ignores the OS setting.                                                                                                                                                                                                  |
-| `a11ySyncInterval`     | `number`                      | `0`              | Throttle the a11y shadow-DOM sync to at most once per N ms. `0` = sync every rendered frame. A small value (e.g. `100`) keeps the a11y layer eventually consistent during heavy animation while sparing per-frame DOM writes. Also live via `scene.a11ySyncInterval`.                                                                                 |
-| `debugA11y`            | `boolean`                     | `false`          | Render shadow nodes with a blue dashed outline (dev aid) instead of `opacity:0`. They stay clickable by automation either way.                                                                                                                                                                                                                        |
-| `renderer`             | `IRenderer`                   | `CanvasRenderer` | Custom renderer (e.g. `ThreeRenderer` from `@vectojs/three`).                                                                                                                                                                                                                                                                                         |
-| `disableWindowResize`  | `boolean`                     | `false`          | Skip the auto `window` resize listener. Use inside a custom layout container / offscreen canvas, then drive size with `resize(w, h)`.                                                                                                                                                                                                                 |
+| Option                 | Type                          | Default          | Effect                                                                                                                                                                                                                                                                                  |
+| ---------------------- | ----------------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pointBackend`         | `'canvas' \| 'webgl'`         | `'canvas'`       | Backend for representable `getBatchCircle()`/`getBatchRect()` leaves. `'webgl'` stacks a WebGL2 canvas (`z-index:5`) and batches those primitives; unavailable WebGL2 falls back to Canvas. The GL layer composites above 2D content, so cross-layer painter order does not interleave. |
+| `particleBackend`      | `'auto' \| 'webgpu' \| 'cpu'` | `'auto'`         | `ComputeParticleEntity` backend. `'auto'` tries WebGPU and warns before falling back to CPU. `'webgpu'` explicitly requests WebGPU but currently logs an error and still falls back if initialization fails. `'cpu'` forces the CPU sim (sets `webgpuDisabled`).                        |
+| `maxFPS`               | `number`                      | `60`             | Frame-rate cap. `0` = uncapped (native refresh). Continuous animations still run, just less often. (Internally `0` under `NODE_ENV=test`/`VITEST`.) Also settable live via `scene.maxFPS`.                                                                                              |
+| `respectReducedMotion` | `boolean`                     | `true`           | When the OS requests `prefers-reduced-motion`, cap to `REDUCED_MOTION_FPS` (30) — or the lower of that and `maxFPS`. `false` ignores the OS setting.                                                                                                                                    |
+| `a11ySyncInterval`     | `number`                      | `0`              | Throttle the a11y shadow-DOM sync to at most once per N ms. `0` = sync every rendered frame. A small value (e.g. `100`) keeps the a11y layer eventually consistent during heavy animation while sparing per-frame DOM writes. Also live via `scene.a11ySyncInterval`.                   |
+| `debugA11y`            | `boolean`                     | `false`          | Render shadow nodes with a blue dashed outline (dev aid) instead of `opacity:0`. They stay clickable by automation either way.                                                                                                                                                          |
+| `renderer`             | `IRenderer`                   | `CanvasRenderer` | Custom renderer (e.g. `ThreeRenderer` from `@vectojs/three`).                                                                                                                                                                                                                           |
+| `disableWindowResize`  | `boolean`                     | `false`          | Skip the auto `window` resize listener. Use inside a custom layout container / offscreen canvas, then drive size with `resize(w, h)`.                                                                                                                                                   |
 
 Note: `renderMode` is a **public field** (default `'always'`), not a constructor
 option — set `scene.renderMode = 'onDemand'` after construction.
@@ -96,9 +96,10 @@ scene.a11yNeedsReorder: boolean
 
 - **`renderMode: 'always'` (default)** — re-render every frame, capped by the
   effective FPS.
-- **`renderMode: 'onDemand'`** — only render when the scene is _dirty_ (see
-  `markDirty()`) or an `animate()` tween is pending. Idle frames cost ~0. Ideal
-  for static / event-driven UIs.
+- **`renderMode: 'onDemand'`** — only draw when the scene is _dirty_ (see
+  `markDirty()`) or an animation/transition driver is pending. Static rAF ticks
+  still inspect the tree for pending motion, but skip entity update/render and
+  GPU submission. Ideal for static / event-driven UIs.
 
 **Idle auto-throttle (the key gotcha).** A scene is considered **static** when it
 is not dirty AND no node in the main/overlay tree has a pending `animate()`
@@ -124,7 +125,7 @@ scene.add(entity: Entity): this              // attach to the scene root
 scene.remove(entity: Entity): this           // detach + recursively tear down its a11y shadow nodes
 scene.start(): void                          // begin the rAF loop; idempotent; warns once if width/height is 0
 scene.stop(): void                           // halt after the current frame; start() resumes
-scene.destroy(): void                        // tear down loop, listeners, a11y/portal/GL/GPU DOM
+scene.destroy(): void                        // idempotently destroy owned entity subtrees/resources, loop, listeners, DOM layers, GPU managers, and renderer
 scene.markDirty(): void                      // request a redraw next frame (meaningful in onDemand + escapes idle throttle)
 scene.resize(width: number, height: number): void   // set viewport; resizes renderer + GL layer; marks dirty
 scene.showOverlay(overlay: Entity): void     // add to overlayRoot (drawn on top, no clip)
@@ -148,8 +149,9 @@ scene.detachA11y(entity: Entity): void       // remove shadow nodes for a subtre
 ```ts
 scene.getRenderer(): IRenderer
 scene.getRoot(): Entity
-scene.render(renderer: IRenderer, dt = 0, time = 0): void   // draw the whole graph to a renderer (used by toSVG/custom loops)
-scene.toSVG(): string                        // render once through SVGRenderer → flat SVG XML
+scene.clientToScene(clientX: number, clientY: number): Point // viewport → logical Scene coordinates
+scene.render(renderer: IRenderer, dt = 0, time = 0): void   // main renderer advances state; secondary renderers draw a read-only snapshot
+scene.toSVG(): string                        // read-only current-state snapshot through SVGRenderer → flat SVG XML
 scene.findEntityAt(x, y): Entity | null      // topmost entity whose isPointInside() returns true (depth-first, front-to-back; no interactive filter)
 scene.getA11yElement(entityId: string): HTMLElement | undefined
 scene.getA11yTree(): A11yTreeNode[]          // nested snapshot of the projected shadow nodes (id/tag/role/label/value/...)
@@ -184,22 +186,22 @@ abstract class Entity {
 
 ### Public properties
 
-| Property                     | Type             | Default         | Notes                                                                                                                              |
-| ---------------------------- | ---------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                         | `string`         | `entity_<rand>` | Used as the shadow node id / `data-vecto-id`.                                                                                      |
-| `children`                   | `Entity[]`       | `[]`            |                                                                                                                                    |
-| `parent`                     | `Entity \| null` | `null`          |                                                                                                                                    |
-| `scene`                      | getter           | —               | Walks the parent chain to the owning `Scene` (or `null`).                                                                          |
-| `x`, `y`                     | `number`         | `0`             | Local position.                                                                                                                    |
-| `scaleX`, `scaleY`           | `number`         | `1`             | Local scale.                                                                                                                       |
-| `rotation`                   | `number`         | `0`             | Local rotation, radians.                                                                                                           |
-| `opacity`                    | `number`         | `1`             | Multiplied via `setGlobalAlpha` during render.                                                                                     |
-| `interactive`                | `boolean`        | `false`         | Setter side-effect: flags `a11yNeedsReorder` + `markDirty()`. Gates a11y projection (with `width`).                                |
-| `width`, `height`            | `number`         | `0`             | Hit box / a11y shadow box size (× scale).                                                                                          |
-| `clipChildren`               | `boolean`        | `false`         | Clip children to `[0,0]–[width,height]` (Canvas2D only); how scroll/overflow containers work.                                      |
-| `a11yOffsetX`, `a11yOffsetY` | `number`         | `0`             | Nudge the shadow node relative to the entity's global position.                                                                    |
-| `a11yFullViewport`           | `boolean`        | `false`         | Project a viewport-filling shadow node even with `width === 0`; mounted **behind** all others so on-top components stay clickable. |
-| `isDOMPortal`                | `boolean`        | `false`         | Marks `DOMPortalEntity`; portals are skipped by a11y sync.                                                                         |
+| Property                     | Type             | Default         | Notes                                                                                                                                                                                 |
+| ---------------------------- | ---------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                         | `string`         | `entity_<rand>` | Used as the shadow node id / `data-vecto-id`.                                                                                                                                         |
+| `children`                   | `Entity[]`       | `[]`            |                                                                                                                                                                                       |
+| `parent`                     | `Entity \| null` | `null`          |                                                                                                                                                                                       |
+| `scene`                      | getter           | —               | Walks the parent chain to the owning `Scene` (or `null`).                                                                                                                             |
+| `x`, `y`                     | `number`         | `0`             | Local position.                                                                                                                                                                       |
+| `scaleX`, `scaleY`           | `number`         | `1`             | Local scale.                                                                                                                                                                          |
+| `rotation`                   | `number`         | `0`             | Local rotation, radians.                                                                                                                                                              |
+| `opacity`                    | `number`         | `1`             | Multiplied by every ancestor opacity, then applied to normal, batched, WebGPU, and DOM-portal output.                                                                                 |
+| `interactive`                | `boolean`        | `false`         | Setter side-effect: flags `a11yNeedsReorder` + `markDirty()`. Gates a11y projection (with `width`).                                                                                   |
+| `width`, `height`            | `number`         | `0`             | Hit box / a11y shadow box size (× scale).                                                                                                                                             |
+| `clipChildren`               | `boolean`        | `false`         | Clip normal child draws to `[0,0]–[width,height]`; Canvas/SVG are exact. Three uses a world-AABB scissor for rotated/sheared clips. WebGL point/WebGPU overlay paths are not clipped. |
+| `a11yOffsetX`, `a11yOffsetY` | `number`         | `0`             | Nudge the shadow node relative to the entity's global position.                                                                                                                       |
+| `a11yFullViewport`           | `boolean`        | `false`         | Project a viewport-filling shadow node even with `width === 0`; mounted **behind** all others so on-top components stay clickable.                                                    |
+| `isDOMPortal`                | `boolean`        | `false`         | Marks `DOMPortalEntity`; portals are skipped by a11y sync.                                                                                                                            |
 
 > **A11y projection requires a box.** A shadow node is only created when
 > `interactive && (width > 0 || a11yFullViewport)`. An interactive entity with
@@ -213,11 +215,20 @@ add(child: Entity): this                     // also flags a11yNeedsReorder + ma
 remove(child: Entity): this
 setPosition(x: number, y: number): this
 getGlobalPosition(): Point                   // world position; accumulates translate→scale→rotate up to (excluding) root
+getWorldTransform(): AffineTransform         // exact accumulated Canvas T·S·R matrix { a,b,c,d,e,f }
+localToWorld(localX: number, localY: number): Point
+worldToLocal(worldX: number, worldY: number): Point | null // null for a singular transform
+getWorldBounds(): Bounds                    // local getBounds() (or width/height) transformed to a world AABB
 getWorldScale(): { x: number; y: number }    // product of own + ancestor scale (excl. root)
 getWorldRotation(): number                   // sum of own + ancestor rotation (excl. root), radians
 getBounds(): Bounds | null                   // local AABB for culling; null (default) = never culled
 destroy(): void                              // clear animations + listeners, detach from parent
 ```
+
+`getWorldScale()` and `getWorldRotation()` are convenience accumulations. Under
+nested rotation plus non-uniform scale, the composed matrix can contain shear;
+use `getWorldTransform()`, `localToWorld()`, `worldToLocal()`, or
+`getWorldBounds()` when exact geometry matters.
 
 ### Animation
 
@@ -272,8 +283,10 @@ dispatchEvent(event: VectoJSEvent): void             // DOM-style capture (root�
   capture phase. Bubble listeners also fire for the legacy `emit()` path.
 - `VectoJSEvent<N>` wraps a `nativeEvent` and adds `target`, `currentTarget`,
   `bubbles`, `stopPropagation()`, `stopImmediatePropagation()`,
-  `preventDefault()`, and pass-throughs (`deltaX/Y`, `clientX/Y`, `key`,
-  `defaultPrevented`). A non-bubbling event still runs the capture phase but only
+  `preventDefault()`, viewport `clientX/Y`, logical `sceneX/Y`, current-target
+  `localX/Y`, modifier keys, and pass-throughs (`deltaX/Y`, `key`,
+  `defaultPrevented`). Local coordinates invert the complete nested affine transform.
+  A non-bubbling event still runs the capture phase but only
   fires its target in the bubble phase.
 - `'change'` from a form-control shadow `<input>` carries
   `{ value, checked, selectionStart, selectionEnd, composition }` where
@@ -291,8 +304,9 @@ update(dt: number, time: number): void       // optional override; dt is MILLISE
 ```
 
 `getBatchCircle`/`getBatchRect` are read **every frame** (animated color/radius
-honored). A batched leaf skips its own `save/translate/scale/rotate/render/
-restore`; runs of same-color siblings coalesce into one `fill()`.
+honored). A representable batched leaf skips its own
+`save/translate/scale/rotate/render/restore`; Canvas mode or an unsupported
+accumulated affine transform uses the entity's normal `render()` fallback.
 
 ---
 
@@ -311,7 +325,7 @@ prepareRich(spans: StyledSpan[], fontAtlas, baseFontSize = 32, baseStyle?: TextS
 
 // Hot: place a PreparedText into positioned glyphs (reads engine maxWidth/maxHeight)
 layoutPrepared(prepared, exclusionMask?, exclusions?: ExclusionRect[]): LayoutResult
-layoutPreparedIntoBuffer(prepared, buffer: LayoutResultBuffer, exclusionMask?): void   // zero-GC
+layoutPreparedIntoBuffer(prepared, buffer: LayoutResultBuffer, exclusionMask?): void   // reuses typed coordinate storage
 
 // One-shot (cold+hot together)
 layoutText(text, fontAtlas, fontSize = 32, exclusionMask?): LayoutResult
@@ -382,6 +396,7 @@ interface IRenderer {
   fillCircle(cx, cy, radius, color, alpha = 1): void; // order-preserving same-style batch
   flush(): void; // commit pending batch (no-op when idle)
   createLinearGradient(x0, y0, x1, y1, colorStops: { stop; color }[]): any;
+  dispose?(): void; // idempotent backend cleanup; Scene.destroy() calls it
 }
 ```
 
@@ -407,7 +422,9 @@ toXMLString(): string
 ```
 
 Software `IRenderer` that records draws into a flat SVG string (matrix/alpha/clip
-stacks, gradient dedup). Backs `scene.toSVG()`. `SVGLinearGradient` is the
+stacks, gradient dedup). Text and attribute values are XML-escaped, and external
+image URLs reject executable/data/file/custom schemes (Canvas-generated raster
+data URLs remain supported). Backs `scene.toSVG()`. `SVGLinearGradient` is the
 gradient descriptor type.
 
 ### WebGL point layer
@@ -434,7 +451,9 @@ rects (expanded triangles), textured sprites, and MSDF glyphs (median-of-3
 distance reconstruction, crisp at any zoom). `color` tints; white texels pass
 through unchanged. Sprite/glyph adds are no-ops until their texture is set. The
 Scene routes `getBatchCircle`/`getBatchRect` (and CPU particles, MSDF text) here
-when `pointBackend: 'webgl'`.
+when `pointBackend: 'webgl'`. Leaves under transforms the GPU primitive cannot
+represent exactly (for example non-uniform scale or shear) fall back to the
+normal renderer.
 
 > Entity hooks `getBatchCircle()` → `{ radius, color }` and `getBatchRect()` →
 > `{ width, height, color }` are the per-entity opt-ins that feed this layer.
@@ -504,16 +523,22 @@ cursor; cursor "off" is `< -9000`) + pending explosion (within 150px) → integr
 ### WebGPU vs CPU
 
 When `particleBackend` allows it and a WebGPU device initializes, the Scene runs
-compute + render passes on the GPU; otherwise it calls `updateCPU` and draws
-through `fillCircle` / the WebGL point layer. **`gpuStorageBuffer` is the backend
-indicator** — truthy means the WebGPU path is active for that entity; `null`
-means CPU. GPU resources (`gpuStorageBuffer`, `gpuUniformBuffer`,
+compute + render passes into a dedicated WebGPU canvas; otherwise it calls
+`updateCPU` and draws through `fillCircle` / the optional WebGL point layer.
+`gpuStorageBuffer` being non-null confirms that resources were allocated, but it
+is not a durable “currently active” status after asynchronous device loss.
+GPU resources (`gpuStorageBuffer`, `gpuUniformBuffer`,
 `computeBindGroup`, `renderBindGroup`) and `needsInit` are public for backend
 authors.
 
 > WebGPU init is lazy (first frame a `ComputeParticleEntity` appears) and async,
 > with device-loss auto-recovery. Set viewport via `resize(w, h)` before relying
 > on the sim — a `0×0` box produces no motion.
+
+Particle positions are scene-space. The Canvas CPU path participates in the
+entity transform stack; the separate WebGL/WebGPU overlay paths do not apply
+entity translation/scale/rotation or parent clipping. Opacity is inherited on
+all paths.
 
 ---
 
@@ -608,7 +633,7 @@ new DOMPortalEntity(domElement: HTMLElement, width?, height?, id?)
 ```
 
 Projects a **real** DOM element positioned/transformed to track the entity
-(`matrix(...)` + z-index from paint order) in the portal layer. A leaf node —
+(`matrix(...)` + inherited opacity + z-index from paint order) in the portal layer. A leaf node —
 `add()` warns and child entities are unsupported. Forwards native pointer/wheel/
 focus events as `VectoJSEvent`s. Uses a `ResizeObserver` to cache intrinsic size
 (`cachedWidth`/`cachedHeight`) when `width`/`height` are 0. `destroy()` detaches
@@ -622,7 +647,9 @@ setSVGSource(svgSource: string): void
 ```
 
 Rasterizes an SVG string to an `ImageBitmap`/image and blits it, re-rasterizing at
-a target scale (LOD) so it stays sharp when zoomed. AABB hit-test in local space.
+a target scale (LOD) so it stays sharp when zoomed. `scene.toSVG()` embeds the
+percent-encoded source as an isolated nested SVG image rather than an inert URL
+placeholder. AABB hit-test in local space.
 
 ---
 
@@ -652,6 +679,11 @@ automation/AT can interact; `opacity:0` unless `debugA11y`). Each node carries
 `id` + `data-vecto-id`, plus the role/label/state from
 `Entity.getA11yAttributes()`.
 
+The projection root tracks the canvas CSS box: canvas offset and non-uniform CSS
+scaling are applied to the shadow and DOM-portal layers while entity geometry
+remains in logical Scene coordinates. Arbitrary CSS rotation/skew of the canvas
+is not part of this mapping.
+
 `A11yAttributes`:
 
 ```ts
@@ -675,8 +707,9 @@ accessibility**" story: visuals are 100% GPU/canvas, yet a Playwright/agent
 
 - `data-vecto-id` on each shadow node mirrors the entity `id` — the stable handle
   for automation selectors.
-- `a11ySyncInterval` throttles sync during heavy animation (it freezes entirely
-  while an `animate()` tween runs, then catches up at rest).
+- `a11ySyncInterval` throttles sync during animation and ensures a final
+  catch-up after pending motion settles; it does not suspend all sync for the
+  full animation.
 - `debugA11y: true` shows the nodes (blue dashed) for development.
 - `detachA11y(entity)` prunes a subtree's shadow nodes without removing the
   entity; `remove()` prunes automatically. Per-frame sync **creates/updates but

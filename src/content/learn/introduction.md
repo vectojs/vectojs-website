@@ -6,9 +6,9 @@ order: 1
 
 # Introduction to VectoJS
 
-**VectoJS** is a mathematical UI rendering engine for the browser. It uses a pure JavaScript entity tree (the _Virtual Math Tree_) to compute layout, applies physics and animations entirely in memory, then paints the result to a `<canvas>`. There is no DOM involvement in the render path — no layout reflows, no style recalculations, no composite layers.
+**VectoJS** is a mathematical UI rendering engine for the browser. It uses a JavaScript entity tree (the _Virtual Math Tree_) to compute layout, applies physics and animations in memory, then paints the visual result to canvas-backed layers. Entity drawing avoids DOM layout/style work; the same frame may still update projected accessibility and portal DOM.
 
-At the same time, VectoJS is fully accessible: for every interactive component, the engine projects an invisible real DOM node (a `<button>`, `<input>`, `<a>`, etc.) positioned over the canvas, so screen readers, keyboard navigation, and Playwright tests work without any extra adapters.
+For eligible interactive components, VectoJS can project an invisible real DOM node (a `<button>`, `<input>`, `<a>`, etc.) over the canvas. This enables native form editing and role-based automation, but accessibility still depends on application semantics, focus/keyboard behavior, visual alignment, and assistive-technology testing.
 
 ## What problem does it solve?
 
@@ -29,7 +29,7 @@ Most canvas libraries give you a drawing API and leave layout, hit-testing, and 
 | **Layout**        | Pure-math entity tree, no reflow                       | Manual              |
 | **Hit-testing**   | Per-entity `isPointInside()`, O(N) depth-first         | Manual              |
 | **Events**        | DOM-like capture + bubble                              | Manual or callbacks |
-| **Accessibility** | Automatic shadow DOM projection                        | Not provided        |
+| **Accessibility** | Automatic semantic DOM projection                      | Not provided        |
 | **Text**          | Full LayoutEngine: wrapping, BiDi, Arabic, MSDF        | `fillText` only     |
 | **Animation**     | Queued tweens, spring physics                          | External library    |
 | **Components**    | Button, Input, Toggle, Dropdown, ScrollView, Markdown… | Not provided        |
@@ -38,31 +38,31 @@ Most canvas libraries give you a drawing API and leave layout, hit-testing, and 
 
 VectoJS is built upon eight fundamental mathematical and architectural pillars. For developers moving from a traditional DOM or standard game loop mindset, these concepts establish the foundational "UI as an algebraic equation" mental model.
 
-Through our **Hybrid Indexed Structure**, each pillar is linked to both its rigorous mathematical theory and its practical implementation guide:
+Each pillar below links its implementation model to the relevant practical guide:
 
 ### 1. The Virtual Math Tree (VMT)
 
-The core tree architecture replacing the traditional browser DOM. It is a pure in-memory, algebraic scene graph of positioned localized coordinate systems. In the VMT, UI hierarchy, transform cascades, and drawing states are entirely resolved as contiguous data models in memory, resulting in Zero-GC pressure and near-constant per-node cost even at over 100,000 active nodes. (The traversal itself is still $O(N)$ per frame — see [Performance](/learn/performance/) for how `renderMode: 'onDemand'` avoids paying that cost on unchanged frames.)
+The core tree architecture replacing the traditional browser DOM. It is an in-memory scene graph of localized coordinate systems. The render walk threads scalar transforms without allocating a matrix object per node. Traversal, hit-testing, and accessibility synchronization are still $O(N)$; `renderMode: 'onDemand'` skips drawing unchanged scenes but continues polling `requestAnimationFrame`.
 
 - 📖 **Mathematical Theory**: [Mathematical Foundations: VMT](/learn/math-foundations/#1-the-virtual-math-tree-vmt)
 - 🛠️ **Practical Implementation**: [Core Scene Architecture Guide](/learn/core-scene/)
 
-### 2. Semantic Shadow DOM (a11yRoot)
+### 2. Semantic projection overlay (a11yRoot)
 
-Our protective "escape hatch" for Canvas accessibility and testing limitations. To bridge the canvas "black box" deficiency, VectoJS dynamically projects a transparent layer of semantic HTML tags (`<button>`, `<input>`, `<a>`, etc.) absolutely positioned directly above the canvas coordinates. This makes standard Playwright testing selectors (e.g., `getByRole`), screen readers, and native CJK Input Method Editor (IME) compositions work perfectly out of the box.
+Our bridge for Canvas accessibility and testing limitations. VectoJS projects a transparent layer of semantic HTML tags (`<button>`, `<input>`, `<a>`, etc.) above the canvas. This enables standard Playwright role selectors and lets input/textarea components delegate editing and IME behavior to native controls. Applications still need keyboard, screen-reader, contrast, and focus testing for their own component composition.
 
 - 📖 **Mathematical Theory**: [Mathematical Foundations: a11yRoot](/learn/math-foundations/#2-semantic-shadow-dom-a11yroot)
 - 🛠️ **Practical Implementation**: [Accessibility & Automation Guide](/learn/accessibility/)
 
-### 3. Affine Transformations & $SE(2)$ Lie Group
+### 3. Affine Transformations
 
-VectoJS rejects CSS layout properties like `absolute` or `flex` positioning. Instead, all translation, scaling, and rotation vectors are compressed into a homogeneous $3 \times 3$ affine transform matrix. Spatial nesting accumulates via matrix multiplications during DFS traversal. Global click events are solved backwards through analytic inversion in $O(1)$ time complexity using **Cramer's Rule**.
+VectoJS uses explicit entity positions and layout components instead of CSS positioning. Translation, scaling, and rotation compose as a homogeneous $3 \times 3$ affine transform during DFS traversal. `worldToLocal()` analytically inverts the affine transform in constant arithmetic time, allowing transformed rectangular controls to map scene-space pointers back to local space.
 
-- 📖 **Mathematical Theory**: [Mathematical Foundations: $SE(2)$ Lie Group](/learn/math-foundations/#3-affine-transformations--se2-lie-group-theory)
+- 📖 **Mathematical Theory**: [Mathematical Foundations: affine transforms](/learn/math-foundations/#3-affine-transformations)
 
 ### 4. Cold/Hot Split Layout Engine
 
-A typographic architecture that overcomes the browser’s single-threaded reflow layout bottleneck. VectoJS isolates expensive dictionary segmentation and character measurement into the **Cold Pass** (executed only on content change). The responsive bounds wrapping and refitting run in the **Hot Pass** using cached width tables in pure mathematical time, capping LLM text appending complexity to $O(\text{New Tokens})$.
+A typographic architecture that separates dictionary segmentation and character measurement into a **Cold Pass** (on content change). Responsive wrapping and refitting run in a **Hot Pass** using cached advances. Paragraph memoization lets append operations reuse unchanged leading paragraphs; work still grows with the changed paragraph, and Markdown additionally re-lexes its complete source buffer.
 
 - 📖 **Mathematical Theory**: [Mathematical Foundations: Cold/Hot Split](/learn/math-foundations/#4-coldhot-split-layout-engine)
 - 🛠️ **Practical Implementation**: [Text & Typography Guide](/learn/text-typography/)
@@ -74,11 +74,11 @@ $$I_{\text{allowed}} = I_0 \setminus \bigcup E_k$$
 
 - 📖 **Mathematical Theory**: [Mathematical Foundations: Set-Difference Algebra](/learn/math-foundations/#5-set-difference-algebra-for-text-flows)
 
-### 6. Analytical Spline Hit-Testing
+### 6. Sampled Spline Hit-Testing
 
-Traditional canvas systems click-test curves using pixel color reads or inaccurate rectangular bounding boxes (AABBs). VectoJS introduces computational geometry, formulating click distance as finding roots of a **5th-degree polynomial derivative (Quintic Equation)**. It combines Bézier subdivision and **Newton-Raphson iterations** to converge to float-precision pixel-perfect detection in 3–5 cycles.
+`SplineEntity` converts cubic-polynomial segments to Bézier control points, samples each curve into a cached polyline, and compares the pointer's squared distance against each line segment. This avoids pixel reads and is more precise than AABB-only mode, with accuracy controlled by the sampling density and hit tolerance.
 
-- 📖 **Mathematical Theory**: [Mathematical Foundations: Spline Root-Finding](/learn/math-foundations/#6-parametric-spline-geometry--analytical-hit-testing)
+- 📖 **Mathematical Theory**: [Mathematical Foundations: Sampled Spline Hit-Testing](/learn/math-foundations/#6-sampled-spline-hit-testing)
 
 ### 7. Semi-Implicit Euler ODE Dynamics
 
@@ -87,16 +87,16 @@ CSS easing timers break and jump visually when state transitions are interrupted
 - 📖 **Mathematical Theory**: [Mathematical Foundations: ODE Dynamics](/learn/math-foundations/#7-differential-equations--semi-implicit-euler-solvers)
 - 🛠️ **Practical Implementation**: [Physics Engine Integration](/learn/physics-engine/)
 
-### 8. Spatial Hashing Grid Culling
+### 8. SpatialHashGrid Utility
 
-To prevent $O(N)$ traversal overhead in dense interactive scenes, VectoJS discretization maps the 2D infinite plane to a grid, using prime numbers to construct a 1D spatial hash table. Mouse hover searches and viewport culling query only the target cells and their immediate 8 neighbors, dropping culling and picking complexity to a constant average of **$O(1)$**.
+VectoJS exports a fixed-cell `SpatialHashGrid` that applications can populate for local AABB neighbor queries. It uses a Cantor-paired numeric key and returns IDs from every cell overlapped by the query box. The Scene does not populate or query this grid automatically for hit-testing or culling.
 
-- 📖 **Mathematical Theory**: [Mathematical Foundations: Spatial Hashing](/learn/math-foundations/#8-spatial-hashing--o1-viewport-culling)
+- 📖 **Mathematical Theory**: [Mathematical Foundations: SpatialHashGrid Utility](/learn/math-foundations/#8-spatialhashgrid-utility)
 - 🛠️ **Practical Implementation**: [Hardware Performance Optimization](/learn/performance/)
 
 ## Architecture overview
 
-<img src="/images/vmt-architecture.svg" alt="Architecture overview: Scene drives an Entity tree through the rAF loop, physics, and IRenderer backends (Canvas2D, WebGL, WebGPU), projecting an A11y shadow DOM layer and consuming @vectojs/ui components" class="diagram" />
+<img src="/images/vmt-architecture.svg" alt="Architecture overview: Scene drives an Entity tree through the rAF loop, physics, and IRenderer backends (Canvas2D, WebGL, WebGPU), projecting an accessibility DOM overlay and consuming @vectojs/ui components" class="diagram" />
 
 ### The Virtual Math Tree (VMT)
 
@@ -114,10 +114,10 @@ The Scene walks the tree every frame: translate → scale → rotate for each en
 
 <figure>
   <iframe src="/sandbox/diagram-pipeline.html" class="diagram-frame" loading="lazy" title="The VectoJS render loop: the six stages of one dirty frame, rendered live by VectoJS" sandbox="allow-scripts allow-same-origin"></iframe>
-  <figcaption>One requestAnimationFrame tick: update, cull, render, flush WebGL batches, then sync the A11y shadow DOM. <em>(Rendered live by VectoJS.)</em></figcaption>
+  <figcaption>One requestAnimationFrame tick: update, cull, render, flush WebGL batches, then sync the accessibility projection overlay. <em>(Rendered live by VectoJS.)</em></figcaption>
 </figure>
 
-### The A11y shadow layer
+### The accessibility projection layer
 
 A transparent `<div>` lives above the canvas (`z-index: 10`). When an entity has `interactive = true`, the `Scene` creates a real DOM element inside this div — a `<button>`, `<input>`, `<a>`, `<img>`, or `<div role="...">` — and positions it over the entity's canvas box on every frame.
 
@@ -125,12 +125,12 @@ Screen readers discover these real elements. Playwright's `page.getByRole('butto
 
 ### Rendering backends
 
-| Backend           | When                        | Capability                            |
-| ----------------- | --------------------------- | ------------------------------------- |
-| `CanvasRenderer`  | Default                     | Canvas 2D; `devicePixelRatio` scaling |
-| WebGL point layer | `pointBackend: 'webgl'`     | Batch circles/rects + MSDF glyphs     |
-| WebGPU compute    | `particleBackend: 'webgpu'` | 100k–1M particles on the GPU          |
-| `SVGRenderer`     | `scene.toSVG()`             | Headless SVG export                   |
+| Backend           | When                        | Capability                                                     |
+| ----------------- | --------------------------- | -------------------------------------------------------------- |
+| `CanvasRenderer`  | Default                     | Canvas 2D; `devicePixelRatio` scaling                          |
+| WebGL point layer | `pointBackend: 'webgl'`     | Batch circles/rects + MSDF glyphs                              |
+| WebGPU compute    | `particleBackend: 'webgpu'` | GPU particle simulation; capacity is device/workload dependent |
+| `SVGRenderer`     | `scene.toSVG()`             | Headless SVG export                                            |
 
 ## Packages
 
@@ -142,29 +142,29 @@ Screen readers discover these real elements. Playwright's `page.getByRole('butto
 
 ## Features
 
-### ECS architecture
+### Entity scene graph
 
-Every object in VectoJS is an `Entity` in the Virtual Math Tree. You add behavior by subclassing `Entity` and overriding `update(dt)` and `render(renderer)`. There are no opaque component registries — the entity tree is a plain JavaScript object graph with deterministic traversal order and full transform inheritance (translate → scale → rotate).
+Every visual object in VectoJS is an `Entity` in the Virtual Math Tree. You add behavior by subclassing `Entity` and overriding `update(dt)` and `render(renderer)`. This is a scene graph, not an entity-component-system architecture: the tree is a plain JavaScript object graph with deterministic traversal order and full transform inheritance (translate → scale → rotate).
 
-### Zero DOM
+### Canvas-first visual tree
 
-The entire UI tree lives inside a single `<canvas>` element. No matter how many animated objects, buttons, or text blocks the scene contains, the DOM node count stays flat. Browser CSS layout never fires for canvas content — VectoJS's own math engine replaces the box model entirely.
+The visual entity tree is painted into canvas rather than represented by styled DOM nodes. Browser CSS layout does not position canvas entities. Interactive/accessibility entities do project semantic shadow elements, so DOM node count grows with the number of projected controls rather than staying strictly flat.
 
 ### Hot/cold LayoutEngine with bidirectional text support
 
-Text layout runs in two phases. `prepare()` (cold) measures glyph widths and builds the span tree — expensive, run once per content change. `layoutPrepared()` (hot) applies line-break constraints to a prepared result — cheap, runs on every resize. This makes responsive text reflow essentially free. The Unicode Bidirectional Algorithm (BiDi) handles Arabic, Hebrew, and mixed-direction paragraphs correctly.
+Text layout runs in two phases. `prepare()` (cold) segments and measures glyph widths, while `layoutPrepared()` (hot) applies line-break constraints to cached prepared data. Resize avoids repeated browser measurement, though wrapping still costs work proportional to the prepared content. The BiDi resolver handles Arabic, Hebrew, and mixed-direction paragraphs.
 
 ### WebGL and WebGPU hardware acceleration
 
-Same-color, same-alpha shapes on the WebGL point layer are coalesced into a single `gl.drawArrays()` call. WebGPU compute shaders simulate up to 1,000,000 spring particles on the GPU, bypassing the CPU entirely. VectoJS avoids the overhead of rendering massive numbers of DOM nodes by keeping everything on the canvas. Peak measured: 150,000 particles at 238 fps on a mid-range desktop GPU.
+Representable circle/rectangle leaves can be collected into WebGL typed buffers and submitted in batched draws. `ComputeParticleEntity` can run its fixed spring/repulsion model in a WebGPU compute pass with a CPU fallback. Capacity and frame time depend on hardware and workload; the repository does not currently include a checked-in high-end GPU benchmark.
 
-### `a11yRoot` — full parity with standard web pages
+### `a11yRoot` — semantic projection
 
-A transparent overlay `<div>` positioned above the canvas holds a real `<button>`, `<input>`, `<a>`, or `<img>` element for each interactive entity, repositioned every frame to match that entity's canvas coordinates. Screen readers, keyboard navigation, Playwright, Selenium, and AI agents all operate through these real DOM nodes while the visual result comes from the canvas. No accessibility adapters or ARIA hacks are required.
+A transparent overlay `<div>` holds a real `<button>`, `<input>`, `<a>`, or `<img>` for each projected interactive entity. This supports role-based automation and lets form controls use native focus/editing paths. It is not automatic parity with arbitrary HTML: applications must provide correct roles/labels, keyboard behavior, focus order, and test visual/semantic alignment for their transforms.
 
 ### Low memory footprint
 
-A single DOM node carries style state, layout state, event listener chains, and accessibility data. VectoJS with 10,000 entities allocates a handful of real DOM nodes: the `<canvas>` element, the `a11yRoot` overlay, and shadow nodes only for currently-interactive entities. Particle simulation data lives in a contiguous `Float32Array` — no per-particle heap objects, no garbage collection pressure.
+Visual entities are JavaScript objects rather than one styled DOM subtree per drawable. The page still contains the canvas, projection roots, and one shadow element per eligible interactive entity. `ComputeParticleEntity` stores per-particle numeric state in a contiguous `Float32Array`, avoiding one JavaScript object per particle.
 
 ### Highly customizable
 
@@ -176,7 +176,7 @@ A single DOM node carries style state, layout state, event listener chains, and 
 
 ### Native Markdown rendering optimized for streaming
 
-The `Markdown` component renders GitHub Flavored Markdown (tables, task lists, fenced code, links, images) via VectoJS's LayoutEngine. `appendMarkdown(delta)` processes only the changed paragraph boundary on each call — O(changed paragraph), not O(document). Suitable for LLM token streaming at hundreds of tokens per second. Math (via MathJax), Mermaid diagrams, and ABC musical notation are exported to SVG and rendered as engine `Image` entities.
+The `Markdown` component renders GitHub Flavored Markdown (tables, task lists, fenced code, links, images) via VectoJS's LayoutEngine. `appendMarkdown(delta)` re-lexes the complete source, then diffs tokens and reuses unchanged leading entities instead of rebuilding the whole visual tree. Math (via MathJax), Mermaid diagrams, and ABC musical notation are exported to SVG and rendered as engine `Image` entities.
 
 ### High compatibility
 
@@ -190,33 +190,29 @@ VectoJS produces a `<canvas>` element that fits anywhere: React `useEffect`, Vue
 
 `ThreeAdapter` renders a full VectoJS scene onto an offscreen canvas and uploads it as a `THREE.CanvasTexture` on any Three.js mesh. UV coordinates from Three.js raycasts are mapped back through VectoJS's hit-test system, so canvas buttons and inputs work on 3D surfaces and in WebXR sessions.
 
-### Zero-GC and contiguous memory
+### Reused typed storage in hot paths
 
-Particle data lives in a `Float32Array` with 8 floats per particle (position, velocity, origin, size, life). No per-frame heap allocations during particle updates. The WebGL layer reuses typed array views rather than creating new arrays each draw call, keeping the garbage collector idle during heavy animation.
+Particle data lives in a `Float32Array` with 8 floats per particle (position, velocity, origin, size, life). The particle and WebGL batch paths reuse typed storage for their core numeric data. This reduces allocation pressure; it is not a whole-frame zero-allocation guarantee for the Scene or application.
 
-### O(1) spatial indexing and viewport culling
+### Opt-in spatial indexing and viewport culling
 
-A constant-time spatial hash indexes all entities by position. Before calling `render()`, the engine checks `getBounds()` and skips every entity outside the current viewport. A scene with one million entities draws only the visible subset — scrolling and zooming cost nothing for offscreen content.
+`SpatialHashGrid` is exported for applications that want bucketed proximity queries; the Scene does not automatically index every entity. During its normal tree walk, the Scene transforms each entity's optional `getBounds()` and skips `render()` for boxes outside the viewport. This reduces draw work, but traversal and `update()` remain O(N).
 
 ### Multi-threaded computation
 
-The `LayoutEngine` can offload glyph measurement and line-breaking to a Web Worker via `LayoutWorkerManager`, keeping long text layout off the main thread. WebGPU compute passes run the particle simulation on the GPU entirely in parallel with the JavaScript render loop.
+`MSDFTextEntity` can offload line placement over precomputed glyph metrics to a Web Worker via `LayoutWorkerManager`; the worker does not perform browser font measurement. WebGPU can run `ComputeParticleEntity` integration and rendering on the GPU, while Scene traversal and submission remain on the JavaScript thread.
 
 ### Intelligent graphics batching
 
-Consecutive same-color, same-alpha sibling entities on the WebGL point layer merge into a single `gl.drawArrays()` call. Opt in with `getBatchCircle()` or `getBatchRect()` on leaf entities. A scene with tens of thousands of similar shapes can issue fewer than 10 draw calls.
+Consecutive same-color, same-alpha sibling entities on the WebGL point layer merge into batched `gl.drawArrays()` calls. Opt in with `getBatchCircle()` or `getBatchRect()` on leaf entities. Actual draw count depends on primitive type, ordering, capacity, and style changes.
 
 ### Native mathematical curve rendering
 
-The `IRenderer` interface exposes Bézier path commands (`moveTo`, `lineTo`, `bezierCurveTo`, `arcTo`). Vectomancy — the curve engine underlying VectoJS — approximates arbitrary parametric and spline curves as polylines with configurable precision, enabling smooth shapes that canvas `arc()` alone cannot express.
-
-### 2.5D pseudo-3D depth sorting
-
-An optional depth pass orders entities by their `z` property before rendering, enabling parallax layering, card stacking, isometric game views, and depth-of-field composition without needing a real WebGL depth buffer.
+The `IRenderer` interface exposes path commands including `moveTo`, `lineTo`, `bezierCurveTo`, and `arc`. `SplineEntity` converts polynomial and Bézier spline documents into renderer paths with configurable hit-test precision.
 
 ### Small bundle with modular imports
 
-`@vectojs/core` is split into subpath exports: `@vectojs/core/layout` (LayoutEngine only), `@vectojs/core/renderer` (Canvas2D renderer only). WebGL and WebGPU backends register via `Scene.registerWebGL()` / `Scene.registerWebGPU()` — omit them for a pure Canvas2D build with no GPU code in the bundle. Users can choose not to import specific modules they don't need.
+`@vectojs/core` exposes `@vectojs/core/layout`, `@vectojs/core/renderer`, and `@vectojs/core/text` subpaths for focused imports. The main `@vectojs/core` entry auto-registers the WebGL point creator and WebGPU particle manager; subpath imports have no registration side effect. The renderer subpath includes Canvas, SVG, WebGL point, and WebGPU renderer utilities rather than only Canvas2D.
 
 ### Automation and framework friendly
 
@@ -236,15 +232,15 @@ Charts, topology viewers, and tables that update on every data tick. Adding 800 
 
 ### Streaming rendering — LLM clients, danmaku, live feeds
 
-Paragraph-level memoization makes text append O(changed paragraph), not O(document). The `Markdown` component's `appendMarkdown()` re-lexes only the last token boundary and updates the visible result with a single `markDirty()` call.
+Paragraph-level memoization lets `Text.append()` remeasure only the changed paragraph. `Markdown.appendMarkdown()` re-lexes the accumulated Markdown, compares token raw source, and reuses the unchanged entity prefix; a growing final paragraph can be updated in place.
 
-DOM-based danmaku solutions choke past ~200 concurrent comment elements because each element triggers a layout pass. VectoJS danmaku sustains 5,000+ live comments at 60 fps because canvas entities have no layout cost.
+The Danmaku demo uses pooled canvas entities and lane allocation to avoid one DOM node per comment. Capacity and frame rate depend on hardware, font rendering, comment density, and the selected backend; measure with the included demo/report tooling instead of relying on a fixed count.
 
 **Examples:** LLM chat clients, real-time video comment overlays (danmaku/Niconico-style), K8s event feeds, live stream chatrooms.
 
 ### Infinite canvases and knowledge graphs
 
-Collaborative whiteboards, node-edge knowledge graphs, and design tools use VectoJS's O(1) spatial index to cull offscreen entities entirely. Users can pan and zoom through millions of nodes without the browser re-rendering what is not visible. The `a11yRoot` shadow layer keeps keyboard navigation working even on canvases with thousands of interactive nodes.
+Collaborative whiteboards, node-edge knowledge graphs, and design tools can combine the exported `SpatialHashGrid` with entity `getBounds()` culling. Scene culling avoids offscreen draw calls, while applications remain responsible for indexing/querying very large data sets and should benchmark O(N) tree traversal at their target scale. The `a11yRoot` layer can project interactive nodes for keyboard and automation access.
 
 **Examples:** collaborative whiteboards, knowledge graphs, mind maps, Figma/Miro/Excalidraw-style design tools.
 
@@ -258,13 +254,9 @@ The same architecture works for educational explainer animations — a web-nativ
 
 ### Web-based text editors and developer tools
 
-Canvas-based editors like `vscode.dev` use canvas because the browser's text layout engine cannot be controlled at the character level. VectoJS provides the layout engine, input handling via real `<input>` shadow nodes for IME, and the accessibility layer a full editor needs — without writing a bespoke canvas framework from scratch.
+Canvas-based editors need explicit control over text layout and selection. VectoJS provides layout primitives plus `Input`/`TextArea` components backed by real shadow form controls for browser editing and IME behavior. A production editor still needs application-specific document models, navigation, virtualization, and accessibility testing.
 
 **Examples:** code editors, rich-text editors, terminal emulators, diff viewers.
-
-### Privacy-sensitive and scraping-resistant interfaces
-
-Because VectoJS renders content to a pixel buffer rather than a DOM tree, there is no structured HTML for scraping bots to parse. This property is valuable for premium content protection, anti-bot surfaces, and CAPTCHA-alternative applications. Advanced implementations can take this further with pixel-level watermarking and anti-cheat layers.
 
 ### WebXR and immersive spatial UIs
 

@@ -431,7 +431,7 @@ const doc = new Markdown('## Hello\n\nThis is **bold** and `code`.', {
 scene.add(doc.setPosition(40, 40));
 ```
 
-For LLM streaming, use `appendMarkdown(chunk)` — it diffs the token stream and only rebuilds the last changed paragraph, keeping cost O(changed paragraph) not O(document).
+For LLM streaming, use `appendMarkdown(chunk)` — it re-lexes the full source, then diffs tokens and reuses the unchanged rendered prefix instead of rebuilding every entity.
 
 ```typescript
 const md = new Markdown('', { maxWidth: 600 });

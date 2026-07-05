@@ -46,8 +46,8 @@ bun run test:keyboard # keyboard-navigation smoke test across demo pages
 
 `bun run test:demos` needs a real GPU-capable headless Chrome; it's the closest thing this repo has
 to an integration test, since the demos are the actual product surface. UI changes should also be
-spot-checked in a real browser — headless/software-rasterizer FPS numbers are a floor, not what a
-real GPU shows.
+spot-checked in a real browser — headless/software-rasterizer FPS numbers are useful for comparable
+regression runs, not as a lower bound or a prediction for a user's GPU.
 
 ## Formatting & linting
 

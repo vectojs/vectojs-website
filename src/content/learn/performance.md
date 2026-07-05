@@ -27,7 +27,7 @@ The rAF loop fires every frame, capped by `maxFPS` (default 60). Use this for:
 
 ### `'onDemand'` mode
 
-The rAF loop only renders when `scene.markDirty()` has been called since the last frame, or when an `animate()` tween is in progress. Idle frames cost **zero CPU and GPU**. Use this for:
+The rAF loop only renders when `scene.markDirty()` has been called since the last frame, or when an animation/transition driver is in progress. Idle ticks skip entity update/render and GPU submission, but the Scene still schedules rAF and walks the tree to check pending animation state. Use this for:
 
 - Static or event-driven UIs (dashboards, forms, menus)
 - Scenes that animate in response to user actions but are otherwise still
@@ -104,7 +104,7 @@ When `respectReducedMotion: true` (default) and the user has enabled "reduce mot
 
 ## WebGL batch rendering
 
-For entities that are circles or rectangles positioned by your code (not by a physics sim), the WebGL batch layer is 10–100× faster than individual `render()` calls.
+For large sets of circles or rectangles, the WebGL layer replaces many per-entity Canvas path calls with typed-buffer uploads and a small number of draw submissions. The crossover and speedup are workload/hardware dependent and should be benchmarked.
 
 ### Enabling the batch layer
 
@@ -128,21 +128,26 @@ class Dot extends Entity {
     return { radius: this.radius, color: this.color };
   }
 
-  // Still required (but never called when getBatchCircle is set)
+  // Required fallback for Canvas mode or an unrepresentable world transform.
   isPointInside() {
     return false;
   }
-  render() {}
+  render(renderer: IRenderer) {
+    renderer.beginPath();
+    renderer.arc(0, 0, this.radius, 0, Math.PI * 2);
+    renderer.fill(this.color);
+  }
 }
 ```
 
-The Scene reads `getBatchCircle()` / `getBatchRect()` every frame and feeds the world-space coordinates (calculated from the accumulated transform matrix) to the WebGL layer. Consecutive entities returning the **same color and alpha** coalesce into a single GPU draw call.
+The Scene reads `getBatchCircle()` / `getBatchRect()` every frame and feeds representable world-space primitives to the WebGL layer. Colors and alpha are per-instance attributes, so a buffer can contain mixed styles.
 
 **Constraints:**
 
 - The entity must be a **leaf** (no children).
-- The entity's scale must be **uniform** (`scaleX === scaleY`).
+- The entity's own scale must be **uniform** (`scaleX === scaleY`).
 - Requires `pointBackend: 'webgl'` on the Scene.
+- The accumulated transform must be representable by one scale + rotation. Non-uniform/sheared ancestors fall back to `render()`.
 
 The WebGL layer composites **above** the Canvas2D content (`z-index: 5`), so batch primitives always draw on top of 2D content, regardless of tree order.
 
@@ -154,11 +159,11 @@ getBatchRect() {
 }
 ```
 
-Batch rects also support per-entity `rotation` (the Scene passes the world-space rotation angle to the WebGL layer).
+Batch rects support representable per-entity rotation. Reflections, shear, and non-uniform accumulated scale use the normal renderer fallback.
 
 ## Viewport culling with `getBounds()`
 
-By default, every entity runs `update()` and `render()` every frame, even if it is completely off-screen. Override `getBounds()` to return a local-space bounding box and the Scene will skip offscreen entities entirely:
+By default, every entity runs `update()` and `render()` on a rendered frame, even if it is completely off-screen. Override `getBounds()` to return a local-space bounding box and the Scene will skip the offscreen entity's `render()` call. Tree traversal and `update()` still run:
 
 ```typescript
 getBounds() {
@@ -168,7 +173,7 @@ getBounds() {
 
 `UIComponent` already implements this — all `@vectojs/ui` components participate in culling automatically. For raw `Entity` subclasses with a fixed size, add `getBounds()` for free performance on large scenes.
 
-At 60 fps with 5,000 entities and 90% offscreen, culling reduces render calls from 5,000 to ~500 per frame.
+For example, if 90% of 5,000 bounded leaf entities are offscreen, only about 500 `render()` calls remain, but the Scene still visits and updates all 5,000 nodes.
 
 ## A11y sync throttling
 
@@ -184,7 +189,7 @@ const scene = new Scene(canvas, {
 scene.a11ySyncInterval = 100;
 ```
 
-The sync also **freezes entirely while any `animate()` tween is running** and resumes when the tween settles, preventing layout thrash during kinetic animations. For most UIs, `a11ySyncInterval: 100` is imperceptible to users while cutting sync overhead by ~6×.
+The interval is checked while animations run; `a11ySyncInterval: 100` limits synchronization to at most about 10 times per second and schedules a final catch-up after motion settles. Choose the interval from accessibility latency and measured DOM cost rather than assuming one value fits every UI.
 
 ## Text performance
 
@@ -206,7 +211,7 @@ window.addEventListener('resize', () => {
 
 The hot path is O(word count), not O(glyph count), and avoids all `Intl.Segmenter` and canvas `measureText` calls.
 
-### `LayoutResultBuffer` — zero-GC text at scale
+### `LayoutResultBuffer` — reusable text coordinate storage
 
 For data-dense UIs (data grids, terminals, log viewers) with thousands of glyphs per frame, the standard `layoutPrepared()` path allocates a `LayoutNode` object per glyph. Use `LayoutResultBuffer` instead:
 
@@ -227,13 +232,13 @@ function renderRow(text: string) {
 }
 ```
 
-The buffer path produces zero heap allocations per frame. Constraints: single-column only (no BiDi visual reordering, no exclusion rects). Use `layoutPrepared()` when you need those features.
+The reusable buffer avoids allocating one `LayoutNode` object per glyph on each hot layout. Constraints: fixed capacity, single-column only (no BiDi visual reordering, no exclusion rects). Use `layoutPrepared()` when you need those features; avoid `toLayoutResult()` on the hot path because it allocates node objects.
 
 ## CPU Calculation vs. Rendering Bottlenecks
 
 In a traditional browser DOM framework, performance bottlenecks almost always lie in the browser’s **rendering and reflow layout pipeline** (DOM manipulations, style recalculation, and painting). However, because VectoJS bypasses the DOM entirely and processes layout, culling, and interactions mathematically in memory, the performance bottleneck shifts from the GPU/rendering layer directly to **JavaScript single-threaded CPU computation**.
 
-When rendering tens of thousands or hundreds of thousands of active nodes, CPU-side mathematical operations can easily exceed the frame budget of $16.67\text{ ms}$ (required for 60 FPS), while the underlying Canvas2D or WebGL graphics rasterizer remains idling.
+At sufficiently high active-node counts, CPU-side traversal, updates, layout, and hit testing can exceed the $16.67\text{ ms}$ frame budget before rasterization does. The crossover depends on the workload and device.
 
 VectoJS addresses these computation bottlenecks from first principles by providing dedicated **"Escape Hatches"** to bypass CPU single-thread limitations.
 
@@ -241,7 +246,7 @@ VectoJS addresses these computation bottlenecks from first principles by providi
 
 ### 1. High-Density Particle Simulations (Per-Particle, Not N-Body)
 
-**The Bottleneck**: Simulating spring physics or mouse-gravity attraction for thousands of entities inside JavaScript's main thread is computationally prohibitive. At $N = 10,000$ particles, even a straightforward $O(N)$ per-frame integration will saturate a single CPU thread, causing frame rates to collapse well below 60 FPS.
+**The Bottleneck**: Per-particle JavaScript integration is $O(N)$ each frame and eventually consumes the main-thread frame budget. The count where that happens is device- and model-dependent.
 
 **The Escape Hatch: WebGPU Compute Shaders (`ComputeParticleEntity`)**
 To bypass CPU execution entirely, VectoJS provides `ComputeParticleEntity`. Under the hood:
@@ -252,7 +257,7 @@ To bypass CPU execution entirely, VectoJS provides `ComputeParticleEntity`. Unde
 
 > [!IMPORTANT] > **This is not $N$-body simulation.** Each particle's force is computed relative to three _fixed_ points only — its spring origin, the mouse cursor, and an optional explosion center. There is no particle-vs-particle interaction and no spatial index involved, which is exactly what makes it embarrassingly parallel and GPU-friendly. If your simulation needs real neighbor interaction (particle-vs-particle collision or repulsion, flocking, N-body gravity), `ComputeParticleEntity` doesn't cover it — you'll need to write your own WGSL compute pass with a neighbor query baked in, or run `SpatialHashGrid`-based neighbor queries on the CPU (see [`SpatialHashGrid`](#3-sea-of-entities-interaction-on2-complexity-catastrophe) below, and the [Physics Engine guide](/learn/physics-engine/) for a worked CPU example). There is currently no generic "run arbitrary computation on GPU with CPU fallback" abstraction in the engine — `ComputeParticleEntity` is a specific, narrow implementation, not a reusable pattern.
 
-Throughput at the high end (100k+ particles) will depend heavily on your GPU and hasn't been benchmarked in this repo at that scale — treat published particle-count figures as architectural headroom, not a guaranteed number for your hardware. Measure your own scene with the **Export report** button (see [Measuring real performance](#measuring-real-performance) below).
+High-end throughput depends heavily on GPU, browser, DPR, particle model, and composition. This repository has no checked-in high-end WebGPU result, so measure your own scene with the **Export report** button (see [Measuring real performance](#measuring-real-performance) below).
 
 ---
 
@@ -260,12 +265,12 @@ Throughput at the high end (100k+ particles) will depend heavily on your GPU and
 
 **The Bottleneck**: Dynamic text layout is one of the most expensive CPU tasks in frontend engineering. It requires dictionary-based word tokenization (`Intl.Segmenter`), BiDi sorting, and browser-level font width measurements (calling the canvas `measureText` API). Attempting to calculate text layouts for tens of thousands of glyphs in a single frame (such as in financial terminals, active log streams, or data grids) will freeze the JS main thread on the "Cold Pass" measurement pipeline.
 
-**The Escape Hatch: Off-Thread Layout, Split Layouts & Zero-GC Memory**
+**The Escape Hatch: Off-Thread Layout, Split Layouts & Reused Memory**
 VectoJS provides three levels of text optimization:
 
-- **Off-Thread Layout (`LayoutWorkerManager`)**: Expensive multi-line typographical layout can be delegated to a background Web Worker, debounced per entity. The worker performs segmentation and glyph measurement off the main thread, returning a serialized transform coordinate buffer.
+- **Off-Thread MSDF Layout (`LayoutWorkerManager`)**: `MSDFTextEntity` can send text plus precomputed font/glyph metrics to a background Web Worker, debounced per entity. The worker performs line placement and returns typed coordinate/style buffers; it does not call browser font measurement APIs.
 - **Cold/Hot Separation**: VectoJS separates layouts into "Cold" (text parsing & glyph width measurement) and "Hot" (wrapping computations). When text wraps due to resize, the cold results are reused, avoiding all browser measurement APIs and bringing resize layout complexity to pure $O(\text{word count})$.
-- **Zero-GC TypedArray Buffers (`LayoutResultBuffer`)**: To prevent garbage collection (GC) pauses caused by allocating thousands of temporary layout node objects, developers can use the `LayoutResultBuffer` API. This writes layout coordinates directly into pre-allocated, flat TypedArrays, achieving zero heap allocations per frame.
+- **Reusable TypedArray Buffers (`LayoutResultBuffer`)**: To avoid allocating thousands of temporary layout node objects, developers can write layout coordinates into pre-allocated flat buffers. The surrounding caller can still allocate; the guarantee is specifically that the buffer path reuses its coordinate storage.
 
 > [!IMPORTANT] > **`LayoutWorkerManager` is a single background thread, not a pool, and it's wired up for one component only.** It's used internally by `MSDFTextEntity` (the GPU/MSDF-font text primitive) — the default `@vectojs/ui` text components (`Text`, `RichText`) lay out synchronously on the main thread, Cold/Hot split and all. If you're rendering very high volumes of default-component text and hitting a wall, the Cold/Hot split and `LayoutResultBuffer` still apply, but you won't get off-thread layout for free — you'd need to build your own Worker offload, or switch to `MSDFTextEntity`. More generally: outside this one text-layout path, nothing else in the engine runs off the main thread today. VMT traversal, hit-testing, and spring physics are all synchronous.
 
@@ -273,15 +278,15 @@ VectoJS provides three levels of text optimization:
 
 ### 3. Sea of Entities Interaction ($O(N^2)$ Complexity Catastrophe)
 
-**The Bottleneck**: When you have $100,000$ active nodes, calculating mouse hover selection or entity-to-entity collisions naively requires nested loops. Testing every element against every other element represents a classic $O(N^2)$ complexity catastrophe. For $100,000$ nodes, $O(N^2)$ means **10 billion operations per frame**—instantly crashing the browser tab.
+**The Bottleneck**: Pairwise entity-to-entity collision or proximity checks require $O(N^2)$ candidate comparisons. That growth becomes impractical well before very large scene counts, with the exact limit depending on the work per pair.
 
 **The Escape Hatch: Spatial Hashing Grid (`SpatialHashGrid`)**
-To solve this, VectoJS indexes all entities using a **Spatial Hashing Grid**:
+For application-managed collision/proximity queries, VectoJS exports **SpatialHashGrid**. The Scene does not index entities automatically:
 
 - The 2D coordinate space is discretized into cells of a fixed size you choose; cell coordinates are combined into a single bucket key via a [Cantor pairing function](https://en.wikipedia.org/wiki/Pairing_function), stored in a plain `Map` — not a fixed-capacity hash table.
-- For click detection, the engine only queries the single cell containing the pointer coordinates and its 8 immediate neighboring cells.
-- For local entity-to-entity interactions, elements only query their localized hash grid cells.
-- This reduces culling, picking, and local physics complexity from **$O(N)$ or $O(N^2)$ to an average of $O(k)$**, where $k$ is however many entities land in the queried cells.
+- Call `insert(id, x, y, w, h)` when an entity's world-space AABB changes, or clear/rebuild the grid for a dynamic frame.
+- Call `query(x, y, w, h)` to retrieve IDs from every cell overlapped by a local query AABB, then run exact collision tests on those candidates.
+- This can reduce application-level local physics from **$O(N^2)$** to the cells/results visited by each query. Built-in `findEntityAt()` and viewport culling remain O(N) tree walks.
 
 > [!WARNING] > **There is no automatic mitigation for dense buckets.** `SpatialHashGrid` (and the independent spatial hash used by the Knowledge Graph demo) store each cell as a flat set with no internal structure — no adaptive cell sizing, no overflow chaining, no hierarchical/multi-resolution grid. The "$O(1)$ average" figure assumes a roughly uniform distribution of entities across cells for your chosen `cellSize`. If your data can cluster heavily — many entities landing in the same handful of cells (a crowd forming at one point, a zoomed-out view where thousands of nodes overlap a few pixels) — those cells degrade toward $O(k)$ linear scans, same as no index at all. There's no automatic escape hatch for that today: the only lever is picking a `cellSize` appropriate to your entities' size and expected density, and re-evaluating it if your data's clustering behavior changes. If you're building something where extreme, unpredictable clustering is a real possibility, budget for measuring worst-case bucket occupancy yourself rather than assuming the average case holds.
 
@@ -290,7 +295,7 @@ To solve this, VectoJS indexes all entities using a **Spatial Hashing Grid**:
 ## Measuring real performance
 
 > [!WARNING]
-> Headless Chrome (used in CI and Node.js tests) runs a software rasterizer (Swiftshader). Canvas2D and WebGL ops execute on the CPU. FPS measured in headless is a **floor**, not a realistic number.
+> Headless Chrome often uses software rasterization and different frame scheduling. Treat its FPS as a same-environment regression signal, not as a lower bound or production prediction.
 
 For accurate throughput numbers:
 
@@ -319,17 +324,17 @@ class BenchEntity extends Entity {
 
 ## Quick reference: which knob for which problem
 
-| Symptom                                 | Fix                                                                                                                       |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Scene throttles to 2 fps when idle      | Expected — use `markDirty()` between frames, not inside `update()`                                                        |
-| Manually animated entity drops to 2 fps | Call `markDirty()` from an event handler or timer, not from `update()`                                                    |
-| Static UI wastes battery                | Switch to `renderMode: 'onDemand'`                                                                                        |
-| 10k+ circles are slow                   | Add `pointBackend: 'webgl'` + implement `getBatchCircle()`                                                                |
-| Offscreen entities waste CPU            | Implement `getBounds()` on the entity                                                                                     |
-| DOM write overhead during animation     | Set `a11ySyncInterval: 100`                                                                                               |
-| Text reflow on resize is slow           | Use `setMaxWidth()` instead of `setText()`                                                                                |
-| 10k+ text glyphs cause GC pauses        | Use `LayoutResultBuffer` + `layoutPreparedIntoBuffer()`                                                                   |
-| FPS looks wrong in CI                   | Measure on real GPU hardware — headless is a floor                                                                        |
-| 10k+ dynamic particles freeze CPU       | Use `ComputeParticleEntity` to offload per-particle physics to WebGPU (fixed-point forces only, not neighbor interaction) |
-| Multi-line text reflow freezes thread   | Delegate `MSDFTextEntity` layout off-thread via `LayoutWorkerManager` (default `Text`/`RichText` stay on the main thread) |
-| Sea of entities interaction is $O(N^2)$ | Implement a `SpatialHashGrid` — reduces to average $O(k)$, not automatic under heavy clustering; size cells for your data |
+| Symptom                                  | Fix                                                                                                                       |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Scene throttles to 2 fps when idle       | Expected — use `markDirty()` between frames, not inside `update()`                                                        |
+| Manually animated entity drops to 2 fps  | Call `markDirty()` from an event handler or timer, not from `update()`                                                    |
+| Static UI wastes battery                 | Switch to `renderMode: 'onDemand'`                                                                                        |
+| Many compatible circles are slow         | Benchmark `pointBackend: 'webgl'` + `getBatchCircle()` on the target device                                               |
+| Offscreen entities waste CPU             | Implement `getBounds()` on the entity                                                                                     |
+| DOM write overhead during animation      | Set `a11ySyncInterval: 100`                                                                                               |
+| Text reflow on resize is slow            | Use `setMaxWidth()` instead of `setText()`                                                                                |
+| Dense text causes allocation pressure    | Use `LayoutResultBuffer` + `layoutPreparedIntoBuffer()`                                                                   |
+| FPS differs in CI                        | Compare like-for-like CI runs; measure user-facing throughput on target hardware                                          |
+| Dynamic particles exhaust the CPU budget | Benchmark `ComputeParticleEntity` to offload its fixed-point force model to WebGPU                                        |
+| Multi-line text reflow freezes thread    | Delegate `MSDFTextEntity` layout off-thread via `LayoutWorkerManager` (default `Text`/`RichText` stay on the main thread) |
+| Sea of entities interaction is $O(N^2)$  | Implement a `SpatialHashGrid` — reduces to average $O(k)$, not automatic under heavy clustering; size cells for your data |

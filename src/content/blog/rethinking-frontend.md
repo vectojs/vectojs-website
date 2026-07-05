@@ -54,14 +54,13 @@ In VectoJS, animations follow a Game Engine paradigm. Every entity has an `updat
 
 ```typescript
 update(dt: number) {
-  // Pure mathematical interpolation.
-  // Easy to add gravity, friction, or spring physics!
-  this.currentScale = lerp(this.currentScale, this.targetScale, dt * 10);
-  this.y += 9.8 * dt; // Gravity in one line of code
+  const seconds = dt / 1000;
+  this.currentScale = lerp(this.currentScale, this.targetScale, Math.min(1, seconds * 10));
+  this.y += 9.8 * seconds;
 }
 ```
 
-Because this happens purely in memory before a single GPU draw call, you can animate **50,000 entities** at 60 FPS without breaking a sweat.
+This keeps application motion in the same explicit update loop as rendering. Capacity depends on per-entity update/draw cost, backend, visible percentage, DPR, browser, and hardware; measure the target workload rather than inferring a count from the architecture.
 
 ## Conclusion
 

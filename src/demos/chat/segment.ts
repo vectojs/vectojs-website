@@ -11,8 +11,7 @@
 export type SpecialType = 'mermaid' | 'math' | 'abc';
 
 export type Segment =
-  | { type: 'markdown'; text: string }
-  | { type: SpecialType; code: string; closed: boolean };
+  { type: 'markdown'; text: string } | { type: SpecialType; code: string; closed: boolean };
 
 // Alternative 1 — a tagged fence: ```mermaid|math|latex|abc … ```
 // Alternative 2 — display math: $$ … $$  (may span multiple lines)

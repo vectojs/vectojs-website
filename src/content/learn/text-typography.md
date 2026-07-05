@@ -6,12 +6,12 @@ order: 7
 
 # Text & Typography
 
-VectoJS ships a full-featured text engine built around two key ideas: **separating measurement from layout** (so resize is cheap), and **memoizing at the paragraph level** (so token-by-token streaming is O(new tokens), not O(document)).
+VectoJS ships a text engine built around two key ideas: **separating measurement from layout** (so resize avoids re-measurement), and **memoizing at the paragraph level** (so append paths can reuse unchanged leading paragraphs).
 
 ## Try it live
 
 <figure class="sandbox">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · vectojs@0.9</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/core</span></div>
   <iframe src="/sandbox/text-streaming.html" class="sandbox-frame" loading="lazy" title="Text streaming interactive example" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption><code>label.append(chunk)</code> called every 30 ms — O(changed paragraph), not O(document). Click Replay to restart the stream.</figcaption>
 </figure>
@@ -70,7 +70,7 @@ for await (const token of stream) {
 
 // Correct — only the changed paragraph is re-measured
 for await (const token of stream) {
-  label.append(token); // O(new tokens) per token → efficient
+  label.append(token); // reuses unchanged paragraphs; re-prepares the changed tail
 }
 ```
 
@@ -186,7 +186,7 @@ for await (const token of llmStream) {
 }
 ```
 
-`appendMarkdown()` re-lexes the full buffer, diffs tokens against the last render, reuses unchanged entity prefix, and updates the last paragraph in-place. Cost is O(changed paragraph). `setContent()` does a full rebuild and is O(document) — use it only for one-shot replacement.
+`appendMarkdown()` re-lexes the full buffer, diffs tokens against the last render, reuses the unchanged entity prefix, and updates the last paragraph in-place. It saves visual-tree reconstruction work, but Markdown lexing still scales with the full document. `setContent()` additionally performs a full rebuild, so use it for one-shot replacement.
 
 ---
 
@@ -210,10 +210,10 @@ Understanding the cold/hot split helps you make the right call for performance.
 
 The cache key is `fontSize + paragraphText` (for plain text) or `fontSize + paragraphText + styleSig` (for rich text). When you append one token to a document with many paragraphs:
 
-1. All unchanged paragraphs are **cache hits** — returned by reference instantly.
+1. Unchanged paragraphs can reuse cached prepared data.
 2. Only the last (changed) paragraph is re-measured.
 
-This turns streaming cost from O(document length) to O(tokens in the current paragraph).
+This bounds repeated measurement/layout preparation to the changed paragraph. A long paragraph still becomes more expensive as it grows, and higher-level Markdown parsing may add document-wide work.
 
 ---
 
@@ -324,15 +324,15 @@ const size = fontSizePx('600 16px Inter'); // → 16
 
 ## Performance guide
 
-| Scenario                              | Best approach                                                 |
-| ------------------------------------- | ------------------------------------------------------------- |
-| Static text, set once                 | `new Text(content, opts)` — one cold pass                     |
-| Append-only streaming (LLM)           | `text.append(token)` or `md.appendMarkdown(token)`            |
-| Responsive resize                     | `text.setMaxWidth(newW)` — hot pass only                      |
-| 10,000+ glyphs/frame (e.g. data grid) | `LayoutResultBuffer` + `layoutPreparedIntoBuffer()` — zero GC |
-| Resolution-independent text           | `MSDFTextEntity` + `pointBackend: 'webgl'`                    |
-| Arabic / Hebrew / RTL                 | Any `Text`/`RichText`/`Markdown` — automatic                  |
-| Text flowing around images            | `RichText` + `exclusions: ExclusionRect[]`                    |
+| Scenario                               | Best approach                                                |
+| -------------------------------------- | ------------------------------------------------------------ |
+| Static text, set once                  | `new Text(content, opts)` — one cold pass                    |
+| Append-only streaming (LLM)            | `text.append(token)` or `md.appendMarkdown(token)`           |
+| Responsive resize                      | `text.setMaxWidth(newW)` — hot pass only                     |
+| Dense repeated layout (e.g. data grid) | Reuse `LayoutResultBuffer` with `layoutPreparedIntoBuffer()` |
+| Resolution-independent text            | `MSDFTextEntity` + `pointBackend: 'webgl'`                   |
+| Arabic / Hebrew / RTL                  | Any `Text`/`RichText`/`Markdown` — automatic                 |
+| Text flowing around images             | `RichText` + `exclusions: ExclusionRect[]`                   |
 
 ## Troubleshooting
 
@@ -367,6 +367,6 @@ If using `renderMode: 'onDemand'`, this repaint will happen correctly. If you ne
 
 ### RichText exclusions are not applied
 
-Exclusion shapes only work with `layoutPrepared()`, not with `layoutPreparedIntoBuffer()`. If you are using a custom zero-GC rendering path with the buffer, exclusions are silently ignored. Use `layoutPrepared()` for exclusion support.
+Exclusion shapes only work with `layoutPrepared()`, not with `layoutPreparedIntoBuffer()`. If you use the reusable-buffer path, exclusions are ignored. Use `layoutPrepared()` for exclusion support.
 
 > **Next:** [Accessibility](/learn/accessibility/) — how the shadow DOM makes your canvas UI screen-reader and agent-drivable.

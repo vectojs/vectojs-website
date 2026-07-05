@@ -4,7 +4,7 @@ import { BUILD_ID } from '../consts';
 
 const title = 'DOM vs VectoJS — Live Comparison';
 const description =
-  'Watch the DOM choke while VectoJS holds 60fps, on your own hardware — a steelmanned, same-device, reproducible comparison.';
+  'Compare DOM and VectoJS workloads on the same device with live frame-time and node-count measurements.';
 ---
 
 <Base title={title} description={description}>
@@ -55,8 +55,8 @@ const description =
           The DOM side is <strong>steelmanned</strong>: a fixed element pool (never created or
           destroyed per comment), moved via <code>transform: translate3d</code>, text set once. No <code
             >will-change</code
-          > is applied to every element — a competent engineer wouldn't blow up the compositor layer
-          count for a stress test either.
+          > is applied to every element — a competent engineer wouldn't blow up the compositor layer count
+          for a stress test either.
         </li>
         <li>
           Both sides consume the <strong>identical seeded workload</strong> — the same text, color, size,
@@ -149,7 +149,8 @@ const description =
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid var(--border-color);
-    background: radial-gradient(900px 400px at 50% -10%, rgba(37, 99, 235, 0.14), transparent 60%),
+    background:
+      radial-gradient(900px 400px at 50% -10%, rgba(37, 99, 235, 0.14), transparent 60%),
       linear-gradient(180deg, #0a0e1a 0%, #070a13 100%);
   }
 

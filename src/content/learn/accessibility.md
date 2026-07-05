@@ -1,12 +1,12 @@
 ---
 title: 'Accessibility & Automation'
-description: "How VectoJS's shadow DOM projection makes a pure-canvas UI fully accessible to screen readers, keyboard users, and Playwright automation agents."
+description: 'How VectoJS projects semantic DOM controls over canvas content for screen readers, keyboard users, and Playwright automation.'
 order: 8
 ---
 
 # Accessibility & Automation
 
-Canvas and WebGL UIs are typically inaccessible — they are just pixel buffers with no semantic information. VectoJS solves this with a **shadow DOM projection**: for every interactive entity, the engine maintains a real, invisible DOM element positioned exactly over the canvas component. Screen readers, keyboard navigation, and automation tools interact with those real elements; the canvas is purely visual.
+Canvas and WebGL pixels carry no semantic information by themselves. For eligible interactive entities, VectoJS maintains a real, invisible DOM element in its `a11yRoot` overlay. Screen readers, keyboard navigation, and automation tools can interact with those elements while canvas-backed layers provide the visuals. This is a projection layer, not the browser's Shadow DOM API, and applications still own correct semantics and testing.
 
 ## How shadow DOM projection works
 
@@ -23,7 +23,11 @@ On every rendered frame (throttled by `a11ySyncInterval`), the Scene:
 
 1. Reads each interactive entity's `getA11yAttributes()`.
 2. Creates or updates the corresponding shadow node (dirty-checked to minimize DOM writes).
-3. Positions the node at the entity's global position, sized to `width × height × scale`.
+3. Applies the entity's complete world affine matrix and local `width × height`; the projection root maps logical Scene coordinates onto the canvas CSS box.
+
+Canvas offset and non-uniform CSS scaling are supported. Do not assume alignment
+under arbitrary CSS rotation/skew of the canvas; verify with `debugA11y` on the
+actual page.
 
 > [!NOTE]
 > The sync **never prunes** during a frame. If your code adds and removes interactive child entities frequently, call `scene.detachA11y(entity)` before discarding them, or their shadow nodes will leak. `scene.remove(entity)` prunes recursively and safely.
@@ -108,7 +112,7 @@ interface A11yAttributes {
 - Text selection, clipboard (cut/copy/paste), undo/redo are all native.
 - The canvas is a **pure visual mirror**: it reads `value`, `selectionStart`, `selectionEnd`, and `composition` from the `change` event and draws the caret, selection highlight, and IME underline.
 
-The shadow input is never overwritten while it holds focus — the `syncA11y()` loop skips `value` updates for focused inputs to preserve the browser's native selection state.
+While an input is focused, the sync avoids writing back the same user-synchronized value. If application state supplies a genuinely different value, it is applied; controlled components should therefore preserve selection intentionally when replacing text.
 
 ## The `debugA11y` option
 
@@ -122,7 +126,7 @@ Open browser DevTools → Elements and you will see the actual `<button>`, `<inp
 
 ## `a11yFullViewport` — boundless surfaces
 
-Some entities cover the entire viewport (an infinite canvas, a gesture recognizer, a background click trap). These have no meaningful bounding box. Set `a11yFullViewport = true` to project a `100vw × 100vh` shadow node:
+Some entities cover the entire Scene viewport (an infinite canvas, a gesture recognizer, a background click trap). These have no meaningful bounding box. Set `a11yFullViewport = true` to project a Scene-sized shadow node that follows the canvas CSS box:
 
 ```typescript
 class PanGesture extends Entity {
@@ -149,7 +153,7 @@ const scene = new Scene(canvas, { a11ySyncInterval: 100 });
 // Shadow DOM is updated at most once per 100ms during animation
 ```
 
-The sync also **freezes entirely while an `animate()` tween is running** and catches up when it settles, to avoid layout thrash during kinetic animations.
+The interval remains active while animation runs, and the Scene schedules a final catch-up after pending motion settles. It does not freeze the semantic layer for the entire animation.
 
 ## Inspecting the shadow tree programmatically
 

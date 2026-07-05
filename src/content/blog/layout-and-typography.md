@@ -53,7 +53,7 @@ para.setText('New content'); // COLD: re-segment + re-measure
 
 That single split is why VectoJS text reflows smoothly under a drag-to-resize while the DOM equivalent would be re-measuring the whole paragraph on every pointer move. The full component matrix — `Text`, `RichText`, `Markdown`, `MSDFTextEntity` — is documented in [Text & Typography](/learn/text-typography/).
 
-## Streaming text is O(new tokens), not O(document)
+## Streaming text reuses unchanged paragraphs
 
 Large-language-model output arrives token by token. The naive approach — re-set the full string on every token — makes each update cost more than the last, because the whole document is re-measured every time. VectoJS memoizes at the **paragraph** level:
 
@@ -61,7 +61,7 @@ Large-language-model output arrives token by token. The naive approach — re-se
 para.append(' one more chunk'); // only the last paragraph is re-measured
 ```
 
-`append()` is O(changed paragraph), so a 10,000-word transcript streams at a constant per-token cost. This is the same machinery that lets our [AI Chat demo](/demos/chat/) render streaming Markdown — code blocks, tables, and math — entirely on canvas without the layout melting down.
+`append()` reuses prepared data for unchanged leading paragraphs and re-prepares the changed tail. It is not constant-cost for one ever-growing paragraph. The [AI Chat demo](/demos/chat/) applies the same visual reuse after Markdown has re-lexed its full source buffer.
 
 ## Text that flows around shapes
 

@@ -19,10 +19,10 @@ repos:
       - id: markdownlint
         args: [--config, .markdownlint.yaml]
 
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.1.0
+  - repo: local
     hooks:
       - id: prettier
-        additional_dependencies:
-          - prettier@3.1.0
-          - prettier-plugin-astro@0.14.1
+        name: prettier
+        entry: bun run prettier --write --ignore-unknown
+        language: system
+        files: \.(astro|css|html|js|json|jsx|md|mjs|ts|tsx|yaml|yml)$
