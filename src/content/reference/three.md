@@ -200,9 +200,9 @@ Raycast UV coordinates are mapped into the scene's **logical** coordinate space 
 Hit events dispatched by `updateIntersection` are forwarded to the entity's accessibility DOM element when one exists **and is connected to a live document** (which routes them through the a11y shadow layer and fires `click`/`change` on interactive components), or directly as `VectoJSEvent` objects otherwise.
 
 > [!NOTE]
-> With the default adapter-created canvas, panels take the direct `VectoJSEvent` path because the canvas and its a11y root are detached. If you provide a canvas that is connected to `document`, its connected a11y elements can use the DOM-dispatch path. `@vectojs/three@0.1.1+` checks connectivity instead of assuming either case.
+> With the default adapter-created canvas, panels take the direct `VectoJSEvent` path because the canvas and its a11y root are detached. If you provide a canvas that is connected to `document`, its connected a11y elements can use the DOM-dispatch path. Versions 0.1.1 and newer of `@vectojs/three` check connectivity instead of assuming either case.
 >
-> **This matters for `Toggle`/`Button` correctness, not just for avoiding a thrown error.** On `@vectojs/three@0.1.0`, a disconnected a11y element could incorrectly take the DOM-dispatch branch and silently miss the component callback. `0.1.1+` routes disconnected elements directly. Native DOM focus/IME/screen-reader behavior is unavailable for the default detached canvas, but remains possible when a caller-provided canvas and its projection layer are connected.
+> **This matters for `Toggle`/`Button` correctness, not just for avoiding a thrown error.** In version 0.1.0 of `@vectojs/three`, a disconnected a11y element could incorrectly take the DOM-dispatch branch and silently miss the component callback. Versions 0.1.1 and newer route disconnected elements directly. Native DOM focus/IME/screen-reader behavior is unavailable for the default detached canvas, but remains possible when a caller-provided canvas and its projection layer are connected.
 
 ---
 
