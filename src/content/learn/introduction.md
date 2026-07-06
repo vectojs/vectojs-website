@@ -10,16 +10,10 @@ order: 1
 
 Interactive components can still project real semantic DOM nodes (`<button>`, `<input>`, `<a>`, etc.) over the canvas. That projection is what keeps VectoJS controls accessible, native-input capable, and testable through role-based automation.
 
-```mermaid
-flowchart LR
-  App[Application state] --> VMT[Virtual Math Tree]
-  VMT --> Layout[Math layout]
-  VMT --> Events[Hit testing + events]
-  VMT --> Render[Canvas / WebGL / WebGPU]
-  VMT --> Semantics[Semantic DOM projection]
-  Render --> Pixels[Visible canvas]
-  Semantics --> Agents[Screen readers + Playwright + AI agents]
-```
+<figure>
+  <img src="/images/intro-runtime-map.svg" alt="VectoJS runtime map showing application state flowing into the Virtual Math Tree, then into layout, hit testing, canvas or GPU rendering, and semantic DOM projection." class="diagram" />
+  <figcaption>Application state updates one retained scene graph; the graph then drives pixels, layout, events, and semantics.</figcaption>
+</figure>
 
 ## What you should read next
 

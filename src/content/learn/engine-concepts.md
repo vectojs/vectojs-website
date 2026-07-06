@@ -8,17 +8,10 @@ order: 4
 
 VectoJS is built on a small set of math and runtime ideas. This page is a map; the deeper derivations live in [Mathematical Foundations](/learn/math-foundations/).
 
-```mermaid
-flowchart LR
-  VMT[Virtual Math Tree] --> Transform[Affine transforms]
-  VMT --> Hit[Hit testing]
-  VMT --> Layout[Cold/hot layout]
-  Layout --> TextFlow[Set-difference text flow]
-  VMT --> Motion[Spring / ODE motion]
-  VMT --> A11y[Semantic projection]
-  VMT --> Spatial[SpatialHashGrid utility]
-  Hit --> Spline[Sampled spline tests]
-```
+<figure>
+  <img src="/images/engine-concepts-map.svg" alt="Concept map with Virtual Math Tree in the center connected to affine transforms, hit testing, cold and hot layout, set-difference text flow, semantic projection, spring motion, and SpatialHashGrid." class="diagram" />
+  <figcaption>The Virtual Math Tree is the hub; transforms, layout, hit testing, motion, and semantic projection are the runtime spokes.</figcaption>
+</figure>
 
 ## 1. Virtual Math Tree
 

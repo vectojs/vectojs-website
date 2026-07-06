@@ -34,22 +34,6 @@ Transforms compose down the tree. Use `worldToLocal()` when hit-testing nested o
   <figcaption>One dirty frame: update, cull, render, flush backend batches, then sync projected DOM.</figcaption>
 </figure>
 
-```mermaid
-sequenceDiagram
-  participant Browser
-  participant Scene
-  participant Entity
-  participant Renderer
-  participant DOM as Semantic DOM
-
-  Browser->>Scene: requestAnimationFrame
-  Scene->>Entity: update(dt, time)
-  Scene->>Entity: traverse + cull + render
-  Entity->>Renderer: draw paths/text/images
-  Scene->>Renderer: flush backend batches
-  Scene->>DOM: sync roles, bounds, values
-```
-
 ## Accessibility projection
 
 A transparent DOM layer sits above the canvas. Interactive entities can project real elements such as `<button>`, `<input>`, `<a>`, and role-bearing `<div>` nodes.

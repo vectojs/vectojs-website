@@ -72,6 +72,11 @@ for await (const relativePath of new Bun.Glob('**/*.md').scan({ cwd: contentRoot
   if (/vectojs@0\.9\b/.test(content)) {
     failures.push(`${relativePath} contains stale vectojs@0.9 label`);
   }
+  if (/```mermaid\b/.test(content)) {
+    failures.push(
+      `${relativePath} contains a Mermaid fence; use a maintained SVG or VectoJS diagram`,
+    );
+  }
 }
 
 const documentedReferenceVersions = {
@@ -90,7 +95,7 @@ for (const [relativePath, expectedVersion] of Object.entries(documentedReference
 }
 
 const sandboxRoot = join(root, 'public/sandbox');
-for await (const relativePath of new Bun.Glob('*.html').scan({ cwd: sandboxRoot })) {
+for await (const relativePath of new Bun.Glob('**/*.html').scan({ cwd: sandboxRoot })) {
   const content = await readFile(join(sandboxRoot, relativePath), 'utf8');
   for (const match of content.matchAll(/@vectojs\/(core|ui)@([0-9]+\.[0-9]+\.[0-9]+)/g)) {
     const expectedVersion = VERSIONS[match[1]];

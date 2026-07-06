@@ -8,16 +8,10 @@ order: 5
 
 VectoJS works best when the UI behaves like a live scene: many objects, custom geometry, high-frequency updates, or non-DOM rendering surfaces.
 
-```mermaid
-flowchart TD
-  Vecto[VectoJS fit] --> Data[Data visualization]
-  Vecto --> Streaming[Streaming UI]
-  Vecto --> Infinite[Infinite canvases]
-  Vecto --> Games[Games + media]
-  Vecto --> Editors[Editors + tools]
-  Vecto --> XR[WebXR + 3D panels]
-  Vecto --> Sites[Advanced interactive sites]
-```
+<figure>
+  <img src="/images/use-cases-map.svg" alt="Use case map with VectoJS at the center connected to data visualization, streaming UI, infinite canvases, games and media, editors and tools, and WebXR panels." class="diagram" />
+  <figcaption>VectoJS is strongest in dense, scene-like surfaces where custom geometry and semantic automation both matter.</figcaption>
+</figure>
 
 ## Data visualization and dashboards
 

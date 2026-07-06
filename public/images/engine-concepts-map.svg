@@ -1,0 +1,59 @@
+<svg viewBox="0 0 940 560" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif">
+  <defs>
+    <radialGradient id="core" cx="50%" cy="50%" r="70%">
+      <stop offset="0" stop-color="#1e40af"/>
+      <stop offset="1" stop-color="#172554"/>
+    </radialGradient>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0 0 L9 4.5 L0 9 Z" fill="#38bdf8"/>
+    </marker>
+  </defs>
+  <rect width="940" height="560" rx="24" fill="#080c16"/>
+  <text x="470" y="42" fill="#94a3b8" font-size="13" font-weight="700" text-anchor="middle" letter-spacing="1.6">ENGINE CONCEPT MAP</text>
+
+  <g stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arrow)" opacity="0.78">
+    <path d="M470 244 C342 190 254 150 166 116"/>
+    <path d="M470 244 C604 180 692 138 776 112"/>
+    <path d="M470 244 C334 236 236 238 142 254"/>
+    <path d="M470 244 C608 236 704 238 798 254"/>
+    <path d="M470 300 C350 354 250 400 168 438"/>
+    <path d="M470 300 C604 356 704 400 786 438"/>
+    <path d="M470 324 C470 382 470 420 470 462"/>
+  </g>
+
+  <g>
+    <rect x="350" y="206" width="240" height="132" rx="26" fill="url(#core)" stroke="#38bdf8" stroke-width="2.5"/>
+    <text x="470" y="258" fill="#e0f2fe" font-size="24" font-weight="900" text-anchor="middle">Virtual Math Tree</text>
+    <text x="470" y="288" fill="#bfdbfe" font-size="13" text-anchor="middle">coordinate systems, traversal, lifecycle</text>
+  </g>
+
+  <g font-size="13">
+    <rect x="46" y="78" width="242" height="74" rx="16" fill="#111827" stroke="#334155"/>
+    <text x="167" y="108" fill="#f8fafc" font-size="16" font-weight="900" text-anchor="middle">Affine transforms</text>
+    <text x="167" y="130" fill="#94a3b8" text-anchor="middle">world ⇄ local mapping</text>
+
+    <rect x="650" y="78" width="252" height="74" rx="16" fill="#111827" stroke="#334155"/>
+    <text x="776" y="108" fill="#f8fafc" font-size="16" font-weight="900" text-anchor="middle">Semantic projection</text>
+    <text x="776" y="130" fill="#94a3b8" text-anchor="middle">roles, names, native input</text>
+
+    <rect x="46" y="216" width="192" height="74" rx="16" fill="#111827" stroke="#334155"/>
+    <text x="142" y="246" fill="#f8fafc" font-size="16" font-weight="900" text-anchor="middle">Hit testing</text>
+    <text x="142" y="268" fill="#94a3b8" text-anchor="middle">local boxes and curves</text>
+
+    <rect x="704" y="216" width="188" height="74" rx="16" fill="#111827" stroke="#334155"/>
+    <text x="798" y="246" fill="#f8fafc" font-size="16" font-weight="900" text-anchor="middle">Cold / hot layout</text>
+    <text x="798" y="268" fill="#94a3b8" text-anchor="middle">prepare once, reflow fast</text>
+
+    <rect x="44" y="400" width="248" height="76" rx="16" fill="#111827" stroke="#334155"/>
+    <text x="168" y="430" fill="#f8fafc" font-size="16" font-weight="900" text-anchor="middle">Set-difference text flow</text>
+    <text x="168" y="452" fill="#94a3b8" text-anchor="middle">wrap around exclusions</text>
+
+    <rect x="648" y="400" width="276" height="76" rx="16" fill="#111827" stroke="#334155"/>
+    <text x="786" y="430" fill="#f8fafc" font-size="16" font-weight="900" text-anchor="middle">Spring / ODE motion</text>
+    <text x="786" y="452" fill="#94a3b8" text-anchor="middle">interruptible, continuous animation</text>
+
+    <rect x="342" y="462" width="256" height="64" rx="16" fill="#111827" stroke="#334155"/>
+    <text x="470" y="491" fill="#f8fafc" font-size="16" font-weight="900" text-anchor="middle">SpatialHashGrid utility</text>
+    <text x="470" y="512" fill="#94a3b8" text-anchor="middle">app-owned proximity queries</text>
+  </g>
+</svg>

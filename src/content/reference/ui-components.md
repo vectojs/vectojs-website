@@ -16,12 +16,13 @@ Every component is a leaf or container in the Virtual Math Tree (VMT). Nothing h
 The gallery below is now a package-level smoke test. For day-to-day debugging, use the focused
 component pages so one behavior can be inspected without scrolling through every component:
 
-| Component page                        | Best for checking                                |
-| ------------------------------------- | ------------------------------------------------ |
-| [`Button`](/reference/ui-button/)     | hover/click repaint, semantic button projection  |
-| [`Slider`](/reference/ui-slider/)     | pointer drag, change events, on-demand repaint   |
-| [`Markdown`](/reference/ui-markdown/) | prose layout, code block spacing, link callbacks |
-| [`Overlay`](/reference/ui-overlay/)   | Tooltip, Popover and ContextMenu positioning     |
+| Area                    | Component pages                                                                                                                                                                                                                                                                                                                                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Text & media            | [`Text`](/reference/ui-text/), [`RichText`](/reference/ui-richtext/), [`Link`](/reference/ui-link/), [`Image`](/reference/ui-image/)                                                                                                                                                                                                                                                 |
+| Layout containers       | [`Card`](/reference/ui-card/), [`Stack`](/reference/ui-stack/), [`Flow`](/reference/ui-flow/), [`ScrollView`](/reference/ui-scrollview/), [`VirtualList`](/reference/ui-virtuallist/), [`TreeView`](/reference/ui-treeview/), [`Resizable panels`](/reference/ui-resizable-panel/)                                                                                                   |
+| Controls & forms        | [`Button`](/reference/ui-button/), [`Input`](/reference/ui-input/), [`TextArea`](/reference/ui-textarea/), [`Checkbox`](/reference/ui-checkbox/), [`Toggle`](/reference/ui-toggle/), [`Slider`](/reference/ui-slider/), [`Dropdown`](/reference/ui-dropdown/), [`RadioGroup`](/reference/ui-radiogroup/), [`Tabs`](/reference/ui-tabs/), [`ProgressBar`](/reference/ui-progressbar/) |
+| Rich content            | [`Markdown`](/reference/ui-markdown/), [`CodeBlock`](/reference/ui-codeblock/), [`Table`](/reference/ui-table/)                                                                                                                                                                                                                                                                      |
+| Overlays & transient UI | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class="sandbox component-gallery">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/ui 0.2.4 · scroll inside</span></div>

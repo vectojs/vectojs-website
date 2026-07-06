@@ -20,16 +20,10 @@ VectoJS targets interfaces where:
 - the same UI needs to run inside canvas, WebGL, export, or WebXR contexts;
 - accessibility and automation still matter even though the visible UI is canvas-rendered.
 
-```mermaid
-flowchart TD
-  Question{Is the UI mostly document content?}
-  Question -- Yes --> DOM[Use HTML and CSS]
-  Question -- No --> Count{Many visual entities or custom math?}
-  Count -- No --> DOM2[Use normal app UI]
-  Count -- Yes --> Semantics{Need real accessibility and automation?}
-  Semantics -- No --> Canvas[Canvas library may be enough]
-  Semantics -- Yes --> Vecto[VectoJS fits]
-```
+<figure>
+  <img src="/images/fit-decision-tree.svg" alt="Decision tree for choosing between HTML and CSS, normal app UI, and VectoJS based on document content, entity count, custom math, and accessibility needs." class="diagram" />
+  <figcaption>Start with HTML/CSS. Reach for VectoJS only when the UI behaves more like a scene than a document.</figcaption>
+</figure>
 
 ## How it differs from typical canvas libraries
 

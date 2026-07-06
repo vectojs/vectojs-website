@@ -281,9 +281,6 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
 
   // ── Code copy buttons + language badges ────────────────────────
   document.querySelectorAll<HTMLPreElement>('.prose pre.astro-code').forEach((pre) => {
-    // Mermaid blocks are converted to diagrams, not code chrome
-    if (pre.getAttribute('data-language') === 'mermaid') return;
-
     const wrapper = document.createElement('div');
     wrapper.className = 'code-block-wrapper';
     pre.parentNode!.insertBefore(wrapper, pre);
@@ -496,49 +493,4 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
     setSidebar(!docsLayout.classList.contains('sidebar-collapsed')),
   );
   tocTab?.addEventListener('click', () => setToc(!docsLayout.classList.contains('toc-collapsed')));
-</script>
-
-<script type="module" is:inline>
-  // Convert ```mermaid code blocks (Shiki-highlighted) into renderable divs, then run Mermaid CDN
-  const mermaidPres = Array.from(
-    document.querySelectorAll('pre.astro-code[data-language="mermaid"]'),
-  );
-  const converted = mermaidPres.map((pre) => {
-    const raw = pre.querySelector('code')?.innerText ?? pre.innerText;
-    const div = document.createElement('div');
-    div.className = 'mermaid';
-    div.textContent = raw;
-    pre.replaceWith(div);
-    return div;
-  });
-
-  // Also pick up any raw <div class="mermaid"> blocks that survived markdown processing
-  const rawDivs = Array.from(document.querySelectorAll('.mermaid')).filter(
-    (d) => !converted.includes(d),
-  );
-  const allMermaid = [...converted, ...rawDivs];
-
-  if (allMermaid.length > 0) {
-    const { default: mermaid } =
-      await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs');
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: 'dark',
-      themeVariables: {
-        darkMode: true,
-        background: '#0d1117',
-        primaryColor: '#1e2a44',
-        primaryTextColor: '#e2e8f0',
-        primaryBorderColor: '#3b82f6',
-        lineColor: '#475569',
-        secondaryColor: '#111827',
-        tertiaryColor: '#0f1e3a',
-        edgeLabelBackground: '#0d1117',
-        clusterBkg: '#111827',
-        clusterBorder: '#334155',
-      },
-      flowchart: { curve: 'basis', htmlLabels: true },
-    });
-    mermaid.run({ nodes: allMermaid });
-  }
 </script>

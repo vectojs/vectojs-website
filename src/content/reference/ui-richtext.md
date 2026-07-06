@@ -1,0 +1,42 @@
+---
+title: 'UI: RichText'
+description: 'Multi-style inline text component with link hotspots and streaming append support.'
+order: 26
+---
+
+# `RichText`
+
+`RichText` flows mixed spans on shared baselines: bold, italic, color, size, and inline links.
+
+## Try it
+
+<figure class="sandbox component-demo">
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · RichText</span></div>
+  <iframe src="/sandbox/ui/component.html?name=richtext" class="sandbox-frame component-demo-frame-tall" loading="eager" title="RichText live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <figcaption>The inline link is a transparent anchor hotspot over the canvas text.</figcaption>
+</figure>
+
+## Minimal example
+
+```ts
+import { RichText } from '@vectojs/ui';
+
+const copy = new RichText(
+  [
+    { text: 'Mixed ' },
+    { text: 'weight', style: { bold: true, color: '#22d3ee' } },
+    { text: ' with ' },
+    { text: 'links', style: { href: '/learn/accessibility/' } },
+  ],
+  {
+    maxWidth: 420,
+    onLinkClick: (href) => router.open(href),
+  },
+);
+```
+
+## Maintainer checklist
+
+- Keep link callbacks wired through paragraph, heading, and list renderers.
+- Use `appendSpans()` for token streaming.
+- Use `setExclusions()` when text must flow around local rectangles.

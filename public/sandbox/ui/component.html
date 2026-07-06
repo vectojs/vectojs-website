@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VectoJS UI component sandbox</title>
+    <link rel="stylesheet" href="/sandbox/ui/shared.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "@vectojs/core": "https://esm.sh/@vectojs/core@0.2.3",
+          "@vectojs/ui": "https://esm.sh/@vectojs/ui@0.2.4"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="status" role="status">Loading component demo…</div>
+    <div id="app"><canvas id="canvas"></canvas></div>
+    <pre id="error"></pre>
+    <script type="module">
+      import { Entity } from '@vectojs/core';
+      import {
+        Button,
+        Card,
+        Checkbox,
+        CodeBlock,
+        ContextMenu,
+        Dropdown,
+        Flow,
+        Image as VectoImage,
+        Input,
+        Link,
+        Modal,
+        Panel,
+        PanelGroup,
+        Popover,
+        ProgressBar,
+        RadioGroup,
+        RichText,
+        ScrollView,
+        Stack,
+        Table,
+        Tabs,
+        Text,
+        TextArea,
+        Toggle,
+        Tooltip,
+        TreeView,
+        VirtualList,
+      } from '@vectojs/ui';
+      import { commonCardWidth, createSandbox } from '/sandbox/ui/shared.js';
+
+      class Swatch extends Entity {
+        constructor({ width, height, radius = 12, fill = '#172554', stroke = '#334155' }) {
+          super();
+          this.width = width;
+          this.height = height;
+          this.radius = radius;
+          this.fill = fill;
+          this.stroke = stroke;
+        }
+        render(r) {
+          r.beginPath();
+          r.roundRect(0, 0, this.width, this.height, this.radius);
+          r.fill(this.fill);
+          if (this.stroke) {
+            r.beginPath();
+            r.roundRect(0, 0, this.width, this.height, this.radius);
+            r.stroke(this.stroke, 1);
+          }
+        }
+      }
+
+      const requiredTheme = {
+        textColor: '#e2e8f0',
+        headingColor: '#f8fafc',
+        codeColor: '#a5f3fc',
+        codeBgColor: 'rgba(30, 41, 59, 0.9)',
+        quoteBorderColor: '#6366f1',
+        quoteTextColor: '#94a3b8',
+        hrColor: 'rgba(148, 163, 184, 0.3)',
+        bodyFont: 'Inter, system-ui, sans-serif',
+        codeFont: '"JetBrains Mono", "Fira Code", monospace',
+        fontSize: 16,
+      };
+
+      const pictureSvg = encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 220">
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#22d3ee"/>
+              <stop offset="1" stop-color="#6366f1"/>
+            </linearGradient>
+          </defs>
+          <rect width="420" height="220" rx="28" fill="#0f172a"/>
+          <circle cx="330" cy="64" r="36" fill="#fde68a"/>
+          <path d="M38 184 L148 82 L238 152 L296 112 L386 184 Z" fill="url(#g)"/>
+          <text x="34" y="46" fill="#e0f2fe" font-family="Inter,Arial" font-size="24" font-weight="800">Image</text>
+        </svg>
+      `);
+
+      function label(text, color = '#818cf8') {
+        return new Text(text, {
+          font: '700 11px ui-monospace, monospace',
+          color,
+        });
+      }
+
+      function paragraph(text, width) {
+        return new Text(text, {
+          font: '15px Inter, system-ui',
+          color: '#94a3b8',
+          maxWidth: width,
+          lineHeight: 22,
+        });
+      }
+
+      function makePanelText(title, body, width, height) {
+        const card = new Card({
+          width,
+          height,
+          radius: 12,
+          bg: 'rgba(15,23,42,0.72)',
+          border: 'rgba(148,163,184,0.18)',
+          label: `${title} panel`,
+        });
+        card.add(new Text(title, { font: '800 15px Inter, system-ui', color: '#e2e8f0' }).setPosition(14, 20));
+        card.add(paragraph(body, width - 28).setPosition(14, 48));
+        return card;
+      }
+
+      function rowText(value, index, width) {
+        const row = new Card({
+          width,
+          height: 32,
+          radius: 8,
+          bg: index % 2 ? 'rgba(15,23,42,0.55)' : 'rgba(30,41,59,0.55)',
+          border: 'rgba(148,163,184,0.08)',
+        });
+        row.add(
+          new Text(`${String(index + 1).padStart(2, '0')}  ${value}`, {
+            font: '13px ui-monospace, monospace',
+            color: '#cbd5e1',
+          }).setPosition(12, 8),
+        );
+        return row;
+      }
+
+      const demos = {
+        text: {
+          title: 'Text',
+          summary: 'Single-style canvas text with wrapping, hot width reflow, and a semantic label.',
+          build(inner) {
+            const stack = new Stack({ direction: 'vertical', gap: 14 });
+            stack.add(label('wrapped Text'));
+            stack.add(
+              new Text('VectoJS text is still a retained entity. Change maxWidth for responsive reflow without rebuilding the surrounding scene.', {
+                font: '700 25px Inter, system-ui',
+                color: '#f8fafc',
+                maxWidth: inner,
+                lineHeight: 34,
+              }),
+            );
+            return stack;
+          },
+        },
+        richtext: {
+          title: 'RichText',
+          summary: 'Mixed spans, inline links, and hot reflow from one canvas text entity.',
+          build(inner) {
+            const log = label('Link callback: waiting', '#c4b5fd');
+            const stack = new Stack({ direction: 'vertical', gap: 16 });
+            stack.add(
+              new RichText(
+                [
+                  { text: 'Render ' },
+                  { text: 'bold', style: { bold: true, color: '#f8fafc' } },
+                  { text: ', ' },
+                  { text: 'cyan', style: { color: '#22d3ee' } },
+                  { text: ', and ' },
+                  { text: 'clickable links', style: { href: 'https://vectojs.xuepoo.xyz' } },
+                  { text: ' inside a single flowing line model.' },
+                ],
+                {
+                  maxWidth: inner,
+                  font: '20px Inter, system-ui',
+                  color: '#cbd5e1',
+                  onLinkClick(href) {
+                    log.setText(`Link callback: ${href}`);
+                    log.scene?.markDirty();
+                  },
+                },
+              ),
+            );
+            stack.add(log);
+            return stack;
+          },
+        },
+        link: {
+          title: 'Link',
+          summary: 'Canvas text that projects a real anchor for automation, screen readers, and navigation.',
+          build() {
+            const stack = new Stack({ direction: 'vertical', gap: 18 });
+            stack.add(label('semantic anchor'));
+            stack.add(new Link('Open VectoJS documentation ↗', { href: 'https://vectojs.xuepoo.xyz' }));
+            stack.add(paragraph('Use Link for standalone navigation. RichText handles inline links inside prose.', 420));
+            return stack;
+          },
+        },
+        image: {
+          title: 'Image',
+          summary: 'Canvas drawImage with a semantic img projection and placeholder until the bitmap loads.',
+          build(inner, scene) {
+            const stack = new Stack({ direction: 'vertical', gap: 14 });
+            stack.add(label('semantic image'));
+            stack.add(
+              new VectoImage(`data:image/svg+xml,${pictureSvg}`, {
+                width: Math.min(inner, 420),
+                height: 220,
+                alt: 'Decorative VectoJS image demo',
+                radius: 18,
+                onLoad: () => scene.markDirty(),
+              }),
+            );
+            return stack;
+          },
+        },
+        card: {
+          title: 'Card',
+          summary: 'Decorative by default; pass a label to expose a semantic group landmark.',
+          build(inner) {
+            const card = new Card({
+              width: Math.min(inner, 440),
+              height: 172,
+              radius: 20,
+              bg: 'rgba(30,41,59,0.76)',
+              border: 'rgba(34,211,238,0.32)',
+              label: 'Example card',
+            });
+            card.add(label('role="group"', '#22d3ee').setPosition(22, 24));
+            card.add(new Text('Card is the base visual panel used across the docs examples.', {
+              font: '700 24px Inter, system-ui',
+              color: '#f8fafc',
+              maxWidth: Math.min(inner, 396),
+              lineHeight: 31,
+            }).setPosition(22, 54));
+            return card;
+          },
+        },
+        stack: {
+          title: 'Stack',
+          summary: 'A structural container that lays out children along one axis and relayouts on add().',
+          build() {
+            const stack = new Stack({ direction: 'vertical', gap: 12, align: 'start' });
+            stack.add(new Button('First item', { width: 180 }));
+            stack.add(new Button('Second item', { width: 220, bg: 'rgba(99,102,241,0.42)' }));
+            stack.add(new Button('Third item', { width: 150, bg: 'rgba(14,165,233,0.42)' }));
+            return stack;
+          },
+        },
+        flow: {
+          title: 'Flow',
+          summary: 'A horizontal Stack configured to wrap; useful for chips, tags, and responsive toolbars.',
+          build(inner) {
+            const flow = new Flow({ gap: 10, maxWidth: Math.min(inner, 520) });
+            ['Canvas', 'semantic DOM', 'keyboard', 'hot layout', 'scroll', 'overlay', 'VMT'].forEach((chip) =>
+              flow.add(
+                new Button(chip, {
+                  padding: 9,
+                  font: '700 13px Inter, system-ui',
+                  bg: 'rgba(99,102,241,0.24)',
+                  hoverBg: 'rgba(99,102,241,0.42)',
+                }),
+              ),
+            );
+            return flow;
+          },
+        },
+        input: {
+          title: 'Input',
+          summary: 'A canvas visual mirror backed by a native input for IME, selection, clipboard, and automation.',
+          build(inner) {
+            const state = label('Value: Launch');
+            const field = new Input({
+              width: Math.min(inner, 420),
+              placeholder: 'Project name',
+              value: 'Launch',
+              onChange(value) {
+                state.setText(`Value: ${value || 'empty'}`);
+                state.scene?.markDirty();
+              },
+            });
+            const stack = new Stack({ direction: 'vertical', gap: 18 });
+            stack.add(field);
+            stack.add(state);
+            return stack;
+          },
+        },
+        textarea: {
+          title: 'TextArea',
+          summary: 'Multi-line native editing behavior with canvas rendering for the visible surface.',
+          build(inner) {
+            return new TextArea({
+              width: Math.min(inner, 460),
+              height: 150,
+              placeholder: 'Write a release note…',
+              value: 'Markdown and code demos now have focused pages.',
+            });
+          },
+        },
+        checkbox: {
+          title: 'Checkbox',
+          summary: 'Projects a real checkbox input; canvas and native state stay synchronized.',
+          build() {
+            const stack = new Stack({ direction: 'vertical', gap: 16 });
+            stack.add(new Checkbox({ checked: true, label: 'Enable semantic projection' }));
+            stack.add(new Checkbox({ label: 'Run visual regression check' }));
+            return stack;
+          },
+        },
+        toggle: {
+          title: 'Toggle',
+          summary: 'A switch with a springing knob and role="switch" semantics.',
+          build() {
+            const stack = new Stack({ direction: 'vertical', gap: 18 });
+            stack.add(new Toggle({ checked: true, label: 'On-demand render mode' }));
+            stack.add(new Toggle({ label: 'Reduced motion preview' }));
+            return stack;
+          },
+        },
+        dropdown: {
+          title: 'Dropdown',
+          summary: 'Combobox semantics with an overlay listbox and keyboard navigation.',
+          build() {
+            const log = label('Selected: Canvas');
+            const stack = new Stack({ direction: 'vertical', gap: 18 });
+            stack.add(
+              new Dropdown(['Canvas', 'WebGL', 'WebGPU'], {
+                width: 220,
+                onChange(value) {
+                  log.setText(`Selected: ${value}`);
+                  log.scene?.markDirty();
+                },
+              }),
+            );
+            stack.add(log);
+            return stack;
+          },
+        },
+        radiogroup: {
+          title: 'RadioGroup',
+          summary: 'Mutually exclusive choices in one role="radiogroup" canvas component.',
+          build(inner) {
+            return new RadioGroup({
+              direction: inner > 420 ? 'horizontal' : 'vertical',
+              value: 'webgpu',
+              options: [
+                { value: 'canvas', label: 'Canvas' },
+                { value: 'webgl', label: 'WebGL' },
+                { value: 'webgpu', label: 'WebGPU' },
+              ],
+            });
+          },
+        },
+        tabs: {
+          title: 'Tabs',
+          summary: 'A tablist container that mounts only the active tab content.',
+          build(inner) {
+            return new Tabs({
+              width: Math.min(inner, 500),
+              height: 210,
+              tabs: [
+                { id: 'usage', label: 'Usage', content: makePanelText('Usage', 'Place related modes behind a single tab bar.', Math.min(inner, 500), 170) },
+                { id: 'api', label: 'API', content: makePanelText('API', 'Listen to change events and keep state outside the scene.', Math.min(inner, 500), 170) },
+                { id: 'a11y', label: 'A11y', content: makePanelText('A11y', 'Tabs expose a tablist-level semantic node.', Math.min(inner, 500), 170) },
+              ],
+            });
+          },
+        },
+        progressbar: {
+          title: 'ProgressBar',
+          summary: 'A decorative progress indicator with progressbar metadata for the semantic layer.',
+          build(inner) {
+            const bar = new ProgressBar({ value: 0.72, width: Math.min(inner, 440), height: 24, showText: true });
+            const stack = new Stack({ direction: 'vertical', gap: 16 });
+            stack.add(label('Export progress'));
+            stack.add(bar);
+            return stack;
+          },
+        },
+        table: {
+          title: 'Table',
+          summary: 'Canvas-native grid rendering for compact data previews and Markdown table output.',
+          build(inner) {
+            return new Table({
+              width: Math.min(inner, 560),
+              headers: ['Component', 'Role', 'Status'],
+              rows: [
+                ['Button', 'button', 'stable'],
+                ['Input', 'textbox', 'native'],
+                ['Table', 'grid', 'canvas'],
+              ],
+              colWidths: [170, 170, Math.min(inner, 560) - 340],
+            });
+          },
+        },
+        scrollview: {
+          title: 'ScrollView',
+          summary: 'One clipped scroll owner for bounded long content; wheel and drag retarget spring motion.',
+          build(inner) {
+            const view = new ScrollView({ width: Math.min(inner, 460), height: 220 });
+            for (let i = 0; i < 12; i++) {
+              view.add(rowText(`Scrollable row ${i + 1}`, i, Math.min(inner, 460)).setPosition(0, i * 38));
+            }
+            return view;
+          },
+        },
+        virtuallist: {
+          title: 'VirtualList',
+          summary: 'Only visible rows plus overscan are mounted; useful for long lists inside canvas UI.',
+          build(inner) {
+            return new VirtualList({
+              width: Math.min(inner, 460),
+              height: 230,
+              estimatedRowHeight: 34,
+              overscan: 2,
+              items: Array.from({ length: 120 }, (_, i) => `Virtualized command ${i + 1}`),
+              renderItem: (item, index) => rowText(item, index, Math.min(inner, 460)),
+            });
+          },
+        },
+        treeview: {
+          title: 'TreeView',
+          summary: 'Hierarchical rows with lazy expansion support and role="tree" semantics.',
+          build(inner) {
+            return new TreeView({
+              width: Math.min(inner, 460),
+              height: 230,
+              nodes: [
+                {
+                  id: 'packages',
+                  label: 'packages',
+                  icon: '📦',
+                  children: [
+                    { id: 'core', label: 'core', icon: '◇' },
+                    { id: 'ui', label: 'ui', icon: '◇' },
+                    { id: 'three', label: 'three', icon: '◇' },
+                  ],
+                },
+                {
+                  id: 'apps',
+                  label: 'apps',
+                  icon: '🧪',
+                  children: [{ id: 'demo', label: 'demo', icon: '◇' }],
+                },
+              ],
+            });
+          },
+        },
+        resizablepanel: {
+          title: 'Resizable panels',
+          summary: 'PanelGroup, Panel, and PanelResizeHandle split space with draggable dividers.',
+          build(inner) {
+            const width = Math.min(inner, 540);
+            const group = new PanelGroup({ direction: 'horizontal', width, height: 220 });
+            group
+              .addPanel(new Panel({ minSize: 130, defaultSize: 0.36 }).setContent(makePanelText('Navigator', 'Tree or outline panel.', 180, 220)))
+              .addPanel(new Panel({ minSize: 180 }).setContent(makePanelText('Canvas', 'Main interactive region.', 300, 220)));
+            return group;
+          },
+        },
+        modal: {
+          title: 'Modal',
+          summary: 'A blocking overlay with spring enter/exit motion and explicit close behavior.',
+          build(inner, scene) {
+            const stack = new Stack({ direction: 'vertical', gap: 16 });
+            const button = new Button('Open modal', {
+              width: 180,
+              onClick() {
+                const modal = new Modal('Modal title', {
+                  width: scene.width,
+                  height: scene.height,
+                  modalWidth: Math.min(380, scene.width - 48),
+                  modalHeight: 220,
+                });
+                scene.showOverlay(modal);
+              },
+            });
+            stack.add(button);
+            stack.add(paragraph('Click the button to mount a real Modal into the overlay layer.', Math.min(inner, 440)));
+            return stack;
+          },
+        },
+        tooltip: {
+          title: 'Tooltip',
+          summary: 'Hover-triggered transient text anchored to a target entity.',
+          build() {
+            const button = new Button('Hover target', { width: 180 });
+            const tooltip = new Tooltip({
+              target: button,
+              content: 'Tooltip content',
+              delay: 100,
+              placement: 'right',
+            });
+            const stack = new Stack({ direction: 'vertical', gap: 14 });
+            stack.add(button);
+            stack.add(paragraph('The tooltip is added to the scene once and shows itself on hover.', 420));
+            return { entity: stack, overlays: [tooltip] };
+          },
+        },
+        popover: {
+          title: 'Popover',
+          summary: 'Click-triggered overlay panel that can contain arbitrary VectoJS children.',
+          build() {
+            const button = new Button('Click for popover', { width: 200 });
+            const pop = new Popover({ target: button, width: 230, height: 90, placement: 'right' });
+            pop.add(new Text('Popover content', { font: '700 14px Inter, system-ui', color: '#e2e8f0' }).setPosition(14, 22));
+            pop.add(new Text('Click target again to close.', { font: '12px Inter, system-ui', color: '#94a3b8' }).setPosition(14, 50));
+            return { entity: button, overlays: [pop] };
+          },
+        },
+        contextmenu: {
+          title: 'ContextMenu',
+          summary: 'Command menu with icons, shortcuts, separators, disabled items, and nested children.',
+          build(inner, scene) {
+            const button = new Button('Open context menu', { width: 220 });
+            const menu = new ContextMenu({
+              width: 230,
+              items: [
+                { label: 'Copy', icon: '⧉', shortcut: 'Ctrl+C' },
+                { label: 'Inspect', icon: '◇' },
+                { separator: true },
+                { label: 'Disabled', disabled: true },
+              ],
+            });
+            button.on('click', () => {
+              const b = button.getWorldBounds();
+              menu.showAtPoint(Math.min(scene.width - menu.width - 16, b.x + b.width + 12), b.y);
+            });
+            return { entity: button, overlays: [menu] };
+          },
+        },
+        codeblock: {
+          title: 'CodeBlock',
+          summary: 'A single leaf entity for fenced code blocks; Markdown uses it to avoid per-token child explosions.',
+          build(inner) {
+            return new CodeBlock(
+              ['const scene = new Scene(canvas);', "scene.renderMode = 'onDemand';", 'scene.markDirty();'].join('\n'),
+              'ts',
+              Math.min(inner, 560),
+              requiredTheme,
+            );
+          },
+        },
+      };
+
+      const aliases = {
+        'rich-text': 'richtext',
+        'text-area': 'textarea',
+        'radio-group': 'radiogroup',
+        'progress-bar': 'progressbar',
+        'scroll-view': 'scrollview',
+        'virtual-list': 'virtuallist',
+        'tree-view': 'treeview',
+        'resizable-panel': 'resizablepanel',
+        'context-menu': 'contextmenu',
+        'code-block': 'codeblock',
+      };
+
+      const rawName = new URLSearchParams(location.search).get('name') ?? 'text';
+      const name = aliases[rawName] ?? rawName;
+      const demo = demos[name] ?? demos.text;
+
+      let card;
+      let title;
+      let summary;
+      let contentEntity;
+
+      try {
+        const sandbox = createSandbox({
+          id: `ui-${name}`,
+          height: 500,
+          onResize(width, height, scene) {
+            if (!card) return;
+            const cardWidth = commonCardWidth(width, 740);
+            card.width = cardWidth;
+            card.setPosition((width - cardWidth) / 2, 24);
+            summary.setMaxWidth(cardWidth - 48);
+            if (contentEntity && contentEntity.width > cardWidth - 48) contentEntity.width = cardWidth - 48;
+            scene.markDirty();
+          },
+        });
+
+        const { scene } = sandbox;
+        const cardWidth = commonCardWidth(scene.width, 740);
+        const inner = cardWidth - 48;
+        card = new Card({
+          width: cardWidth,
+          height: 440,
+          radius: 18,
+          bg: 'rgba(15,23,42,0.88)',
+          border: 'rgba(148,163,184,0.18)',
+          label: `${demo.title} demo card`,
+        });
+        card.setPosition((scene.width - cardWidth) / 2, 24);
+
+        title = new Text(demo.title, {
+          font: '800 30px Inter, system-ui',
+          color: '#f8fafc',
+        });
+        summary = paragraph(demo.summary, inner);
+
+        const built = demo.build(inner, scene);
+        const overlays = Array.isArray(built?.overlays) ? built.overlays : [];
+        contentEntity = built?.entity ?? built;
+
+        card.add(title.setPosition(24, 24));
+        card.add(summary.setPosition(24, 70));
+        card.add(contentEntity.setPosition(24, 138));
+        scene.add(card);
+        for (const overlay of overlays) scene.add(overlay);
+        sandbox.ready();
+      } catch (error) {
+        document.querySelector('#error').style.display = 'block';
+        document.querySelector('#error').textContent =
+          error instanceof Error ? `${error.message}\n\n${error.stack ?? ''}` : String(error);
+        throw error;
+      }
+    </script>
+  </body>
+</html>
