@@ -6,6 +6,8 @@ order: 5
 
 # `@vectojs/video-exporter`
 
+Version documented: **0.2.2**
+
 `@vectojs/video-exporter` drives a VectoJS scene in headless Chromium one fixed time step at a time, captures its canvas as PNG frames, and pipes those frames to FFmpeg for H.264 MP4 encoding.
 
 ## Features
