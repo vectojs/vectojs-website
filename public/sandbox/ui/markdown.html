@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VectoJS Markdown sandbox</title>
+    <link rel="stylesheet" href="/sandbox/ui/shared.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "@vectojs/core": "https://esm.sh/@vectojs/core@0.2.3",
+          "@vectojs/ui": "https://esm.sh/@vectojs/ui@0.2.4"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="status" role="status">Loading Markdown demo…</div>
+    <div id="app"><canvas id="canvas"></canvas></div>
+    <pre id="error"></pre>
+    <script type="module">
+      import { Card, Markdown, Text } from '@vectojs/ui';
+      import { commonCardWidth, createSandbox } from '/sandbox/ui/shared.js';
+
+      let card;
+      let title;
+      let note;
+      let markdown;
+      let clickLog;
+      const mdSource = [
+        '## Markdown',
+        '',
+        'Canvas-native **rich content** supports [links](https://vectojs.xuepoo.xyz), inline `code`, lists and fenced code.',
+        '',
+        '- prefix blocks are reused while streaming',
+        '- code blocks stay one leaf entity',
+        '',
+        '```ts',
+        'const md = new Markdown(src, {',
+        '  maxWidth: 640,',
+        '  onLinkClick(href) {',
+        '    openDoc(href);',
+        '  }',
+        '});',
+        '```',
+      ].join('\n');
+
+      try {
+        const sandbox = createSandbox({
+          id: 'ui-markdown',
+          height: 680,
+          onResize(width) {
+            if (!card) return;
+            const cardWidth = commonCardWidth(width, 760);
+            card.width = cardWidth;
+            card.height = 630;
+            card.setPosition((width - cardWidth) / 2, 24);
+            note.setMaxWidth(cardWidth - 48);
+            markdown.maxWidth = cardWidth - 48;
+            markdown.setContent(mdSource);
+            const markdownY = 92 + note.height;
+            markdown.setPosition(24, markdownY);
+            clickLog.setMaxWidth(cardWidth - 48);
+            clickLog.setPosition(24, markdownY + markdown.height + 22);
+          },
+        });
+
+        const { scene } = sandbox;
+        const cardWidth = commonCardWidth(scene.width, 760);
+
+        card = new Card({
+          width: cardWidth,
+          height: 630,
+          radius: 18,
+          bg: 'rgba(15,23,42,0.88)',
+          border: 'rgba(148,163,184,0.18)',
+          label: 'Markdown demo card',
+        });
+        card.setPosition((scene.width - cardWidth) / 2, 24);
+        title = new Text('Markdown', { font: '800 30px Inter, system-ui', color: '#f8fafc' });
+        note = new Text('The demo is intentionally focused so text flow and code block spacing are easy to inspect.', {
+          font: '15px Inter, system-ui',
+          color: '#94a3b8',
+          maxWidth: cardWidth - 48,
+          lineHeight: 22,
+        });
+        clickLog = new Text('Link callback: waiting for click', {
+          font: '600 14px ui-monospace, monospace',
+          color: '#c4b5fd',
+          maxWidth: cardWidth - 48,
+          lineHeight: 20,
+        });
+        markdown = new Markdown(mdSource, {
+          maxWidth: cardWidth - 48,
+          onLinkClick(href) {
+            clickLog.setText(`Link callback: ${href}`);
+            scene.markDirty();
+          },
+        });
+
+        card.add(title.setPosition(24, 24));
+        card.add(note.setPosition(24, 68));
+        card.add(markdown.setPosition(24, 92 + note.height));
+        card.add(clickLog.setPosition(24, 92 + note.height + markdown.height + 22));
+        scene.add(card);
+        sandbox.ready();
+      } catch (error) {
+        document.querySelector('#error').style.display = 'block';
+        document.querySelector('#error').textContent =
+          error instanceof Error ? `${error.message}\n\n${error.stack ?? ''}` : String(error);
+        throw error;
+      }
+    </script>
+  </body>
+</html>

@@ -1536,6 +1536,22 @@ html {
   margin-top: 0.75rem;
 }
 
+.component-demo-frame {
+  height: 420px;
+}
+
+.component-demo-frame-tall {
+  height: 500px;
+}
+
+.component-demo-frame-xl {
+  height: 680px;
+}
+
+.component-demo figcaption {
+  margin-top: 0.75rem;
+}
+
 @media (max-width: 640px) {
   .sandbox-frame {
     height: 300px;
@@ -1544,6 +1560,18 @@ html {
   .component-gallery-frame {
     height: 680px;
     min-height: 680px;
+  }
+
+  .component-demo-frame {
+    height: 420px;
+  }
+
+  .component-demo-frame-tall {
+    height: 500px;
+  }
+
+  .component-demo-frame-xl {
+    height: 680px;
   }
 }
 

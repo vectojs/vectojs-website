@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VectoJS Overlay sandbox</title>
+    <link rel="stylesheet" href="/sandbox/ui/shared.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "@vectojs/core": "https://esm.sh/@vectojs/core@0.2.3",
+          "@vectojs/ui": "https://esm.sh/@vectojs/ui@0.2.4"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="status" role="status">Loading Overlay demo…</div>
+    <div id="app"><canvas id="canvas"></canvas></div>
+    <pre id="error"></pre>
+    <script type="module">
+      import { Button, Card, ContextMenu, Popover, Stack, Text, Tooltip } from '@vectojs/ui';
+      import { commonCardWidth, createSandbox } from '/sandbox/ui/shared.js';
+
+      let card;
+      let note;
+      let stack;
+      let menu;
+      let contextButton;
+
+      try {
+        const sandbox = createSandbox({
+          id: 'ui-overlay',
+          height: 520,
+          onResize(width) {
+            if (!card) return;
+            const cardWidth = commonCardWidth(width);
+            card.width = cardWidth;
+            card.setPosition((width - cardWidth) / 2, 24);
+            note.setMaxWidth(cardWidth - 48);
+            stack.setPosition(24, 132);
+            stack.layout();
+          },
+        });
+
+        const { scene } = sandbox;
+        const cardWidth = commonCardWidth(scene.width);
+        card = new Card({
+          width: cardWidth,
+          height: 460,
+          radius: 18,
+          bg: 'rgba(15,23,42,0.88)',
+          border: 'rgba(148,163,184,0.18)',
+          label: 'Overlay demo card',
+        });
+        card.setPosition((scene.width - cardWidth) / 2, 24);
+
+        const title = new Text('Overlay', { font: '800 30px Inter, system-ui', color: '#f8fafc' });
+        note = new Text(
+          'Tooltip, Popover and ContextMenu are mounted in the Scene overlay root and constrained by the viewport.',
+          {
+            font: '15px Inter, system-ui',
+            color: '#94a3b8',
+            maxWidth: cardWidth - 48,
+            lineHeight: 22,
+          },
+        );
+
+        const tooltipButton = new Button('Hover · Tooltip', { width: 220 });
+        const popoverButton = new Button('Click · Popover', { width: 220 });
+        contextButton = new Button('Click · ContextMenu', { width: 220 });
+        stack = new Stack({ direction: 'vertical', gap: 14 });
+        stack.add(tooltipButton);
+        stack.add(popoverButton);
+        stack.add(contextButton);
+
+        const tooltip = new Tooltip({
+          target: tooltipButton,
+          content: 'Tooltip stays near its target',
+          delay: 100,
+        });
+        const popover = new Popover({
+          target: popoverButton,
+          width: 230,
+          height: 92,
+          placement: 'right',
+          bg: 'rgba(15,15,30,0.99)',
+        });
+        popover.add(
+          new Text('Popover content', {
+            font: '700 14px Inter, system-ui',
+            color: '#e2e8f0',
+          }).setPosition(14, 18),
+        );
+        popover.add(
+          new Text('Click again to close.', {
+            font: '12px Inter, system-ui',
+            color: '#94a3b8',
+          }).setPosition(14, 48),
+        );
+        menu = new ContextMenu({
+          width: 220,
+          items: [
+            { label: 'Copy', icon: '⧉', shortcut: 'Ctrl+C' },
+            { label: 'Inspect', icon: '◇' },
+            { separator: true },
+            { label: 'Disabled', disabled: true },
+          ],
+        });
+
+        contextButton.on('click', () => {
+          const bounds = contextButton.getWorldBounds();
+          const cardBounds = card.getWorldBounds();
+          menu.showAtPoint(
+            Math.min(cardBounds.x + cardBounds.width - menu.width - 12, bounds.x + bounds.width + 12),
+            Math.min(cardBounds.y + cardBounds.height - menu.height - 12, bounds.y),
+          );
+        });
+
+        card.add(title.setPosition(24, 24));
+        card.add(note.setPosition(24, 68));
+        card.add(stack.setPosition(24, 132));
+        scene.add(card);
+        scene.add(tooltip);
+        scene.add(popover);
+        scene.overlayRoot.add(menu);
+        sandbox.ready();
+      } catch (error) {
+        document.querySelector('#error').style.display = 'block';
+        document.querySelector('#error').textContent =
+          error instanceof Error ? `${error.message}\n\n${error.stack ?? ''}` : String(error);
+        throw error;
+      }
+    </script>
+  </body>
+</html>

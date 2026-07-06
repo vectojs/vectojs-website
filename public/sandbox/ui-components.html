@@ -72,13 +72,13 @@
       {
         "imports": {
           "@vectojs/core": "https://esm.sh/@vectojs/core@0.2.3",
-          "@vectojs/ui": "https://esm.sh/@vectojs/ui@0.2.3"
+          "@vectojs/ui": "https://esm.sh/@vectojs/ui@0.2.4"
         }
       }
     </script>
   </head>
   <body>
-    <div id="status" role="status">Loading @vectojs/ui 0.2.3…</div>
+    <div id="status" role="status">Loading @vectojs/ui 0.2.4…</div>
     <div id="app"><canvas id="canvas"></canvas></div>
     <pre id="error"></pre>
     <script type="module">
@@ -253,13 +253,13 @@
         form.setPosition(20, 84);
         controls.add(form);
 
-        const content = section(
-          'Images & rich content',
-          'Image, Markdown, CodeBlock and Table use the same VMT and renderer.',
-          540,
+        const media = section(
+          'Media & data',
+          'Image and Table stay small here so each component can be checked in isolation.',
+          330,
         );
-        content.add(caption('Image', 20, 82));
-        content.add(
+        media.add(caption('Image', 20, 82));
+        media.add(
           new Image('/favicon.svg?v=2', {
             width: 54,
             height: 54,
@@ -268,8 +268,8 @@
             onLoad: () => scene.markDirty(),
           }).setPosition(20, 102),
         );
-        content.add(caption('Table', 92, 82));
-        content.add(
+        media.add(caption('Table', 92, 82));
+        media.add(
           new Table({
             headers: ['Backend', 'Use'],
             rows: [
@@ -282,12 +282,31 @@
             font: '12px Inter, system-ui',
           }).setPosition(92, 102),
         );
-        content.add(caption('Markdown + CodeBlock', 20, 246));
-        content.add(
+
+        const markdownCard = section(
+          'Markdown & code',
+          'A focused dogfood sample: prose, links, inline code and fenced code are rendered by VectoJS.',
+          450,
+        );
+        markdownCard.add(caption('Markdown + CodeBlock', 20, 82));
+        markdownCard.add(
           new Markdown(
-            '### Markdown\nCanvas-native **rich content** with inline `code`.\n\n```ts\nscene.start();\n```',
-            { maxWidth: inner },
-          ).setPosition(20, 266),
+            [
+              '### Markdown',
+              '',
+              'Canvas-native **rich content** with [links](https://vectojs.xuepoo.xyz), inline `code`, and a readable fenced block.',
+              '',
+              '```ts',
+              'const scene = new Scene(canvas);',
+              'scene.add(markdown);',
+              'scene.start();',
+              '```',
+            ].join('\n'),
+            {
+              maxWidth: inner,
+              onLinkClick: (href) => window.open(href, '_blank', 'noopener'),
+            },
+          ).setPosition(20, 106),
         );
 
         const navigation = section(
@@ -409,8 +428,8 @@
 
         const overlays = section(
           'Overlays & transient UI',
-          'Hover or click the launchers. Overlay powers Tooltip, Popover and ContextMenu positioning.',
-          330,
+          'Hover or click the launchers. Each panel is constrained inside the gallery viewport.',
+          460,
         );
         const launcherStack = new Stack({ direction: 'vertical', gap: 12 });
         const tooltipTarget = new Button('Hover · Tooltip', { width: Math.min(inner, 220) });
@@ -423,7 +442,7 @@
         launcherStack.add(contextTarget);
         launcherStack.add(overlayTarget);
         launcherStack.add(modalTarget);
-        launcherStack.setPosition(20, 86);
+        launcherStack.setPosition(20, 96);
         overlays.add(launcherStack);
 
         class PreviewOverlay extends Overlay {
@@ -451,7 +470,13 @@
             content: 'Tooltip is rendered by VectoJS',
             delay: 100,
           });
-          const popover = new Popover({ target: popoverTarget, width: 190, height: 72 });
+          const popover = new Popover({
+            target: popoverTarget,
+            width: 210,
+            height: 82,
+            placement: 'right',
+            bg: 'rgba(15,15,30,0.99)',
+          });
           popover.add(
             new Text('Popover content', {
               font: '600 13px Inter, system-ui',
@@ -462,10 +487,11 @@
             new Text('Click the launcher to close.', {
               font: '11px Inter, system-ui',
               color: '#94a3b8',
+              maxWidth: 176,
             }).setPosition(14, 40),
           );
           const menu = new ContextMenu({
-            width: 190,
+            width: 220,
             items: [
               { label: 'Copy', icon: '⧉', shortcut: 'Ctrl+C' },
               { label: 'Inspect', icon: '◇' },
@@ -483,14 +509,18 @@
 
           scene.add(tooltip);
           scene.add(popover);
-          scene.add(menu);
+          scene.overlayRoot.add(menu);
           scene.add(previewOverlay);
-          contextTarget.on('click', () =>
-            menu.showAtPoint(
-              Math.min(scene.width - 200, contextTarget.getWorldBounds().x + contextTarget.width + 8),
-              contextTarget.getWorldBounds().y,
-            ),
-          );
+          contextTarget.on('click', () => {
+            const bounds = contextTarget.getWorldBounds();
+            const cardBounds = overlays.getWorldBounds();
+            const x = Math.min(
+              cardBounds.x + cardBounds.width - menu.width - 12,
+              bounds.x + bounds.width + 12,
+            );
+            const y = Math.min(cardBounds.y + cardBounds.height - menu.height - 12, bounds.y);
+            menu.showAtPoint(x, y);
+          });
           overlayTarget.on('click', () => previewOverlay.showAt(overlayTarget));
           modalTarget.on('click', () => scene.showOverlay(modal));
         });

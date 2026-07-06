@@ -12,7 +12,7 @@ export const BUILD_ID = Date.now().toString(36);
 
 export const VERSIONS = {
   core: '0.2.3',
-  ui: '0.2.3',
+  ui: '0.2.4',
   three: '0.1.3',
   videoExporter: '0.2.2',
 } as const;
@@ -109,6 +109,10 @@ export const LEARN_PAGES: DocPage[] = [
 export const REFERENCE_PAGES: DocPage[] = [
   { slug: 'core-api', title: '@vectojs/core' },
   { slug: 'ui-components', title: '@vectojs/ui' },
+  { slug: 'ui-button', title: 'UI: Button' },
+  { slug: 'ui-slider', title: 'UI: Slider' },
+  { slug: 'ui-markdown', title: 'UI: Markdown' },
+  { slug: 'ui-overlay', title: 'UI: Overlay' },
   { slug: 'three', title: '@vectojs/three' },
   { slug: 'video-exporter', title: '@vectojs/video-exporter' },
   { slug: 'faq', title: 'FAQ' },

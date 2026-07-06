@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VectoJS Slider sandbox</title>
+    <link rel="stylesheet" href="/sandbox/ui/shared.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "@vectojs/core": "https://esm.sh/@vectojs/core@0.2.3",
+          "@vectojs/ui": "https://esm.sh/@vectojs/ui@0.2.4"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="status" role="status">Loading Slider demo…</div>
+    <div id="app"><canvas id="canvas"></canvas></div>
+    <pre id="error"></pre>
+    <script type="module">
+      import { Button, Card, ProgressBar, Slider, Stack, Text } from '@vectojs/ui';
+      import { commonCardWidth, createSandbox } from '/sandbox/ui/shared.js';
+
+      let card;
+      let title;
+      let note;
+      let stack;
+      let slider;
+      let progress;
+      let valueLabel;
+
+      try {
+        const sandbox = createSandbox({
+          id: 'ui-slider',
+          height: 460,
+          onResize(width) {
+            if (!card) return;
+            const cardWidth = commonCardWidth(width);
+            card.width = cardWidth;
+            card.setPosition((width - cardWidth) / 2, 24);
+            note.setMaxWidth(cardWidth - 48);
+            const controlWidth = Math.min(cardWidth - 48, 460);
+            slider.width = controlWidth;
+            progress.width = controlWidth;
+            stack.setPosition(24, 156);
+            stack.layout();
+          },
+        });
+
+        const { scene } = sandbox;
+        const cardWidth = commonCardWidth(scene.width);
+        const controlWidth = Math.min(cardWidth - 48, 460);
+
+        card = new Card({
+          width: cardWidth,
+          height: 400,
+          radius: 18,
+          bg: 'rgba(15,23,42,0.88)',
+          border: 'rgba(148,163,184,0.18)',
+          label: 'Slider demo card',
+        });
+        card.setPosition((scene.width - cardWidth) / 2, 24);
+
+        title = new Text('Slider', { font: '800 30px Inter, system-ui', color: '#f8fafc' });
+        note = new Text(
+          'Drag the thumb: the Slider emits change events and requests an on-demand repaint on every value change.',
+          {
+            font: '15px Inter, system-ui',
+            color: '#94a3b8',
+            maxWidth: cardWidth - 48,
+            lineHeight: 22,
+          },
+        );
+        valueLabel = new Text('Quality: 64%', {
+          font: '700 20px Inter, system-ui',
+          color: '#e0f2fe',
+        });
+        slider = new Slider({
+          min: 0,
+          max: 100,
+          value: 64,
+          width: controlWidth,
+          onChange(value) {
+            valueLabel.setText(`Quality: ${value}%`);
+            progress.setValue(value / 100);
+            scene.markDirty();
+          },
+        });
+        progress = new ProgressBar({ value: 0.64, width: controlWidth, height: 22, showText: true });
+
+        stack = new Stack({ direction: 'vertical', gap: 18 });
+        stack.add(valueLabel);
+        stack.add(slider);
+        stack.add(progress);
+        stack.add(
+          new Button('Reset to 64%', {
+            width: 160,
+            bg: 'rgba(99,102,241,0.28)',
+            hoverBg: 'rgba(99,102,241,0.46)',
+            onClick() {
+              slider.value = 64;
+              progress.setValue(0.64);
+              valueLabel.setText('Quality: 64%');
+              scene.markDirty();
+            },
+          }),
+        );
+
+        card.add(title.setPosition(24, 24));
+        card.add(note.setPosition(24, 68));
+        card.add(stack.setPosition(24, 156));
+        scene.add(card);
+        sandbox.ready();
+      } catch (error) {
+        document.querySelector('#error').style.display = 'block';
+        document.querySelector('#error').textContent =
+          error instanceof Error ? `${error.message}\n\n${error.stack ?? ''}` : String(error);
+        throw error;
+      }
+    </script>
+  </body>
+</html>
