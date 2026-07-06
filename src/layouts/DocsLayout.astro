@@ -28,6 +28,10 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
 
 <Base title={title} description={description}>
   <Fragment slot="head">
+    <!-- Sandboxes import the published packages from esm.sh. Start DNS/TLS while
+         the article renders so lazy iframes do not pay that cost on first interaction. -->
+    <link rel="preconnect" href="https://esm.sh" crossorigin="anonymous" />
+    <link rel="dns-prefetch" href="https://esm.sh" />
     <!-- KaTeX: render $...$ and $$...$$ math in docs pages -->
     <link
       rel="stylesheet"

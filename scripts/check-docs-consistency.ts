@@ -60,6 +60,77 @@ for await (const relativePath of new Bun.Glob('**/*.md').scan({ cwd: contentRoot
   }
 }
 
+const documentedReferenceVersions = {
+  'reference/ui-components.md': VERSIONS.ui,
+  'reference/video-exporter.md': VERSIONS.videoExporter,
+} as const;
+for (const [relativePath, expectedVersion] of Object.entries(documentedReferenceVersions)) {
+  const content = await readFile(join(contentRoot, relativePath), 'utf8');
+  const match = content.match(/Version documented:\s*\*\*([0-9]+\.[0-9]+\.[0-9]+)\*\*/);
+  if (!match) failures.push(`${relativePath} is missing a Version documented label`);
+  else if (match[1] !== expectedVersion) {
+    failures.push(
+      `${relativePath} documents ${match[1]} but the site version is ${expectedVersion}`,
+    );
+  }
+}
+
+const sandboxRoot = join(root, 'public/sandbox');
+for await (const relativePath of new Bun.Glob('*.html').scan({ cwd: sandboxRoot })) {
+  const content = await readFile(join(sandboxRoot, relativePath), 'utf8');
+  for (const match of content.matchAll(/@vectojs\/(core|ui)@([0-9]+\.[0-9]+\.[0-9]+)/g)) {
+    const expectedVersion = VERSIONS[match[1]];
+    if (match[2] !== expectedVersion) {
+      failures.push(
+        `sandbox/${relativePath} loads @vectojs/${match[1]}@${match[2]} instead of ${expectedVersion}`,
+      );
+    }
+  }
+}
+
+const expectedGalleryComponents = [
+  'Text',
+  'RichText',
+  'Button',
+  'Link',
+  'Image',
+  'Card',
+  'Stack',
+  'Flow',
+  'Input',
+  'TextArea',
+  'Checkbox',
+  'Toggle',
+  'Slider',
+  'Dropdown',
+  'RadioGroup',
+  'Tabs',
+  'ProgressBar',
+  'Overlay',
+  'Tooltip',
+  'Popover',
+  'ContextMenu',
+  'VirtualList',
+  'TreeView',
+  'PanelGroup',
+  'Panel',
+  'PanelResizeHandle',
+  'ScrollView',
+  'Modal',
+  'Markdown',
+  'CodeBlock',
+  'Table',
+].sort();
+const gallery = await readFile(join(sandboxRoot, 'ui-components.html'), 'utf8');
+const galleryManifest = gallery.match(/name="vecto-components"\s+content="([^"]+)"/);
+if (!galleryManifest) failures.push('sandbox/ui-components.html is missing its component manifest');
+else {
+  const representedComponents = galleryManifest[1].split(',').sort();
+  if (representedComponents.join(',') !== expectedGalleryComponents.join(',')) {
+    failures.push('sandbox/ui-components.html does not represent every public visual component');
+  }
+}
+
 if (failures.length > 0) {
   console.error(`Documentation consistency check failed:\n- ${failures.join('\n- ')}`);
   process.exit(1);

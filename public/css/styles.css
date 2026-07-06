@@ -1527,9 +1527,23 @@ html {
   border-radius: 0 0 12px 12px;
 }
 
+.component-gallery-frame {
+  height: min(920px, 78vh);
+  min-height: 620px;
+}
+
+.component-gallery figcaption {
+  margin-top: 0.75rem;
+}
+
 @media (max-width: 640px) {
   .sandbox-frame {
     height: 300px;
+  }
+
+  .component-gallery-frame {
+    height: 680px;
+    min-height: 680px;
   }
 }
 

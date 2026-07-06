@@ -10,19 +10,26 @@
     html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e1a; font-family: Inter, system-ui, sans-serif; }
     #app { position: relative; width: 100%; height: 100%; }
     canvas { display: block; width: 100%; height: 100%; }
+    body:not(.ready) canvas { pointer-events: none; }
+    #boot { position: fixed; z-index: 5; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            padding: 8px 12px; border: 1px solid rgba(129,140,248,.35); border-radius: 999px;
+            background: rgba(15,23,42,.94); color: #a5b4fc; font: 600 12px/1 Inter, system-ui;
+            transition: opacity .16s ease, transform .16s ease; }
+    body.ready #boot { opacity: 0; transform: translate(-50%, calc(-50% - 4px)); pointer-events: none; }
     #err { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
            padding: 1.5rem; color: #f87171; font-size: 13px; white-space: pre-wrap; display: none; }
   </style>
   <script type="importmap">
   {
     "imports": {
-      "@vectojs/core": "https://esm.sh/@vectojs/core@0.1.0",
-      "@vectojs/ui": "https://esm.sh/@vectojs/ui@0.1.0"
+      "@vectojs/core": "https://esm.sh/@vectojs/core@0.2.3",
+      "@vectojs/ui": "https://esm.sh/@vectojs/ui@0.2.3"
     }
   }
   </script>
 </head>
 <body>
+  <div id="boot" role="status">Loading VectoJS 0.2.3…</div>
   <div id="app"><canvas id="canvas"></canvas></div>
   <div id="err"></div>
   <script type="module">
@@ -87,6 +94,8 @@
     setSize();
     scene.resize(canvas.width, canvas.height);
     layout();
+    document.body.classList.add('ready');
+    window.parent?.postMessage({ type: 'vecto-sandbox-ready', id: 'getting-started' }, '*');
   });
   </script>
 </body>
