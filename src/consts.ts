@@ -14,7 +14,7 @@ export const VERSIONS = {
   core: '0.2.3',
   ui: '0.2.3',
   three: '0.1.3',
-  videoExporter: '0.2.1',
+  videoExporter: '0.2.2',
 } as const;
 
 export const SITE = {

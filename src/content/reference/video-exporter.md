@@ -13,7 +13,9 @@ order: 5
 - **Fixed-step scene control**: Stops the normal Scene loop and calls `scene.step(1000 / fps)` before each capture. This makes the requested simulation time deterministic; it does not guarantee that application code using unrelated clocks, network input, or randomness is deterministic.
 - **PNG image pipe**: Calls `canvas.toDataURL('image/png')` in Chromium, decodes the base64 result in Node, and writes each PNG to FFmpeg's stdin.
 - **Standard MP4 output**: Uses FFmpeg's `libx264` encoder and `yuv420p` pixel format.
-- **Local source helper**: For a local module path, starts an embedded Vite server and generates a temporary HTML entry next to that module. Hosted HTTP(S) pages are also accepted.
+- **Local source helper**: For a local module path, starts an embedded Vite server and serves an in-memory HTML entry without modifying the source directory. Hosted HTTP(S) pages are also accepted.
+- **Atomic output**: Encodes to a unique file beside the destination and replaces the requested MP4 only after FFmpeg exits successfully. Failed or aborted exports preserve an existing destination.
+- **Deterministic cleanup**: Stops progress output, terminates FFmpeg, closes Chromium and Vite, and removes staged files on success, failure, or abort.
 
 ---
 
@@ -23,12 +25,14 @@ order: 5
 bun add @vectojs/video-exporter
 ```
 
-The current release expects Chromium at `/usr/bin/chromium` and `ffmpeg` on `PATH`. Verify both before starting a long export:
+The exporter requires `ffmpeg` on `PATH`. Chromium is resolved from `PUPPETEER_EXECUTABLE_PATH`, then `/usr/bin/chromium` when present, then Puppeteer's configured or bundled browser.
 
 ```bash
-/usr/bin/chromium --version
 ffmpeg -version
+PUPPETEER_EXECUTABLE_PATH=/opt/chrome/chrome bunx vecto-export ./scene.ts
 ```
+
+Vite is a runtime dependency and is installed automatically for local JavaScript and TypeScript entries.
 
 ## Usage (CLI)
 
@@ -67,7 +71,7 @@ await exportVideo({
 });
 ```
 
-The rendered page must expose a started or startable VectoJS Scene as `window.vectoScene`. The exporter waits up to 10 seconds for it, calls `stop()`, then advances it with `step(dt)`. The first `<canvas>` in the page is captured.
+The rendered page must expose a started or startable VectoJS Scene as `window.vectoScene`. The exporter waits up to 10 seconds for it, requires callable `stop()` and `step(dt)` methods, then advances it with fixed steps. The first `<canvas>` is resized to the requested output dimensions and captured.
 
 ```typescript
 const scene = new Scene(document.querySelector('canvas')!);
@@ -76,4 +80,26 @@ const scene = new Scene(document.querySelector('canvas')!);
 scene.start();
 ```
 
-If FFmpeg exits non-zero, the Promise rejects with its captured stderr. Output duration is `fps × duration` fixed steps; encoding speed may be slower or faster than real time depending on scene and machine performance.
+The frame count is `Math.ceil(fps × duration)`. If FFmpeg exits non-zero, the Promise rejects with a bounded stderr tail. Errors distinguish validation, Vite, Chromium/page contract, capture, FFmpeg, output commit, and cleanup phases.
+
+## Cancellation and process signals
+
+Abort API exports with an `AbortController`. The CLI maps `SIGINT` and `SIGTERM` to the same cleanup path, waits for resources to close, then returns exit code 130 or 143.
+
+```typescript
+const controller = new AbortController();
+const exportPromise = exportVideo({
+  url: './my-animation.ts',
+  outputPath: './out.mp4',
+  width: 1920,
+  height: 1080,
+  signal: controller.signal,
+});
+
+controller.abort();
+await exportPromise;
+```
+
+## Chromium sandbox policy
+
+The sandbox stays enabled for normal users. It is disabled only for root or when `VECTO_CHROMIUM_NO_SANDBOX=1` is explicitly set, and the exporter warns in either case. The environment flag is intended for constrained CI runners; prefer a normal non-root process elsewhere.
