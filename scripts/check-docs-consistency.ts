@@ -1,6 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
-import { REFERENCE_PAGES, VERSIONS } from '../src/consts';
+import { LEARN_PAGES, REFERENCE_PAGES, VERSIONS } from '../src/consts';
 
 const root = new URL('..', import.meta.url).pathname;
 const failures: string[] = [];
@@ -50,6 +50,20 @@ for (const slug of referenceSlugs) {
 for (const slug of registeredSlugs) {
   if (!referenceSlugs.includes(slug))
     failures.push(`REFERENCE_PAGES points to missing reference/${slug}.md`);
+}
+
+const learnDir = join(root, 'src/content/learn');
+const learnSlugs = (await readdir(learnDir))
+  .filter((file) => file.endsWith('.md'))
+  .map((file) => basename(file, '.md'))
+  .sort();
+const registeredLearnSlugs = LEARN_PAGES.map((page) => page.slug).sort();
+for (const slug of learnSlugs) {
+  if (!registeredLearnSlugs.includes(slug))
+    failures.push(`learn/${slug}.md is missing from LEARN_PAGES`);
+}
+for (const slug of registeredLearnSlugs) {
+  if (!learnSlugs.includes(slug)) failures.push(`LEARN_PAGES points to missing learn/${slug}.md`);
 }
 
 const contentRoot = join(root, 'src/content');

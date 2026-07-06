@@ -88,6 +88,10 @@ export interface DocPage {
 
 export const LEARN_PAGES: DocPage[] = [
   { slug: 'introduction', title: 'Introduction' },
+  { slug: 'why-vectojs', title: 'Why VectoJS' },
+  { slug: 'runtime-architecture', title: 'Runtime Architecture' },
+  { slug: 'engine-concepts', title: 'Engine Concepts' },
+  { slug: 'use-cases', title: 'Use Cases' },
   { slug: 'math-foundations', title: 'Mathematical Foundations' },
   { slug: 'getting-started', title: 'Getting Started' },
   { slug: 'core-scene', title: 'Core Scene' },
