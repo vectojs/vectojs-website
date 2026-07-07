@@ -412,6 +412,21 @@ interface IRenderer {
 committed on `flush()` (or when style changes). The Scene flushes at the end of
 each sibling group and each frame, preserving painter's order.
 
+### `Entity.getContentProjection()` (core 0.2.7+)
+
+```ts
+getContentProjection(): ContentProjection | null // default null
+// ContentProjection: { text: string; font?: string; lineHeight?: number; selectable?: boolean }
+```
+
+Opt-in hook for entities that render static text: the Scene mirrors the
+returned string as a transparent, position-synced DOM node (viewport-lazy,
+dirty-checked, `aria-hidden` when the entity is interactive), making canvas
+text findable, screen-reader/crawler-visible, translatable, and — with
+`selectable: true` — natively selectable. `TextEntity`/`MSDFTextEntity`
+implement it. Scene-wide off switch: `new Scene(canvas, { contentProjection:
+false })`.
+
 `present()` (optional, core 0.2.6+) is called by the Scene exactly **once** at
 the end of each render pass. Retained backends that submit a whole frame at a
 time (e.g. `ThreeRenderer`) should do their single expensive commit here and

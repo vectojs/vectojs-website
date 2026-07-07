@@ -114,6 +114,38 @@ interface A11yAttributes {
 
 While an input is focused, the sync avoids writing back the same user-synchronized value. If application state supplies a genuinely different value, it is applied; controlled components should therefore preserve selection intentionally when replacing text.
 
+## Static content projection (core 0.2.7+)
+
+Interactive controls project a11y nodes — but until 0.2.7, _static_ text was invisible to everything that isn't a GPU: screen readers, Ctrl+F, crawlers, and translation extensions all saw an empty canvas. **Content projection** closes that gap: entities that render static text expose it via `getContentProjection()`, and the Scene mirrors it as a **transparent, position-synced DOM node** over the drawn glyphs.
+
+```typescript
+// Built-in: TextEntity, MSDFTextEntity (core) and Text, RichText (ui) opt in
+// automatically — Markdown bodies inherit it since Markdown composes them.
+
+// Custom entities opt in the same way:
+class Caption extends Entity {
+  label = 'Rendered on canvas, found by Ctrl+F';
+  getContentProjection() {
+    return { text: this.label, font: '16px sans-serif' };
+  }
+  // …render() draws the same string…
+}
+```
+
+What this unlocks, with zero extra work:
+
+- **Find-in-page** — Ctrl+F matches; the browser's highlight boxes render behind the transparent glyphs.
+- **Screen readers & crawlers** read real text in source order.
+- **Translation extensions and reader mode** operate on the projected layer.
+- **`#:~:text=`** fragment links resolve.
+- **Native mouse selection** — opt in per entity with `selectable: true` (the `::selection` highlight paints behind the transparent glyphs). Off by default so text never intercepts pointer input meant for the canvas.
+
+Notes:
+
+- Projections are **viewport-lazy**: fully off-screen text is `display: none`.
+- When the entity is also `interactive`, its text copy is `aria-hidden` so screen readers don't announce it twice.
+- Disable the whole layer with `new Scene(canvas, { contentProjection: false })` for purely decorative scenes.
+
 ## The `debugA11y` option
 
 Enable `debugA11y: true` in `SceneOptions` to make the shadow nodes visible during development — they appear with a blue dashed outline:
