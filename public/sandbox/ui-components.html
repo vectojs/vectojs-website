@@ -71,14 +71,14 @@
     <script type="importmap">
       {
         "imports": {
-          "@vectojs/core": "https://esm.sh/@vectojs/core@0.2.3",
-          "@vectojs/ui": "https://esm.sh/@vectojs/ui@0.2.4"
+          "@vectojs/core": "https://esm.sh/@vectojs/core@0.2.6",
+          "@vectojs/ui": "https://esm.sh/@vectojs/ui@0.2.6"
         }
       }
     </script>
   </head>
   <body>
-    <div id="status" role="status">Loading @vectojs/ui 0.2.4…</div>
+    <div id="status" role="status">Loading @vectojs/ui 0.2.5…</div>
     <div id="app"><canvas id="canvas"></canvas></div>
     <pre id="error"></pre>
     <script type="module">
@@ -186,7 +186,7 @@
               { text: 'Mixed ' },
               { text: 'weight', style: { bold: true, color: '#22d3ee' } },
               { text: ', color and ' },
-              { text: 'links', style: { href: 'https://vectojs.xuepoo.xyz' } },
+              { text: 'links', style: { href: 'https://vectojs.org' } },
             ],
             { maxWidth: inner, font: '15px Inter, system-ui' },
           ).setPosition(20, 162),
@@ -194,7 +194,7 @@
         typography.add(caption('Link', 20, 202));
         typography.add(
           new Link('Open VectoJS documentation ↗', {
-            href: 'https://vectojs.xuepoo.xyz',
+            href: 'https://vectojs.org',
           }).setPosition(20, 222),
         );
         const flow = new Flow({ gap: 8, maxWidth: inner });
@@ -294,7 +294,7 @@
             [
               '### Markdown',
               '',
-              'Canvas-native **rich content** with [links](https://vectojs.xuepoo.xyz), inline `code`, and a readable fenced block.',
+              'Canvas-native **rich content** with [links](https://vectojs.org), inline `code`, and a readable fenced block.',
               '',
               '```ts',
               'const scene = new Scene(canvas);',

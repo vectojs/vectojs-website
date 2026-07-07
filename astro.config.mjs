@@ -42,7 +42,7 @@ const calloutsPlugin = {
 // each demo is vanilla TS bundled by Astro's Vite pipeline. Deploys to Cloudflare
 // Pages as a static `dist/`.
 export default defineConfig({
-  site: 'https://vectojs.xuepoo.xyz',
+  site: 'https://vectojs.org',
   trailingSlash: 'always',
   server: { port: 1111 },
   // Two philosophy essays moved from the Learn docs into the Blog section.

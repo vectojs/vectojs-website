@@ -166,8 +166,9 @@ class Spinner extends Entity {
 
   // Motion driven from update() is invisible to the Scene's idle checks —
   // report it, or the idle throttle drops this spinner to 2 fps (and
-  // onDemand mode freezes it). A markDirty() inside update() does NOT work:
-  // the loop clears the dirty flag again at the end of the same tick.
+  // onDemand mode freezes it). On core 0.2.6+ a markDirty() inside update()
+  // also works (the flag now survives the tick), but this override states
+  // the intent directly and is required on core ≤ 0.2.5.
   hasPendingAnimations() {
     return true; // a spinner is always animating
   }

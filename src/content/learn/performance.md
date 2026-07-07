@@ -54,20 +54,20 @@ In `'always'` mode, a scene is considered **static** when:
 - The `dirty` flag is `false`, AND
 - No entity has a pending `animate()` tween.
 
-A static scene is throttled to **~2 fps** to save battery and GPU. The `dirty` flag is reset to `false` at the end of every rendered frame (post-render).
-
-**The trap:** if you hand-animate by mutating `entity.x` inside a custom `update()` method, calling `markDirty()` inside `update()` does not keep the scene alive. The flag is set during `update()`, then cleared by the post-render reset, then the static check sees `dirty = false` and throttles to 2 fps.
+A static scene is throttled to **~2 fps** to save battery and GPU. Since core **0.2.6** the `dirty` flag is consumed at the _start_ of each rendered frame, so a `markDirty()` issued from inside `update()` survives into the next frame's static check.
 
 ```typescript
-// Wrong: markDirty() inside update() is wiped by the post-render reset
+// Works on core 0.2.6+: markDirty() inside update() re-arms the next frame
 class Spinner extends Entity {
   update(dt: number, time: number) {
     super.update(dt, time);
     this.rotation += dt * 0.003;
-    this.scene?.markDirty(); // ← too late; cleared before next static check
+    this.scene?.markDirty();
   }
 }
 ```
+
+**The trap on core ≤ 0.2.5:** the flag was cleared _post-render_, so a `markDirty()` set during `update()` was wiped before the next static check — the pattern above rendered one frame and froze at 2 fps. If you support older cores, use one of the fixes below (they remain the more efficient choices on 0.2.6 too, since `hasPendingAnimations()` states intent without a per-frame flag write).
 
 **Fix — option A:** Use `animate()` for the motion instead of manual mutations. A running tween keeps the scene alive automatically:
 
@@ -340,8 +340,8 @@ class BenchEntity extends Entity {
 
 | Symptom                                  | Fix                                                                                                                       |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Scene throttles to 2 fps when idle       | Expected — use `markDirty()` between frames, not inside `update()`                                                        |
-| Manually animated entity drops to 2 fps  | Call `markDirty()` from an event handler or timer, not from `update()`                                                    |
+| Scene throttles to 2 fps when idle       | Expected — call `markDirty()` on state changes (inside `update()` works on core 0.2.6+)                                   |
+| Manually animated entity drops to 2 fps  | Upgrade to core 0.2.6+ or override `hasPendingAnimations()`; on ≤ 0.2.5 `markDirty()` in `update()` is wiped              |
 | Static UI wastes battery                 | Switch to `renderMode: 'onDemand'`                                                                                        |
 | Many compatible circles are slow         | Benchmark `pointBackend: 'webgl'` + `getBatchCircle()` on the target device                                               |
 | Offscreen entities waste CPU             | Implement `getBounds()` on the entity                                                                                     |

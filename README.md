@@ -3,7 +3,7 @@
 > Marketing site, demo gallery, docs, and blog for **[VectoJS](https://github.com/vectojs/vectojs)** —
 > a Zero-DOM, canvas-native UI runtime. Built with [Astro](https://astro.build).
 
-**Live**: https://vectojs.xuepoo.xyz
+**Live**: https://vectojs.org
 
 This repo is intentionally separate from the engine (`vectojs/vectojs`) so the engine stays lean
 and every demo here can double as a real stress test against a real published version of
@@ -79,8 +79,8 @@ site never quietly drifts from what's actually installed.
 ## Related
 
 - **Engine**: [vectojs/vectojs](https://github.com/vectojs/vectojs) — `@vectojs/core`, `@vectojs/ui`, `@vectojs/three`
-- **Docs**: https://vectojs.xuepoo.xyz/learn/introduction/
-- **Demo gallery**: https://vectojs.xuepoo.xyz/demos/
+- **Docs**: https://vectojs.org/learn/introduction/
+- **Demo gallery**: https://vectojs.org/demos/
 
 ## License
 

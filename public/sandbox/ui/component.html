@@ -8,8 +8,8 @@
     <script type="importmap">
       {
         "imports": {
-          "@vectojs/core": "https://esm.sh/@vectojs/core@0.2.3",
-          "@vectojs/ui": "https://esm.sh/@vectojs/ui@0.2.4"
+          "@vectojs/core": "https://esm.sh/@vectojs/core@0.2.6",
+          "@vectojs/ui": "https://esm.sh/@vectojs/ui@0.2.6"
         }
       }
     </script>
@@ -102,7 +102,7 @@
 
       function label(text, color = '#818cf8') {
         return new Text(text, {
-          font: '700 11px ui-monospace, monospace',
+          font: '700 11px ui-monospace, SFMono-Regular, Menlo, Consolas, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", monospace',
           color,
         });
       }
@@ -179,7 +179,7 @@
                   { text: ', ' },
                   { text: 'cyan', style: { color: '#22d3ee' } },
                   { text: ', and ' },
-                  { text: 'clickable links', style: { href: 'https://vectojs.xuepoo.xyz' } },
+                  { text: 'clickable links', style: { href: 'https://vectojs.org' } },
                   { text: ' inside a single flowing line model.' },
                 ],
                 {
@@ -203,7 +203,7 @@
           build() {
             const stack = new Stack({ direction: 'vertical', gap: 18 });
             stack.add(label('semantic anchor'));
-            stack.add(new Link('Open VectoJS documentation ↗', { href: 'https://vectojs.xuepoo.xyz' }));
+            stack.add(new Link('Open VectoJS documentation ↗', { href: 'https://vectojs.org' }));
             stack.add(paragraph('Use Link for standalone navigation. RichText handles inline links inside prose.', 420));
             return stack;
           },
@@ -463,10 +463,17 @@
           summary: 'PanelGroup, Panel, and PanelResizeHandle split space with draggable dividers.',
           build(inner) {
             const width = Math.min(inner, 540);
+            const compact = width < 420;
+            const navMin = compact ? 96 : 130;
+            const mainMin = compact ? 130 : 180;
+            const navDefault = compact ? 0.42 : 0.36;
+            const available = width - 4;
+            const navWidth = Math.max(navMin, Math.floor(available * navDefault));
+            const mainWidth = Math.max(mainMin, available - navWidth);
             const group = new PanelGroup({ direction: 'horizontal', width, height: 220 });
             group
-              .addPanel(new Panel({ minSize: 130, defaultSize: 0.36 }).setContent(makePanelText('Navigator', 'Tree or outline panel.', 180, 220)))
-              .addPanel(new Panel({ minSize: 180 }).setContent(makePanelText('Canvas', 'Main interactive region.', 300, 220)));
+              .addPanel(new Panel({ minSize: navMin, defaultSize: navDefault }).setContent(makePanelText('Navigator', 'Tree or outline panel.', navWidth, 220)))
+              .addPanel(new Panel({ minSize: mainMin }).setContent(makePanelText('Canvas', 'Main interactive region.', mainWidth, 220)));
             return group;
           },
         },
@@ -576,6 +583,7 @@
       let title;
       let summary;
       let contentEntity;
+      let activeOverlays = [];
 
       try {
         const sandbox = createSandbox({
@@ -583,12 +591,7 @@
           height: 500,
           onResize(width, height, scene) {
             if (!card) return;
-            const cardWidth = commonCardWidth(width, 740);
-            card.width = cardWidth;
-            card.setPosition((width - cardWidth) / 2, 24);
-            summary.setMaxWidth(cardWidth - 48);
-            if (contentEntity && contentEntity.width > cardWidth - 48) contentEntity.width = cardWidth - 48;
-            scene.markDirty();
+            layoutDemo(width, scene);
           },
         });
 
@@ -611,15 +614,41 @@
         });
         summary = paragraph(demo.summary, inner);
 
-        const built = demo.build(inner, scene);
-        const overlays = Array.isArray(built?.overlays) ? built.overlays : [];
-        contentEntity = built?.entity ?? built;
-
         card.add(title.setPosition(24, 24));
         card.add(summary.setPosition(24, 70));
-        card.add(contentEntity.setPosition(24, 138));
         scene.add(card);
-        for (const overlay of overlays) scene.add(overlay);
+
+        function layoutDemo(width, scene) {
+          const cardWidth = commonCardWidth(width, 740);
+          const inner = cardWidth - 48;
+          card.width = cardWidth;
+          card.setPosition((width - cardWidth) / 2, 24);
+          summary.setMaxWidth(inner);
+
+          for (const overlay of activeOverlays) {
+            scene.detachA11y(overlay);
+            if (overlay.parent === scene.overlayRoot) {
+              scene.hideOverlay(overlay);
+            } else {
+              scene.remove(overlay);
+            }
+          }
+          activeOverlays = [];
+
+          if (contentEntity) {
+            scene.detachA11y(contentEntity);
+            card.remove(contentEntity);
+          }
+
+          const built = demo.build(inner, scene);
+          activeOverlays = Array.isArray(built?.overlays) ? built.overlays : [];
+          contentEntity = built?.entity ?? built;
+          card.add(contentEntity.setPosition(24, 138));
+          for (const overlay of activeOverlays) scene.add(overlay);
+          scene.markDirty();
+        }
+
+        layoutDemo(scene.width, scene);
         sandbox.ready();
       } catch (error) {
         document.querySelector('#error').style.display = 'block';

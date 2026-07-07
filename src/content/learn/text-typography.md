@@ -90,7 +90,7 @@ const spans: StyledSpan[] = [
   { text: 'Build ' },
   { text: 'fast', style: { bold: true, color: '#00f0ff' } },
   { text: ' UIs with ', style: { italic: true } },
-  { text: 'VectoJS', style: { bold: true, href: 'https://vectojs.xuepoo.xyz/' } },
+  { text: 'VectoJS', style: { bold: true, href: 'https://vectojs.org/' } },
   { text: '.' },
 ];
 

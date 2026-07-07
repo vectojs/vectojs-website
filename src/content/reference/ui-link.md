@@ -24,7 +24,7 @@ import { Link } from '@vectojs/ui';
 
 scene.add(
   new Link('Open docs ↗', {
-    href: 'https://vectojs.xuepoo.xyz',
+    href: 'https://vectojs.org',
   }).setPosition(24, 24),
 );
 ```
