@@ -7,7 +7,7 @@ order: 2
 # `@vectojs/ui` — Component Reference
 
 > Reusable high-level components for the VectoJS zero-DOM Canvas engine.
-> Version documented: **0.2.5**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
+> Version documented: **0.2.6**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
 
 Every component is a leaf or container in the Virtual Math Tree (VMT). Nothing here is real DOM — components draw themselves to a Canvas via an `IRenderer`. Accessibility, agent automation, and crawlability come from a parallel **A11y Shadow DOM**: when a component is `interactive`, the `Scene` projects a single hidden, transparent real DOM node positioned over the component's box, built from `getA11yAttributes()`. That is why `page.getByRole('button', { name })` / `fill()` / screen readers work against a pure-Canvas UI.
 
@@ -25,7 +25,7 @@ component pages so one behavior can be inspected without scrolling through every
 | Overlays & transient UI | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class="sandbox component-gallery">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/ui 0.2.5 · scroll inside</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/ui 0.2.6 · scroll inside</span></div>
   <iframe src="/sandbox/ui-components.html" class="sandbox-frame component-gallery-frame" loading="eager" title="Interactive gallery of every VectoJS UI component" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Package-level smoke gallery: broad coverage first, focused component pages when debugging a specific behavior.</figcaption>
 </figure>
@@ -400,13 +400,14 @@ new Slider(props?: SliderProps)   // props is loosely typed (any) in the .d.ts
   value?: number;          // default = min
   width?: number;          // default 200
   height?: number;         // default 24
+  step?: number;           // default 1 (0.2.6+) — value granularity for pointer and keyboard
   trackColor?: string;     // default 'rgba(255, 255, 255, 0.15)'
   progressColor?: string;  // default '#00f0ff'
   handleColor?: string;    // default '#fff'
 }
 ```
 
-Horizontal slider with a circular thumb. Public: `min`, `max`, `value`. Dragging (`pointerdown` → `pointermove` → `pointerup`) maps pointer `localX` to a value, **rounded to the nearest integer**, and emits a `change` event with `{ value }` (subscribe via `on('change', e => e.value)`). A11y: `{ role: 'slider', value, valuemin, valuemax }`. No built-in keyboard handling.
+Horizontal slider with a circular thumb. Public: `min`, `max`, `value`, `step`. Dragging (`pointerdown` → `pointermove` → `pointerup`) maps pointer `localX` to a value, **snapped to the `step` grid anchored at `min`** (integer steps by default, matching `input[type=range]` semantics), and emits a `change` event with `{ value }` (subscribe via `on('change', e => e.value)`). Keyboard (0.2.6+): `ArrowRight`/`ArrowUp` step up, `ArrowLeft`/`ArrowDown` step down, `Home`/`End` jump to `min`/`max`. A11y: `{ role: 'slider', value, valuemin, valuemax }`. On ui ≤ 0.2.5 values were always integers and there was no keyboard handling.
 
 ### `Dropdown`
 
