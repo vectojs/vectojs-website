@@ -76,6 +76,20 @@ class Spinner extends Entity {
 entity.animate({ rotation: Math.PI * 2 }, 1000);
 ```
 
+**Fix — option A2 (for `update()`-driven motion):** keep the integrator, but tell the Scene about it by overriding `hasPendingAnimations()`. This is how the built-in scroll containers report their in-flight motion:
+
+```typescript
+class Spinner extends Entity {
+  update(dt: number, time: number) {
+    super.update(dt, time);
+    this.rotation += dt * 0.003;
+  }
+  hasPendingAnimations() {
+    return true; // or: super.hasPendingAnimations() || stillMoving
+  }
+}
+```
+
 **Fix — option B:** Call `markDirty()` **between frames** — from an event handler, a `setInterval`, or a separate `requestAnimationFrame` that fires after the scene's own rAF:
 
 ```typescript

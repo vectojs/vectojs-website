@@ -162,7 +162,14 @@ class Spinner extends Entity {
   update(dt: number, time: number) {
     super.update(dt, time);
     this.rotation += this.speed * (dt / 1000); // dt/1000 → seconds
-    this.scene?.markDirty();
+  }
+
+  // Motion driven from update() is invisible to the Scene's idle checks —
+  // report it, or the idle throttle drops this spinner to 2 fps (and
+  // onDemand mode freezes it). A markDirty() inside update() does NOT work:
+  // the loop clears the dirty flag again at the end of the same tick.
+  hasPendingAnimations() {
+    return true; // a spinner is always animating
   }
 
   isPointInside() {
@@ -418,14 +425,15 @@ gauge.setValue(72);
 
 ## Summary
 
-| Method                              | When to override                                       |
-| ----------------------------------- | ------------------------------------------------------ |
-| `render(renderer)`                  | Always — draws the entity in local space at (0,0)      |
-| `isPointInside(gx, gy)`             | Always — return false for decorative entities          |
-| `update(dt, time)`                  | Per-frame logic; call `super.update` first; `dt` in ms |
-| `getBounds()`                       | For viewport culling (strong recommendation)           |
-| `getA11yAttributes()`               | When interactive — controls the shadow DOM node        |
-| `getBatchCircle() / getBatchRect()` | Particle-like leaf entities in the thousands           |
+| Method                              | When to override                                                                                                       |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `render(renderer)`                  | Always — draws the entity in local space at (0,0)                                                                      |
+| `isPointInside(gx, gy)`             | Always — return false for decorative entities                                                                          |
+| `update(dt, time)`                  | Per-frame logic; call `super.update` first; `dt` in ms                                                                 |
+| `hasPendingAnimations()`            | Whenever `update()` drives its own motion — report "still moving" so the idle throttle / onDemand skip keeps rendering |
+| `getBounds()`                       | For viewport culling (strong recommendation)                                                                           |
+| `getA11yAttributes()`               | When interactive — controls the shadow DOM node                                                                        |
+| `getBatchCircle() / getBatchRect()` | Particle-like leaf entities in the thousands                                                                           |
 
 ## Troubleshooting
 

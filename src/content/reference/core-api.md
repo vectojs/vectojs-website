@@ -248,6 +248,13 @@ properties interpolate; easing is a fixed ease-out (`p * (2 - p)`). A running
 `animate()` keeps the scene non-static (escapes the idle throttle) and freezes
 a11y sync until it settles.
 
+`hasPendingAnimations()` is **overridable** and is the Scene's only window into
+custom motion: if a subclass integrates its own movement inside `update()`
+(a hand-rolled spring or velocity), override it to return `true` while that
+motion is in flight — `markDirty()` from inside `update()` is cleared again at
+the end of the same tick, so without the override the idle throttle drops the
+animation to 2 fps and `onDemand` mode freezes it.
+
 **0.2.0 animation system** — spring-first, unifying tweens and springs:
 
 - `setTransition` declares how the six animatable props (`x`, `y`, `scaleX`,
