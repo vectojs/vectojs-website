@@ -11,7 +11,6 @@ const demos = `${import.meta.env.BASE_URL}demos/`.replace('//', '/');
 
 const pathname = Astro.url.pathname;
 const isDemos = pathname.startsWith('/demos');
-const isGallery = pathname.startsWith('/gallery');
 const isLearn = pathname.startsWith('/learn');
 const isReference = pathname.startsWith('/reference');
 const isBlog = pathname.startsWith('/blog');
@@ -157,7 +156,6 @@ const isHome = pathname === '/';
         <!-- Right: nav links + GitHub -->
         <nav class="nav-links" aria-label="Site navigation">
           <a href={demos} class:list={[{ 'nav-link-active': isDemos }]}>Demos</a>
-          <a href="/gallery/" class:list={[{ 'nav-link-active': isGallery }]}>Gallery</a>
           <a href="/learn/introduction/" class:list={[{ 'nav-link-active': isLearn }]}>Learn</a>
           <a href="/reference/core-api/" class:list={[{ 'nav-link-active': isReference }]}
             >Reference</a
@@ -196,7 +194,6 @@ const isHome = pathname === '/';
       <!-- Mobile: slide-down menu (shown ≤768px when open) -->
       <nav class="nav-mobile-menu" id="nav-mobile-menu" aria-label="Mobile navigation">
         <a href={demos} class:list={[{ 'nav-link-active': isDemos }]}>Demos</a>
-        <a href="/gallery/" class:list={[{ 'nav-link-active': isGallery }]}>Gallery</a>
         <a href="/learn/introduction/" class:list={[{ 'nav-link-active': isLearn }]}>Learn</a>
         <a href="/reference/core-api/" class:list={[{ 'nav-link-active': isReference }]}
           >Reference</a
