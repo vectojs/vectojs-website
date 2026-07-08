@@ -8,7 +8,7 @@
         "@astrojs/sitemap": "^3.7.3",
         "@vectojs/core": "1.0.0",
         "@vectojs/three": "0.1.6",
-        "@vectojs/ui": "1.0.0",
+        "@vectojs/ui": "1.1.0",
         "astro": "^7.0.3",
         "three": "^0.160.0",
       },
@@ -307,7 +307,7 @@
 
     "@vectojs/three": ["@vectojs/three@0.1.6", "", { "peerDependencies": { "@vectojs/core": ">=1.0.0 <2.0.0", "three": "^0.160.0" } }, "sha512-s+m2vuWYPswOdZoRJrslHi87xGpIj7HThtUpPuTOyucunsCLh2SoRGdoWr+RDeMtMz237iklD2tPjZyAKq+aNw=="],
 
-    "@vectojs/ui": ["@vectojs/ui@1.0.0", "", { "dependencies": { "marked": "^18.0.5" }, "peerDependencies": { "@vectojs/core": ">=0.1.0" } }, "sha512-kTJ/hhXcMz8pe4SADOB20+X46KS+TVVGaWvJDrDZFNx+70i69typGDdnUjz81m1XZxwcJBawoW6Op8cgpAf+fQ=="],
+    "@vectojs/ui": ["@vectojs/ui@1.1.0", "", { "dependencies": { "marked": "^18.0.5" }, "peerDependencies": { "@vectojs/core": ">=0.1.0" } }, "sha512-F8MIZo1PF+HXdJpIdUhV/6Yz+kBvebplAJrsfA2lTzg9r1FLt779/R2nUyh2qwsmKNvqcnmu7OkkycKdBbBmbw=="],
 
     "@volar/kit": ["@volar/kit@2.4.28", "", { "dependencies": { "@volar/language-service": "2.4.28", "@volar/typescript": "2.4.28", "typesafe-path": "^0.2.2", "vscode-languageserver-textdocument": "^1.0.11", "vscode-uri": "^3.0.8" }, "peerDependencies": { "typescript": "*" } }, "sha512-cKX4vK9dtZvDRaAzeoUdaAJEew6IdxHNCRrdp5Kvcl6zZOqb6jTOfk3kXkIkG3T7oTFXguEMt5+9ptyqYR84Pg=="],
 

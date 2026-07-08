@@ -12,7 +12,7 @@ export const BUILD_ID = Date.now().toString(36);
 
 export const VERSIONS = {
   core: '1.0.0',
-  ui: '1.0.0',
+  ui: '1.1.0',
   three: '0.1.6',
   videoExporter: '0.2.2',
   devtools: '0.1.1',
