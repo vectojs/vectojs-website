@@ -11,11 +11,11 @@
 export const BUILD_ID = Date.now().toString(36);
 
 export const VERSIONS = {
-  core: '0.2.9',
-  ui: '0.2.8',
-  three: '0.1.5',
+  core: '1.0.0',
+  ui: '1.0.0',
+  three: '0.1.6',
   videoExporter: '0.2.2',
-  devtools: '0.1.0',
+  devtools: '0.1.1',
 } as const;
 
 export const SITE = {
