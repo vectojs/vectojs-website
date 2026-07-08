@@ -1,0 +1,204 @@
+---
+import Base from '../layouts/Base.astro';
+import { BUILD_ID } from '../consts';
+
+interface GalleryItem {
+  title: string;
+  description: string;
+  tag: string;
+  author: string;
+  authorUrl?: string;
+  demoUrl?: string;
+  codeUrl?: string;
+}
+
+const GALLERY_ITEMS: GalleryItem[] = [
+  {
+    title: 'Interactive Billiards Pool Table',
+    description:
+      'A full multi-ball 2D pool table simulation featuring kinetic friction, elastic circle-circle collisions, and smooth cue-ball dragging built on VectoJS spring physics.',
+    tag: 'Physics · 2D collision · Game',
+    author: 'vectojs-core',
+    demoUrl: '/demos/pool/',
+    codeUrl: 'https://github.com/vectojs/vectojs/blob/main/packages/ui/src/ScrollView.ts',
+  },
+  {
+    title: 'WebGPU Particle Field & Vortex',
+    description:
+      'Tens of thousands of active particles simulated inside a WebGPU compute shader, transitioning from vortex flows to spelling "VectoJS" reactive to the cursor.',
+    tag: 'WebGPU · Compute · Particles',
+    author: 'vectojs-core',
+    demoUrl: '/demos/nexus/',
+    codeUrl: 'https://github.com/vectojs/vectojs/blob/main/packages/core/src/Scene.ts',
+  },
+  {
+    title: 'Stress Test: 5,000 Danmaku Comments',
+    description:
+      'Renders 5,000 comments concurrently floating across the screen. Every single comment is individually hit-testable, hoverable, and accessible to screen readers.',
+    tag: 'Stress Test · Interaction · Accessibility',
+    author: 'vectojs-core',
+    demoUrl: '/demos/danmaku/',
+  },
+  {
+    title: '3D Floating Control Panel',
+    description:
+      'Embedding a fully interactive VectoJS canvas UI onto a Three.js 3D plane using custom CanvasTexture and UV raycasting mapping coordinates to cursor events.',
+    tag: 'WebGL · Three.js · 3D',
+    author: 'vectojs-core',
+    demoUrl: '/demos/dimension/',
+  },
+];
+---
+
+<Base title="Gallery">
+  <link slot="head" rel="stylesheet" href={`/css/demo.css?v=${BUILD_ID}`} />
+
+  <section class="demos-section container">
+    <h1 class="section-title">Gallery</h1>
+    <p class="demos-lede">
+      A showcase of advanced animations, games, interactive experiments, and creative math art built
+      natively on the VectoJS canvas engine.
+    </p>
+
+    <div class="demos-grid">
+      {
+        GALLERY_ITEMS.map((item) => (
+          <div
+            class="demo-card"
+            style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;"
+          >
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span class="demo-tag" style="margin-bottom: 0;">
+                  {item.tag}
+                </span>
+                <span style="font-size: 0.78rem; color: var(--text-muted);">
+                  By{' '}
+                  {item.authorUrl ? (
+                    <a
+                      href={item.authorUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style="color: #60a5fa; text-decoration: underline;"
+                    >
+                      {item.author}
+                    </a>
+                  ) : (
+                    item.author
+                  )}
+                </span>
+              </div>
+              <h3 style="margin-top: 0.25rem;">{item.title}</h3>
+              <p style="font-size: 0.88rem; line-height: 1.5; color: var(--text-muted); margin-bottom: 1.25rem;">
+                {item.description}
+              </p>
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center; margin-top: auto;">
+              {item.demoUrl && (
+                <a
+                  class="demo-go"
+                  href={item.demoUrl}
+                  style="margin: 0; padding: 0.25rem 0; font-weight: 600;"
+                >
+                  Run Demo →
+                </a>
+              )}
+              {item.codeUrl && (
+                <a
+                  href={item.codeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style="font-size: 0.85rem; color: #60a5fa; text-decoration: none; font-weight: 500;"
+                >
+                  View Code
+                </a>
+              )}
+            </div>
+          </div>
+        ))
+      }
+
+      {/* Contribution Card */}
+      <div
+        class="demo-card"
+        style="border: 1px dashed rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.03); display: flex; flex-direction: column; justify-content: space-between; height: 100%;"
+      >
+        <div>
+          <span class="demo-tag" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;"
+            >Open Showcase</span
+          >
+          <h3>Submit Your Creation!</h3>
+          <p style="font-size: 0.88rem; line-height: 1.5; color: var(--text-muted);">
+            Built a cool VectoJS animation, simulation, or UI component? Submit a PR to showcase
+            your work here.
+          </p>
+        </div>
+        <div style="margin-top: auto;">
+          <a
+            href="#how-to-submit"
+            style="font-size: 0.85rem; color: #818cf8; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;"
+          >
+            See PR Workflow ↓
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Contribution Workflow Section */}
+  <section
+    class="container"
+    id="how-to-submit"
+    style="margin-top: 4rem; margin-bottom: 5rem; border-top: 1px solid var(--border-color); padding-top: 3rem;"
+  >
+    <h2 class="section-title" style="font-size: 1.8rem; margin-bottom: 1.5rem;">
+      How to Submit Your Work
+    </h2>
+    <p style="color: var(--text-muted); line-height: 1.6; max-width: 72ch; margin-bottom: 2rem;">
+      We encourage developers to submit their custom VectoJS creations. Once merged, our GitHub
+      Actions CI/CD automatically deploys the website, publishing your creation to the world.
+    </p>
+
+    <div
+      class="explain-grid"
+      style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;"
+    >
+      <div
+        class="explain-card"
+        style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 12px;"
+      >
+        <h4 style="color: #fff; margin-bottom: 0.5rem; font-size: 1.1rem;">
+          1. Add Your VectoJS Code
+        </h4>
+        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+          Fork the repository and add your VectoJS Canvas script under <code>src/demos/</code>.
+          Implement your logic using VectoJS <code>Scene</code> and custom <code>Entity</code> sub-classes.
+        </p>
+      </div>
+
+      <div
+        class="explain-card"
+        style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 12px;"
+      >
+        <h4 style="color: #fff; margin-bottom: 0.5rem; font-size: 1.1rem;">2. Create Your Route</h4>
+        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+          Create an Astro page in <code>src/pages/demos/[your-slug].astro</code> or embed your canvas
+          page, styling the layout to present your case beautifully.
+        </p>
+      </div>
+
+      <div
+        class="explain-card"
+        style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 12px;"
+      >
+        <h4 style="color: #fff; margin-bottom: 0.5rem; font-size: 1.1rem;">
+          3. Submit a Pull Request
+        </h4>
+        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+          Submit your PR. Once approved and merged into <code>main</code>, GitHub Actions builds the
+          Astro bundle and deploys it automatically to Cloudflare Pages.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>
