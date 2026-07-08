@@ -13,3 +13,6 @@ node_modules/
 public/demos/*.mp4
 .obsidian/
 .claude/worktrees/
+
+# Agent scratchpad
+tmp/

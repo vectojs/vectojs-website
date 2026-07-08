@@ -194,7 +194,13 @@ function initChat(): void {
   scene.add(meter);
   const scroll = new ScrollView({ width: stage.clientWidth, height: stage.clientHeight });
   const transcript = new Stack({ direction: 'vertical', gap: 28, align: 'start' });
-  transcript.setPosition(28, 24);
+  // y=56 clears the shared immersive-mode toggle button (`.demo-immersive-btn`,
+  // absolutely positioned at top:12/right:12, 38px tall) that `immersive.ts`
+  // injects into `.chat-shell`'s top-right corner. Chat is the one demo whose
+  // first message is right-aligned flush against that same corner (a "You"
+  // bubble's role label), so without this clearance the label rendered
+  // directly under the button.
+  transcript.setPosition(28, 56);
   scroll.add(transcript);
   scene.add(scroll);
 

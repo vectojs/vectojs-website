@@ -108,32 +108,6 @@ import { SITE } from '../consts';
     </div>
   </section>
 
-  <section class="proof-section container" id="teaser-compare">
-    <h2 class="section-title">Watch the DOM choke. VectoJS doesn't.</h2>
-    <p class="section-subtitle">
-      800 identical scrolling comments, rendered two ways, on this exact device, right now.
-    </p>
-    <div class="proof-grid">
-      <div class="proof-panel">
-        <div class="proof-panel-head">
-          <span>Plain DOM</span>
-          <span id="teaser-dom-hud">— fps</span>
-        </div>
-        <div class="proof-viewport" id="teaser-dom-viewport"></div>
-      </div>
-      <div class="proof-panel">
-        <div class="proof-panel-head">
-          <span>VectoJS</span>
-          <span id="teaser-vecto-hud">— fps</span>
-        </div>
-        <div class="proof-viewport">
-          <canvas id="teaser-compare-canvas"></canvas>
-        </div>
-      </div>
-    </div>
-    <a class="proof-link" href="/compare/">See the full comparison →</a>
-  </section>
-
   <section class="usecases-section container">
     <h2 class="section-title">Built for</h2>
     <p class="section-subtitle">Anywhere a DOM is too slow, too rigid, or too visible.</p>
@@ -217,5 +191,4 @@ import { SITE } from '../consts';
 
 <script>
   import '../hero';
-  import '../demos/compare/homepage-teaser';
 </script>
