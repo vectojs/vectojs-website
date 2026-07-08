@@ -1,0 +1,5 @@
+# Cloudflare Pages automatically strips .html and redirects to the extensionless
+# path (matches astro.config's trailingSlash: 'always'). Search-engine/host
+# verification files must be served at their literal .html URL with a direct
+# 200 — a redirect breaks verification — so explicitly opt this one out.
+/googledf2e32a72954702b.html /googledf2e32a72954702b.html 200
