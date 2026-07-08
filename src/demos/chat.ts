@@ -238,9 +238,7 @@ class UserBubble extends Entity {
     r.beginPath();
     r.roundRect(0, 0, this.width, this.height, 18);
     r.fill('rgba(255, 255, 255, 0.08)');
-    r.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-    r.lineWidth = 1;
-    r.stroke();
+    r.stroke('rgba(255, 255, 255, 0.12)', 1);
   }
 }
 
