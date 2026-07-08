@@ -226,7 +226,9 @@ class UserBubble extends Entity {
   }
 
   layout(): void {
-    this.markdown.layout();
+    this.markdown.content.layout();
+    this.markdown.width = this.markdown.content.width;
+    this.markdown.height = this.markdown.content.height;
     this.markdown.setPosition(this.padding, this.padding);
     this.width = this.markdown.width + this.padding * 2;
     this.height = this.markdown.height + this.padding * 2;
