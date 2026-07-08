@@ -11,10 +11,11 @@
 export const BUILD_ID = Date.now().toString(36);
 
 export const VERSIONS = {
-  core: '0.2.7',
+  core: '0.2.8',
   ui: '0.2.7',
-  three: '0.1.4',
+  three: '0.1.5',
   videoExporter: '0.2.2',
+  devtools: '0.1.0',
 } as const;
 
 export const SITE = {
@@ -140,5 +141,6 @@ export const REFERENCE_PAGES: DocPage[] = [
   { slug: 'ui-codeblock', title: 'UI: CodeBlock' },
   { slug: 'three', title: '@vectojs/three' },
   { slug: 'video-exporter', title: '@vectojs/video-exporter' },
+  { slug: 'devtools', title: '@vectojs/devtools' },
   { slug: 'faq', title: 'FAQ' },
 ];

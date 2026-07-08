@@ -215,6 +215,12 @@ The cache key is `fontSize + paragraphText` (for plain text) or `fontSize + para
 
 This bounds repeated measurement/layout preparation to the changed paragraph. A long paragraph still becomes more expensive as it grows, and higher-level Markdown parsing may add document-wide work.
 
+### Justification and hyphenation (core 0.2.8+)
+
+`LayoutEngine` supports `textAlign = 'justify'` (stretches wrapped lines flush to `maxWidth`, ragged last line) and wrap-time hyphenation (soft hyphens `­` work out of the box; plug a `hyphenate: (word) => string[]` function for automatic breaks — e.g. the `hyphen` npm package's Knuth–Liang patterns).
+
+`TextEntity` exposes both directly: `text.setTextAlign('justify')`, `text.setHyphenator(fn)` — see the [core API reference](/reference/core-api/#textentity--gridtextentity-from-) for details. These render correctly because `TextEntity` draws each glyph at its own computed position. The `@vectojs/ui` `Text`/`RichText` components collapse each wrapped line into a single native `fillText()` call for performance, so they don't yet honor per-glyph justification — reach for `TextEntity` when you need justified body copy.
+
 ---
 
 ## MSDF fonts

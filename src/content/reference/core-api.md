@@ -609,10 +609,27 @@ construction/`setText`.
 new TextEntity(text: string, atlas: GlyphAtlas, maxWidth: number, fontSize = 32)
 text.setText(text): this        // cold pass (re-segment + re-measure), then reflow
 text.setMaxWidth(maxWidth): this // hot pass only — reuses cached PreparedText (cheap responsive resize)
+text.setTextAlign(align: 'left' | 'justify'): this  // core 0.2.8+
+text.setHyphenator(fn: ((word: string) => string[]) | null): this  // core 0.2.8+
 
 new GridTextEntity(_atlas: any, fontSize = 10)
 grid.updateGrid(ascii: string[])   // monospace cell grid; interactive=false (a11y off for perf)
 ```
+
+`setTextAlign('justify')` stretches wrapped lines flush to `maxWidth` (inter-word
+spaces, or inter-character gaps on space-less CJK lines); the last line of each
+paragraph stays ragged. `setHyphenator()` plugs a word → parts function (e.g. the
+`hyphen` npm package's Knuth–Liang patterns) so long words can break mid-word
+with a visible `-`; soft hyphens (U+00AD) already in the source text work without
+a hyphenator. Both apply because `TextEntity` renders **per glyph** at each
+node's computed `x` — the justification/hyphenation math is visually honored.
+
+`MSDFTextEntity` and the `@vectojs/ui` `Text`/`RichText` components share the same
+underlying `LayoutEngine`, but do not yet expose these two methods — `Text`/`RichText`
+render each wrapped line as one native `fillText()` call for performance, which
+would silently discard per-glyph justification offsets even if the option were
+exposed. Use `TextEntity` directly (or drive a raw `LayoutEngine` with `textAlign`/
+`hyphenate` set) when you need justified or hyphenated text today.
 
 ### Bidi / shaping
 
