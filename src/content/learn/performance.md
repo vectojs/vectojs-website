@@ -54,10 +54,10 @@ In `'always'` mode, a scene is considered **static** when:
 - The `dirty` flag is `false`, AND
 - No entity has a pending `animate()` tween.
 
-A static scene is throttled to **~2 fps** to save battery and GPU. Since core **0.2.6** the `dirty` flag is consumed at the _start_ of each rendered frame, so a `markDirty()` issued from inside `update()` survives into the next frame's static check.
+A static scene is throttled to **~2 fps** to save battery and GPU. In the stable runtime, the `dirty` flag is consumed at the _start_ of each rendered frame, so a `markDirty()` issued from inside `update()` survives into the next frame's static check.
 
 ```typescript
-// Works on core 0.2.6+: markDirty() inside update() re-arms the next frame
+// markDirty() inside update() re-arms the next frame
 class Spinner extends Entity {
   update(dt: number, time: number) {
     super.update(dt, time);
@@ -340,8 +340,8 @@ class BenchEntity extends Entity {
 
 | Symptom                                  | Fix                                                                                                                       |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Scene throttles to 2 fps when idle       | Expected — call `markDirty()` on state changes (inside `update()` works on core 0.2.6+)                                   |
-| Manually animated entity drops to 2 fps  | Upgrade to core 0.2.6+ or override `hasPendingAnimations()`; on ≤ 0.2.5 `markDirty()` in `update()` is wiped              |
+| Scene throttles to 2 fps when idle       | Expected — call `markDirty()` on state changes, or use `renderMode: 'onDemand'` for mostly static scenes                  |
+| Manually animated entity drops to 2 fps  | Override `hasPendingAnimations()` or drive it through `animateTo()` / `springTo()` so the scene knows motion is in flight |
 | Static UI wastes battery                 | Switch to `renderMode: 'onDemand'`                                                                                        |
 | Many compatible circles are slow         | Benchmark `pointBackend: 'webgl'` + `getBatchCircle()` on the target device                                               |
 | Offscreen entities waste CPU             | Implement `getBounds()` on the entity                                                                                     |

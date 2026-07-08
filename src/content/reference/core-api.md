@@ -402,7 +402,7 @@ interface IRenderer {
 
   fillCircle(cx, cy, radius, color, alpha = 1): void; // order-preserving same-style batch
   flush(): void; // commit pending batch (no-op when idle)
-  present?(): void; // optional end-of-frame commit (core 0.2.6+)
+  present?(): void; // optional end-of-frame commit
   createLinearGradient(x0, y0, x1, y1, colorStops: { stop; color }[]): any;
   dispose?(): void; // idempotent backend cleanup; Scene.destroy() calls it
 }
@@ -412,7 +412,7 @@ interface IRenderer {
 committed on `flush()` (or when style changes). The Scene flushes at the end of
 each sibling group and each frame, preserving painter's order.
 
-### `Entity.getContentProjection()` (core 0.2.7+)
+### `Entity.getContentProjection()`
 
 ```ts
 getContentProjection(): ContentProjection | null // default null
@@ -427,7 +427,7 @@ text findable, screen-reader/crawler-visible, translatable, and — with
 implement it. Scene-wide off switch: `new Scene(canvas, { contentProjection:
 false })`.
 
-`present()` (optional, core 0.2.6+) is called by the Scene exactly **once** at
+`present()` is called by the Scene exactly **once** at
 the end of each render pass. Retained backends that submit a whole frame at a
 time (e.g. `ThreeRenderer`) should do their single expensive commit here and
 keep `flush()` cheap — the Scene calls `flush()` around every non-batched
@@ -609,8 +609,8 @@ construction/`setText`.
 new TextEntity(text: string, atlas: GlyphAtlas, maxWidth: number, fontSize = 32)
 text.setText(text): this        // cold pass (re-segment + re-measure), then reflow
 text.setMaxWidth(maxWidth): this // hot pass only — reuses cached PreparedText (cheap responsive resize)
-text.setTextAlign(align: 'left' | 'justify'): this  // core 0.2.8+
-text.setHyphenator(fn: ((word: string) => string[]) | null): this  // core 0.2.8+
+text.setTextAlign(align: 'left' | 'justify'): this
+text.setHyphenator(fn: ((word: string) => string[]) | null): this
 
 new GridTextEntity(_atlas: any, fontSize = 10)
 grid.updateGrid(ascii: string[])   // monospace cell grid; interactive=false (a11y off for perf)

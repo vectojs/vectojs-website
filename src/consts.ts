@@ -64,7 +64,7 @@ export const DEMOS: DemoMeta[] = [
     slug: 'graph',
     title: 'Knowledge Graph',
     description:
-      'An infinite pan/zoom canvas mapping the VectoJS ecosystem — real packages and concepts as a labeled backbone, surrounded by thousands of satellite nodes. Static layout, WebGL-batched, where DOM/SVG graph libraries choke past a couple thousand nodes.',
+      'An infinite pan/zoom map of the VectoJS ecosystem: a real labeled backbone of packages and concepts, surrounded by thousands of synthetic satellite nodes to show how VectoJS keeps large graph surfaces fast without one DOM/SVG node per point.',
     tag: 'Infinite canvas · Scale · Graph',
   },
   {

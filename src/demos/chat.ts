@@ -10,8 +10,8 @@
  *                      (defaults to a local Ollama at /v1/chat/completions).
  * DOM is used only for the prompt + controls.
  */
-import { Scene } from '@vectojs/core';
-import { Markdown, ScrollView, Stack, type MarkdownTheme } from '@vectojs/ui';
+import { Scene, Entity, type IRenderer } from '@vectojs/core';
+import { Markdown, Stack, type MarkdownTheme } from '@vectojs/ui';
 import { MessageView } from './chat/message-view';
 import { renderSpecial } from './chat/render-special';
 import { pacedTokens } from './chat/stream';
@@ -92,6 +92,7 @@ async function streamLive(
   history: ChatMsg[],
   signal: AbortSignal,
   onToken: (t: string) => void,
+  tps?: number,
 ): Promise<void> {
   const messages: ChatMsg[] = [
     ...(cfg.system ? [{ role: 'system' as const, content: cfg.system }] : []),
@@ -120,6 +121,26 @@ async function streamLive(
     throw new Error(
       `HTTP ${res.status} ${res.statusText}${detail ? ` — ${detail.slice(0, 240)}` : ''}`,
     );
+  }
+
+  const contentType = res.headers.get('content-type') || '';
+  if (!contentType.includes('text/event-stream')) {
+    const json = await res.json();
+    const content =
+      json.choices?.[0]?.message?.content ||
+      json.choices?.[0]?.delta?.content ||
+      json.response ||
+      json.answer ||
+      json.content ||
+      '';
+    if (content) {
+      const speed = tps ?? 24;
+      for await (const tok of pacedTokens(content, speed, signal)) {
+        if (signal.aborted) break;
+        onToken(tok);
+      }
+    }
+    return;
   }
 
   const reader = res.body.getReader();
@@ -181,6 +202,46 @@ function liveErrorNote(cfg: ModelConfig, err: unknown): string {
   return lines.join('\n');
 }
 
+class UserBubble extends Entity {
+  private markdown: Markdown;
+  private padding = 16;
+
+  constructor(text: string, width: number, theme: MarkdownTheme) {
+    super('UserBubble');
+    this.markdown = new Markdown(text, {
+      maxWidth: width - this.padding * 2,
+      theme: {
+        ...theme,
+        textColor: '#e8eaed',
+        headingColor: '#ffffff',
+        codeColor: '#a5d6ff',
+      },
+    });
+    this.add(this.markdown);
+    this.layout();
+  }
+
+  public isPointInside(_globalX: number, _globalY: number): boolean {
+    return false;
+  }
+
+  layout(): void {
+    this.markdown.layout();
+    this.markdown.setPosition(this.padding, this.padding);
+    this.width = this.markdown.width + this.padding * 2;
+    this.height = this.markdown.height + this.padding * 2;
+  }
+
+  render(r: IRenderer): void {
+    r.beginPath();
+    r.roundRect(0, 0, this.width, this.height, 18);
+    r.fill('rgba(255, 255, 255, 0.08)');
+    r.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    r.lineWidth = 1;
+    r.stroke();
+  }
+}
+
 function initChat(): void {
   const canvas = $<HTMLCanvasElement>('chat-canvas');
   const stage = $('chat-stage');
@@ -192,7 +253,6 @@ function initChat(): void {
   // rather than being propped up to 60fps artificially.
   const meter = new FrameMeter();
   scene.add(meter);
-  const scroll = new ScrollView({ width: stage.clientWidth, height: stage.clientHeight });
   const transcript = new Stack({ direction: 'vertical', gap: 28, align: 'start' });
   // y=56 clears the shared immersive-mode toggle button (`.demo-immersive-btn`,
   // absolutely positioned at top:12/right:12, 38px tall) that `immersive.ts`
@@ -200,14 +260,83 @@ function initChat(): void {
   // first message is right-aligned flush against that same corner (a "You"
   // bubble's role label), so without this clearance the label rendered
   // directly under the button.
-  transcript.setPosition(28, 56);
-  scroll.add(transcript);
-  scene.add(scroll);
+  const TRANSCRIPT_X = 28;
+  const TRANSCRIPT_TOP = 56;
+  const TRANSCRIPT_BOTTOM = 28;
+  transcript.setPosition(TRANSCRIPT_X, TRANSCRIPT_TOP);
+  scene.add(transcript);
 
   let contentWidth = 0;
-  // Chat-bubble width: narrower than the stage so "You" (right) and "VectoJS" (left)
-  // sit on opposite sides with whitespace between them.
-  const computeWidth = () => Math.min(600, Math.max(260, (stage.clientWidth - 56) * 0.82));
+  const computeWidth = () => {
+    const stageWidth = stage.clientWidth;
+    const colWidth = Math.min(800, stageWidth - 56);
+    return Math.min(650, Math.max(260, colWidth * 0.85));
+  };
+  let autoFollow = true;
+  let scrollY = 0;
+
+  // Chat scrolling is a plain state variable, not a ScrollView spring. That keeps
+  // wheel/touch movement deterministic: one input delta maps to one transcript y.
+  const maxScroll = (): number =>
+    Math.max(0, TRANSCRIPT_TOP + transcript.height + TRANSCRIPT_BOTTOM - stage.clientHeight);
+  const nearBottom = (): boolean => maxScroll() - scrollY <= 36;
+  const applyScroll = (): void => {
+    scrollY = Math.max(0, Math.min(scrollY, maxScroll()));
+    realignBlocks();
+    scene.markDirty();
+  };
+  const scrollTo = (nextY: number): void => {
+    scrollY = nextY;
+    applyScroll();
+  };
+  const scrollToBottom = (): void => {
+    scrollTo(maxScroll());
+    autoFollow = true;
+  };
+  const scrollBy = (deltaY: number): void => {
+    const before = scrollY;
+    scrollTo(scrollY + deltaY);
+    if (scrollY !== before) autoFollow = nearBottom();
+  };
+  const wheelDelta = (e: WheelEvent): number => {
+    if (e.deltaMode === WheelEvent.DOM_DELTA_LINE) return e.deltaY * 16;
+    if (e.deltaMode === WheelEvent.DOM_DELTA_PAGE) return e.deltaY * stage.clientHeight;
+    return e.deltaY;
+  };
+
+  stage.style.touchAction = 'none';
+  stage.addEventListener(
+    'wheel',
+    (e) => {
+      if (e.ctrlKey) return;
+      e.preventDefault();
+      scrollBy(wheelDelta(e));
+    },
+    { passive: false },
+  );
+
+  let lastTouchY = 0;
+  stage.addEventListener(
+    'touchstart',
+    (e) => {
+      const touch = e.touches[0];
+      if (touch) lastTouchY = touch.clientY;
+    },
+    { passive: true },
+  );
+  stage.addEventListener(
+    'touchmove',
+    (e) => {
+      const touch = e.touches[0];
+      if (!touch) return;
+      const deltaY = lastTouchY - touch.clientY;
+      lastTouchY = touch.clientY;
+      if (deltaY === 0) return;
+      e.preventDefault();
+      scrollBy(deltaY);
+    },
+    { passive: false },
+  );
 
   // Conversation history sent to a live model. Persisted to sessionStorage so the
   // transcript survives navigating away and back (cleared by "New chat").
@@ -239,21 +368,30 @@ function initChat(): void {
     setPosition: (x: number, y: number) => void;
   };
   const realignBlocks = (): void => {
-    const avail = stage.clientWidth - 56;
+    const stageWidth = stage.clientWidth;
+    const colWidth = Math.min(800, stageWidth - 56);
+    const colX = Math.max(28, (stageWidth - colWidth) / 2);
+
+    transcript.setPosition(colX, TRANSCRIPT_TOP - scrollY);
+
     for (const child of transcript.children as unknown as Positioned[]) {
       if (!child.__role) continue;
       const w = child.getBounds?.().width ?? 0;
-      const x = child.__role === 'You' && w > 0 ? Math.max(0, avail - w) : 0;
+      const x = child.__role === 'You' && w > 0 ? Math.max(0, colWidth - w) : 0;
       child.setPosition(x, child.y);
     }
   };
 
   const reflow = (block?: Stack) => {
+    const shouldFollow = autoFollow || nearBottom();
     block?.layout();
     transcript.layout();
     realignBlocks();
-    scroll.updateContentSize();
-    scroll.scrollToBottom(); // public API (0.1.0) — clamps internally, no spring blow-up
+    if (shouldFollow) {
+      scrollToBottom();
+    } else {
+      applyScroll();
+    }
     // Wake the render loop on every content change; when streaming stops and the
     // transcript is idle, the engine's auto-throttle (0.1.0) lets it drop to ~2 FPS.
     scene.markDirty();
@@ -266,21 +404,23 @@ function initChat(): void {
     });
 
   const addBlock = (role: 'You' | 'VectoJS'): Stack => {
-    // "You" right-aligns its label + bubble, "VectoJS" left-aligns.
     const block = new Stack({
       direction: 'vertical',
       gap: 8,
       align: role === 'You' ? 'end' : 'start',
     });
     (block as unknown as { __role: string }).__role = role;
-    block.add(roleLabel(role));
+    if (role === 'VectoJS') {
+      block.add(roleLabel(role));
+    }
     transcript.add(block);
     return block;
   };
 
   const addUser = (text: string): void => {
     const block = addBlock('You');
-    block.add(new Markdown(text, { maxWidth: contentWidth, theme: THEME }));
+    const bubble = new UserBubble(text, contentWidth, THEME);
+    block.add(bubble);
     reflow(block);
   };
 
@@ -323,7 +463,7 @@ function initChat(): void {
     // plays a prebaked answer (history.slice drops the empty slot we just reserved).
     if (cfg.model && persist) {
       try {
-        await streamLive(cfg, history.slice(0, -1), signal, onToken);
+        await streamLive(cfg, history.slice(0, -1), signal, onToken, tps());
       } catch (err) {
         if (!signal.aborted && (err as Error)?.name !== 'AbortError') {
           raw += (raw ? '\n\n' : '') + liveErrorNote(cfg, err);
@@ -377,8 +517,10 @@ function initChat(): void {
   // ---- Base URL presets (OpenAI-compatible providers) ----
   for (const el of document.querySelectorAll<HTMLButtonElement>('[data-baseurl]')) {
     el.addEventListener('click', () => {
-      const input = $<HTMLInputElement>('cfg-baseurl');
-      if (input) input.value = el.getAttribute('data-baseurl') || '';
+      const inputUrl = $<HTMLInputElement>('cfg-baseurl');
+      if (inputUrl) inputUrl.value = el.getAttribute('data-baseurl') || '';
+      const inputModel = $<HTMLInputElement>('cfg-model');
+      if (inputModel) inputModel.value = el.getAttribute('data-model') || '';
     });
   }
 
@@ -395,7 +537,8 @@ function initChat(): void {
     saveHistory();
     while (transcript.children.length) transcript.remove(transcript.children[0]);
     transcript.layout();
-    scroll.updateContentSize();
+    scrollTo(0);
+    autoFollow = true;
     scene.markDirty();
   });
 
@@ -417,13 +560,13 @@ function initChat(): void {
   });
 
   const fit = (): void => {
+    const shouldFollow = autoFollow || nearBottom();
     contentWidth = computeWidth();
     scene.resize(stage.clientWidth, stage.clientHeight);
-    (scroll as unknown as { width: number; height: number }).width = stage.clientWidth;
-    (scroll as unknown as { width: number; height: number }).height = stage.clientHeight;
-    scroll.updateContentSize();
     transcript.layout();
     realignBlocks();
+    if (shouldFollow) scrollToBottom();
+    else applyScroll();
     scene.markDirty();
   };
 
@@ -455,7 +598,15 @@ function initChat(): void {
       __Markdown: Markdown,
       __Stack: Stack,
       __transcript: transcript,
-      __scroll: scroll,
+      __chatScroll: {
+        get scrollY() {
+          return scrollY;
+        },
+        maxScroll,
+        nearBottom,
+        scrollBy,
+        scrollToBottom,
+      },
       __renderAssistant: renderAssistant,
     });
   }

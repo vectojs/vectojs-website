@@ -144,6 +144,72 @@ No — nothing is baked into keyframes ahead of time. `TweenDriver.tick(dtMs)` a
 
 The practical difference shows up when you change the target mid-animation: `driver.retarget(to)` on a spring keeps the current value and velocity and continues integrating smoothly toward the new target — no snap, no restart. A CSS transition/animation whose target changes mid-flight typically restarts or jumps, because it's interpolating along a predetermined curve rather than simulating physics frame-by-frame.
 
+### How can I disable the default spring/inertia animations on components, or change them to standard transitions?
+
+By default, VectoJS scrollable components (like `ScrollView` and `VirtualList`) and properties use spring-based physics (`'spring'`) for smooth transitions. If you want to disable these animations for a snappier, instant behavior, or switch them to standard cubic-bezier transitions (like `easeOutCubic`), you have three main approaches:
+
+#### 1. Change the Transition Configuration on the Target Entity
+
+Every `Entity` exposes a `setTransition` method. You can override the default spring transition by calling `setTransition` on the target element with a custom `duration` (in milliseconds) and `easing` function, or disable it entirely:
+
+```typescript
+// To change to a fast, non-bouncing transition (like easeOutCubic)
+entity.setTransition({
+  y: { duration: 120, easing: 'easeOutCubic' },
+});
+
+// To disable animations entirely (instant snaps)
+entity.setTransition({
+  y: null, // clears the transition driver
+});
+```
+
+#### 2. Instantly Snap Position Without Engaging the Spring
+
+If you want to move an entity immediately without triggering any configured transition (bypassing the spring entirely), use the `setImmediate` method:
+
+```typescript
+// Snaps the position to target immediately
+entity.setImmediate('y', targetY);
+```
+
+#### 3. Bypassing Canvas Physics for Mobile Scrolling
+
+For full-screen pages where mobile users expect native momentum scrolling rather than Canvas-simulated springs, forward the touch gestures to the browser viewport:
+
+1. Bind touch listeners to the Canvas to convert touch drag deltas to native window scrolls:
+
+   ```typescript
+   let touchStartY = 0;
+   canvas.addEventListener(
+     'touchstart',
+     (e) => {
+       if (e.touches && e.touches[0]) touchStartY = e.touches[0].clientY;
+     },
+     { passive: true },
+   );
+
+   canvas.addEventListener(
+     'touchmove',
+     (e) => {
+       if (e.touches && e.touches[0]) {
+         const touchY = e.touches[0].clientY;
+         window.scrollBy(0, touchStartY - touchY);
+         touchStartY = touchY;
+       }
+     },
+     { passive: true },
+   );
+   ```
+
+2. Listen to the `window` `"scroll"` event and sync the scroll position to the rendering container using `setImmediate` or a fast easing transition:
+
+   ```typescript
+   window.addEventListener('scroll', () => {
+     mainScroll.y = -window.scrollY; // Or mainScroll.setImmediate('y', -window.scrollY);
+   });
+   ```
+
 ---
 
 ## UI Components & Devtools

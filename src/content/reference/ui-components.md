@@ -25,7 +25,7 @@ component pages so one behavior can be inspected without scrolling through every
 | Overlays & transient UI | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class="sandbox component-gallery">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/ui 0.2.6 · scroll inside</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/ui 1.0.0 · scroll inside</span></div>
   <iframe src="/sandbox/ui-components.html" class="sandbox-frame component-gallery-frame" loading="eager" title="Interactive gallery of every VectoJS UI component" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Package-level smoke gallery: broad coverage first, focused component pages when debugging a specific behavior.</figcaption>
 </figure>
@@ -59,7 +59,7 @@ abstract class UIComponent extends Entity {
   isPointInside(globalX: number, globalY: number): boolean;
   getBounds(): Bounds; // { x:0, y:0, width, height }
 
-  // Enter/exit presence helper (0.2.0)
+  // Enter/exit presence helper
   protected enterMotion?: MotionSpec; // played on mount
   protected exitMotion?: MotionSpec; // played by dismiss()
   dismiss(): Promise<void>; // play exitMotion, then remove from the tree
@@ -68,7 +68,7 @@ abstract class UIComponent extends Entity {
 
 Centralizes the box model + axis-aligned (AABB) hit-test shared by every component. `isPointInside` returns whether the point lies in `[0,width] × [0,height]` in local space. `getBounds()` returns the local box so the `Scene` can viewport-cull. Subclasses set `width`/`height` from measured content, implement `render(r)`, and (when interactive) override `getA11yAttributes()`.
 
-**Presence (0.2.0):** declare `enterMotion` / `exitMotion` as a `MotionSpec` (`{ props: { opacity: [0, 1], … }, config? }`) and the component animates in when it mounts to a live scene and out on `dismiss()` — which defers its own removal until the exit animation resolves. One shared implementation over the [core animation system](/reference/core-api/#animation), replacing per-component hand-rolled springs. Motion is suppressed under `prefers-reduced-motion` (opacity fades kept).
+**Presence:** declare `enterMotion` / `exitMotion` as a `MotionSpec` (`{ props: { opacity: [0, 1], … }, config? }`) and the component animates in when it mounts to a live scene and out on `dismiss()` — which defers its own removal until the exit animation resolves. One shared implementation over the [core animation system](/reference/core-api/#animation), replacing per-component hand-rolled springs. Motion is suppressed under `prefers-reduced-motion` (opacity fades kept).
 
 ### `getA11yAttributes(): A11yAttributes`
 
@@ -400,14 +400,14 @@ new Slider(props?: SliderProps)   // props is loosely typed (any) in the .d.ts
   value?: number;          // default = min
   width?: number;          // default 200
   height?: number;         // default 24
-  step?: number;           // default 1 (0.2.6+) — value granularity for pointer and keyboard
+  step?: number;           // default 1 — value granularity for pointer and keyboard
   trackColor?: string;     // default 'rgba(255, 255, 255, 0.15)'
   progressColor?: string;  // default '#00f0ff'
   handleColor?: string;    // default '#fff'
 }
 ```
 
-Horizontal slider with a circular thumb. Public: `min`, `max`, `value`, `step`. Dragging (`pointerdown` → `pointermove` → `pointerup`) maps pointer `localX` to a value, **snapped to the `step` grid anchored at `min`** (integer steps by default, matching `input[type=range]` semantics), and emits a `change` event with `{ value }` (subscribe via `on('change', e => e.value)`). Keyboard (0.2.6+): `ArrowRight`/`ArrowUp` step up, `ArrowLeft`/`ArrowDown` step down, `Home`/`End` jump to `min`/`max`. A11y: `{ role: 'slider', value, valuemin, valuemax }`. On ui ≤ 0.2.5 values were always integers and there was no keyboard handling.
+Horizontal slider with a circular thumb. Public: `min`, `max`, `value`, `step`. Dragging (`pointerdown` → `pointermove` → `pointerup`) maps pointer `localX` to a value, **snapped to the `step` grid anchored at `min`** (integer steps by default, matching `input[type=range]` semantics), and emits a `change` event with `{ value }` (subscribe via `on('change', e => e.value)`). Keyboard: `ArrowRight`/`ArrowUp` step up, `ArrowLeft`/`ArrowDown` step down, `Home`/`End` jump to `min`/`max`. A11y: `{ role: 'slider', value, valuemin, valuemax }`. Older pre-1.0 UI builds had integer-only values and no keyboard handling.
 
 ### `Dropdown`
 

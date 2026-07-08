@@ -114,9 +114,9 @@ interface A11yAttributes {
 
 While an input is focused, the sync avoids writing back the same user-synchronized value. If application state supplies a genuinely different value, it is applied; controlled components should therefore preserve selection intentionally when replacing text.
 
-## Static content projection (core 0.2.7+)
+## Static content projection
 
-Interactive controls project a11y nodes — but until 0.2.7, _static_ text was invisible to everything that isn't a GPU: screen readers, Ctrl+F, crawlers, and translation extensions all saw an empty canvas. **Content projection** closes that gap: entities that render static text expose it via `getContentProjection()`, and the Scene mirrors it as a **transparent, position-synced DOM node** over the drawn glyphs.
+Interactive controls project a11y nodes. Static content projection covers the non-interactive side: entities that render static text expose it via `getContentProjection()`, and the Scene mirrors it as a **transparent, position-synced DOM node** over the drawn glyphs. Screen readers, Ctrl+F, crawlers, and translation extensions can then see text that is visually rendered on canvas.
 
 ```typescript
 // Built-in: TextEntity, MSDFTextEntity (core) and Text, RichText (ui) opt in

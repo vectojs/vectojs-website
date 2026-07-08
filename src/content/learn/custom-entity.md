@@ -164,11 +164,9 @@ class Spinner extends Entity {
     this.rotation += this.speed * (dt / 1000); // dt/1000 → seconds
   }
 
-  // Motion driven from update() is invisible to the Scene's idle checks —
-  // report it, or the idle throttle drops this spinner to 2 fps (and
-  // onDemand mode freezes it). On core 0.2.6+ a markDirty() inside update()
-  // also works (the flag now survives the tick), but this override states
-  // the intent directly and is required on core ≤ 0.2.5.
+  // Motion driven from update() is invisible to the Scene's idle checks unless
+  // you report it. This keeps the idle throttle from dropping the spinner to
+  // 2 fps and states the animation intent more clearly than a per-frame dirty flag.
   hasPendingAnimations() {
     return true; // a spinner is always animating
   }

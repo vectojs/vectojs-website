@@ -57,12 +57,21 @@ const demo = demoBySlug('chat');
             /></label
           >
           <div class="cfg-presets" aria-label="Base URL presets">
-            <button type="button" data-baseurl="http://localhost:11434/v1">Ollama</button>
-            <button type="button" data-baseurl="https://openrouter.ai/api/v1">OpenRouter</button>
-            <button type="button" data-baseurl="https://api.openai.com/v1">OpenAI</button>
+            <button type="button" data-baseurl="http://localhost:11434/v1" data-model="llama3.2"
+              >Ollama</button
+            >
             <button
               type="button"
-              data-baseurl="https://generativelanguage.googleapis.com/v1beta/openai">Gemini</button
+              data-baseurl="https://openrouter.ai/api/v1"
+              data-model="meta-llama/llama-3.2-3b-instruct:free">OpenRouter</button
+            >
+            <button type="button" data-baseurl="https://api.openai.com/v1" data-model="gpt-4o-mini"
+              >OpenAI</button
+            >
+            <button
+              type="button"
+              data-baseurl="https://generativelanguage.googleapis.com/v1beta/openai"
+              data-model="gemini-1.5-flash">Gemini</button
             >
           </div>
           <label

@@ -72,7 +72,7 @@
 
 /* ---- Per-demo page ---- */
 .demo-wrap {
-  padding: 3rem 0 6rem;
+  padding: 3rem 2rem 6rem;
 }
 
 .demo-back {
@@ -101,6 +101,22 @@
   color: var(--text-muted);
   font-size: 1.05rem;
   line-height: 1.6;
+}
+
+.demo-purpose {
+  max-width: 820px;
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(91, 156, 255, 0.22);
+  background: rgba(15, 23, 42, 0.58);
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.demo-purpose strong {
+  color: #e2e8f0;
 }
 
 /* The "player" stage holding the canvas. */
@@ -1007,6 +1023,9 @@ body.immersive-lock {
 }
 
 @media (max-width: 768px) {
+  .demo-wrap {
+    padding: 2.5rem 1rem 5rem;
+  }
   .controls {
     grid-template-columns: 1fr;
   }

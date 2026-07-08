@@ -215,7 +215,7 @@ The cache key is `fontSize + paragraphText` (for plain text) or `fontSize + para
 
 This bounds repeated measurement/layout preparation to the changed paragraph. A long paragraph still becomes more expensive as it grows, and higher-level Markdown parsing may add document-wide work.
 
-### Justification and hyphenation (core 0.2.8+)
+### Justification and hyphenation
 
 `LayoutEngine` supports `textAlign = 'justify'` (stretches wrapped lines flush to `maxWidth`, ragged last line) and wrap-time hyphenation (soft hyphens `­` work out of the box; plug a `hyphenate: (word) => string[]` function for automatic breaks — e.g. the `hyphen` npm package's Knuth–Liang patterns).
 

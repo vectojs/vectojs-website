@@ -16,6 +16,82 @@ interface Slot {
 }
 
 const LABEL: Record<SpecialType, string> = { mermaid: 'diagram', math: 'equation', abc: 'score' };
+const QUOTE_TEXT_PAD = '\u00a0\u00a0\u00a0';
+
+function measureMonoCell(font: string): number {
+  if (typeof document === 'undefined') return 8;
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) return 8;
+  ctx.font = font;
+  return Math.max(1, ctx.measureText('M').width);
+}
+
+function findCodeBreak(line: string, maxCols: number): number {
+  const scanFrom = Math.min(maxCols, line.length - 1);
+  for (let i = scanFrom; i > Math.max(8, maxCols * 0.55); i--) {
+    if (/[\s,;:)\]}]/.test(line[i])) return i + 1;
+  }
+  return maxCols;
+}
+
+function wrapCodeLine(line: string, maxCols: number): string[] {
+  if (line.length <= maxCols) return [line];
+
+  const indent = line.match(/^\s*/)?.[0] ?? '';
+  const continuation = `${indent}  `;
+  const out: string[] = [];
+  let rest = line;
+
+  while (rest.length > maxCols) {
+    const at = findCodeBreak(rest, maxCols);
+    out.push(rest.slice(0, at).trimEnd());
+    rest = `${continuation}${rest.slice(at).trimStart()}`;
+  }
+  out.push(rest);
+  return out;
+}
+
+function formatChatMarkdown(markdown: string, maxCodeCols: number): string {
+  const out: string[] = [];
+  let inFence = false;
+  let fenceChar: '`' | '~' | null = null;
+  let fenceLen = 0;
+
+  for (const line of markdown.split('\n')) {
+    const trimmed = line.trimStart();
+    const fence = trimmed.match(/^(`{3,}|~{3,})/);
+    if (fence) {
+      const marker = fence[1];
+      const markerChar = marker[0] as '`' | '~';
+      if (!inFence) {
+        inFence = true;
+        fenceChar = markerChar;
+        fenceLen = marker.length;
+      } else if (fenceChar === markerChar && marker.length >= fenceLen) {
+        inFence = false;
+        fenceChar = null;
+        fenceLen = 0;
+      }
+      out.push(line);
+      continue;
+    }
+
+    if (inFence) {
+      out.push(...wrapCodeLine(line, maxCodeCols));
+      continue;
+    }
+
+    const quote = line.match(/^(\s*>+\s?)(.+)$/);
+    if (quote && !quote[2].startsWith(QUOTE_TEXT_PAD)) {
+      out.push(`${quote[1]}${QUOTE_TEXT_PAD}${quote[2]}`);
+      continue;
+    }
+
+    out.push(line);
+  }
+
+  return out.join('\n');
+}
 
 /**
  * Renders one streaming assistant message. As raw Markdown accumulates it is
@@ -39,7 +115,14 @@ export class MessageView {
   ) {}
 
   private mkMarkdown(text: string): Markdown {
-    return new Markdown(text, { maxWidth: this.maxWidth, theme: this.theme });
+    return new Markdown(this.formatMarkdown(text), { maxWidth: this.maxWidth, theme: this.theme });
+  }
+
+  private formatMarkdown(text: string): string {
+    const codeFont = `15px ${this.theme.codeFont ?? 'monospace'}`;
+    const cellWidth = measureMonoCell(codeFont);
+    const cols = Math.max(36, Math.floor((this.maxWidth - 44) / cellWidth));
+    return formatChatMarkdown(text, cols);
   }
 
   update(raw: string): void {
@@ -47,7 +130,7 @@ export class MessageView {
     // the remaining prose is converted to readable Unicode here, since it can't be
     // dropped as an SVG mid-paragraph.
     const segs = segmentMarkdown(raw).map((s) =>
-      s.type === 'markdown' ? { ...s, text: renderInlineMath(s.text) } : s,
+      s.type === 'markdown' ? { ...s, text: renderInlineMath(this.formatMarkdown(s.text)) } : s,
     );
     let structureChanged = segs.length !== this.slots.length;
 
