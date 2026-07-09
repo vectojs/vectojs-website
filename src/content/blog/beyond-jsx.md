@@ -31,13 +31,12 @@ In VectoJS, there are no angle brackets. There is no template compilation. You a
 
 ```typescript
 // The pure Object-Oriented clarity of VectoJS
-const container = new Container();
+const container = new Stack({ direction: 'vertical', gap: 12 });
 
-items.forEach((item) => {
-  const card = new Card(item);
-  card.onClick = () => this.handleClick(item);
+for (const item of items) {
+  const card = new Button(item.name, { onClick: () => this.handleClick(item) });
   container.add(card);
-});
+}
 ```
 
 ## 2. Unmatched LSP Intelligence (Autocomplete)

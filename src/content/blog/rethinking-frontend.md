@@ -36,29 +36,46 @@ By rendering everything directly to a `<canvas>` using the **Virtual Math Tree (
 
 You no longer need to memorize arbitrary CSS properties or HTML quirks. In VectoJS, you only need one `<canvas>` tag. Everything else is written in TypeScript.
 
-Drawing a rounded rectangle isn't about guessing the right CSS class; it is calling a highly intuitive API: `ctx.fillRoundRect(x, y, w, h, radius)`. This is pure, predictable programming.
+Drawing a rounded rectangle isn't about guessing the right CSS class; it is calling a highly intuitive API:
+
+```typescript
+r.beginPath();
+r.roundRect(x, y, w, h, radius);
+r.fill('#dc2626');
+```
+
+This is pure, predictable programming.
 
 ### 2. The Power of OOP (Object-Oriented Programming)
 
 Because every UI component in VectoJS is a pure TypeScript `Class`, you unlock the full power of software engineering patterns:
 
 - **Inheritance:** Want a DangerButton? `class DangerButton extends Button` and just override the `draw()` method to make it red. No CSS overrides or specificity wars.
-- **Polymorphism:** The VectoJS engine simply loops through an array of `Entity` objects and calls `.update()` and `.draw()` on them. The engine doesn't care if it's a simple text label or a massive particle system.
+- **Polymorphism:** The VectoJS engine simply loops through an array of `Entity` objects and calls `.update()` and `.render()` on them. The engine doesn't care if it's a simple text label or a massive particle system.
 - **Encapsulation:** Coordinates, hitboxes, and state are perfectly isolated inside your class instances. No global CSS variables can accidentally break your layout.
 
 ### 3. Animations via the Game Loop
 
 Traditional DOM manipulation (even with JS) suffers from "Layout Thrashing"—reading and writing DOM properties forces the browser to recalculate the entire page, killing performance.
 
-In VectoJS, animations follow a Game Engine paradigm. Every entity has an `update(dt)` method:
+In VectoJS, animations follow a Game Engine paradigm. Declare which properties animate, then assign to them like normal fields — no manual per-frame math required for the common case:
 
 ```typescript
-update(dt: number) {
-  const seconds = dt / 1000;
-  this.currentScale = lerp(this.currentScale, this.targetScale, Math.min(1, seconds * 10));
-  this.y += 9.8 * seconds;
+class Toast extends Entity {
+  constructor() {
+    super();
+    this.opacity = 0;
+    this.setTransition({ y: 'spring', opacity: { duration: 200 } });
+  }
+
+  show(): void {
+    this.y = 24; // retargets the spring — in-flight motion blends, doesn't reset
+    this.opacity = 1; // 200ms tween
+  }
 }
 ```
+
+For anything that needs true per-frame control, every entity still has an `update(dt, time)` hook, ticked every frame with the elapsed milliseconds and the running clock.
 
 This keeps application motion in the same explicit update loop as rendering. Capacity depends on per-entity update/draw cost, backend, visible percentage, DPR, browser, and hardware; measure the target workload rather than inferring a count from the architecture.
 
