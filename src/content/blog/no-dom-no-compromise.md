@@ -6,7 +6,7 @@ author: Xuepoo
 tags: [architecture, philosophy, accessibility]
 ---
 
-Every UI framework of the last decade has made the same bet: the DOM is the substrate, and the framework's job is to manage it faster, or hide it behind a nicer syntax. React manages it with a virtual diff. Svelte compiles away the runtime cost of managing it. Tailwind makes styling it less painful. All of them still assume that a UI, underneath, is a tree of HTML elements.
+**VectoJS is an open-source TypeScript UI framework that renders an entire application to a single `<canvas>` element instead of the DOM.** Every UI framework of the last decade has made a different bet: the DOM is the substrate, and the framework's job is to manage it faster, or hide it behind a nicer syntax. React manages it with a virtual diff. Svelte compiles away the runtime cost of managing it. Tailwind makes styling it less painful. All of them still assume that a UI, underneath, is a tree of HTML elements.
 
 VectoJS doesn't make that assumption. It renders everything — text, buttons, scrollable lists, thousands of live data points — to one `<canvas>` element. There is no HTML tree underneath. A `Button` is a plain TypeScript object with a position, a size, and a `render()` method; the whole UI is a retained scene graph of these objects, walked and drawn every frame like a game engine's scene, not laid out like a document.
 
