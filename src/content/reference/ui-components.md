@@ -7,9 +7,13 @@ order: 2
 # `@vectojs/ui` — Component Reference
 
 > Reusable high-level components for the VectoJS zero-DOM Canvas engine.
-> Version documented: **1.1.0**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
+> Version documented: **1.7.1**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
 
 Every component is a leaf or container in the Virtual Math Tree (VMT). Nothing here is real DOM — components draw themselves to a Canvas via an `IRenderer`. Accessibility, agent automation, and crawlability come from a parallel **A11y Shadow DOM**: when a component is `interactive`, the `Scene` projects a single hidden, transparent real DOM node positioned over the component's box, built from `getA11yAttributes()`. That is why `page.getByRole('button', { name })` / `fill()` / screen readers work against a pure-Canvas UI.
+
+Text-only application surfaces can import `Text` from `@vectojs/ui/text`. This
+lightweight entry excludes Markdown and MathJax from the startup graph; use the
+root `@vectojs/ui` entry when composing several component families.
 
 ## Live component gallery
 
@@ -25,7 +29,7 @@ component pages so one behavior can be inspected without scrolling through every
 | Overlays & transient UI | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class="sandbox component-gallery">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/ui 1.0.0 · scroll inside</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/ui 1.7.1 · scroll inside</span></div>
   <iframe src="/sandbox/ui-components.html" class="sandbox-frame component-gallery-frame" loading="eager" title="Interactive gallery of every VectoJS UI component" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Package-level smoke gallery: broad coverage first, focused component pages when debugging a specific behavior.</figcaption>
 </figure>
@@ -112,6 +116,7 @@ interface TextOptions {
   maxWidth?: number;              // wrap width; omit → only explicit '\n' breaks lines
   lineHeight?: number;            // line advance in px, default 20
   preserveLeadingSpaces?: boolean;// default false
+  selectable?: boolean;           // browser-native drag selection, default true
 }
 ```
 
@@ -120,8 +125,9 @@ Multi-line text drawn with native `fillText`. Wrapping/measurement go through th
 - `setText(text): this` — cold pass (re-segment + re-measure), then re-layout.
 - `append(text): this` — streaming/typewriter path; equals `setText(this.text + text)` but the engine's paragraph memo reuses untouched leading paragraphs, so only the changed last paragraph is re-measured.
 - `setMaxWidth(maxWidth): this` — **hot** path; re-wraps the cached measured text only (no re-segmentation). Prefer this for responsive reflow.
+- `setSelectable(selectable): this` — enable or disable the projected native selection surface.
 
-A11y: projects a `div` whose accessible name is the text (`{ label: this.text }`). `interactive` is true.
+Content projection mirrors the visual line breaks and line height for browser find, selection, and copy. Static Text is not an interactive hit target; Canvas/VMT still owns its pixels and layout.
 
 ### `RichText`
 
@@ -136,6 +142,7 @@ interface RichTextOptions {
   linkColor?: string;                     // default '#38bdf8' for link runs w/o own color
   onLinkClick?: (href: string) => void;   // fired when a link run is activated
   exclusions?: ExclusionRect[];           // rects the text flows around (exclusion shapes / floats)
+  selectable?: boolean;                   // browser-native drag selection, default true
 }
 ```
 
@@ -145,6 +152,7 @@ Multi-style inline text: bold / italic / colored / differently-sized runs flow a
 - `appendSpans(spans): this` — **streaming** path; the rich paragraph memo reuses untouched leading paragraphs, so a token stream re-prepares in O(changed paragraph), not O(document).
 - `setMaxWidth(maxWidth): this` — reflow.
 - `setExclusions(exclusions): this` — set float regions and reflow.
+- `setSelectable(selectable): this` — toggle native selection without rebuilding spans.
 
 A11y: each contiguous **link run** gets a transparent `<a>` hotspot child (reconciled across re-wrap — one hotspot per run; position updates in place, only a change in link _count_ rebuilds the shadow nodes). The component's own accessible name is the full concatenated text.
 
@@ -494,6 +502,8 @@ new Markdown(markdownText: string, opts?: MarkdownOptions)
 interface MarkdownOptions {
   maxWidth?: number;     // default 800
   theme?: MarkdownTheme;
+  onLinkClick?: (href: string) => void;
+  selectable?: boolean;  // default true; propagates to rendered text/code/table cells
 }
 
 interface MarkdownTheme {        // all optional; defaults shown
@@ -504,6 +514,8 @@ interface MarkdownTheme {        // all optional; defaults shown
   quoteBorderColor?: string;     // '#6366f1'
   quoteTextColor?: string;       // '#94a3b8'
   hrColor?: string;              // 'rgba(148, 163, 184, 0.3)'
+  tableBgColor?: string;         // 'rgba(15, 15, 25, 0.4)'
+  tableHeaderBgColor?: string;   // 'rgba(255, 255, 255, 0.08)'
   bodyFont?: string;             // 'Inter, system-ui, sans-serif'
   codeFont?: string;             // '"JetBrains Mono", "Fira Code", monospace'
   fontSize?: number;             // 16
@@ -516,6 +528,7 @@ Two content-update paths — **choosing the right one matters for streaming:**
 
 - `setContent(markdown): this` — **full rebuild**: tears down every child and re-renders from scratch. Use for one-shot/replacement.
 - `appendMarkdown(chunk): this` — **the correct streaming/token path**. Appends to the raw buffer, re-lexes the complete Markdown source, diffs tokens by raw source, reuses unchanged prefix entities, and updates the last (growing) paragraph in-place via `RichText.setSpans`. It avoids a full entity-tree rebuild, but lexing still scales with document length.
+- `setSelectable(selectable): this` — updates existing text/code/table descendants and becomes the default for future streaming nodes.
 
 > Gotcha: do **not** stream by calling `setContent(fullSoFar)` on every token. That rebuilds the entire tree each token (O(document) per token) and makes layout cost grow with the document. Feed only the new delta to `appendMarkdown(chunk)`.
 
@@ -528,12 +541,13 @@ for await (const token of llmStream) md.appendMarkdown(token); // reuses unchang
 ### `CodeBlock`
 
 ```ts
-new CodeBlock(code: string, lang: string, maxWidth: number, theme: Required<MarkdownTheme>)
+new CodeBlock(code: string, lang: string, maxWidth: number, theme: Required<MarkdownTheme>, selectable = true)
 ```
 
 A single self-rendering leaf for fenced code: rounded background + per-line, per-segment colored text (keyword/string/comment/number highlighting for `js`/`ts`/`py`/`rust` and aliases). Replaces the old per-line/per-segment child-entity explosion with one flat leaf. **Decorative** — `isPointInside()` always returns `false`.
 
 - `setCode(code, lang?): this` — re-parse content (e.g. live editing).
+- `setSelectable(selectable): this` — toggle the exact-source content projection.
 
 Note: `theme` must be a fully-resolved `Required<MarkdownTheme>`. In practice `CodeBlock` is produced internally by `Markdown`; construct it directly only if you supply a complete theme.
 
@@ -543,8 +557,8 @@ Note: `theme` must be a fully-resolved `Required<MarkdownTheme>`. In practice `C
 new Table(opts: TableOptions)
 
 interface TableOptions {
-  headers: string[];          // required
-  rows: string[][];           // required (2D row × col)
+  headers: (string | Entity)[];     // required; Entity instances must be unique
+  rows: (string | Entity)[][];      // required (2D row × col)
   colWidths?: number[];       // per-column px; must match headers.length, else evenly distributed
   width?: number;             // total width, default 600
   rowHeight?: number;         // default 36
@@ -554,10 +568,11 @@ interface TableOptions {
   headerTextColor?: string;   // default '#ffffff'
   textColor?: string;         // default '#e2e8f0'
   font?: string;              // default '14px sans-serif'
+  selectable?: boolean;       // native cell-text selection, default true
 }
 ```
 
-Canvas-native data grid: header row + body rows with grid borders and custom column widths. `height` derives from `(rows.length + 1) · rowHeight`. A11y: projects `{ role: 'grid', label: 'Data table with N columns and M rows.' }` for assistive tech. Also the renderer for GFM tables inside `Markdown`.
+Canvas-native data grid: string cells become Text child entities, Entity cells are constrained through public `setMaxWidth()`, and `layout()` resolves wrapping, row heights, and positions before the draw-only `render()` pass. Call `layout()` after changing external cell content. Each cell owns one content projection. A11y: projects `{ role: 'grid', label: 'Data table with N columns and M rows.' }` for assistive tech. Also the renderer for GFM tables inside `Markdown`.
 
 ---
 

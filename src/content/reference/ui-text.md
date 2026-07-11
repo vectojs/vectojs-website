@@ -27,6 +27,7 @@ const heading = new Text('Mathematical canvas UI', {
   color: '#f8fafc',
   maxWidth: 360,
   lineHeight: 32,
+  selectable: true,
 });
 
 scene.add(heading.setPosition(24, 24));
@@ -36,4 +37,5 @@ scene.add(heading.setPosition(24, 24));
 
 - Use `setMaxWidth()` for responsive width changes.
 - Use `setText()` or `append()` for content changes.
+- Use `setSelectable(false)` when drag gestures should own the text region instead of browser selection.
 - Prefer `RichText` when inline styles or links are required.

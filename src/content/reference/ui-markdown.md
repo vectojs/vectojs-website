@@ -25,6 +25,7 @@ import { Markdown } from '@vectojs/ui';
 
 const md = new Markdown(source, {
   maxWidth: 640,
+  selectable: true,
   onLinkClick(href) {
     router.open(href);
   },
@@ -42,8 +43,14 @@ interface MarkdownOptions {
   maxWidth?: number;
   theme?: MarkdownTheme;
   onLinkClick?: (href: string) => void;
+  selectable?: boolean; // default true
 }
 ```
+
+`selectable` propagates to current and future headings, prose, lists, fenced
+code, and table cells. Change it at runtime with `markdown.setSelectable(false)`.
+The browser owns drag selection, Ctrl/Command+C, and find-in-page; VMT entities
+still own layout and pixels.
 
 ## Streaming
 
@@ -67,6 +74,8 @@ blocks while still delegating normal tokens to the built-in renderer.
 
 - Link callbacks must be forwarded to paragraph, heading and list `RichText` nodes.
 - Code blocks should stay a single leaf entity, not one entity per token or line segment.
+- Fenced code must project its exact source text and line breaks.
+- Table headers use heading color/bold style, while each logical cell owns exactly one content projection.
 - Streaming append should reuse unchanged prefix entities.
 
 Related: [`RichText`](/reference/ui-components/#richtext), [`CodeBlock`](/reference/ui-components/#codeblock), [`Table`](/reference/ui-components/#table).

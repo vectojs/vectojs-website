@@ -6,7 +6,7 @@ order: 6
 
 # `@vectojs/devtools`
 
-Version documented: **0.1.1**
+Version documented: **0.4.0**
 
 `@vectojs/devtools` is the answer to "where's the Elements panel?" — an in-page inspector for the Virtual Math Tree, so debugging a VectoJS scene stays in state space instead of pixel space. The panel is itself a VectoJS `Scene` (dogfooding the framework it inspects), docked to the right edge of the page.
 
@@ -16,7 +16,13 @@ Version documented: **0.1.1**
 bun add -D @vectojs/devtools
 ```
 
-Add it conditionally in development — it mounts real DOM and listens on `document`, so keep it out of production bundles.
+Add the visual panel conditionally in development — it mounts a VectoJS panel
+and listens on `document`, so keep it out of production bundles. Headless
+audits, snapshots, picking, and event tracing are available without the panel:
+
+```ts
+import { auditScene, captureSnapshot, createEventTrace } from '@vectojs/devtools/headless';
+```
 
 ```typescript
 import { attachDevtools } from '@vectojs/devtools';
@@ -49,6 +55,8 @@ function attachDevtools(
 interface DevtoolsOptions {
   width?: number; // panel width in px, default 320
   refreshInterval?: number; // ms; 0 disables auto-refresh
+  traceEvents?: boolean; // show bounded pointer/wheel/keyboard routing records
+  traceCapacity?: number;
 }
 
 class DevtoolsPanel {
@@ -61,6 +69,22 @@ class DevtoolsPanel {
 ```
 
 `detach()` (returned by `attachDevtools`) is an alias for `destroy()`.
+
+## Event routing trace
+
+```ts
+const trace = createEventTrace(scene, { capacity: 100 });
+trace.subscribe((entry) => {
+  console.log(entry.source, entry.targetPath, entry.defaultPrevented);
+});
+```
+
+`source` is `"canvas"`, `"a11y"`, `"content"`, or `"document"`. The
+`content` source means the browser event began on a selectable
+`[data-vecto-content]` mirror. The trace validates the owning Entity, records
+scene/local coordinates, and finalizes in a microtask so `defaultPrevented`
+reflects the application's final shortcut or selection decision. Call
+`trace.destroy()` when the diagnostic surface unmounts.
 
 ## Lower-level model utilities
 
