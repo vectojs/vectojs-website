@@ -119,8 +119,8 @@ While an input is focused, the sync avoids writing back the same user-synchroniz
 Interactive controls project a11y nodes. Static content projection covers the non-interactive side: entities that render static text expose it via `getContentProjection()`, and the Scene mirrors it as a **transparent, position-synced DOM node** over the drawn glyphs. Screen readers, Ctrl+F, crawlers, and translation extensions can then see text that is visually rendered on canvas.
 
 ```typescript
-// Built-in: TextEntity, MSDFTextEntity (core) and Text, RichText (ui) opt in
-// automatically — Markdown bodies inherit it since Markdown composes them.
+// Built-in: TextEntity and MSDFTextEntity expose content. Text, RichText,
+// Markdown, fenced CodeBlock, and Table cell text are selectable by default.
 
 // Custom entities opt in the same way:
 class Caption extends Entity {
@@ -138,13 +138,16 @@ What this unlocks, with zero extra work:
 - **Screen readers & crawlers** read real text in source order.
 - **Translation extensions and reader mode** operate on the projected layer.
 - **`#:~:text=`** fragment links resolve.
-- **Native mouse selection** — opt in per entity with `selectable: true` (the `::selection` highlight paints behind the transparent glyphs). Off by default so text never intercepts pointer input meant for the canvas.
+- **Native mouse selection** — opt in per custom entity with `selectable: true` (the `::selection` highlight paints behind the transparent glyphs). Core projection is off by default so arbitrary text never intercepts canvas input. UI Text/RichText/Markdown/Table content defaults to selectable and exposes `setSelectable(boolean)`.
 
 Notes:
 
-- Projections are **viewport-lazy**: fully off-screen text is `display: none`.
+- Projections are **viewport- and clip-lazy**: text fully outside the Scene or a `clipChildren` ancestor is `display: none` and cannot intercept input.
+- Dynamic projections are reordered to match VMT source order; removing a subtree removes every descendant projection.
 - When the entity is also `interactive`, its text copy is `aria-hidden` so screen readers don't announce it twice.
 - Disable the whole layer with `new Scene(canvas, { contentProjection: false })` for purely decorative scenes.
+- Browser find covers materialized content. It cannot search a virtualized entity that the application has not mounted.
+- Global shortcut routers must yield native copy when `window.getSelection()?.isCollapsed === false` and must not suppress Ctrl/Command+F unless the application intentionally replaces browser find.
 
 ## The `debugA11y` option
 

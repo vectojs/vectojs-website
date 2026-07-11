@@ -30,6 +30,7 @@ const copy = new RichText(
   ],
   {
     maxWidth: 420,
+    selectable: true,
     onLinkClick: (href) => router.open(href),
   },
 );
@@ -39,4 +40,5 @@ const copy = new RichText(
 
 - Keep link callbacks wired through paragraph, heading, and list renderers.
 - Use `appendSpans()` for token streaming.
+- `getContentProjection()` carries the visual wrap points and line advance; use `setSelectable(false)` when native drag selection is not desired.
 - Use `setExclusions()` when text must flow around local rectangles.

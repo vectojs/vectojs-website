@@ -6,7 +6,9 @@ order: 40
 
 # `Table`
 
-`Table` draws headers, rows, borders, and cell text on canvas while exposing `role="grid"`.
+`Table` exposes `role="grid"`, paints its chrome on canvas, and owns each cell
+as a child Entity. String cells are normalized to `Text`; supplied Entity cells
+can participate through public `setMaxWidth()` and `setSelectable()` capabilities.
 
 ## Try it
 
@@ -28,11 +30,20 @@ const table = new Table({
     ['Button', 'button'],
     ['Input', 'textbox'],
   ],
+  selectable: true,
 });
 ```
 
+`layout()` constrains every cell, calculates row/table heights, and positions
+children before rendering. `render()` is draw-only. Call `table.layout()` after
+changing an externally supplied Entity cell or after mutating the public string
+data. Each logical cell owns one content projection, so browser selection and
+find-in-page do not duplicate table text.
+
 ## Maintainer checklist
 
-- Keep `colWidths` length aligned with headers.
+- Keep `colWidths` length aligned with headers; valid widths are normalized to the Table width.
+- Use a unique Entity instance per logical cell.
+- Call `layout()` after cell content or dimensions change.
 - Use virtualization for large data sets; `Table` is for compact grids.
 - Keep the grid label descriptive.

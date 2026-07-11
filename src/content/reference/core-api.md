@@ -427,6 +427,18 @@ text findable, screen-reader/crawler-visible, translatable, and — with
 implement it. Scene-wide off switch: `new Scene(canvas, { contentProjection:
 false })`.
 
+The Scene preserves VMT order when projection nodes appear or disappear,
+removes descendant projections with their entity subtree, and hides a
+projection when it is fully outside the viewport or a `clipChildren` ancestor.
+Tooling can inspect a currently materialized mirror without querying the DOM:
+
+```ts
+scene.getContentElement(entityId): HTMLElement | undefined;
+```
+
+Virtualized or non-materialized off-viewport text is not searchable until the
+application brings it into the active scene.
+
 `present()` is called by the Scene exactly **once** at
 the end of each render pass. Retained backends that submit a whole frame at a
 time (e.g. `ThreeRenderer`) should do their single expensive commit here and
