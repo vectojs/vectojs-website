@@ -12,6 +12,7 @@
     "format:check": "prettier --check .",
     "test": "bun test src",
     "test:demos": "bun run scripts/test-gpu-and-demos.ts",
+    "test:component-sandboxes": "bun run scripts/test-component-sandboxes.ts",
     "test:dpr": "bun run scripts/test-dpr-regression.ts",
     "test:keyboard": "bun run scripts/test-keyboard-nav.ts"
   },
