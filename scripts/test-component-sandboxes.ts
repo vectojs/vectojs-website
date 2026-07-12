@@ -54,6 +54,18 @@ async function main(): Promise<void> {
       });
       await page.close();
     }
+
+    const { page } = await openPage(browser);
+    await page.goto(`${BASE_URL}/reference/ui-text/`, { waitUntil: 'load', timeout: 30_000 });
+    const iframeSource = await page.evaluate(() =>
+      document.querySelector('iframe[title="Text live demo"]')?.getAttribute('src'),
+    );
+    results.push({
+      name: 'documentation pages invalidate previously cached sandbox documents',
+      pass: iframeSource?.includes('v=ui-bundle-1') ?? false,
+      detail: iframeSource ?? 'Text demo iframe not found',
+    });
+    await page.close();
   } finally {
     await browser.close();
     stop();
