@@ -416,7 +416,11 @@ each sibling group and each frame, preserving painter's order.
 
 ```ts
 getContentProjection(): ContentProjection | null // default null
-// ContentProjection: { text: string; font?: string; lineHeight?: number; selectable?: boolean }
+// ContentProjection: {
+//   text: string; font?: string; lineHeight?: number; selectable?: boolean;
+//   contentX?: number; contentY?: number; baseline?: number;
+//   lines?: Array<{ text; x; y; baseline; font?; lineHeight?; runs? }>;
+// }
 ```
 
 Opt-in hook for entities that render static text: the Scene mirrors the
@@ -438,6 +442,33 @@ scene.getContentElement(entityId): HTMLElement | undefined;
 
 Virtualized or non-materialized off-viewport text is not searchable until the
 application brings it into the active scene.
+
+> Requires the next Core release after 1.5.0: Canvas accepts text positions as
+> baselines while CSS accepts line boxes. For exact selection geometry, provide
+> `contentX`/`contentY` and `baseline` for a simple text run, or one explicit
+> `lines` entry per visual row when the component already owns wrapping,
+> insets, or mixed typography. Scene maps those local coordinates through the
+> entity transform and synchronizes CSS line boxes with Canvas font metrics.
+
+```ts
+getContentProjection() {
+  return {
+    text: 'small large',
+    selectable: true,
+    lines: [{
+      text: 'small large', x: 18, y: 12, baseline: 25,
+      font: '28px sans-serif', lineHeight: 42,
+      runs: [
+        { text: 'small ', font: '16px sans-serif' },
+        { text: 'large', font: 'bold 28px sans-serif' },
+      ],
+    }],
+  };
+}
+```
+
+Use `cssLineBoxBaseline(font, lineHeight)` in custom Canvas-native editors
+when the same text must align with a native control or content projection.
 
 `present()` is called by the Scene exactly **once** at
 the end of each render pass. Retained backends that submit a whole frame at a

@@ -34,3 +34,6 @@ const notes = new TextArea({
 - Use this for real multi-line text entry.
 - Keep one text-editing owner; do not fake IME or clipboard in canvas.
 - Test with keyboard selection and paste, not only pointer clicks.
+- The transparent native textarea inherits the canvas font, line height,
+  padding, and `border-box` contract, so click-to-caret and selection rows use
+  the same geometry as the visible canvas mirror.

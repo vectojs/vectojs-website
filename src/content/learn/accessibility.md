@@ -140,6 +140,17 @@ What this unlocks, with zero extra work:
 - **`#:~:text=`** fragment links resolve.
 - **Native mouse selection** — opt in per custom entity with `selectable: true` (the `::selection` highlight paints behind the transparent glyphs). Core projection is off by default so arbitrary text never intercepts canvas input. UI Text/RichText/Markdown/Table content defaults to selectable and exposes `setSelectable(boolean)`.
 
+For pixel-accurate selection, treat the Canvas baseline as the source of truth:
+use `baseline` (and `contentX`/`contentY`) for a single run, or explicit visual
+`lines` for wrapped, inset, or mixed-size text. The next Core release after
+1.5.0 maps these local coordinates through transforms and gives every projected
+run the same CSS line box. Do not compensate with page-level CSS offsets.
+
+For native `Input`/`TextArea` implementations, expose
+`textInputStyle: { font, lineHeight, padding }` through `getA11yAttributes()`.
+Scene applies it to the transparent editor with `box-sizing: border-box`, while
+the canvas should draw from the same padding and line-box baseline.
+
 Notes:
 
 - Projections are **viewport- and clip-lazy**: text fully outside the Scene or a `clipChildren` ancestor is `display: none` and cannot intercept input.

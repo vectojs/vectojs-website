@@ -40,5 +40,8 @@ const copy = new RichText(
 
 - Keep link callbacks wired through paragraph, heading, and list renderers.
 - Use `appendSpans()` for token streaming.
-- `getContentProjection()` carries the visual wrap points and line advance; use `setSelectable(false)` when native drag selection is not desired.
+- `getContentProjection()` carries one explicit visual row with per-run fonts,
+  a shared Canvas baseline, and the actual line advance. This keeps mixed-size
+  selection rectangles aligned instead of letting the browser re-flow spans.
+  Use `setSelectable(false)` when native drag selection is not desired.
 - Use `setExclusions()` when text must flow around local rectangles.

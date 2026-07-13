@@ -28,9 +28,11 @@ const md = new Markdown('```ts\nscene.markDirty();\n```', { maxWidth: 520 });
 // Custom Markdown subclasses can return CodeBlock for app-specific fenced blocks.
 ````
 
-Fenced blocks project their exact source and line breaks for native selection,
-copy, and find-in-page. Markdown propagates its `selectable` setting; direct
-CodeBlock users can call `setSelectable(boolean)`.
+Fenced blocks project their exact source as individually positioned visual rows
+from the same inset and baseline as Canvas. Long source lines therefore do not
+silently browser-wrap and drift from copy, find-in-page, or native selection.
+Markdown propagates its `selectable` setting; direct CodeBlock users can call
+`setSelectable(boolean)`.
 
 ## Maintainer checklist
 
