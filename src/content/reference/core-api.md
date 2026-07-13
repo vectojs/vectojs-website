@@ -443,7 +443,7 @@ scene.getContentElement(entityId): HTMLElement | undefined;
 Virtualized or non-materialized off-viewport text is not searchable until the
 application brings it into the active scene.
 
-> Requires the next Core release after 1.5.0: Canvas accepts text positions as
+> Requires Core 1.6.0 or later: Canvas accepts text positions as
 > baselines while CSS accepts line boxes. For exact selection geometry, provide
 > `contentX`/`contentY` and `baseline` for a simple text run, or one explicit
 > `lines` entry per visual row when the component already owns wrapping,

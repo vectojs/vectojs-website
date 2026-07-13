@@ -12,7 +12,7 @@ order: 30
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Stack</span></div>
-  <iframe src="/sandbox/ui/component.html?name=stack&v=ui-bundle-1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Stack live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=stack&v=ui-bundle-2" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Stack live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Children keep their own sizes; `Stack` only writes their local `x` and `y`.</figcaption>
 </figure>
 
