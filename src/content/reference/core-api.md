@@ -778,7 +778,7 @@ is not part of this mapping.
 ```ts
 {
   tag?: 'div' | 'a' | 'button' | 'img' | 'input' | 'textarea';   // default 'div'
-  role?, label?, href?, src?, alt?, inputType?, placeholder?, value?,
+  role?, label?, tabIndex?, href?, src?, alt?, inputType?, placeholder?, value?,
   checked?, disabled?, expanded?, controls?, haspopup?, selected?,
   activedescendant?, valuemin?, valuemax?
 }
@@ -791,6 +791,10 @@ checking to minimize DOM writes. Non-natively-focusable interactive roles
 Enter/Space → `click`. This is the "**canvas performance AND DOM-grade
 accessibility**" story: visuals are 100% GPU/canvas, yet a Playwright/agent
 `getByRole('button', { name })` resolves the shadow node and clicks it.
+
+Set `tabIndex: 0` explicitly when a non-control region such as a design canvas
+must enter sequential focus order and receive VMT `keydown` events. Use `-1`
+for programmatic focus only; returning `undefined` removes the explicit value.
 
 **Controls & gotchas:**
 

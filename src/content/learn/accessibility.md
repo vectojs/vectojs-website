@@ -69,6 +69,7 @@ interface A11yAttributes {
   tag?: 'div' | 'a' | 'button' | 'img' | 'input' | 'textarea'; // default: 'div'
   role?: string; // ARIA role (e.g. 'switch', 'slider', 'combobox')
   label?: string; // aria-label / accessible name
+  tabIndex?: number; // explicit focus order for non-control keyboard regions
   href?: string; // for tag='a' — makes it a real link
   src?: string; // for tag='img'
   alt?: string; // for tag='img'
@@ -86,6 +87,18 @@ interface A11yAttributes {
   valuemax?: string; // aria-valuemax
 }
 ```
+
+Use an explicit `tabIndex: 0` for a canvas workspace that is not a button or
+form control but must own keyboard shortcuts:
+
+```typescript
+getA11yAttributes(): A11yAttributes {
+  return { role: 'region', label: 'Design canvas', tabIndex: 0 };
+}
+```
+
+Keep native inputs, textareas, and editable content in charge of their editing
+shortcuts. The Scene refreshes an explicit tab index when attributes change.
 
 ### What built-in components project
 
