@@ -14,7 +14,7 @@ Paragraphs and headings become `RichText`, fenced code becomes `CodeBlock`, and 
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=ui-bundle-2" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=ui-bundle-3" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>The sample keeps prose, links, inline code and a fenced block in one focused viewport so layout defects are visible.</figcaption>
 </figure>
 
@@ -50,7 +50,9 @@ interface MarkdownOptions {
 `selectable` propagates to current and future headings, prose, lists, fenced
 code, and table cells. Change it at runtime with `markdown.setSelectable(false)`.
 The browser owns drag selection, Ctrl/Command+C, and find-in-page; VMT entities
-still own layout and pixels.
+still own layout and pixels. Ordered and unordered list items use selectable
+`RichText`; every GFM table cell owns one selectable projection. Logical source
+order and hard/soft separators remain intact through nested Markdown output.
 
 ## Streaming
 

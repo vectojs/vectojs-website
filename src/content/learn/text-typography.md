@@ -340,6 +340,12 @@ const size = fontSizePx('600 16px Inter'); // → 16
 | Arabic / Hebrew / RTL                  | Any `Text`/`RichText`/`Markdown` — automatic                 |
 | Text flowing around images             | `RichText` + `exclusions: ExclusionRect[]`                   |
 
+Selectable text always projects the original logical Unicode source. Canvas
+shaping and BiDi reordering affect pixels only; copy, find-in-page, browser
+translation, and assistive technology retain the caller's source order. Soft
+wrap separators and explicit newlines are attached to their preceding visual
+row so multiline selection geometry remains inside the rendered line bands.
+
 ## Troubleshooting
 
 ### Text appears too wide or at the wrong position

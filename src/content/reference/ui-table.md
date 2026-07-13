@@ -14,7 +14,7 @@ can participate through public `setMaxWidth()` and `setSelectable()` capabilitie
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Table</span></div>
-  <iframe src="/sandbox/ui/component.html?name=table&v=ui-bundle-2" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Table live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=table&v=ui-bundle-3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Table live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Use focused demos for column sizing instead of debugging table output inside a giant gallery.</figcaption>
 </figure>
 
@@ -39,6 +39,11 @@ children before rendering. `render()` is draw-only. Call `table.layout()` after
 changing an externally supplied Entity cell or after mutating the public string
 data. Each logical cell owns one content projection, so browser selection and
 find-in-page do not duplicate table text.
+
+Selection is cell-owned rather than table-owned: string cells normalize to
+selectable `Text`, supplied entities receive `setSelectable()` when supported,
+and Markdown tables inherit the same contract. A drag across cells therefore
+copies logical cell text once while Canvas remains the only visual renderer.
 
 ## Maintainer checklist
 

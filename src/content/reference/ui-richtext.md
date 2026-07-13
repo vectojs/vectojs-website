@@ -7,12 +7,14 @@ order: 26
 # `RichText`
 
 `RichText` flows mixed spans on shared baselines: bold, italic, color, size, and inline links.
+The projection reconstructs logical source runs rather than shaped visual glyphs, preserving exact
+clipboard text through mixed font sizes, ligatures, Arabic/Hebrew text, soft wrapping, and hard breaks.
 
 ## Try it
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · RichText</span></div>
-  <iframe src="/sandbox/ui/component.html?name=richtext&v=ui-bundle-2" class="sandbox-frame component-demo-frame-tall" loading="eager" title="RichText live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=richtext&v=ui-bundle-3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="RichText live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>The inline link is a transparent anchor hotspot over the canvas text.</figcaption>
 </figure>
 
@@ -43,5 +45,7 @@ const copy = new RichText(
 - `getContentProjection()` carries one explicit visual row with per-run fonts,
   a shared Canvas baseline, and the actual line advance. This keeps mixed-size
   selection rectangles aligned instead of letting the browser re-flow spans.
+  Logical separators belong to the preceding positioned row, so multiline
+  selection never creates a stray root-origin highlight fragment.
   Use `setSelectable(false)` when native drag selection is not desired.
 - Use `setExclusions()` when text must flow around local rectangles.

@@ -8,8 +8,8 @@
     <script type="importmap">
       {
         "imports": {
-          "@vectojs/core": "https://esm.sh/@vectojs/core@1.6.0",
-          "@vectojs/ui": "https://esm.sh/@vectojs/ui@1.7.2?bundle"
+          "@vectojs/core": "https://esm.sh/@vectojs/core@1.7.0",
+          "@vectojs/ui": "https://esm.sh/@vectojs/ui@1.8.0?bundle"
         }
       }
     </script>
@@ -34,6 +34,14 @@
         '',
         '- prefix blocks are reused while streaming',
         '- code blocks stay one leaf entity',
+        '',
+        '1. Logical source survives visual wrapping',
+        '2. Arabic stays ordered: مرحبا بك',
+        '',
+        '| Sample | Contract |',
+        '| --- | --- |',
+        '| office ffi | selectable |',
+        '| مرحبا | logical RTL |',
         '',
         '```ts',
         'const md = new Markdown(src, {',

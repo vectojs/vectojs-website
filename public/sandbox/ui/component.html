@@ -8,8 +8,8 @@
     <script type="importmap">
       {
         "imports": {
-          "@vectojs/core": "https://esm.sh/@vectojs/core@1.6.0",
-          "@vectojs/ui": "https://esm.sh/@vectojs/ui@1.7.2?bundle"
+          "@vectojs/core": "https://esm.sh/@vectojs/core@1.7.0",
+          "@vectojs/ui": "https://esm.sh/@vectojs/ui@1.8.0?bundle"
         }
       }
     </script>
@@ -155,7 +155,7 @@
             const stack = new Stack({ direction: 'vertical', gap: 14 });
             stack.add(label('wrapped Text'));
             stack.add(
-              new Text('VectoJS text is still a retained entity. Change maxWidth for responsive reflow without rebuilding the surrounding scene.', {
+              new Text('office affinity ffi — مرحبا بك في VectoJS. Logical source stays intact while this retained entity reflows across visual rows.', {
                 font: '700 25px Inter, system-ui',
                 color: '#f8fafc',
                 maxWidth: inner,
@@ -181,6 +181,7 @@
                   { text: ', and ' },
                   { text: 'clickable links', style: { href: 'https://vectojs.org' } },
                   { text: ' inside a single flowing line model.' },
+                  { text: ' مرحبا بك في VectoJS.' },
                 ],
                 {
                   maxWidth: inner,
@@ -397,9 +398,9 @@
               width: Math.min(inner, 560),
               headers: ['Component', 'Role', 'Status'],
               rows: [
-                ['Button', 'button', 'stable'],
+                ['office ffi', 'button', 'stable'],
                 ['Input', 'textbox', 'native'],
-                ['Table', 'grid', 'canvas'],
+                ['مرحبا Table', 'grid', 'canvas'],
               ],
               colWidths: [170, 170, Math.min(inner, 560) - 340],
             });
@@ -553,7 +554,7 @@
           summary: 'A single leaf entity for fenced code blocks; Markdown uses it to avoid per-token child explosions.',
           build(inner) {
             return new CodeBlock(
-              ['const scene = new Scene(canvas);', "scene.renderMode = 'onDemand';", 'scene.markDirty();'].join('\n'),
+              ['const office = "ffi affinity";', 'const greeting = "مرحبا بك";', "scene.renderMode = 'onDemand';"].join('\n'),
               'ts',
               Math.min(inner, 560),
               requiredTheme,

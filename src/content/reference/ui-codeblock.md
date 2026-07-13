@@ -13,7 +13,7 @@ syntax-colored text itself, avoiding one child entity per token.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · CodeBlock</span></div>
-  <iframe src="/sandbox/ui/component.html?name=codeblock&v=ui-bundle-2" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=codeblock&v=ui-bundle-3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Use this directly only for custom renderers; normal docs should go through `Markdown`.</figcaption>
 </figure>
 
@@ -31,6 +31,10 @@ const md = new Markdown('```ts\nscene.markDirty();\n```', { maxWidth: 520 });
 Fenced blocks project their exact source as individually positioned visual rows
 from the same inset and baseline as Canvas. Long source lines therefore do not
 silently browser-wrap and drift from copy, find-in-page, or native selection.
+Each hard newline belongs to the preceding positioned row, preventing Firefox
+from producing a selected fragment at the projection root. The default stack
+starts with `ui-monospace`, avoiding desktop Firefox user-font substitution of
+code to a proportional serif face while still respecting an explicit custom font.
 Markdown propagates its `selectable` setting; direct CodeBlock users can call
 `setSelectable(boolean)`.
 

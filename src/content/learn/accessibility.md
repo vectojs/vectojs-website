@@ -155,9 +155,14 @@ What this unlocks, with zero extra work:
 
 For pixel-accurate selection, treat the Canvas baseline as the source of truth:
 use `baseline` (and `contentX`/`contentY`) for a single run, or explicit visual
-`lines` for wrapped, inset, or mixed-size text. The next Core release after
-1.6.0 maps these local coordinates through transforms and gives every projected
-run the same CSS line box. Do not compensate with page-level CSS offsets.
+`lines` for wrapped, inset, or mixed-size text. Core 1.7 maps these local
+coordinates through transforms and gives every projected run the same CSS line
+box. Set `separatorAfter` on a visual row when its logical source ends with a
+newline or a preserved soft-wrap separator. The Scene merges that separator
+into the row's final text node so Firefox cannot place part of a multiline
+selection at the projection root. `text` remains the authoritative logical
+Unicode source; never substitute shaped visual glyph order. Do not compensate
+with page-level CSS offsets.
 
 For native `Input`/`TextArea` implementations, expose
 `textInputStyle: { font, lineHeight, padding }` through `getA11yAttributes()`.
