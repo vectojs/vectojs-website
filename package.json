@@ -18,9 +18,9 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
-    "@vectojs/core": "1.7.0",
+    "@vectojs/core": "1.7.1",
     "@vectojs/three": "0.1.6",
-    "@vectojs/ui": "1.8.0",
+    "@vectojs/ui": "1.8.1",
     "astro": "^7.0.3",
     "three": "^0.160.0"
   },
