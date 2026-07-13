@@ -293,6 +293,13 @@ class DraggableCard extends Entity {
       for (const zone of this.zones) zone.highlighted = false;
       this.scene.markDirty();
     });
+
+    canvas.addEventListener('pointercancel', () => {
+      if (!this.dragging) return;
+      this.dragging = false;
+      for (const zone of this.zones) zone.highlighted = false;
+      this.scene.markDirty();
+    });
   }
 
   private toSceneCoords(e: PointerEvent, canvas: HTMLCanvasElement): { x: number; y: number } {
@@ -333,7 +340,7 @@ scene.add(card);
 scene.start();
 ```
 
-> [!NOTE] > `canvas.setPointerCapture(e.pointerId)` keeps `pointermove` and `pointerup` routing to the canvas even when the pointer leaves its boundary mid-drag. Without it, a fast drag that exits the canvas window will miss the `pointerup` and leave the card stuck in the dragging state.
+> [!NOTE] > `canvas.setPointerCapture(e.pointerId)` keeps `pointermove`, `pointerup`, and `pointercancel` routing to the canvas even when the pointer leaves its boundary mid-drag. Treat `pointercancel` as rollback rather than commit so browser interruption cannot leave the card stuck in the dragging state.
 
 ---
 

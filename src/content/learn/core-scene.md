@@ -131,7 +131,7 @@ rect.on('pointerleave', () => {
 });
 ```
 
-Available events: `click`, `hover`, `pointerdown`, `pointerup`, `pointermove`, `pointerleave`, `change`, `focus`, `blur`, `wheel`, `keydown`, `keyup`.
+Available events: `click`, `hover`, `pointerdown`, `pointerup`, `pointercancel`, `pointermove`, `pointerleave`, `change`, `focus`, `blur`, `wheel`, `keydown`, `keyup`.
 
 Events propagate DOM-style: **capture** (root → target) then **bubble** (target → root). Pass `{ capture: true }` to listen on the capture phase. Use `e.stopPropagation()` to halt traversal, or `e.stopImmediatePropagation()` to also skip remaining listeners on the current node.
 

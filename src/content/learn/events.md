@@ -56,20 +56,21 @@ card.on(
 
 Available event types:
 
-| Event            | Trigger                                    |
-| ---------------- | ------------------------------------------ |
-| `'click'`        | Pointer press + release on the same entity |
-| `'hover'`        | Pointer enters the entity                  |
-| `'pointerdown'`  | Pointer pressed                            |
-| `'pointerup'`    | Pointer released                           |
-| `'pointermove'`  | Pointer moved (while over the entity)      |
-| `'pointerleave'` | Pointer left the entity                    |
-| `'wheel'`        | Mouse wheel / trackpad scroll              |
-| `'keydown'`      | Key pressed (while the entity holds focus) |
-| `'keyup'`        | Key released                               |
-| `'change'`       | Form control value changed                 |
-| `'focus'`        | Shadow DOM node gained focus               |
-| `'blur'`         | Shadow DOM node lost focus                 |
+| Event             | Trigger                                    |
+| ----------------- | ------------------------------------------ |
+| `'click'`         | Pointer press + release on the same entity |
+| `'hover'`         | Pointer enters the entity                  |
+| `'pointerdown'`   | Pointer pressed                            |
+| `'pointerup'`     | Pointer released                           |
+| `'pointercancel'` | Active pointer stream cancelled by browser |
+| `'pointermove'`   | Pointer moved (while over the entity)      |
+| `'pointerleave'`  | Pointer left the entity                    |
+| `'wheel'`         | Mouse wheel / trackpad scroll              |
+| `'keydown'`       | Key pressed (while the entity holds focus) |
+| `'keyup'`         | Key released                               |
+| `'change'`        | Form control value changed                 |
+| `'focus'`         | Shadow DOM node gained focus               |
+| `'blur'`          | Shadow DOM node lost focus                 |
 
 ## VectoJSEvent
 

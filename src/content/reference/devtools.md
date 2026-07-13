@@ -84,7 +84,9 @@ trace.subscribe((entry) => {
 `[data-vecto-content]` mirror. The trace validates the owning Entity, records
 scene/local coordinates, and finalizes in a microtask so `defaultPrevented`
 reflects the application's final shortcut or selection decision. Call
-`trace.destroy()` when the diagnostic surface unmounts.
+`trace.destroy()` when the diagnostic surface unmounts. Pointer traces include
+`pointercancel`, which makes interrupted drag and selection transactions visible
+instead of leaving a diagnostic gap after `pointerdown`.
 
 ## Lower-level model utilities
 
