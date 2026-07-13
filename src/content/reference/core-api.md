@@ -277,7 +277,7 @@ See [Physics & Animation](/learn/physics-engine/) for usage.
 
 ```ts
 type VectoEvent =
-  | 'click' | 'hover' | 'pointerdown' | 'pointerup' | 'pointermove' | 'pointerleave'
+  | 'click' | 'hover' | 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'pointerleave'
   | 'change' | 'focus' | 'blur' | 'wheel' | 'keydown' | 'keyup';
 
 on(event: VectoEvent, cb: (e: any) => void, options?: { capture?: boolean }): this
