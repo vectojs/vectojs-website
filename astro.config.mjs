@@ -54,7 +54,13 @@ export default defineConfig({
   markdown: {
     processor: satteri({ hastPlugins: [calloutsPlugin] }),
     shikiConfig: {
-      theme: 'github-dark-default',
+      // Dual-theme: Shiki emits both palettes as CSS custom properties per
+      // token instead of baking one theme's colors into inline styles.
+      // styles.css picks between them via [data-theme] (see ".astro-code
+      // dual-theme activation" in styles.css) — that's what our own toggle
+      // drives, so defaultColor must be off or dark would always win.
+      themes: { light: 'github-light-default', dark: 'github-dark-default' },
+      defaultColor: false,
       wrap: false,
     },
   },

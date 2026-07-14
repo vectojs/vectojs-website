@@ -87,38 +87,37 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
     <!-- Left sidebar: full docs tree (also acts as mobile drawer) -->
     <aside class="docs-sidebar" id="docs-sidebar" aria-label="Documentation navigation">
       <nav class="sidebar-nav">
-        <div class="sidebar-group">
-          <span class="sidebar-group-label">Learn</span>
-          {
-            LEARN_PAGES.map((page) => (
-              <a
-                href={`/learn/${page.slug}/`}
-                class:list={[
-                  'sidebar-link',
-                  { active: collection === 'learn' && slug === page.slug },
-                ]}
-              >
-                {page.title}
-              </a>
-            ))
-          }
-        </div>
-        <div class="sidebar-group">
-          <span class="sidebar-group-label">Reference</span>
-          {
-            REFERENCE_PAGES.map((page) => (
-              <a
-                href={`/reference/${page.slug}/`}
-                class:list={[
-                  'sidebar-link',
-                  { active: collection === 'reference' && slug === page.slug },
-                ]}
-              >
-                {page.title}
-              </a>
-            ))
-          }
-        </div>
+        <!-- Only the active section's tree — showing Learn's ~17 pages AND
+             Reference's ~30 together made the sidebar excessively long. The
+             top nav already has both "Learn" and "Reference" links for
+             switching sections. -->
+        {
+          collection === 'learn' ? (
+            <div class="sidebar-group">
+              <span class="sidebar-group-label">Learn</span>
+              {LEARN_PAGES.map((page) => (
+                <a
+                  href={`/learn/${page.slug}/`}
+                  class:list={['sidebar-link', { active: slug === page.slug }]}
+                >
+                  {page.title}
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div class="sidebar-group">
+              <span class="sidebar-group-label">Reference</span>
+              {REFERENCE_PAGES.map((page) => (
+                <a
+                  href={`/reference/${page.slug}/`}
+                  class:list={['sidebar-link', { active: slug === page.slug }]}
+                >
+                  {page.title}
+                </a>
+              ))}
+            </div>
+          )
+        }
         <div class="sidebar-versions">
           <span class="sidebar-version-chip">core v{VERSIONS.core}</span>
           <span class="sidebar-version-chip">ui v{VERSIONS.ui}</span>
