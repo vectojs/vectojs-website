@@ -86,6 +86,9 @@
     --surface-2: #eef2f7;
     --hero-vignette-1: #eef2f7;
     --hero-vignette-2: #f8fafc;
+    --pastel-mint-rgb: 191, 253, 224; /* #bffde0 */
+    --pastel-pink-rgb: 254, 230, 251; /* #fee6fb */
+    --pastel-cyan-rgb: 180, 254, 254; /* #b4fefe */
 
     --text-color: #1e293b;
     --text-color-2: #334155;
@@ -121,6 +124,9 @@
   --surface-2: #eef2f7;
   --hero-vignette-1: #eef2f7;
   --hero-vignette-2: #f8fafc;
+  --pastel-mint-rgb: 191, 253, 224; /* #bffde0 */
+  --pastel-pink-rgb: 254, 230, 251; /* #fee6fb */
+  --pastel-cyan-rgb: 180, 254, 254; /* #b4fefe */
 
   --text-color: #1e293b;
   --text-color-2: #334155;
@@ -157,6 +163,30 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   position: relative;
+}
+
+/* Light mode: a soft mint/pink/cyan wash instead of flat gray, site-wide (not
+   homepage-only like the glow below) — fixed so it doesn't repeat or shift
+   while scrolling long docs pages, and kept low-opacity so body text stays
+   fully readable over it. */
+html[data-theme='light'] body,
+html:not([data-theme]) body {
+  background-image:
+    radial-gradient(1100px 700px at 8% -8%, rgba(var(--pastel-mint-rgb), 0.55), transparent 60%),
+    radial-gradient(
+      1000px 650px at 100% 8%,
+      rgba(var(--pastel-pink-rgb), 0.5),
+      transparent 60%
+    ),
+    radial-gradient(900px 700px at 45% 100%, rgba(var(--pastel-cyan-rgb), 0.4), transparent 60%);
+  background-attachment: fixed;
+}
+@media (prefers-color-scheme: dark) {
+  /* :not([data-theme]) above is a light-mode fallback for JS-disabled visitors;
+     don't let it leak the wash onto a dark-preferring JS-disabled visitor. */
+  html:not([data-theme]) body {
+    background-image: none;
+  }
 }
 
 /* Background glow — homepage only. Other pages stay a clean, uniform dark so the
