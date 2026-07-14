@@ -1,14 +1,14 @@
 <svg viewBox="0 0 940 500" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif">
   <defs>
     <linearGradient id="hub" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0891b2"/>
-      <stop offset="1" stop-color="#1d4ed8"/>
+      <stop offset="0" stop-color="var(--accent-light)"/>
+      <stop offset="1" stop-color="var(--primary)"/>
     </linearGradient>
   </defs>
-  <rect width="940" height="500" rx="24" fill="#080c16"/>
-  <text x="470" y="42" fill="#94a3b8" font-size="13" font-weight="700" text-anchor="middle" letter-spacing="1.6">WHERE VECTOJS FITS</text>
+  <rect width="940" height="500" rx="24" fill="var(--diagram-canvas-bg)"/>
+  <text x="470" y="42" fill="var(--text-muted)" font-size="13" font-weight="700" text-anchor="middle" letter-spacing="1.6">WHERE VECTOJS FITS</text>
 
-  <g stroke="#1f3b64" stroke-width="2.2" fill="none">
+  <g stroke="var(--diagram-border)" stroke-width="2.2" fill="none">
     <path d="M470 245 C330 150 250 126 148 126"/>
     <path d="M470 245 C326 246 250 246 150 246"/>
     <path d="M470 245 C330 344 250 374 150 374"/>
@@ -19,36 +19,36 @@
 
   <g>
     <circle cx="470" cy="245" r="82" fill="url(#hub)" opacity="0.95"/>
-    <circle cx="470" cy="245" r="96" fill="none" stroke="#38bdf8" opacity="0.24" stroke-width="10"/>
-    <text x="470" y="236" fill="#ecfeff" font-size="24" font-weight="900" text-anchor="middle">VectoJS</text>
-    <text x="470" y="264" fill="#cffafe" font-size="13" font-weight="700" text-anchor="middle">scene-like interfaces</text>
+    <circle cx="470" cy="245" r="96" fill="none" stroke="var(--accent)" opacity="0.24" stroke-width="10"/>
+    <text x="470" y="236" fill="var(--text-strong)" font-size="24" font-weight="900" text-anchor="middle">VectoJS</text>
+    <text x="470" y="264" fill="var(--text-strong)" font-size="13" font-weight="700" text-anchor="middle">scene-like interfaces</text>
   </g>
 
   <g font-size="12">
-    <rect x="54" y="86" width="188" height="82" rx="18" fill="#111827" stroke="#334155"/>
-    <text x="148" y="119" fill="#f8fafc" font-size="16" font-weight="900" text-anchor="middle">Data visualization</text>
-    <text x="148" y="143" fill="#94a3b8" text-anchor="middle">traces · order books · graphs</text>
+    <rect x="54" y="86" width="188" height="82" rx="18" fill="var(--diagram-node-bg)" stroke="var(--diagram-border)"/>
+    <text x="148" y="119" fill="var(--text-strong)" font-size="16" font-weight="900" text-anchor="middle">Data visualization</text>
+    <text x="148" y="143" fill="var(--text-muted)" text-anchor="middle">traces · order books · graphs</text>
 
-    <rect x="54" y="206" width="188" height="82" rx="18" fill="#111827" stroke="#334155"/>
-    <text x="148" y="239" fill="#f8fafc" font-size="16" font-weight="900" text-anchor="middle">Streaming UI</text>
-    <text x="148" y="263" fill="#94a3b8" text-anchor="middle">chat · logs · markdown</text>
+    <rect x="54" y="206" width="188" height="82" rx="18" fill="var(--diagram-node-bg)" stroke="var(--diagram-border)"/>
+    <text x="148" y="239" fill="var(--text-strong)" font-size="16" font-weight="900" text-anchor="middle">Streaming UI</text>
+    <text x="148" y="263" fill="var(--text-muted)" text-anchor="middle">chat · logs · markdown</text>
 
-    <rect x="54" y="334" width="188" height="82" rx="18" fill="#111827" stroke="#334155"/>
-    <text x="148" y="367" fill="#f8fafc" font-size="16" font-weight="900" text-anchor="middle">Infinite canvases</text>
-    <text x="148" y="391" fill="#94a3b8" text-anchor="middle">whiteboards · node editors</text>
+    <rect x="54" y="334" width="188" height="82" rx="18" fill="var(--diagram-node-bg)" stroke="var(--diagram-border)"/>
+    <text x="148" y="367" fill="var(--text-strong)" font-size="16" font-weight="900" text-anchor="middle">Infinite canvases</text>
+    <text x="148" y="391" fill="var(--text-muted)" text-anchor="middle">whiteboards · node editors</text>
 
-    <rect x="698" y="86" width="188" height="82" rx="18" fill="#111827" stroke="#334155"/>
-    <text x="792" y="119" fill="#f8fafc" font-size="16" font-weight="900" text-anchor="middle">Games + media</text>
-    <text x="792" y="143" fill="#94a3b8" text-anchor="middle">physics · particles · HUDs</text>
+    <rect x="698" y="86" width="188" height="82" rx="18" fill="var(--diagram-node-bg)" stroke="var(--diagram-border)"/>
+    <text x="792" y="119" fill="var(--text-strong)" font-size="16" font-weight="900" text-anchor="middle">Games + media</text>
+    <text x="792" y="143" fill="var(--text-muted)" text-anchor="middle">physics · particles · HUDs</text>
 
-    <rect x="698" y="206" width="188" height="82" rx="18" fill="#111827" stroke="#334155"/>
-    <text x="792" y="239" fill="#f8fafc" font-size="16" font-weight="900" text-anchor="middle">Editors + tools</text>
-    <text x="792" y="263" fill="#94a3b8" text-anchor="middle">diffs · terminals · minimaps</text>
+    <rect x="698" y="206" width="188" height="82" rx="18" fill="var(--diagram-node-bg)" stroke="var(--diagram-border)"/>
+    <text x="792" y="239" fill="var(--text-strong)" font-size="16" font-weight="900" text-anchor="middle">Editors + tools</text>
+    <text x="792" y="263" fill="var(--text-muted)" text-anchor="middle">diffs · terminals · minimaps</text>
 
-    <rect x="698" y="334" width="188" height="82" rx="18" fill="#111827" stroke="#334155"/>
-    <text x="792" y="367" fill="#f8fafc" font-size="16" font-weight="900" text-anchor="middle">WebXR panels</text>
-    <text x="792" y="391" fill="#94a3b8" text-anchor="middle">Three.js · spatial controls</text>
+    <rect x="698" y="334" width="188" height="82" rx="18" fill="var(--diagram-node-bg)" stroke="var(--diagram-border)"/>
+    <text x="792" y="367" fill="var(--text-strong)" font-size="16" font-weight="900" text-anchor="middle">WebXR panels</text>
+    <text x="792" y="391" fill="var(--text-muted)" text-anchor="middle">Three.js · spatial controls</text>
   </g>
 
-  <text x="470" y="462" fill="#64748b" font-size="13" text-anchor="middle">Use VectoJS for dense visual state, custom geometry, high-frequency updates, or non-DOM surfaces.</text>
+  <text x="470" y="462" fill="var(--text-faint)" font-size="13" text-anchor="middle">Use VectoJS for dense visual state, custom geometry, high-frequency updates, or non-DOM surfaces.</text>
 </svg>

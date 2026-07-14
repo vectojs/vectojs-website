@@ -1,6 +1,56 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import { satteri } from '@astrojs/markdown-satteri';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+const imagesDir = fileURLToPath(new URL('./public/images/', import.meta.url));
+
+const escapeAttr = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+
+// HAST plugin: inlines <img class="diagram" src="/images/x.svg"> as live <svg>
+// markup instead of an opaque image reference. The diagram SVGs (public/images/
+// *.svg) have their colors expressed as var(--diagram-*)/var(--accent)/etc, not
+// hardcoded hex — CSS custom properties only cascade into inline, in-document
+// SVG, never into a separate document loaded via <img src>, so this is what
+// actually makes them respond to the light/dark toggle.
+//
+// Raw inline HTML (e.g. the <figure><img/>...</figure> wrapper around each
+// diagram) is passed through by satteri as an opaque "raw" text node, not a
+// structured `element` node — only native markdown constructs (blockquote,
+// paragraph, ...) get parsed that far. So this has to operate on the raw HTML
+// string via regex rather than matching a hast `element` node for `img`.
+const inlineDiagramsPlugin = {
+  name: 'inline-diagrams',
+  raw(node) {
+    if (!node.value.includes('diagram')) return;
+    const value = node.value.replace(/<img\b[^>]*>/g, (imgTag) => {
+      const classMatch = imgTag.match(/\bclass="([^"]*)"/);
+      const classNames = classMatch ? classMatch[1].split(/\s+/) : [];
+      if (!classNames.includes('diagram')) return imgTag;
+
+      const srcMatch = imgTag.match(/\bsrc="([^"]*)"/);
+      const src = srcMatch?.[1];
+      if (!src || !src.startsWith('/images/') || !src.endsWith('.svg')) return imgTag;
+
+      let svg;
+      try {
+        svg = readFileSync(imagesDir + src.slice('/images/'.length), 'utf-8');
+      } catch {
+        return imgTag; // leave the <img> as-is rather than breaking the build over a bad path
+      }
+      const altMatch = imgTag.match(/\balt="([^"]*)"/);
+      const alt = altMatch?.[1] ?? '';
+      svg = svg.replace(
+        /<svg\b/,
+        `<svg class="diagram" role="img" aria-label="${escapeAttr(alt)}"`,
+      );
+      return svg;
+    });
+    if (value === node.value) return;
+    return { type: 'raw', value };
+  },
+};
 
 // HAST plugin: transforms `> [!NOTE]` etc. into <div class="callout callout-note">
 const calloutsPlugin = {
@@ -52,7 +102,7 @@ export default defineConfig({
   },
   integrations: [sitemap()],
   markdown: {
-    processor: satteri({ hastPlugins: [calloutsPlugin] }),
+    processor: satteri({ hastPlugins: [calloutsPlugin, inlineDiagramsPlugin] }),
     shikiConfig: {
       // Dual-theme: Shiki emits both palettes as CSS custom properties per
       // token instead of baking one theme's colors into inline styles.

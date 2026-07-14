@@ -66,6 +66,15 @@
   --violet: #8b5cf6;
   --violet-light: #ddd6fe;
 
+  /* Inline technical-diagram SVGs (see public/images/*.svg + the HAST inliner
+     in astro.config.mjs) consume these directly as fill/stroke/stop-color —
+     inline SVG is live DOM, so var() cascades into it like any other element. */
+  --diagram-canvas-bg: #0a0e18;
+  --diagram-node-bg: #131b2e;
+  --diagram-border: #334155;
+  --diagram-shadow: #020617;
+  --diagram-highlight: #00f0ff;
+
   --border-color: rgba(var(--overlay-rgb), 0.08);
   --font-title: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -109,6 +118,12 @@
     --danger-light: #b91c1c;
     --violet-light: #6d28d9;
 
+    --diagram-canvas-bg: #eef2f7;
+    --diagram-node-bg: #ffffff;
+    --diagram-border: #cbd5e1;
+    --diagram-shadow: #94a3b8;
+    --diagram-highlight: #0e7490;
+
     --border-color: rgba(var(--overlay-rgb), 0.1);
   }
 }
@@ -146,6 +161,12 @@
   --warning-light: #92400e;
   --danger-light: #b91c1c;
   --violet-light: #6d28d9;
+
+  --diagram-canvas-bg: #eef2f7;
+  --diagram-node-bg: #ffffff;
+  --diagram-border: #cbd5e1;
+  --diagram-shadow: #94a3b8;
+  --diagram-highlight: #0e7490;
 
   --border-color: rgba(var(--overlay-rgb), 0.1);
 }
