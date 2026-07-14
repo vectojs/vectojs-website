@@ -14,7 +14,7 @@ Paragraphs and headings become `RichText`, fenced code becomes `CodeBlock`, and 
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=ui-bundle-3" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>The sample keeps prose, links, inline code and a fenced block in one focused viewport so layout defects are visible.</figcaption>
 </figure>
 
@@ -53,6 +53,11 @@ The browser owns drag selection, Ctrl/Command+C, and find-in-page; VMT entities
 still own layout and pixels. Ordered and unordered list items use selectable
 `RichText`; every GFM table cell owns one selectable projection. Logical source
 order and hard/soft separators remain intact through nested Markdown output.
+Core 1.8 routes transformed prose through two-dimensional caret geometry and
+fenced code through the shared prepared grid, so lists, GFM tables, wrapped
+Arabic/RTL text, and code retain logical copy order at fractional DPR and zoom.
+When an application owns container sizing or CSS zoom, notify the Scene with
+`scene.resize(width, height)` so Firefox can recalibrate native Range metrics.
 
 ## Streaming
 
@@ -78,6 +83,7 @@ blocks while still delegating normal tokens to the built-in renderer.
 - Code blocks should stay a single leaf entity, not one entity per token or line segment.
 - Fenced code must project its exact source text and line breaks.
 - Table headers use heading color/bold style, while each logical cell owns exactly one content projection.
+- Pointer ownership stays with the leaf text/code projection; structural list and table entities must not intercept native selection.
 - Streaming append should reuse unchanged prefix entities.
 
 Related: [`RichText`](/reference/ui-components/#richtext), [`CodeBlock`](/reference/ui-components/#codeblock), [`Table`](/reference/ui-components/#table).

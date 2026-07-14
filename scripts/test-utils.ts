@@ -33,7 +33,6 @@ export const DEMOS: DemoInfo[] = [
   { slug: 'catch', canvasId: 'catch-canvas' },
   { slug: 'graph', canvasId: 'graph-canvas' },
   { slug: 'dimension', canvasId: 'dimension-canvas' },
-  { slug: 'compare', canvasId: 'compare-canvas', path: '/compare/' },
 ];
 
 const MIME: Record<string, string> = {

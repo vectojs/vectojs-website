@@ -13,7 +13,7 @@ syntax-colored text itself, avoiding one child entity per token.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · CodeBlock</span></div>
-  <iframe src="/sandbox/ui/component.html?name=codeblock&v=ui-bundle-3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Use this directly only for custom renderers; normal docs should go through `Markdown`.</figcaption>
 </figure>
 
@@ -38,9 +38,17 @@ code to a proportional serif face while still respecting an explicit custom font
 Markdown propagates its `selectable` setting; direct CodeBlock users can call
 `setSelectable(boolean)`.
 
+UI 1.9 uses Core 1.8's retained prepared-content grid for both syntax-colored
+Canvas paint and the semantic carrier. Tabs, emoji/ZWJ, wide CJK, Arabic
+shaping, mixed-direction runs, and exact CR/LF/CRLF source boundaries therefore
+share one plan. Calibration is a cold font-loading pass; steady projection sync
+does not read Range geometry or replace cell carriers.
+
 ## Maintainer checklist
 
 - Keep fenced code as one leaf entity.
 - Use `setCode()` for live updates.
 - Keep the content projection synchronized with exact source, font, and line height.
+- Reuse one prepared grid for Canvas paint, pointer carets, copy, and find.
+- Verify Chromium and Firefox at fractional DPR/zoom, including substituted fonts and transformed blocks.
 - Prefer the higher-level `Markdown` component unless you are writing a renderer extension.

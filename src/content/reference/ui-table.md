@@ -14,7 +14,7 @@ can participate through public `setMaxWidth()` and `setSelectable()` capabilitie
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Table</span></div>
-  <iframe src="/sandbox/ui/component.html?name=table&v=ui-bundle-3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Table live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Table live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Use focused demos for column sizing instead of debugging table output inside a giant gallery.</figcaption>
 </figure>
 
@@ -44,6 +44,9 @@ Selection is cell-owned rather than table-owned: string cells normalize to
 selectable `Text`, supplied entities receive `setSelectable()` when supported,
 and Markdown tables inherit the same contract. A drag across cells therefore
 copies logical cell text once while Canvas remains the only visual renderer.
+The structural `role="grid"` shadow does not capture pointer events from cell
+projections. This leaf ownership is what keeps cross-cell drag selection,
+Ctrl/Command+C, and find-in-page aligned with the VMT text exactly once.
 
 ## Maintainer checklist
 
@@ -52,3 +55,4 @@ copies logical cell text once while Canvas remains the only visual renderer.
 - Call `layout()` after cell content or dimensions change.
 - Use virtualization for large data sets; `Table` is for compact grids.
 - Keep the grid label descriptive.
+- Verify drag selection across headers/body cells after changing widths or application zoom.

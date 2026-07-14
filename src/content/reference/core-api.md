@@ -28,7 +28,7 @@ subpaths:
 | `@vectojs/core` (`.`)    | Everything: `Scene`, `Entity`, all entities, renderers, layout, text.                                                                                 | On import, auto-registers **both** pluggable backends (WebGL point renderer + WebGPU particle manager). |
 | `@vectojs/core/layout`   | `LayoutEngine`, `PreparedText`, `createCanvasMeasurer`, `LayoutResultBuffer`, `LayoutWorkerManager`, `computeLineSegments`, layout types.             | None.                                                                                                   |
 | `@vectojs/core/renderer` | `IRenderer`, `CanvasRenderer`, `SVGRenderer`, `PointRenderer`, `createWebGLPointRenderer`, `WebGPUParticleSystemManager`, `parseColorToRGBA`, `RGBA`. | None.                                                                                                   |
-| `@vectojs/core/text`     | `MSDFFont`, `MSDFTextEntity`, `SVGEntity`, `ArabicShaper`, `BidiResolver`, MSDF types.                                                                | None.                                                                                                   |
+| `@vectojs/core/text`     | `MSDFFont`, `MSDFTextEntity`, `SVGEntity`, `ArabicShaper`, `BidiResolver`, `prepareContentGrid`, `PreparedContentGrid`, MSDF types.                   | None.                                                                                                   |
 
 **Gotcha:** the backend auto-registration lives only in the `.` entry
 (`Scene.registerWebGLPointRendererCreator(createWebGLPointRenderer)` and
@@ -138,6 +138,12 @@ scene.detachA11y(entity: Entity): void       // remove shadow nodes for a subtre
 > case they fall back to `canvas.width || canvas.clientWidth || 0`. A `0×0`
 > viewport means particles simulate in a zero box and may not render.
 > `start()` logs a one-time warning when width or height is 0.
+>
+> `resize()` is also the text-projection metric boundary. Call it after a
+> custom container or application CSS zoom changes even when the logical width
+> and height are unchanged; Core 1.8 then rebuilds the cold calibration key and
+> waits for the new Firefox/Chromium Range geometry before marking prepared
+> grids ready.
 >
 > **`syncA11y` only creates/updates, never prunes** within a frame. If a
 > component swaps out interactive _child_ entities each frame, call
@@ -420,6 +426,7 @@ getContentProjection(): ContentProjection | null // default null
 //   text: string; font?: string; lineHeight?: number; selectable?: boolean;
 //   contentX?: number; contentY?: number; baseline?: number;
 //   lines?: Array<{ text; x; y; baseline; font?; lineHeight?; runs? }>;
+//   grid?: PreparedContentGrid;
 // }
 ```
 
@@ -469,6 +476,35 @@ getContentProjection() {
 
 Use `cssLineBoxBaseline(font, lineHeight)` in custom Canvas-native editors
 when the same text must align with a native control or content projection.
+
+> Core 1.8 adds `prepareContentGrid(source, metrics)` for code-like renderers.
+> Return its immutable result as `ContentProjection.grid` and use the same
+> cells for Canvas paint. The grid retains UTF-16 source ranges, legal grapheme
+> carets, CR/LF/CRLF separators, tabs, wide CJK and emoji advances, Arabic
+> shaping, and Unicode bidi positions while the projected DOM keeps exact
+> logical source for copy and find.
+
+```ts
+const grid = prepareContentGrid(source, {
+  font: codeFont,
+  cellWidth,
+  lineHeight: 24,
+  baseline: 18,
+});
+
+getContentProjection() {
+  return { text: source, selectable: true, grid };
+}
+```
+
+Core calibrates the retained carriers after fonts load and routes pointer
+selection in local grid space. Firefox font substitution, DPR, browser zoom,
+rotation, mirror transforms, and non-uniform scaling therefore use one geometry
+plan. Calibration probes inherit the projection's zoom context and account for
+Firefox missing-glyph fallback metrics; custom resize/zoom owners must call
+`scene.resize()` to invalidate the retained calibration. Ordinary `lines`
+projections and line-less custom projections use
+transformed two-dimensional grapheme caret geometry as well.
 
 `present()` is called by the Scene exactly **once** at
 the end of each render pass. Retained backends that submit a whole frame at a

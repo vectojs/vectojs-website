@@ -14,7 +14,7 @@ clipboard text through mixed font sizes, ligatures, Arabic/Hebrew text, soft wra
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · RichText</span></div>
-  <iframe src="/sandbox/ui/component.html?name=richtext&v=ui-bundle-3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="RichText live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=richtext&v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="RichText live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>The inline link is a transparent anchor hotspot over the canvas text.</figcaption>
 </figure>
 
@@ -47,5 +47,7 @@ const copy = new RichText(
   selection rectangles aligned instead of letting the browser re-flow spans.
   Logical separators belong to the preceding positioned row, so multiline
   selection never creates a stray root-origin highlight fragment.
+  Core 1.8 resolves legal grapheme carets from transformed two-dimensional
+  Range geometry, including rotation, reflection, and non-uniform scale.
   Use `setSelectable(false)` when native drag selection is not desired.
 - Use `setExclusions()` when text must flow around local rectangles.

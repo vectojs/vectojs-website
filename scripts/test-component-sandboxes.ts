@@ -176,7 +176,7 @@ async function main(): Promise<void> {
     );
     results.push({
       name: 'documentation pages invalidate previously cached sandbox documents',
-      pass: iframeSource?.includes('v=ui-bundle-3') ?? false,
+      pass: iframeSource?.includes('v=core-1.8.0-ui-1.9.0') ?? false,
       detail: iframeSource ?? 'Text demo iframe not found',
     });
     await page.close();

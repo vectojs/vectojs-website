@@ -15,7 +15,7 @@ paragraphs, so native selection, copy, find-in-page, and translation do not inhe
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Text</span></div>
-  <iframe src="/sandbox/ui/component.html?name=text&v=ui-bundle-3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Text live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=text&v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Text live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Resize the page to inspect hot `maxWidth` reflow in a focused viewport.</figcaption>
 </figure>
 
@@ -41,4 +41,5 @@ scene.add(heading.setPosition(24, 24));
 - Use `setText()` or `append()` for content changes.
 - Use `setSelectable(false)` when drag gestures should own the text region instead of browser selection.
 - Keep application source in logical Unicode order; VectoJS and the browser resolve Arabic/Hebrew direction automatically.
+- Core 1.8 resolves pointer carets in transformed two-dimensional geometry; do not add viewport-X-only selection handlers for rotated, mirrored, or non-uniformly scaled text.
 - Prefer `RichText` when inline styles or links are required.

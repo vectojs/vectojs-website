@@ -29,6 +29,21 @@ VectoJS ships a text engine built around two key ideas: **separating measurement
 
 `Text`, `RichText`, and `Markdown` live in `@vectojs/ui`. The rest are in `@vectojs/core`.
 
+### Selectable fixed-grid text
+
+Terminals, code editors, and other per-cell renderers should compile their
+logical source with `prepareContentGrid()` from Core 1.8. Paint the returned
+cells on Canvas and return the same immutable grid from
+`getContentProjection()`. This keeps copy/find source, legal grapheme carets,
+tabs, CJK/emoji widths, Arabic shaping, bidi placement, and browser selection
+on one geometry plan instead of maintaining a second DOM layout.
+
+Measure `cellWidth` through Canvas with the browser-resolved font, rebuild the
+grid whenever source or font metrics change, and call `scene.resize()` after a
+custom container or application zoom changes. The resize is a cold calibration
+boundary for Firefox font substitution and missing-glyph Range metrics; steady
+renders reuse the prepared carriers without geometry reads.
+
 ---
 
 ## Text
@@ -196,7 +211,7 @@ Understanding the cold/hot split helps you make the right call for performance.
 
 ### Cold pass — measure once
 
-`prepare(text)` and `prepareRich(spans)` segment text into paragraphs, apply Arabic shaping and BiDi, segment into words and graphemes with `Intl.Segmenter`, and measure each glyph's advance width. The result (`PreparedText`) is cached by paragraph content at the given font size.
+`prepare(text)` and `prepareRich(spans)` segment text into paragraphs, apply Arabic shaping and BiDi, segment into words and graphemes with `Intl.Segmenter`, and measure each glyph's advance width. `prepareContentGrid(source, metrics)` performs the corresponding one-time compilation for selectable fixed-grid surfaces. The result (`PreparedText` or `PreparedContentGrid`) is retained until its content or metric inputs change.
 
 **This is the expensive step.** Only run it when content changes.
 
