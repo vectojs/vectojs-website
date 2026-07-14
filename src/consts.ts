@@ -148,6 +148,7 @@ export const REFERENCE_PAGES: DocPage[] = [
   { slug: 'ui-contextmenu', title: 'UI: ContextMenu' },
   { slug: 'ui-codeblock', title: 'UI: CodeBlock' },
   { slug: 'three', title: '@vectojs/three' },
+  { slug: 'graph3d', title: '@vectojs/graph3d' },
   { slug: 'video-exporter', title: '@vectojs/video-exporter' },
   { slug: 'devtools', title: '@vectojs/devtools' },
   { slug: 'faq', title: 'FAQ' },
