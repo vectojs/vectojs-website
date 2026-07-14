@@ -91,7 +91,7 @@
   font-family: var(--font-title);
   font-size: 2.6rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-strong);
   letter-spacing: -0.5px;
 }
 
@@ -108,15 +108,15 @@
   margin-top: 1rem;
   padding: 0.85rem 1rem;
   border-radius: 10px;
-  border: 1px solid rgba(91, 156, 255, 0.22);
-  background: rgba(15, 23, 42, 0.58);
+  border: 1px solid rgba(var(--info-rgb), 0.22);
+  background: rgba(var(--glass-rgb), 0.58);
   color: var(--text-muted);
   font-size: 0.95rem;
   line-height: 1.55;
 }
 
 .demo-purpose strong {
-  color: #e2e8f0;
+  color: var(--text-color);
 }
 
 /* The "player" stage holding the canvas. */
@@ -378,7 +378,7 @@
 }
 
 .ctl output {
-  color: #fff;
+  color: var(--text-strong);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -403,7 +403,7 @@
   padding: 0.45rem 1rem;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(var(--overlay-rgb), 0.04);
   color: var(--text-color);
   font-weight: 600;
   font-size: 0.85rem;
@@ -414,13 +414,13 @@
 }
 
 .ctl-actions button:hover {
-  border-color: rgba(91, 156, 255, 0.45);
+  border-color: rgba(var(--info-rgb), 0.45);
 }
 
 .ctl-actions button.active {
-  background: rgba(37, 99, 235, 0.25);
-  border-color: rgba(91, 156, 255, 0.6);
-  color: #fff;
+  background: rgba(var(--glow-blue-2-rgb), 0.25);
+  border-color: rgba(var(--info-rgb), 0.6);
+  color: var(--text-strong);
 }
 
 .ctl-inline,
@@ -454,21 +454,21 @@
 
 .report-btn {
   margin-left: auto;
-  background: rgba(37, 99, 235, 0.18) !important;
-  border-color: rgba(91, 156, 255, 0.5) !important;
-  color: #fff !important;
+  background: rgba(var(--glow-blue-2-rgb), 0.18) !important;
+  border-color: rgba(var(--info-rgb), 0.5) !important;
+  color: var(--text-strong) !important;
 }
 
 .report-btn:hover {
-  background: rgba(37, 99, 235, 0.3) !important;
+  background: rgba(var(--glow-blue-2-rgb), 0.3) !important;
 }
 
 /* Real-browser performance report panel. */
 .report-panel {
   margin-top: 1.25rem;
   border-radius: 12px;
-  background: #060a13;
-  border: 1px solid rgba(91, 156, 255, 0.3);
+  background: var(--surface-2);
+  border: 1px solid rgba(var(--info-rgb), 0.3);
   overflow: hidden;
 }
 
@@ -478,11 +478,11 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.7rem 1rem;
-  background: rgba(37, 99, 235, 0.12);
+  background: rgba(var(--glow-blue-2-rgb), 0.12);
   border-bottom: 1px solid var(--border-color);
   font-size: 0.85rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-strong);
 }
 
 .report-actions {
@@ -494,15 +494,15 @@
   padding: 0.3rem 0.7rem;
   border-radius: 7px;
   border: 1px solid var(--border-color);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(var(--overlay-rgb), 0.05);
   color: var(--text-color);
   font-size: 0.78rem;
   cursor: pointer;
 }
 
 .report-actions button:hover {
-  border-color: rgba(91, 156, 255, 0.5);
-  color: #fff;
+  border-color: rgba(var(--info-rgb), 0.5);
+  color: var(--text-strong);
 }
 
 .report-panel pre {
@@ -511,7 +511,7 @@
   font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
   font-size: 0.82rem;
   line-height: 1.65;
-  color: #cbd5e1;
+  color: var(--text-color-2);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -866,7 +866,7 @@ body.immersive-lock {
 .demo-explain h2 {
   font-family: var(--font-title);
   font-size: 1.7rem;
-  color: #fff;
+  color: var(--text-strong);
   margin-bottom: 1.5rem;
 }
 
@@ -885,7 +885,7 @@ body.immersive-lock {
 
 .explain-card h4 {
   font-size: 1.05rem;
-  color: #fff;
+  color: var(--text-strong);
   margin-bottom: 0.5rem;
 }
 
@@ -901,8 +901,12 @@ body.immersive-lock {
 }
 
 .explain-win {
-  border-color: rgba(91, 156, 255, 0.5);
-  background: linear-gradient(180deg, rgba(37, 99, 235, 0.12), rgba(17, 24, 39, 0.7));
+  border-color: rgba(var(--info-rgb), 0.5);
+  background: linear-gradient(
+    180deg,
+    rgba(var(--glow-blue-2-rgb), 0.12),
+    rgba(var(--card-rgb), 0.7)
+  );
 }
 
 .explain-win h4 {
