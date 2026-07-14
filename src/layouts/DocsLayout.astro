@@ -16,6 +16,24 @@ const { title, description, collection, slug, headings, readingTime } = Astro.pr
 
 const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 
+// Group Reference pages by their `group` key, preserving array order, so a
+// package with several pages (currently only `ui`) renders as one collapsible
+// section instead of dozens of flat sidebar rows. A group with exactly one
+// page renders as a plain link — a disclosure triangle over a single item is
+// pure friction, and most packages only have one reference page today.
+interface ReferenceGroup {
+  key: string;
+  header: (typeof REFERENCE_PAGES)[number];
+  children: (typeof REFERENCE_PAGES)[number][];
+}
+const referenceGroups: ReferenceGroup[] = [];
+for (const page of REFERENCE_PAGES) {
+  const key = page.group ?? page.slug;
+  const existing = referenceGroups.find((g) => g.key === key);
+  if (existing) existing.children.push(page);
+  else referenceGroups.push({ key, header: page, children: [] });
+}
+
 // Build a flat list of all pages for prev/next navigation.
 const allPages = [
   ...LEARN_PAGES.map((p) => ({ ...p, collection: 'learn' as const })),
@@ -107,14 +125,49 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
           ) : (
             <div class="sidebar-group">
               <span class="sidebar-group-label">Reference</span>
-              {REFERENCE_PAGES.map((page) => (
-                <a
-                  href={`/reference/${page.slug}/`}
-                  class:list={['sidebar-link', { active: slug === page.slug }]}
-                >
-                  {page.title}
-                </a>
-              ))}
+              {referenceGroups.map((g) =>
+                g.children.length === 0 ? (
+                  <a
+                    href={`/reference/${g.header.slug}/`}
+                    class:list={['sidebar-link', { active: slug === g.header.slug }]}
+                  >
+                    {g.header.title}
+                  </a>
+                ) : (
+                  <details
+                    class="sidebar-collapsible"
+                    open={slug === g.header.slug || g.children.some((c) => c.slug === slug)}
+                  >
+                    <summary class="sidebar-collapsible-summary">
+                      <span class="sidebar-collapsible-label">{g.header.title}</span>
+                      <svg
+                        class="sidebar-collapsible-chevron"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        aria-hidden="true"
+                      >
+                        <polyline
+                          points="6,8 10,12 14,8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </summary>
+                    <div class="sidebar-collapsible-body">
+                      {[g.header, ...g.children].map((page) => (
+                        <a
+                          href={`/reference/${page.slug}/`}
+                          class:list={['sidebar-link', { active: slug === page.slug }]}
+                        >
+                          {page.title}
+                        </a>
+                      ))}
+                    </div>
+                  </details>
+                ),
+              )}
             </div>
           )
         }

@@ -93,6 +93,15 @@ export const demoBySlug = (slug: string): DemoMeta => {
 export interface DocPage {
   slug: string;
   title: string;
+  /**
+   * Sidebar section key. Pages sharing a `group` render together: the first
+   * page listed for a group is its collapsible header/overview link, the
+   * rest render as sub-links underneath. A group with a single page (the
+   * common case for a package with one reference doc so far) renders as a
+   * plain top-level link instead — a disclosure triangle over one item is
+   * pure friction. Omit to default to a group of one keyed by `slug`.
+   */
+  group?: string;
 }
 
 export const LEARN_PAGES: DocPage[] = [
@@ -116,40 +125,40 @@ export const LEARN_PAGES: DocPage[] = [
 ];
 
 export const REFERENCE_PAGES: DocPage[] = [
-  { slug: 'core-api', title: '@vectojs/core' },
-  { slug: 'ui-components', title: '@vectojs/ui' },
-  { slug: 'ui-button', title: 'UI: Button' },
-  { slug: 'ui-slider', title: 'UI: Slider' },
-  { slug: 'ui-markdown', title: 'UI: Markdown' },
-  { slug: 'ui-overlay', title: 'UI: Overlay' },
-  { slug: 'ui-text', title: 'UI: Text' },
-  { slug: 'ui-richtext', title: 'UI: RichText' },
-  { slug: 'ui-link', title: 'UI: Link' },
-  { slug: 'ui-image', title: 'UI: Image' },
-  { slug: 'ui-card', title: 'UI: Card' },
-  { slug: 'ui-stack', title: 'UI: Stack' },
-  { slug: 'ui-flow', title: 'UI: Flow' },
-  { slug: 'ui-input', title: 'UI: Input' },
-  { slug: 'ui-textarea', title: 'UI: TextArea' },
-  { slug: 'ui-checkbox', title: 'UI: Checkbox' },
-  { slug: 'ui-toggle', title: 'UI: Toggle' },
-  { slug: 'ui-dropdown', title: 'UI: Dropdown' },
-  { slug: 'ui-radiogroup', title: 'UI: RadioGroup' },
-  { slug: 'ui-tabs', title: 'UI: Tabs' },
-  { slug: 'ui-progressbar', title: 'UI: ProgressBar' },
-  { slug: 'ui-table', title: 'UI: Table' },
-  { slug: 'ui-scrollview', title: 'UI: ScrollView' },
-  { slug: 'ui-virtuallist', title: 'UI: VirtualList' },
-  { slug: 'ui-treeview', title: 'UI: TreeView' },
-  { slug: 'ui-resizable-panel', title: 'UI: Resizable panels' },
-  { slug: 'ui-modal', title: 'UI: Modal' },
-  { slug: 'ui-tooltip', title: 'UI: Tooltip' },
-  { slug: 'ui-popover', title: 'UI: Popover' },
-  { slug: 'ui-contextmenu', title: 'UI: ContextMenu' },
-  { slug: 'ui-codeblock', title: 'UI: CodeBlock' },
-  { slug: 'three', title: '@vectojs/three' },
-  { slug: 'graph3d', title: '@vectojs/graph3d' },
-  { slug: 'video-exporter', title: '@vectojs/video-exporter' },
-  { slug: 'devtools', title: '@vectojs/devtools' },
-  { slug: 'faq', title: 'FAQ' },
+  { slug: 'core-api', title: '@vectojs/core', group: 'core' },
+  { slug: 'ui-components', title: '@vectojs/ui', group: 'ui' },
+  { slug: 'ui-button', title: 'UI: Button', group: 'ui' },
+  { slug: 'ui-slider', title: 'UI: Slider', group: 'ui' },
+  { slug: 'ui-markdown', title: 'UI: Markdown', group: 'ui' },
+  { slug: 'ui-overlay', title: 'UI: Overlay', group: 'ui' },
+  { slug: 'ui-text', title: 'UI: Text', group: 'ui' },
+  { slug: 'ui-richtext', title: 'UI: RichText', group: 'ui' },
+  { slug: 'ui-link', title: 'UI: Link', group: 'ui' },
+  { slug: 'ui-image', title: 'UI: Image', group: 'ui' },
+  { slug: 'ui-card', title: 'UI: Card', group: 'ui' },
+  { slug: 'ui-stack', title: 'UI: Stack', group: 'ui' },
+  { slug: 'ui-flow', title: 'UI: Flow', group: 'ui' },
+  { slug: 'ui-input', title: 'UI: Input', group: 'ui' },
+  { slug: 'ui-textarea', title: 'UI: TextArea', group: 'ui' },
+  { slug: 'ui-checkbox', title: 'UI: Checkbox', group: 'ui' },
+  { slug: 'ui-toggle', title: 'UI: Toggle', group: 'ui' },
+  { slug: 'ui-dropdown', title: 'UI: Dropdown', group: 'ui' },
+  { slug: 'ui-radiogroup', title: 'UI: RadioGroup', group: 'ui' },
+  { slug: 'ui-tabs', title: 'UI: Tabs', group: 'ui' },
+  { slug: 'ui-progressbar', title: 'UI: ProgressBar', group: 'ui' },
+  { slug: 'ui-table', title: 'UI: Table', group: 'ui' },
+  { slug: 'ui-scrollview', title: 'UI: ScrollView', group: 'ui' },
+  { slug: 'ui-virtuallist', title: 'UI: VirtualList', group: 'ui' },
+  { slug: 'ui-treeview', title: 'UI: TreeView', group: 'ui' },
+  { slug: 'ui-resizable-panel', title: 'UI: Resizable panels', group: 'ui' },
+  { slug: 'ui-modal', title: 'UI: Modal', group: 'ui' },
+  { slug: 'ui-tooltip', title: 'UI: Tooltip', group: 'ui' },
+  { slug: 'ui-popover', title: 'UI: Popover', group: 'ui' },
+  { slug: 'ui-contextmenu', title: 'UI: ContextMenu', group: 'ui' },
+  { slug: 'ui-codeblock', title: 'UI: CodeBlock', group: 'ui' },
+  { slug: 'three', title: '@vectojs/three', group: 'three' },
+  { slug: 'graph3d', title: '@vectojs/graph3d', group: 'graph3d' },
+  { slug: 'video-exporter', title: '@vectojs/video-exporter', group: 'video-exporter' },
+  { slug: 'devtools', title: '@vectojs/devtools', group: 'devtools' },
+  { slug: 'faq', title: 'FAQ', group: 'faq' },
 ];

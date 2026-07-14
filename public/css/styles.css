@@ -1177,6 +1177,55 @@ body.page-home::before {
   font-weight: 600;
 }
 
+/* A package's Reference section with multiple pages (currently only
+   @vectojs/ui's ~30 component pages) collapses behind one disclosure instead
+   of flattening every page into the sidebar. */
+.sidebar-collapsible-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 450;
+  color: var(--text-muted);
+  cursor: pointer;
+  list-style: none;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.sidebar-collapsible-summary::-webkit-details-marker {
+  display: none;
+}
+
+.sidebar-collapsible-summary:hover {
+  color: var(--text-color);
+  background: rgba(var(--overlay-rgb), 0.05);
+}
+
+.sidebar-collapsible-chevron {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  transition: transform 0.18s ease;
+}
+
+.sidebar-collapsible[open] > .sidebar-collapsible-summary .sidebar-collapsible-chevron {
+  transform: rotate(180deg);
+}
+
+.sidebar-collapsible-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0.1rem 0 0 0.75rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--border-color);
+}
+
 /* ---- Main Article ----
    Centered within its grid track (like the Blog article column) rather than sitting
    flush left against the sidebar, so Learn/Reference read with the same comfortable,
