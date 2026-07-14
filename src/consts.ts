@@ -14,6 +14,7 @@ export const VERSIONS = {
   core: '1.8.0',
   ui: '1.9.0',
   three: '0.1.6',
+  graph3d: '0.1.0',
   videoExporter: '0.2.2',
   devtools: '0.4.0',
 } as const;
@@ -73,6 +74,13 @@ export const DEMOS: DemoMeta[] = [
     description:
       'A VectoJS control panel floating in real 3D space — drag to orbit, and every click is raycast through the plane into a fully interactive 2D UI underneath.',
     tag: 'WebGL · Three.js · 3D',
+  },
+  {
+    slug: 'graph3d',
+    title: '3D Force Graph',
+    description:
+      '@vectojs/graph3d rendering the canonical Les Misérables character network: a pluggable, worker-friendly layout engine (D3ForceLayout, over d3-force-3d) driving an instanced Three.js renderer — every node and every link in two draw calls, total.',
+    tag: 'WebGL · Three.js · Graph',
   },
 ];
 

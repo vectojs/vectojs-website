@@ -1103,3 +1103,17 @@ body.immersive-lock {
      stay visible over the canvas even while `hidden` is true. Restate it explicitly. */
   display: none;
 }
+
+/* 3D Force Graph — @vectojs/graph3d */
+.stage-graph3d {
+  background:
+    radial-gradient(1200px 800px at 50% 50%, rgba(56, 189, 248, 0.06), transparent 70%), #05070d;
+  cursor: grab;
+}
+#graph3d-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
