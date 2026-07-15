@@ -6,7 +6,7 @@
       "name": "vecto-website",
       "dependencies": {
         "@astrojs/sitemap": "^3.7.3",
-        "@vectojs/core": "1.8.0",
+        "@vectojs/core": "1.9.0",
         "@vectojs/graph3d": "0.1.0",
         "@vectojs/three": "0.1.6",
         "@vectojs/ui": "1.9.0",
@@ -304,7 +304,7 @@
 
     "@ungap/structured-clone": ["@ungap/structured-clone@1.3.2", "", {}, "sha512-5jsZFwgR5rTdKwidH9Qmat75RKwqfpKlWWB1frDkljN127mwqBu8K0PYo7/hFpF03IEJpfVPpCQDY/eDx3iHvA=="],
 
-    "@vectojs/core": ["@vectojs/core@1.8.0", "", {}, "sha512-PYKRRDMXYLGDkQz9TXGKpKiMCeKHLnkQLXQKmEUxdoIJnEn6ln/JTtYD1WJkRpMOE83FlRkssTikEMIDxouqzA=="],
+    "@vectojs/core": ["@vectojs/core@1.9.0", "", {}, "sha512-4N0dyc6/taBc68xM+EOK595KIwwY5cbGUMmxf+n2zSJOPsC0LmgPA/PtUkzeFb4gx2UEdVIsZOChGhYX/ZAbjA=="],
 
     "@vectojs/graph3d": ["@vectojs/graph3d@0.1.0", "", { "dependencies": { "d3-force-3d": "^3.0.6" }, "peerDependencies": { "three": "^0.160.0" } }, "sha512-+8hCzULbrPaK9T/MLoMwfulkZcDL1rJ59iGcLuXuzSuYGUTjrARwfjMNk4MWCPqW771sMcWa89AlN2B2M8DSYw=="],
 
