@@ -41,41 +41,6 @@ export const DEMOS: DemoMeta[] = [
     tag: 'Stress test · Interaction · a11y',
   },
   {
-    slug: 'nexus',
-    title: 'Nexus — a WebGPU particle field',
-    description:
-      'Tens of thousands of particles simulated on a WebGPU compute pass — springing into the word “VectoJS”, flowing away from your cursor, with a transparent CPU fallback.',
-    tag: 'WebGPU · Compute · particles',
-  },
-  {
-    slug: 'chat',
-    title: 'AI Chat — streaming Markdown',
-    description:
-      'A chat client whose entire transcript is rendered on canvas: Markdown streams in token-by-token, with code, tables, images, and SVG-rendered math, Mermaid, and ABC notation. Plays prebaked answers with zero config, or point it at a local Ollama.',
-    tag: 'Streaming · Markdown · a11y',
-  },
-  {
-    slug: 'catch',
-    title: 'Fruit Catch',
-    description:
-      'A falling-fruit catcher, osu!Catch-style: move the plate with your mouse or arrow keys to grab the fruit the goal asks for. Zero DOM — fruit, catcher, HUD, and win screen are one canvas Entity.',
-    tag: 'Interaction · Game · Zero-DOM',
-  },
-  {
-    slug: 'graph',
-    title: 'Knowledge Graph',
-    description:
-      'An infinite pan/zoom map of the VectoJS ecosystem: a real labeled backbone of packages and concepts, surrounded by thousands of synthetic satellite nodes to show how VectoJS keeps large graph surfaces fast without one DOM/SVG node per point.',
-    tag: 'Infinite canvas · Scale · Graph',
-  },
-  {
-    slug: 'dimension',
-    title: 'Dimension',
-    description:
-      'A VectoJS control panel floating in real 3D space — drag to orbit, and every click is raycast through the plane into a fully interactive 2D UI underneath.',
-    tag: 'WebGL · Three.js · 3D',
-  },
-  {
     slug: 'graph3d',
     title: '3D Force Graph',
     description:
