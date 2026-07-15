@@ -14,7 +14,7 @@ export const VERSIONS = {
   core: '1.9.0',
   ui: '1.9.0',
   three: '0.1.6',
-  graph3d: '0.1.0',
+  graph3d: '0.2.0',
   videoExporter: '0.2.2',
   devtools: '0.4.0',
 } as const;
