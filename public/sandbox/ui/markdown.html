@@ -56,12 +56,12 @@
       try {
         const sandbox = createSandbox({
           id: 'ui-markdown',
-          height: 680,
+          height: 860,
           onResize(width) {
             if (!card) return;
             const cardWidth = commonCardWidth(width, 760);
             card.width = cardWidth;
-            card.height = 630;
+            card.height = 810;
             card.setPosition((width - cardWidth) / 2, 24);
             note.setMaxWidth(cardWidth - 48);
             markdown.maxWidth = cardWidth - 48;
@@ -78,7 +78,7 @@
 
         card = new Card({
           width: cardWidth,
-          height: 630,
+          height: 810,
           radius: 18,
           bg: 'rgba(15,23,42,0.88)',
           border: 'rgba(148,163,184,0.18)',
