@@ -510,7 +510,7 @@ function initHero(): void {
   scene.add(subtitle);
 
   const demosBtn = new Button('→  Demos', {
-    onClick: () => (location.href = './demos/'),
+    onClick: () => (location.href = 'https://gallery.vectojs.org'),
     bg: theme.demosBtnBg,
     hoverBg: theme.demosBtnHoverBg,
     color: theme.demosBtnColor,

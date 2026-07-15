@@ -7,7 +7,7 @@ interface Props {
 }
 const { title, description = SITE.description } = Astro.props;
 const fullTitle = title ? `${title} · ${SITE.title}` : SITE.title;
-const demos = `${import.meta.env.BASE_URL}demos/`.replace('//', '/');
+const demos = 'https://gallery.vectojs.org';
 
 const pathname = Astro.url.pathname;
 const isDemos = pathname.startsWith('/demos');
