@@ -40,13 +40,6 @@ export const DEMOS: DemoMeta[] = [
       'Thousands of live comments on one canvas — each individually interactive and accessible, where DOM-based danmaku chokes past ~200.',
     tag: 'Stress test · Interaction · a11y',
   },
-  {
-    slug: 'graph3d',
-    title: '3D Force Graph',
-    description:
-      '@vectojs/graph3d rendering the canonical Les Misérables character network: a pluggable, worker-friendly layout engine (D3ForceLayout, over d3-force-3d) driving an instanced Three.js renderer — every node and every link in two draw calls, total.',
-    tag: 'WebGL · Three.js · Graph',
-  },
 ];
 
 export const demoBySlug = (slug: string): DemoMeta => {
