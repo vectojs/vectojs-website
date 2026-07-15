@@ -46,6 +46,28 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
 
 <Base title={title} description={description}>
   <Fragment slot="head">
+    <!-- Sidebar/TOC collapse state must resolve before any paint, same reasoning
+         as the theme script in Base.astro: the class-toggling script further
+         below in this file is a regular (deferred) script, so it only ran after
+         the browser had already painted the sidebar/TOC in their default
+         (expanded) state — visible as a flash on every navigation for anyone
+         who'd collapsed either panel. Stamping data attributes on <html> here,
+         synchronously, lets styles.css's html[data-sidebar-collapsed='1'] /
+         html[data-toc-collapsed='1'] selectors apply from the very first paint;
+         the bottom script's classList-based toggling remains the live source of
+         truth once it takes over. -->
+    <script is:inline>
+      (function () {
+        try {
+          if (localStorage.getItem('sidebar-collapsed') === '1') {
+            document.documentElement.setAttribute('data-sidebar-collapsed', '1');
+          }
+          if (localStorage.getItem('toc-collapsed') === '1') {
+            document.documentElement.setAttribute('data-toc-collapsed', '1');
+          }
+        } catch (e) {}
+      })();
+    </script>
     <!-- Sandboxes import the published packages from esm.sh. Start DNS/TLS while
          the article renders so lazy iframes do not pay that cost on first interaction. -->
     <link rel="preconnect" href="https://esm.sh" crossorigin="anonymous" />

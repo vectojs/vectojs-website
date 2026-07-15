@@ -984,10 +984,12 @@ body.page-home::before {
    from a desktop visit would reassert this 3-column template on mobile even though
    the plain mobile override further down says single-column. */
 @media (min-width: 769px) {
-  .docs-layout.sidebar-collapsed {
+  .docs-layout.sidebar-collapsed,
+  html[data-sidebar-collapsed='1'] .docs-layout {
     grid-template-columns: 0px 1fr var(--toc-w);
   }
-  .docs-layout.sidebar-collapsed .docs-sidebar {
+  .docs-layout.sidebar-collapsed .docs-sidebar,
+  html[data-sidebar-collapsed='1'] .docs-layout .docs-sidebar {
     overflow: hidden;
     width: 0;
     padding: 0;
@@ -1030,7 +1032,8 @@ body.page-home::before {
   background: rgba(var(--accent-rgb), 0.08);
   border-color: rgba(var(--accent-rgb), 0.35);
 }
-.docs-layout.sidebar-collapsed ~ .sidebar-expand-btn {
+.docs-layout.sidebar-collapsed ~ .sidebar-expand-btn,
+html[data-sidebar-collapsed='1'] .sidebar-expand-btn {
   transform: translateX(0);
 }
 .sidebar-expand-btn .collapse-icon {
@@ -1038,7 +1041,8 @@ body.page-home::before {
   height: 14px;
   transition: transform 0.2s ease;
 }
-.docs-layout.sidebar-collapsed ~ .sidebar-expand-btn .collapse-icon {
+.docs-layout.sidebar-collapsed ~ .sidebar-expand-btn .collapse-icon,
+html[data-sidebar-collapsed='1'] .sidebar-expand-btn .collapse-icon {
   transform: rotate(180deg);
 }
 
@@ -1054,13 +1058,16 @@ body.page-home::before {
    persisted toc-collapsed=1 from a wide-viewport visit must not reassert a 3-column
    template at narrower widths. */
 @media (min-width: 1101px) {
-  .docs-layout.toc-collapsed {
+  .docs-layout.toc-collapsed,
+  html[data-toc-collapsed='1'] .docs-layout {
     grid-template-columns: var(--sidebar-w) 1fr 0px;
   }
-  .docs-layout.sidebar-collapsed.toc-collapsed {
+  .docs-layout.sidebar-collapsed.toc-collapsed,
+  html[data-sidebar-collapsed='1'][data-toc-collapsed='1'] .docs-layout {
     grid-template-columns: 0px 1fr 0px;
   }
-  .docs-layout.toc-collapsed .docs-toc {
+  .docs-layout.toc-collapsed .docs-toc,
+  html[data-toc-collapsed='1'] .docs-layout .docs-toc {
     overflow: hidden;
     width: 0;
     padding: 0;
@@ -1099,7 +1106,8 @@ body.page-home::before {
   background: rgba(var(--accent-rgb), 0.08);
   border-color: rgba(var(--accent-rgb), 0.35);
 }
-.docs-layout.toc-collapsed ~ .toc-expand-btn {
+.docs-layout.toc-collapsed ~ .toc-expand-btn,
+html[data-toc-collapsed='1'] .toc-expand-btn {
   transform: translateX(0);
 }
 .toc-expand-btn .collapse-icon {
@@ -1108,7 +1116,8 @@ body.page-home::before {
   transform: rotate(180deg);
   transition: transform 0.2s ease;
 }
-.docs-layout.toc-collapsed ~ .toc-expand-btn .collapse-icon {
+.docs-layout.toc-collapsed ~ .toc-expand-btn .collapse-icon,
+html[data-toc-collapsed='1'] .toc-expand-btn .collapse-icon {
   transform: rotate(0deg);
 }
 
