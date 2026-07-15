@@ -546,6 +546,17 @@
           status.classList.add('ready');
           window.parent?.postMessage({ type: 'vecto-sandbox-ready', id: 'ui-components' }, '*');
         });
+        // onDemand only repaints on markDirty(); a canvas's backing store can
+        // be silently cleared while its tab is back/forward-cached (bfcache),
+        // which this page's own JS/scene state survives untouched, so nothing
+        // else would ever trigger a redraw after the browser Back button
+        // restores it.
+        window.addEventListener('pageshow', (e) => {
+          if (e.persisted) scene.markDirty();
+        });
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') scene.markDirty();
+        });
       } catch (error) {
         status.style.display = 'none';
         errorBox.style.display = 'block';

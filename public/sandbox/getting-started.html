@@ -82,10 +82,22 @@
     );
     scene.markDirty();
   }
-  window.addEventListener('resize', () => {
+  function redraw() {
     setSize();
     scene.resize(canvas.width, canvas.height);
     layout();
+  }
+
+  window.addEventListener('resize', redraw);
+  // onDemand only repaints on markDirty(); a canvas's backing store can be
+  // silently cleared while its tab is back/forward-cached (bfcache), which
+  // this page's own JS/scene state survives untouched, so nothing else
+  // would ever trigger a redraw after the browser Back button restores it.
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) redraw();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') redraw();
   });
 
   scene.start();
