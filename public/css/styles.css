@@ -1410,15 +1410,20 @@ body.page-home::before {
   text-decoration-color: var(--accent);
 }
 
-/* Inline code */
+/* Inline code. Deliberately NOT accent-colored: with `color: var(--accent-light)`
+   every backticked identifier read as "another link" next to actual <a> text,
+   which only differs by an underline — a page with many inline-code mentions
+   (an API reference, mostly) became a wall of near-identical blue chips. A
+   neutral foreground plus a lighter/less-bordered chip keeps code visually
+   quiet, so real hyperlinks stay the one thing that reads as "clickable". */
 .prose :not(pre) > code {
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 0.875em;
   white-space: normal;
   overflow-wrap: anywhere;
-  background: rgba(var(--surface-3-rgb), 0.9);
-  border: 1px solid rgba(var(--overlay-rgb), 0.1);
-  color: var(--accent-light);
+  background: rgba(var(--overlay-rgb), 0.07);
+  border: 1px solid rgba(var(--overlay-rgb), 0.09);
+  color: var(--text-color-2);
   padding: 0.15em 0.4em;
   border-radius: 4px;
 }
@@ -1711,9 +1716,9 @@ html {
 .prose th code {
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 0.85em;
-  background: rgba(var(--surface-3-rgb), 0.9);
-  border: 1px solid rgba(var(--overlay-rgb), 0.1);
-  color: var(--accent-light);
+  background: rgba(var(--overlay-rgb), 0.07);
+  border: 1px solid rgba(var(--overlay-rgb), 0.09);
+  color: var(--text-color-2);
   padding: 0.12em 0.38em;
   border-radius: 4px;
   /* Override the prose-wide `overflow-wrap: anywhere` (meant to stop a long
