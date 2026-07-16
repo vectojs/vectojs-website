@@ -12,7 +12,7 @@ order: 22
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Flow</span></div>
-  <iframe src="/sandbox/ui/component.html?name=flow&v=core-1.9.2-ui-1.9.3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de Flow" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=flow&v=core-1.9.2-ui-1.9.5" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de Flow" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Utilisez `maxWidth` pour définir où les enfants passent à la ligne suivante.</figcaption>
 </figure>
 

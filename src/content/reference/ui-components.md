@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Component Reference
 
 > Reusable high-level components for the VectoJS zero-DOM Canvas engine.
-> Version documented: **1.9.3**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
+> Version documented: **1.9.5**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
 
 Every component is a leaf or container in the Virtual Math Tree (VMT). Nothing here is real DOM — components draw themselves to a Canvas via an `IRenderer`. Accessibility, agent automation, and crawlability come from a parallel **A11y Shadow DOM**: when a component is `interactive`, the `Scene` projects a single hidden, transparent real DOM node positioned over the component's box, built from `getA11yAttributes()`. That is why `page.getByRole('button', { name })` / `fill()` / screen readers work against a pure-Canvas UI.
 
@@ -29,7 +29,7 @@ component pages so one behavior can be inspected without scrolling through every
 | Overlays & transient UI | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class="sandbox component-gallery">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/ui 1.9.3 · scroll inside</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/ui 1.9.5 · scroll inside</span></div>
   <iframe src="/sandbox/ui-components.html" class="sandbox-frame component-gallery-frame" loading="eager" title="Interactive gallery of every VectoJS UI component" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Package-level smoke gallery: broad coverage first, focused component pages when debugging a specific behavior.</figcaption>
 </figure>
@@ -625,7 +625,12 @@ interface TabsOptions {
   color?: string;
   selectedColor?: string;
   borderColor?: string;
+  closable?: boolean; // show a close affordance; clicks route to onClose
+  tabWidth?: number; // preferred px width; bar scrolls on overflow (default 160)
+  minTabWidth?: number; // lower bound before scrolling kicks in (default 96)
+  autoHideTabBar?: boolean; // hide the bar while < 2 tabs (default false; 1.9.5)
   onChange?: (value: string) => void;
+  onClose?: (value: string) => void;
 }
 
 interface TabItem {
@@ -636,6 +641,8 @@ interface TabItem {
 ```
 
 A tab selection container. Auto-mounts the active tab's content view and translates it inside the remaining space. Projects `{ role: 'tablist' }` for accessibility. Standardized `'change'` event payload carries `{ value }`.
+
+Tabs keep a fixed preferred `tabWidth` and the bar scrolls horizontally once they overflow (wheel, or auto-scroll to keep the active tab visible) rather than shrinking to slivers — as of 1.9.4, `tabWidth` is a target the bar scrolls past, not a stretch-to-fill width (which previously mis-targeted close hits on wide strips). With `autoHideTabBar` (1.9.5), the bar and its hit region disappear while fewer than two tabs exist and the content takes the full height (Vim `showtabline=1` semantics); the `effectiveTabBarHeight` getter reports the bar's current height (`0` when hidden), and content geometry re-syncs every frame so reassigning `tabs` can't leave stale or offset content.
 
 ---
 

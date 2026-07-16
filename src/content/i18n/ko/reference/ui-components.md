@@ -29,7 +29,7 @@ order: 11
 | 오버레이 및 일시적 UI | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class=\"sandbox component-gallery\">
-  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.9.3 · scroll inside</span></div>
+  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.9.5 · scroll inside</span></div>
   <iframe src=\"/sandbox/ui-components.html\" class=\"sandbox-frame component-gallery-frame\" loading=\"eager\" title=\"모든 VectoJS UI 컴포넌트의 대화형 갤러리\" sandbox=\"allow-scripts allow-same-origin allow-popups\"></iframe>
   <figcaption>패키지 수준 스모크 갤러리: 먼저 광범위한 범위, 특정 동작 디버깅 시 집중된 컴포넌트 페이지.</figcaption>
 </figure>

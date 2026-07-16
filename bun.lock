@@ -9,7 +9,7 @@
         "@vectojs/core": "1.9.2",
         "@vectojs/graph3d": "0.2.1",
         "@vectojs/three": "0.1.6",
-        "@vectojs/ui": "1.9.3",
+        "@vectojs/ui": "1.9.5",
         "astro": "^7.0.3",
         "three": "^0.160.0",
       },
@@ -310,7 +310,7 @@
 
     "@vectojs/three": ["@vectojs/three@0.1.6", "", { "peerDependencies": { "@vectojs/core": ">=1.0.0 <2.0.0", "three": "^0.160.0" } }, "sha512-s+m2vuWYPswOdZoRJrslHi87xGpIj7HThtUpPuTOyucunsCLh2SoRGdoWr+RDeMtMz237iklD2tPjZyAKq+aNw=="],
 
-    "@vectojs/ui": ["@vectojs/ui@1.9.3", "", { "dependencies": { "marked": "^18.0.6", "mathjax-full": "^3.2.2" }, "peerDependencies": { "@vectojs/core": ">=1.8.0 <2.0.0" } }, "sha512-KQcJnQhZ+2hzomPcFW9n8/rTT1M1D+87BTzxk++5ie16wfMLB8seT9HongN90Y0TtaYhLAni/5vVJm+AY33rRg=="],
+    "@vectojs/ui": ["@vectojs/ui@1.9.5", "", { "dependencies": { "marked": "^18.0.6", "mathjax-full": "^3.2.2" }, "peerDependencies": { "@vectojs/core": ">=1.8.0 <2.0.0" } }, "sha512-QeNuHitwnva860wq33D8YCgOsJ/Y3KEwlkavdKjBciN9mCnoMlXLfbIiFIdvyLyt2HXpdaSng0AO+ck4Yg6V8A=="],
 
     "@volar/kit": ["@volar/kit@2.4.28", "", { "dependencies": { "@volar/language-service": "2.4.28", "@volar/typescript": "2.4.28", "typesafe-path": "^0.2.2", "vscode-languageserver-textdocument": "^1.0.11", "vscode-uri": "^3.0.8" }, "peerDependencies": { "typescript": "*" } }, "sha512-cKX4vK9dtZvDRaAzeoUdaAJEew6IdxHNCRrdp5Kvcl6zZOqb6jTOfk3kXkIkG3T7oTFXguEMt5+9ptyqYR84Pg=="],
 

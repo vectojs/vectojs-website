@@ -26,7 +26,7 @@ La galerie ci-dessous est maintenant un test de smoke au niveau du paquet. Pour 
 | Superpositions & UI transitoire | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class=\"sandbox component-gallery\">
-  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.9.3 · scroll inside</span></div>
+  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.9.5 · scroll inside</span></div>
   <iframe src=\"/sandbox/ui-components.html\" class=\"sandbox-frame component-gallery-frame\" loading=\"eager\" title=\"Galerie interactive de tous les composants UI VectoJS\" sandbox=\"allow-scripts allow-same-origin allow-popups\"></iframe>
   <figcaption>Galerie de smoke au niveau du paquet : couverture large d'abord, pages de composants ciblées lors du débogage d'un comportement spécifique.</figcaption>
 </figure>

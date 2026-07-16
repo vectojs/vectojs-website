@@ -13,7 +13,7 @@ visible.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ScrollView</span></div>
-  <iframe src="/sandbox/ui/component.html?name=scrollview&v=core-1.9.2-ui-1.9.3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de ScrollView" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=scrollview&v=core-1.9.2-ui-1.9.5" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de ScrollView" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Usa la rueda o arrastra dentro del viewport; evita propietarios de desplazamiento anidados en conflicto.</figcaption>
 </figure>
 

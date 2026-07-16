@@ -26,7 +26,7 @@ La galería a continuación es ahora una prueba de humo a nivel de paquete. Para
 | Superposiciones y UI transitoria | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class=\"sandbox component-gallery\">
-  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">en vivo · @vectojs/ui 1.9.3 · desplázate dentro</span></div>
+  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">en vivo · @vectojs/ui 1.9.5 · desplázate dentro</span></div>
   <iframe src=\"/sandbox/ui-components.html\" class=\"sandbox-frame component-gallery-frame\" loading=\"eager\" title=\"Galería interactiva de cada componente de UI de VectoJS\" sandbox=\"allow-scripts allow-same-origin allow-popups\"></iframe>
   <figcaption>Galería de prueba de humo a nivel de paquete: cobertura amplia primero, páginas de componentes enfocadas al depurar un comportamiento específico.</figcaption>
 </figure>
