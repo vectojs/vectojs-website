@@ -509,8 +509,10 @@ function initHero(): void {
   );
   scene.add(subtitle);
 
-  const demosBtn = new Button('→  Demos', {
-    onClick: () => (location.href = 'https://gallery.vectojs.org'),
+  const galleryLabel = canvas.dataset.galleryLabel || 'Gallery';
+  const galleryUrl = canvas.dataset.galleryUrl || 'https://gallery.vectojs.org';
+  const galleryBtn = new Button(`→  ${galleryLabel}`, {
+    onClick: () => (location.href = galleryUrl),
     bg: theme.demosBtnBg,
     hoverBg: theme.demosBtnHoverBg,
     color: theme.demosBtnColor,
@@ -527,7 +529,7 @@ function initHero(): void {
     padding: 16,
     radius: 12,
   });
-  scene.add(demosBtn);
+  scene.add(galleryBtn);
   scene.add(githubBtn);
 
   const stats = new StatsCard(() => bg.count() + title.count() + 2);
@@ -540,9 +542,9 @@ function initHero(): void {
   const applyTheme = (next: HeroPalette): void => {
     theme = next;
     subtitle.color = theme.subtitle;
-    demosBtn.bg = theme.demosBtnBg;
-    demosBtn.hoverBg = theme.demosBtnHoverBg;
-    demosBtn.color = theme.demosBtnColor;
+    galleryBtn.bg = theme.demosBtnBg;
+    galleryBtn.hoverBg = theme.demosBtnHoverBg;
+    galleryBtn.color = theme.demosBtnColor;
     githubBtn.bg = theme.githubBtnBg;
     githubBtn.hoverBg = theme.githubBtnHoverBg;
     githubBtn.color = theme.githubBtnColor;
@@ -576,9 +578,9 @@ function initHero(): void {
 
     const gap = 16;
     const ctaY = titleBaseline + titleSize * 0.42 + 56;
-    const ctaW = demosBtn.width + gap + githubBtn.width;
-    demosBtn.setPosition(cx - ctaW / 2, ctaY);
-    githubBtn.setPosition(cx - ctaW / 2 + demosBtn.width + gap, ctaY);
+    const ctaW = galleryBtn.width + gap + githubBtn.width;
+    galleryBtn.setPosition(cx - ctaW / 2, ctaY);
+    githubBtn.setPosition(cx - ctaW / 2 + galleryBtn.width + gap, ctaY);
 
     const margin = mobile ? 16 : 32;
     stats.setPosition(w - stats.width - margin, h - stats.height - margin);
