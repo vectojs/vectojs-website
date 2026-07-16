@@ -8,9 +8,9 @@ order: 42
 
 屬於 [`@vectojs/three`](/reference/three/)。
 
-`ThreeAdapter` 使用提供的 `canvas`，或在省略時建立一個。它將 VectoJS `Scene` 渲染到該 canvas 上，將結果包裝為 `THREE.CanvasTexture`，並提供一個立即可用的 `THREE.Mesh`（一個帶有 `MeshBasicMaterial` 的單位 `PlaneGeometry`）。來自 Three.js 事件監聽器的指標和滾動事件透過光線投射轉換回 VectoJS 邏輯座標。
+`ThreeAdapter` 使用提供的 `canvas`，或者在省略時建立一個。它將 VectoJS `Scene` 渲染到該 canvas 上，將結果包裝為 `THREE.CanvasTexture`，並提供一個立即可用的 `THREE.Mesh`（一個單位 `PlaneGeometry` 搭配 `MeshBasicMaterial`）。來自 Three.js 事件監聽器的指標和捲動事件會透過光線投射翻譯回 VectoJS 邏輯座標。
 
-當您有 3D 場景並希望一個 2D UI 面板漂浮在表面上時使用此轉接器 — 其餘 Three.js 場景保持不變，您保留 Canvas 2D 渲染。若要將 Three.js 用作 `Scene` 本身的渲染後端，請參閱 [`ThreeRenderer`](/reference/three-renderer/)。
+當您有一個 3D 場景並希望在表面上浮動一個 2D UI 面板時使用此功能 — Three.js 場景的其餘部分不受影響，且您保留 Canvas 2D 渲染。如需將 Three.js 用作 `Scene` 本身的渲染後端，請參閱 [`ThreeRenderer`](/reference/three-renderer/)。
 
 ## 建構函式
 
@@ -22,21 +22,21 @@ new ThreeAdapter(options: ThreeAdapterOptions)
 interface ThreeAdapterOptions {
   width: number; // 2D UI 場景的邏輯寬度（CSS px）
   height: number; // 邏輯高度（CSS px）
-  canvas?: HTMLCanvasElement; // 可選的預先存在 canvas；省略時轉接器會建立一個
+  canvas?: HTMLCanvasElement; // 可選的預先存在的 canvas；省略時轉接器會建立一個
   sceneOptions?: SceneOptions; // 轉發給 VectoScene 建構函式
 }
 ```
 
-無論您在 `sceneOptions` 中傳入什麼，`disableWindowResize` 都會在內部強制設為 `true` — 轉接器透過 `resize(w, h)` 而非 window 擁有 resize。
+無論您在 `sceneOptions` 中傳入什麼，`disableWindowResize` 都會被內部強制設為 `true` — 轉接器透過 `resize(w, h)` 而非視窗來控制大小調整。
 
 ## 公開屬性
 
-| 屬性         | 型別                  | 描述                                                                                          |
-| ------------ | --------------------- | --------------------------------------------------------------------------------------------- |
-| `texture`    | `THREE.CanvasTexture` | 包裝 VectoJS canvas 的紋理。在每次 VectoJS 渲染幀後自動設定 `needsUpdate = true`。            |
-| `vectoScene` | `VectoScene`          | 活躍的 VectoJS `Scene` 實例。將 entity 新增到此處。                                           |
-| `canvas`     | `HTMLCanvasElement`   | 轉接器擁有或呼叫者提供的 canvas，VectoJS 在其上繪製。                                         |
-| `mesh`       | `THREE.Mesh`          | 預先建立的 `PlaneGeometry(1, 1)` + `MeshBasicMaterial` 網格，準備好放入您的 Three.js 場景中。 |
+| 屬性         | 類型                  | 描述                                                                                    |
+| ------------ | --------------------- | --------------------------------------------------------------------------------------- |
+| `texture`    | `THREE.CanvasTexture` | 包裝 VectoJS canvas 的紋理。在每次 VectoJS 渲染影格後自動設定 `needsUpdate = true`。    |
+| `vectoScene` | `VectoScene`          | 活躍的 VectoJS `Scene` 實例。在此加入 Entity。                                          |
+| `canvas`     | `HTMLCanvasElement`   | 轉接器擁有或呼叫者提供的 canvas，VectoJS 在其上繪製。                                   |
+| `mesh`       | `THREE.Mesh`          | 預先建立的 `PlaneGeometry(1, 1)` + `MeshBasicMaterial` 網格，可直接放入 Three.js 場景。 |
 
 ## 方法
 
@@ -50,14 +50,13 @@ updateIntersection(
 ): boolean
 ```
 
-將光線投射到轉接器網格上，將 UV 命中點轉換為 VectoJS canvas 座標，並將事件分發到 VectoJS 場景中。當光線與網格相交時回傳 `true`。
+將光線投射到轉接器網格上，將 UV 命中點轉換為 VectoJS canvas 座標，並將事件分派到 VectoJS 場景中。當光線與網格交集時返回 `true`。
 
-指標按鈕狀態和 `shiftKey`/`ctrlKey`/`altKey`/`metaKey` 會被保留；
-滾輪事件額外保留所有 delta 和修飾鍵。
+指標按鈕狀態和 `shiftKey`/`ctrlKey`/`altKey`/`metaKey` 會被保留；滾輪事件還會保留所有 delta 和修飾鍵。
 
-從您的 Three.js 渲染迴圈或指標事件監聽器內部呼叫此方法。轉接器維護每個 `pointerId` 的懸停狀態，因此 WebXR 控制器和多點觸控輸入各自攜帶獨立的懸停/焦點上下文。
+在您的 Three.js 渲染迴圈或指標事件監聽器中呼叫此方法。轉接器會維護每個 `pointerId` 的懸停狀態，因此 WebXR 控制器和多點觸控輸入各自擁有獨立的懸停/焦點上下文。
 
-**UV 重新映射**：Three.js UV 座標在平面底部為 Y=0；VectoJS 在頂部為 Y=0。轉接器自動翻轉 Y 軸 — 您無需調整座標。
+**UV 重新對應**：Three.js 的 UV 座標中 Y=0 在平面的底部；VectoJS 中 Y=0 在頂部。轉接器會自動翻轉 Y 軸 — 您無需調整座標。
 
 ### `resize(width, height)`
 
@@ -73,11 +72,11 @@ resize(width: number, height: number): void
 dispose(): void
 ```
 
-可重複地清理 `THREE.CanvasTexture`、幾何和材質在網格上，分離網格，還原 Scene 渲染方法，銷毀 `VectoScene`，並清除所有每指標狀態。轉接器建立的 canvas 會釋放為 `0×0`；呼叫者提供的 canvas 保留其維度。
+冪等地釋放網格上的 `THREE.CanvasTexture`、幾何圖形和材質，分離網格，恢復 Scene 渲染方法，銷毀 `VectoScene`，並清除所有每個指標的狀態。轉接器建立的 canvas 會被釋放為 `0×0`；呼叫者提供的 canvas 保留其尺寸。
 
 ## 完整範例
 
-以下範例在 Three.js 場景中的旋轉平面上渲染 VectoJS 設定面板。來自 `pointermove`、`pointerdown` 和 `pointerup` DOM 監聽器的指標事件透過 `updateIntersection` 轉發到 VectoJS。
+以下範例在 Three.js 場景中的旋轉平面上渲染一個 VectoJS 設定面板。來自 `pointermove`、`pointerdown` 和 `pointerup` DOM 監聽器的指標事件透過 `updateIntersection` 轉發到 VectoJS。
 
 ```ts
 import * as THREE from 'three';
@@ -94,7 +93,7 @@ const threeScene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.set(0, 0, 3);
 
-// --- VectoJS 面板轉接器（512×256 邏輯畫素，顯示在 2×1 平面上）---
+// --- VectoJS 面板轉接器（512×256 邏輯像素，顯示在 2×1 平面上）---
 const adapter = new ThreeAdapter({ width: 512, height: 256 });
 
 const heading = new Text('Settings', { font: '600 24px Inter', color: '#f8fafc' });
@@ -111,10 +110,10 @@ adapter.vectoScene.start();
 
 // --- 將網格放入 Three.js 場景 ---
 const panel = adapter.mesh;
-panel.scale.set(2, 1, 1); // 世界空間大小與 2:1 寬高比匹配
+panel.scale.set(2, 1, 1); // 世界空間大小匹配 2:1 長寬比
 threeScene.add(panel);
 
-// --- 用於事件轉譯的光線投射器 ---
+// --- 用於事件翻譯的光線投射器 ---
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
@@ -166,24 +165,24 @@ animate();
 window.addEventListener('unload', () => adapter.dispose());
 ```
 
-## 轉接器內部運作原理
+## 轉接器內部運作方式
 
-建構函式會 monkey-patch `vectoScene.render` 以在每次 VectoJS 幀後設定 `texture.needsUpdate = true`。Three.js 隨後在下一次 `renderer.render()` 呼叫時將 canvas 上傳到 GPU。無需輪詢或手動同步。
+建構函式會猴子補丁 `vectoScene.render`，在每個 VectoJS 影格後設定 `texture.needsUpdate = true`。然後 Three.js 會在下一次 `renderer.render()` 呼叫時將 canvas 上傳到 GPU。無需輪詢或手動同步。
 
-光線投射 UV 座標會映射到場景的**邏輯**座標空間（`vectoScene.width`/`height` — 您傳入建構函式的維度），而不是轉接器 canvas 的實體備用儲存區大小。這個區別在 HiDPI 顯示器上很重要：`@vectojs/core` 的 `CanvasRenderer` 將備用儲存區按 `devicePixelRatio` 縮放以獲得清晰渲染（`canvas.width = logicalWidth × dpr`），而 entity 佈局和點擊測試保持在邏輯座標。
+光線投射 UV 座標會對應到場景的**邏輯**座標空間（`vectoScene.width`/`height` — 您傳遞給建構函式的尺寸），而非轉接器 canvas 的物理備用儲存區大小。這個區別在 HiDPI 顯示器上很重要：`@vectojs/core` 的 `CanvasRenderer` 會按 `devicePixelRatio` 縮放備用儲存區以獲得清晰渲染（`canvas.width = logicalWidth × dpr`），而 Entity 佈局和點擊測試仍保持邏輯座標。
 
-> [!WARNING] > **在 `@vectojs/three` ≤ 0.1.1 中，UV 映射使用了實體 canvas 大小** — 因此在任何 `devicePixelRatio ≠ 1` 的顯示器或瀏覽器縮放級別上，每個指標事件都恰好落在游標右下方的 DPR 因子位置。症狀很明顯：點擊啟動面板上**比游標所在位置更深處**的控制項，偏移量隨著目標在面板中越深而越大 — 而在 DPR-1 顯示器和無頭測試環境中表現完全正常。已在 **0.1.2** 中修復；請升級而非繞道解決。
+> [!WARNING] > **在 `@vectojs/three` ≤ 0.1.1 中，UV 對應使用的是物理 canvas 大小** — 因此在任何 `devicePixelRatio ≠ 1` 的顯示器或瀏覽器縮放層級下，每個指標事件都會恰好偏移 DPR 因子，落在游標的右下方。其症狀很容易辨識：點擊會觸發面板上比游標所在位置**更下方**的控制項，且偏移量隨著目標在面板中越深而增大 — 而在 DPR-1 顯示器和無頭測試環境中則完全正常。在 **0.1.2** 中已修復；請升級而非繞過此問題。
 
-由 `updateIntersection` 分發的命中事件會轉發到 entity 的無障礙 DOM 元素（當存在**且連接到活躍文件**時 — 這會透過 a11y 陰影層路由它們，並在互動式元件上觸發 `click`/`change`），否則直接以 `VectoJSEvent` 物件形式轉發。
+由 `updateIntersection` 分派的命中事件在存在無障礙 DOM 元素**且該元素已連接到實時文件**時（這會路由事件通過 a11y 陰影層，並在互動式元件上觸發 `click`/`change`），會轉發到該元素，否則直接作為 `VectoJSEvent` 物件發送。
 
 > [!NOTE]
-> 使用預設轉接器建立的 canvas 時，面板採用直接的 `VectoJSEvent` 路徑，因為 canvas 及其 a11y 根是分離的。如果您提供一個連接到 `document` 的 canvas，其已連接的 a11y 元素可以使用 DOM 分發路徑。`@vectojs/three` 0.1.1 及更新版本會檢查連線狀態，而不是假設任一情況。
+> 使用預設的轉接器建立 canvas 時，面板會走直接的 `VectoJSEvent` 路徑，因為 canvas 及其 a11y 根是分離的。如果您提供一個已連接到 `document` 的 canvas，其已連接的 a11y 元素可以使用 DOM 分派路徑。`@vectojs/three` 的 0.1.1 及更新版本會檢查連線狀態，而非假設任一情況。
 >
-> **這對於 `Toggle`/`Button` 的正確性很重要，而不僅僅是為了避免拋出錯誤。** 在 `@vectojs/three` 0.1.0 中，未連接的 a11y 元素可能錯誤地走 DOM 分發分支並靜默錯過元件回呼。0.1.1 及更新版本會直接路由未連接的元素。預設分離 canvas 無法使用原生 DOM 焦點/IME/螢幕閱讀器行為，但在呼叫者提供的 canvas 及其投射層已連接時仍可能。
+> **這對 `Toggle`/`Button` 的正確性很重要，而不僅僅是為了避免拋出錯誤。** 在 `@vectojs/three` 的 0.1.0 版本中，已斷開連接的 a11y 元素可能會錯誤地走 DOM 分派分支，並靜默地錯過元件回呼。0.1.1 及更新版本會將已斷開連接的元素直接路由。原生 DOM 焦點/IME/螢幕閱讀器行為不適用於預設的獨立 canvas，但在呼叫者提供的 canvas 及其投射層已連接時仍然可能。
 
-## WebXR 和多點觸控
+## WebXR 與多點觸控
 
-`updateIntersection` 追蹤取自 `originalEvent` 的每個 `pointerId` 的懸停狀態。在 WebXR 會話中，每個控制器攜帶自己的 `pointerId`，因此用一個控制器懸停不會干擾另一個控制器的狀態。將原始 `XRInputSourceEvent` 包裝在合成的 `PointerEvent` 中，並將控制器的 `inputSource.handedness` 編碼為 `pointerId`（0 表示左，1 表示右），以維護獨立的命中狀態。
+`updateIntersection` 會追蹤從 `originalEvent` 取得的每個 `pointerId` 的懸停狀態。在 WebXR 工作階段中，每個控制器都有自己的 `pointerId`，因此用一個控制器懸停不會干擾另一個控制器的狀態。將原始的 `XRInputSourceEvent` 包裝在合成的 `PointerEvent` 中，並將控制器的 `inputSource.handedness` 編碼為 `pointerId`（0 表示左手，1 表示右手），以維護獨立的命中狀態。
 
 ```ts
 // WebXR 範例 — 最小控制器事件轉發

@@ -60,7 +60,7 @@ vivo; cursor "apagado" es `< -9000`) + explosión pendiente (dentro de 150px) �
 Cuando `particleBackend` lo permite (ver [`SceneOptions`](/reference/core-scene/#sceneoptions))
 y un dispositivo WebGPU se inicializa, la Scene ejecuta pases de cómputo + renderizado en un
 canvas WebGPU dedicado; de lo contrario llama a `updateCPU` y dibuja a través de
-`fillCircle` / la [capa WebGL de puntos](/reference/core-renderer/#webgl-point-layer) opcional.
+`fillCircle` / la [capa WebGL de puntos](/reference/core-renderer/#capa-de-puntos-webgl) opcional.
 Que `gpuStorageBuffer` no sea nulo confirma que los recursos fueron asignados, pero
 no es un estado "actualmente activo" duradero después de una pérdida asíncrona de dispositivo.
 Los recursos GPU (`gpuStorageBuffer`, `gpuUniformBuffer`,

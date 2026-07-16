@@ -201,7 +201,7 @@ transformations que la primitive GPU ne peut pas représenter exactement (par ex
 l'échelle non uniforme ou le cisaillement) tombent en repli sur le renderer normal.
 
 > Les hooks d'entité `getBatchCircle()` → `{ radius, color }` et `getBatchRect()` →
-> `{ width, height, color }` (voir [`Entity`](/reference/core-entity/#a11y--batching-hooks-override-to-opt-in))
+> `{ width, height, color }` (voir [`Entity`](/reference/core-entity/#hooks-a11y--lot-redéfinir-pour-adhérer))
 > sont les adhésions par entité qui alimentent cette couche.
 
 ## parseColorToRGBA

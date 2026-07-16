@@ -97,7 +97,7 @@ uniform vec2 u_grad_end;        // 월드 공간 끝점
 
 **그래디언트는 `stroke()` 또는 `fillText()`에서 지원되지 않습니다.** `stroke()`에 `WebGLGradient`를 전달하면 첫 번째 중단점 색상으로 대체됩니다. `fillText()`도 텍스트 글리프가 업로드 전에 Canvas 2D를 통해 래스터화되므로 첫 번째 중단점 색상으로 대체됩니다.
 
-그래디언트/DPI/포인터 문제 해결은 [메인 `@vectojs/three` 페이지](/reference/three/#troubleshooting)를 참조하세요.
+그래디언트/DPI/포인터 문제 해결은 [메인 `@vectojs/three` 페이지](/reference/three/#문제-해결)를 참조하세요.
 
 ## 관련 항목
 

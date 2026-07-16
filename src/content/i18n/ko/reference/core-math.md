@@ -34,7 +34,7 @@ spring.isAtRest(): boolean
 
 단일 값 임계-감쇠 튜너블 스프링 적분기 — `spring.target`을 설정하고,
 매 프레임 `update(dt)`를 호출하고, `spring.value`를 읽습니다. 이것은
-`Entity`의 내장 [`springTo()`](/reference/core-entity/#animation)가 기반으로 하는
+`Entity`의 내장 [`springTo()`](/reference/core-entity/#애니메이션)가 기반으로 하는
 기본 요소입니다; Entity의 여섯 가지 애니메이션 가능 속성 중 하나가 아닌 값(커스텀 셰이더 유니폼,
 카메라 필드, 애플리케이션-레벨 스칼라)에 직접 사용하세요.
 `isAtRest()`는 속도와 목표까지의 거리가 모두 엔진의 정지 임계값 아래로
@@ -42,5 +42,5 @@ spring.isAtRest(): boolean
 
 ## 관련 항목
 
-[`Entity`](/reference/core-entity/#animation) (`springTo`, `SpringPhysics` 기반) ·
+[`Entity`](/reference/core-entity/#애니메이션) (`springTo`, `SpringPhysics` 기반) ·
 [`@vectojs/core` 개요](/reference/core-api/)

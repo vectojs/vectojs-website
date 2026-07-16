@@ -192,7 +192,7 @@ Scene은 `pointBackend: 'webgl'`일 때 `getBatchCircle`/`getBatchRect`(그리�
 (예: 비균일 스케일 또는 전단) 아래의 잎은 일반 렌더러로 폴백됩니다.
 
 > 엔터티 훅 `getBatchCircle()` → `{ radius, color }` 및 `getBatchRect()` →
-> `{ width, height, color }` ([`Entity`](/reference/core-entity/#a11y--batching-hooks-override-to-opt-in) 참조)는
+> `{ width, height, color }` ([`Entity`](/reference/core-entity/#a11y--배치-훅-오버라이드하여-옵트인) 참조)는
 > 이 레이어에 공급하는 엔터티별 옵트인입니다.
 
 ## parseColorToRGBA

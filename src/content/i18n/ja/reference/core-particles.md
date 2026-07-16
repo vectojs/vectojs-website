@@ -54,7 +54,7 @@ CPUシミュレーションの各ステップ：スプリング-to-原点 + マ�
 
 ## WebGPU vs CPU
 
-`particleBackend` が許可し（[`SceneOptions`](/reference/core-scene/#sceneoptions) を参照）、WebGPUデバイスが初期化された場合、Sceneはコンピュート + レンダーパスを専用のWebGPUキャンバスで実行します；それ以外の場合は `updateCPU` を呼び出し、`fillCircle` / オプションの [WebGL ポイントレイヤー](/reference/core-renderer/#webgl-point-layer) を通じて描画します。`gpuStorageBuffer` が非 null であることでリソースが割り当てられたことが確認できますが、これは非同期のデバイス喪失後も永続的な「現在アクティブ」ステータスではありません。GPUリソース（`gpuStorageBuffer`、`gpuUniformBuffer`、`computeBindGroup`、`renderBindGroup`）および `needsInit` はバックエンド作者向けに公開されています。
+`particleBackend` が許可し（[`SceneOptions`](/reference/core-scene/#sceneoptions) を参照）、WebGPUデバイスが初期化された場合、Sceneはコンピュート + レンダーパスを専用のWebGPUキャンバスで実行します；それ以外の場合は `updateCPU` を呼び出し、`fillCircle` / オプションの [WebGL ポイントレイヤー](/reference/core-renderer/#webgl-ポイントレイヤー) を通じて描画します。`gpuStorageBuffer` が非 null であることでリソースが割り当てられたことが確認できますが、これは非同期のデバイス喪失後も永続的な「現在アクティブ」ステータスではありません。GPUリソース（`gpuStorageBuffer`、`gpuUniformBuffer`、`computeBindGroup`、`renderBindGroup`）および `needsInit` はバックエンド作者向けに公開されています。
 
 > WebGPUの初期化は遅延（`ComputeParticleEntity` が現れる最初のフレーム）かつ非同期で、デバイス喪失の自動復旧機能があります。シミュレーションに依存する前に `scene.resize(w, h)` でビューポートを設定してください — `0×0` ボックスではモーションは生成されません。
 

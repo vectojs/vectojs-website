@@ -53,7 +53,7 @@ interface GraphLayout {
 }
 ```
 
-계약은 의도적으로 최소화되고 worker 친화적입니다: positions는 `GraphData.nodes` 순서의 xyz 삼중항으로 된 하나의 평평한 `Float32Array`이므로, 구현체가 Web Worker 내부에 완전히 존재하고 전송 가능한 버퍼를 스레드 경계를 통해 노드별 객체 트래픽 없이 스트리밍할 수 있습니다. [`Graph3D.applyPositions()`](/reference/graph3d-renderer/#methods)는 동일한 버퍼 형태를 직접 사용합니다. `positions`는 단계마다 **재사용되는 동일한 배열 인스턴스**입니다 — 안정적인 스냅샷이 필요하면 복사(`layout.positions.slice()`)하세요.
+계약은 의도적으로 최소화되고 worker 친화적입니다: positions는 `GraphData.nodes` 순서의 xyz 삼중항으로 된 하나의 평평한 `Float32Array`이므로, 구현체가 Web Worker 내부에 완전히 존재하고 전송 가능한 버퍼를 스레드 경계를 통해 노드별 객체 트래픽 없이 스트리밍할 수 있습니다. [`Graph3D.applyPositions()`](/reference/graph3d-renderer/#메서드)는 동일한 버퍼 형태를 직접 사용합니다. `positions`는 단계마다 **재사용되는 동일한 배열 인스턴스**입니다 — 안정적인 스냅샷이 필요하면 복사(`layout.positions.slice()`)하세요.
 
 `@vectojs/graph3d`는 현재 하나의 구현체를 제공합니다; 더 많은 어댑터(`ngraph`)와 DAG 레이아웃 모드가 패키지 로드맵에 있으며, 모두 이 동일한 인터페이스 뒤에 있으므로 렌더러나 worker 호스트는 어떤 것이 실행 중인지 알 필요가 없습니다.
 

@@ -73,7 +73,7 @@ animateTo(props: Partial<Record<AnimatableProp, number>>, cfg: TweenConfig): Pro
 springTo(props: Partial<Record<AnimatableProp, number>>, cfg?: SpringConfig): Promise<void>
 ```
 
-`animate()` はトゥイーンをキューに入れます；複数回の呼び出しは**逐次連鎖**します。数値プロパティのみが補間されます；イージングは固定の ease-out（`p * (2 - p)`）です。実行中の `animate()` はシーンを非静的状態に保ち（アイドルスロットルを回避、[`Scene`](/reference/core-scene/#rendermode-maxfps-and-the-idle-auto-throttle) を参照）、モーションが落ち着くまでa11y同期をフリーズします。
+`animate()` はトゥイーンをキューに入れます；複数回の呼び出しは**逐次連鎖**します。数値プロパティのみが補間されます；イージングは固定の ease-out（`p * (2 - p)`）です。実行中の `animate()` はシーンを非静的状態に保ち（アイドルスロットルを回避、[`Scene`](/reference/core-scene/#rendermodemaxfpsおよびアイドル自動スロットル) を参照）、モーションが落ち着くまでa11y同期をフリーズします。
 
 `hasPendingAnimations()` は**オーバーライド可能**であり、Sceneがカスタムモーションを認識する唯一の窓口です：サブクラスが `update()` 内で独自の動き（手動スプリングや速度）を統合する場合、そのモーションが実行中は `true` を返すようオーバーライドしてください — `update()` 内からの `markDirty()` は同じティックの終わりに再度クリアされるため、オーバーライドがないとアイドルスロットルがアニメーションを2fpsに落とし、`onDemand` モードではフリーズします。
 

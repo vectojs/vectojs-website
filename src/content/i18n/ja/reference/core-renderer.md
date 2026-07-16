@@ -146,7 +146,7 @@ interface PointRenderer {
 
 1つのWebGL2キャンバス、4つのバッチ化プログラム：ポイント（`gl_PointSize` による丸型、AA）、矩形（拡張三角形）、テクスチャ付きスプライト、およびMSDFグリフ（3値中央値距離再構成、任意のズームで鮮明）。`color` で色合いを付けます；白いテクセルは変更されずに通過します。スプライト/グリフの追加はテクスチャが設定されるまでno-opです。Sceneは `pointBackend: 'webgl'` の場合に `getBatchCircle`/`getBatchRect`（およびCPUパーティクル、MSDFテキスト）をここにルーティングします。GPUプリミティブが正確に表現できないトランスフォーム下のリーフ（例：不均一スケールやせん断）は通常のレンダラーにフォールバックします。
 
-> エンティティフック `getBatchCircle()` → `{ radius, color }` および `getBatchRect()` → `{ width, height, color }`（[`Entity`](/reference/core-entity/#a11y--batching-hooks-override-to-opt-in) を参照）が、このレイヤーにフィードするエンティティごとのオプトインです。
+> エンティティフック `getBatchCircle()` → `{ radius, color }` および `getBatchRect()` → `{ width, height, color }`（[`Entity`](/reference/core-entity/#a11y--バッチングフックオーバーライドしてオプトイン) を参照）が、このレイヤーにフィードするエンティティごとのオプトインです。
 
 ## parseColorToRGBA
 

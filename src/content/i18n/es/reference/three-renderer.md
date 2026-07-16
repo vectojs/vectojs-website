@@ -97,7 +97,7 @@ El color se interpola linealmente entre los dos stops más cercanos en espacio m
 
 **Los gradientes no son compatibles con `stroke()` o `fillText()`.** Pasar un `WebGLGradient` a `stroke()` recurre al color del primer stop. `fillText()` también recurre al color del primer stop porque los glifos de texto se rasterizan mediante Canvas 2D antes de la subida.
 
-Consulta la [página principal de `@vectojs/three`](/reference/three/#troubleshooting) para solucionar problemas de gradiente/DPR/puntero.
+Consulta la [página principal de `@vectojs/three`](/reference/three/#solución-de-problemas) para solucionar problemas de gradiente/DPR/puntero.
 
 ## Relacionados
 

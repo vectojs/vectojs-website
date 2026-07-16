@@ -97,7 +97,7 @@ La couleur est interpolée linéairement entre les deux arrêts les plus proches
 
 **Les dégradés ne sont pas pris en charge pour `stroke()` ou `fillText()`.** Passer un `WebGLGradient` à `stroke()` revient à la couleur du premier arrêt. `fillText()` revient également à la couleur du premier arrêt car les glyphes de texte sont rasterisés via Canvas 2D avant le téléchargement.
 
-Consultez la [page principale de `@vectojs/three`](/reference/three/#troubleshooting) pour le dépannage des problèmes de dégradé/DPI/pointeur.
+Consultez la [page principale de `@vectojs/three`](/reference/three/#dépannage) pour le dépannage des problèmes de dégradé/DPI/pointeur.
 
 ## Voir aussi
 

@@ -195,7 +195,7 @@ representar exactamente (por ejemplo escala no uniforme o cizallamiento) recurre
 renderizador normal.
 
 > Los hooks de Entity `getBatchCircle()` → `{ radius, color }` y `getBatchRect()` →
-> `{ width, height, color }` (ver [`Entity`](/reference/core-entity/#a11y--batching-hooks-override-to-opt-in))
+> `{ width, height, color }` (ver [`Entity`](/reference/core-entity/#hooks-de-a11y--agrupación-sobrescribir-para-optar))
 > son las opciones por entidad que alimentan esta capa.
 
 ## parseColorToRGBA

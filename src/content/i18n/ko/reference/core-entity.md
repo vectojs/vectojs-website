@@ -89,7 +89,7 @@ springTo(props: Partial<Record<AnimatableProp, number>>, cfg?: SpringConfig): Pr
 
 `animate()`는 트윈을 큐에 추가합니다; 여러 호출은 **순차적으로 연결**됩니다. 숫자
 속성만 보간되며; 이징은 고정된 ease-out(`p * (2 - p)`)입니다. 실행 중인
-`animate()`는 Scene을 비-정적으로 유지하고(유휴 스로틀 탈출, [`Scene`](/reference/core-scene/#rendermode-maxfps-and-the-idle-auto-throttle) 참조)
+`animate()`는 Scene을 비-정적으로 유지하고(유휴 스로틀 탈출, [`Scene`](/reference/core-scene/#rendermode-maxfps-및-유휴-자동-스로틀) 참조)
 애니메이션이 안정될 때까지 a11y 동기화를 중단합니다.
 
 `hasPendingAnimations()`는 **오버라이드 가능**하며 Scene이 커스텀 모션을 확인하는 유일한 창입니다:

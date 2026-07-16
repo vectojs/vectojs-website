@@ -72,4 +72,4 @@ Vecto의 제로-DOM 렌더링 엔진입니다. `Scene`은 `Entity` 노드의 트
 - **Reference / API** — 위 하위 페이지들(Scene, Entity, 레이아웃 엔진,
   렌더러, 파티클, 텍스트, 수학 유틸리티, a11y 계약).
 - **Reference / Backend registry** — 플러그형 WebGL/WebGPU 백엔드,
-  [`Scene`](/reference/core-scene/#pluggable-backend-registry-static)에서 다룹니다.
+  [`Scene`](/reference/core-scene/#플러그형-백엔드-레지스트리-정적)에서 다룹니다.

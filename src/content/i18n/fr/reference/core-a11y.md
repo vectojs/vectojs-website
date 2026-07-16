@@ -13,7 +13,7 @@ transparent** dans le `div` `a11yRoot` de la Scène (au-dessus du canvas,
 `pointerEvents:auto` pour que l'automatisation/AT puisse interagir ;
 `opacity:0` sauf si `debugA11y`). Chaque nœud porte
 `id` + `data-vecto-id`, ainsi que le rôle/label/état fournis par
-[`Entity.getA11yAttributes()`](/reference/core-entity/#a11y--batching-hooks-override-to-opt-in).
+[`Entity.getA11yAttributes()`](/reference/core-entity/#hooks-a11y--lot-redéfinir-pour-adhérer).
 
 La racine de projection suit la boîte CSS du canvas : le décalage du canvas et le
 dimensionnement CSS non uniforme sont appliqués à l'ombre et aux couches du portail

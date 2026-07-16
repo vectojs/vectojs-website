@@ -26,9 +26,9 @@ spring.update(dt): void
 spring.isAtRest(): boolean
 ```
 
-単一値の臨界減衰調整可能スプリング積分器です — `spring.target` を設定し、毎フレーム `update(dt)` を呼び出し、`spring.value` を読み取ります。これは `Entity` の組み込み [`springTo()`](/reference/core-entity/#animation) が基づいているプリミティブです；6つのアニメーション可能な `Entity` プロパティのいずれでもない値（カスタムシェーダーユニフォーム、カメラフィールド、アプリケーションレベルのスカラー）に直接使用してください。`isAtRest()` は速度とターゲットへの距離の両方がエンジンの静止閾値を下回ったときに報告するため、呼び出し元は `update()` の呼び出しを停止できます。
+単一値の臨界減衰調整可能スプリング積分器です — `spring.target` を設定し、毎フレーム `update(dt)` を呼び出し、`spring.value` を読み取ります。これは `Entity` の組み込み [`springTo()`](/reference/core-entity/#アニメーション) が基づいているプリミティブです；6つのアニメーション可能な `Entity` プロパティのいずれでもない値（カスタムシェーダーユニフォーム、カメラフィールド、アプリケーションレベルのスカラー）に直接使用してください。`isAtRest()` は速度とターゲットへの距離の両方がエンジンの静止閾値を下回ったときに報告するため、呼び出し元は `update()` の呼び出しを停止できます。
 
 ## 関連情報
 
-[`Entity`](/reference/core-entity/#animation)（`springTo`、`SpringPhysics` 上に構築） ·
+[`Entity`](/reference/core-entity/#アニメーション)（`springTo`、`SpringPhysics` 上に構築） ·
 [`@vectojs/core` 概要](/reference/core-api/)

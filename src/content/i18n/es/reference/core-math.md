@@ -34,7 +34,7 @@ spring.isAtRest(): boolean
 
 Un integrador de resorte de un solo valor críticamente amortiguado sintonizable — establece `spring.target`,
 llama a `update(dt)` cada fotograma, lee `spring.value`. Esta es la primitiva
-sobre la que se construye el [`springTo()`](/reference/core-entity/#animation) incorporado de `Entity`;
+sobre la que se construye el [`springTo()`](/reference/core-entity/#animación) incorporado de `Entity`;
 úselo directamente para un valor que no sea una de las seis propiedades animables de `Entity`
 (un uniforme de shader personalizado, un campo de cámara, un escalar a nivel de aplicación).
 `isAtRest()` informa cuando tanto la velocidad como la distancia al objetivo han decaído
@@ -42,5 +42,5 @@ por debajo de los umbrales de reposo del motor, para que quien lo llame pueda de
 
 ## Relacionados
 
-[`Entity`](/reference/core-entity/#animation) (`springTo`, construido sobre `SpringPhysics`) ·
+[`Entity`](/reference/core-entity/#animación) (`springTo`, construido sobre `SpringPhysics`) ·
 [Visión general de `@vectojs/core`](/reference/core-api/)

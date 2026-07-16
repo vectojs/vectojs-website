@@ -77,7 +77,7 @@ de cada fotograma renderizado (post-renderizado), por lo tanto:
 > Si animas manualmente mutando `entity.x` etc. dentro de un `update()` personalizado,
 > llamar a `markDirty()` **dentro** de `update()` no ayuda — el restablecimiento post-renderizado
 > lo limpia, y el chequeo estático del siguiente fotograma ve `dirty === false` y
-> te acelera a 2 fps. O impulsas el movimiento a través de [`entity.animate()`](/reference/core-entity/#animation)
+> te acelera a 2 fps. O impulsas el movimiento a través de [`entity.animate()`](/reference/core-entity/#animación)
 > (que mantiene la escena no estática mientras el tween se ejecuta), o llamas a `scene.markDirty()`
 > **entre** fotogramas (desde un manejador de eventos, un `rAF` separado o un temporizador) para que la
 > bandera sobreviva hasta la siguiente iteración del bucle.

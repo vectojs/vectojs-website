@@ -76,7 +76,7 @@ scene.a11yNeedsReorder: boolean
 > 커스텀 `update()` 내부에서 `entity.x` 등을 변경하여 수동 애니메이션을 하는 경우,
 > `update()` **내부**에서 `markDirty()`를 호출해도 소용없습니다 — 포스트-렌더
 > 리셋이 이를 지우고, 다음 프레임의 정적 검사는 `dirty === false`를 보고
-> 2fps로 스로틀합니다. [`entity.animate()`](/reference/core-entity/#animation)(트윈이 실행되는 동안
+> 2fps로 스로틀합니다. [`entity.animate()`](/reference/core-entity/#애니메이션)(트윈이 실행되는 동안
 > Scene을 비-정적으로 유지)를 통해 모션을 구동하거나, 프레임 **사이**에서
 > (이벤트 핸들러, 별도의 `rAF` 또는 타이머에서) `scene.markDirty()`를 호출하여
 > 플래그가 다음 루프 반복까지 살아남도록 하세요.

@@ -8,7 +8,7 @@ order: 10
 
 [`@vectojs/core`](/reference/core-api/) の一部です。
 
-ボックスを持つすべてのインタラクティブエンティティは、Sceneの `a11yRoot` div（キャンバスの上、`pointerEvents:auto` で自動化/ATが操作可能、`debugA11y` 以外は `opacity:0`）に**透過的なARIAシャドウノード**を投影します。各ノードは [`Entity.getA11yAttributes()`](/reference/core-entity/#a11y--batching-hooks-override-to-opt-in) からの `id` + `data-vecto-id`、およびロール/ラベル/状態を保持します。
+ボックスを持つすべてのインタラクティブエンティティは、Sceneの `a11yRoot` div（キャンバスの上、`pointerEvents:auto` で自動化/ATが操作可能、`debugA11y` 以外は `opacity:0`）に**透過的なARIAシャドウノード**を投影します。各ノードは [`Entity.getA11yAttributes()`](/reference/core-entity/#a11y--バッチングフックオーバーライドしてオプトイン) からの `id` + `data-vecto-id`、およびロール/ラベル/状態を保持します。
 
 投影ルートはキャンバスのCSSボックスを追跡します：キャンバスのオフセットと不均一なCSSスケーリングがシャドウおよびDOMポータルレイヤーに適用される一方、エンティティジオメトリは論理的なScene座標のままです。キャンバスの任意のCSS回転/スキューはこのマッピングの対象外です。
 

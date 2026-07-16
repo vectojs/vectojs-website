@@ -54,7 +54,7 @@ interface GraphLayout {
 ```
 
 El contrato es deliberadamente mínimo y apto para workers: las posiciones son un único `Float32Array` plano de tripletes xyz en el orden de `GraphData.nodes`, por lo que una implementación puede vivir completamente dentro de un Web Worker y transmitir su búfer a través del límite del hilo como transferible, sin tráfico de objetos por nodo.
-[`Graph3D.applyPositions()`](/reference/graph3d-renderer/#methods) consume ese mismo formato de búfer directamente. `positions` es la **misma instancia de array** reutilizada entre pasos — cópiala (`layout.positions.slice()`) si necesitas una instantánea estable en lugar de una vista en vivo.
+[`Graph3D.applyPositions()`](/reference/graph3d-renderer/#métodos) consume ese mismo formato de búfer directamente. `positions` es la **misma instancia de array** reutilizada entre pasos — cópiala (`layout.positions.slice()`) si necesitas una instantánea estable en lugar de una vista en vivo.
 
 `@vectojs/graph3d` incluye una implementación hoy; más adaptadores (`ngraph`) y modos de layout DAG están en la hoja de ruta del paquete, todos detrás de esta misma interfaz para que un renderizador o un host de worker nunca necesiten saber cuál se está ejecutando.
 

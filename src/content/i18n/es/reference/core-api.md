@@ -73,4 +73,4 @@ silenciosamente en modo degradado. Ver [`Scene`](/reference/core-scene/) para la
 - **Referencia / API** — las subpáginas anteriores (Scene, Entity, motor de disposición,
   renderizadores, partículas, texto, utilidades matemáticas, contrato a11y).
 - **Referencia / Registro de backends** — backends conectables WebGL/WebGPU, cubiertos
-  bajo [`Scene`](/reference/core-scene/#pluggable-backend-registry-static).
+  bajo [`Scene`](/reference/core-scene/#registro-de-backends-conectables-estático).

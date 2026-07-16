@@ -22,7 +22,7 @@ font.distanceRange / font.atlasWidth / font.atlasHeight
 Analyse le JSON `msdf-atlas-gen` de facto et dispose le texte en quads de pixels CSS
 avec des UV d'atlas (espace local y-vers-le-bas ; v=0 en haut de l'atlas). Associez
 `layout()` avec `setMSDFTexture` + `addGlyph` du backend WebGL
-(voir [Couche WebGL points](/reference/core-renderer/#webgl-point-layer))
+(voir [Couche WebGL points](/reference/core-renderer/#couche-webgl-points))
 pour du texte GPU indépendant de la résolution. Types :
 `MSDFFontData`, `MSDFAtlasInfo`, `MSDFMetrics`, `MSDFGlyphDef`, `MSDFBounds`,
 `MSDFKerning`, `PositionedGlyph`, `MSDFLayoutResult`, `MSDFLayoutOptions`.

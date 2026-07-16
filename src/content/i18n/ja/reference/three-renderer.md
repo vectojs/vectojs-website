@@ -97,7 +97,7 @@ uniform vec2 u_grad_end;        // ワールド空間の終了点
 
 **`stroke()` または `fillText()` ではグラデーションはサポートされていません。** `WebGLGradient` を `stroke()` に渡すと、最初のストップ色にフォールバックします。`fillText()` も最初のストップ色にフォールバックします。これは、テキストグリフがアップロード前に Canvas 2D を介してラスタライズされるためです。
 
-グラデーション/DPI/ポインターの問題のトラブルシューティングについては、[メインの `@vectojs/three` ページ](/reference/three/#troubleshooting) を参照してください。
+グラデーション/DPI/ポインターの問題のトラブルシューティングについては、[メインの `@vectojs/three` ページ](/reference/three/#トラブルシューティング) を参照してください。
 
 ## 関連情報
 

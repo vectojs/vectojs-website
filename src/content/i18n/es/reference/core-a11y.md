@@ -13,7 +13,7 @@ transparente** en el `a11yRoot` div de la Scene (encima del canvas,
 `pointerEvents:auto` para que la automatización/AT pueda interactuar;
 `opacity:0` a menos que `debugA11y` esté activo). Cada nodo lleva
 `id` + `data-vecto-id`, más el rol/etiqueta/estado de
-[`Entity.getA11yAttributes()`](/reference/core-entity/#a11y--batching-hooks-override-to-opt-in).
+[`Entity.getA11yAttributes()`](/reference/core-entity/#hooks-de-a11y--agrupación-sobrescribir-para-optar).
 
 La raíz de proyección sigue la caja CSS del canvas: el desplazamiento del canvas y el escalado CSS no uniforme
 se aplican a las capas sombra y DOM-portal mientras la geometría de la entidad

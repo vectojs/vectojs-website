@@ -194,7 +194,7 @@ interface PointRenderer {
 一般 renderer。
 
 > Entity 掛鉤 `getBatchCircle()` → `{ radius, color }` 和 `getBatchRect()` →
-> `{ width, height, color }`（請參閱 [`Entity`](/reference/core-entity/#a11y--batching-hooks-override-to-opt-in)）
+> `{ width, height, color }`（請參閱 [`Entity`](/reference/core-entity/#a11y--批次處理掛鉤覆寫以啟用)）
 > 是提供此圖層的每個實體選擇性啟用機制。
 
 ## parseColorToRGBA

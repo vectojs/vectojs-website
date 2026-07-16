@@ -12,7 +12,7 @@ order: 10
 노드**를 투영합니다(캔버스 위에 위치, `pointerEvents:auto`로
 자동화/AT가 상호작용 가능; `debugA11y`가 아닌 이상 `opacity:0`). 각 노드는
 `id` + `data-vecto-id`와
-[`Entity.getA11yAttributes()`](/reference/core-entity/#a11y--batching-hooks-override-to-opt-in)의
+[`Entity.getA11yAttributes()`](/reference/core-entity/#a11y--배치-훅-오버라이드하여-옵트인)의
 role/label/state를 전달합니다.
 
 투영 루트는 캔버스 CSS 박스를 추적합니다: 캔버스 오프셋과 비균일 CSS

@@ -75,4 +75,4 @@ particules WebGPU tombent silencieusement en mode dégradé. Voir
 - **Référence / API** — les sous-pages ci-dessus (Scene, Entity, moteur de mise en page,
   renderers, particules, texte, utilitaires mathématiques, contrat a11y).
 - **Référence / Registre des backends** — backends WebGL/WebGPU enfichables, couvert
-  dans [`Scene`](/reference/core-scene/#pluggable-backend-registry-static).
+  dans [`Scene`](/reference/core-scene/#registre-de-backends-enfichables-statique).

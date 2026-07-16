@@ -59,7 +59,7 @@ CPU 시뮬레이션 스텝당: 스프링-투-오리진 + 마우스 반발(라이
 
 `particleBackend`가 허용하고([`SceneOptions`](/reference/core-scene/#sceneoptions) 참조)
 WebGPU 디바이스가 초기화되면, Scene은 전용 WebGPU 캔버스에서 컴퓨트 + 렌더 패스를 실행합니다;
-그렇지 않으면 `updateCPU`를 호출하고 `fillCircle` / 선택적 [WebGL 포인트 레이어](/reference/core-renderer/#webgl-point-layer)를 통해 그립니다.
+그렇지 않으면 `updateCPU`를 호출하고 `fillCircle` / 선택적 [WebGL 포인트 레이어](/reference/core-renderer/#webgl-포인트-레이어)를 통해 그립니다.
 `gpuStorageBuffer`가 non-null이면 리소스가 할당되었음을 확인하지만,
 비동기 디바이스 손실 후에는 내구성 있는 "현재 활성" 상태가 아닙니다.
 GPU 리소스(`gpuStorageBuffer`, `gpuUniformBuffer`,

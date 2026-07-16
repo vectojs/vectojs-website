@@ -53,7 +53,7 @@ interface GraphLayout {
 }
 ```
 
-Le contrat est délibérément minimal et compatible worker : les positions sont un seul `Float32Array` plat de triplets xyz dans l'ordre de `GraphData.nodes`, de sorte qu'une implémentation peut vivre entièrement dans un Web Worker et diffuser son tampon par-delà la frontière des threads comme un transferable, sans trafic d'objets par nœud. [`Graph3D.applyPositions()`](/reference/graph3d-renderer/#methods) consomme exactement ce même format de tampon directement. `positions` est la **même instance de tableau** réutilisée entre les étapes — copiez-la (`layout.positions.slice()`) si vous avez besoin d'un instantané stable plutôt que d'une vue en direct.
+Le contrat est délibérément minimal et compatible worker : les positions sont un seul `Float32Array` plat de triplets xyz dans l'ordre de `GraphData.nodes`, de sorte qu'une implémentation peut vivre entièrement dans un Web Worker et diffuser son tampon par-delà la frontière des threads comme un transferable, sans trafic d'objets par nœud. [`Graph3D.applyPositions()`](/reference/graph3d-renderer/#méthodes) consomme exactement ce même format de tampon directement. `positions` est la **même instance de tableau** réutilisée entre les étapes — copiez-la (`layout.positions.slice()`) si vous avez besoin d'un instantané stable plutôt que d'une vue en direct.
 
 `@vectojs/graph3d` livre une implémentation aujourd'hui ; d'autres adaptateurs (`ngraph`) et modes de layout DAG sont sur la feuille de route du paquet, tous derrière cette même interface, de sorte qu'un renderer ou un hôte worker n'ait jamais besoin de savoir lequel tourne.
 

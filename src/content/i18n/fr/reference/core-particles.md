@@ -61,7 +61,7 @@ limitation → décroissance de vie. Protégé contre les NaN.
 Quand `particleBackend` le permet (voir [`SceneOptions`](/reference/core-scene/#sceneoptions))
 et qu'un périphérique WebGPU s'initialise, la Scène exécute des passes de calcul +
 rendu dans un canvas WebGPU dédié ; sinon elle appelle `updateCPU` et dessine via
-`fillCircle` / la [couche WebGL points](/reference/core-renderer/#webgl-point-layer)
+`fillCircle` / la [couche WebGL points](/reference/core-renderer/#couche-webgl-points)
 optionnelle. `gpuStorageBuffer` non nul confirme que les ressources ont été allouées,
 mais ce n'est pas un statut « actuellement actif » durable après une perte de
 périphérique asynchrone. Les ressources GPU (`gpuStorageBuffer`, `gpuUniformBuffer`,

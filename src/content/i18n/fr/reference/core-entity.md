@@ -92,7 +92,7 @@ springTo(props: Partial<Record<AnimatableProp, number>>, cfg?: SpringConfig): Pr
 **séquentiellement**. Seules les propriétés numériques sont interpolées ; l'assouplissement
 est un ease-out fixe (`p * (2 - p)`). Un `animate()` actif maintient la scène non
 statique (échappe à la régulation d'inactivité, voir
-[`Scene`](/reference/core-scene/#rendermode-maxfps-and-the-idle-auto-throttle))
+[`Scene`](/reference/core-scene/#rendermode-maxfps-et-la-régulation-automatique-dinactivité))
 et gèle la synchronisation a11y jusqu'à son terme.
 
 `hasPendingAnimations()` est **remplaçable** et est la seule fenêtre de la Scène sur

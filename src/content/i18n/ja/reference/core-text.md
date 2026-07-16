@@ -18,7 +18,7 @@ font.layout(text, fontSizePx, opts?: MSDFLayoutOptions): MSDFLayoutResult   // \
 font.distanceRange / font.atlasWidth / font.atlasHeight
 ```
 
-デファクトスタンダードの `msdf-atlas-gen` JSON をパースし、テキストをCSSピクセルクアッドにアトラスUV（y-downローカル空間；v=0はアトラス上部）で配置します。`layout()` をWebGLバックエンドの `setMSDFTexture` + `addGlyph`（[WebGL ポイントレイヤー](/reference/core-renderer/#webgl-point-layer) を参照）と組み合わせて、解像度非依存のGPUテキストを実現します。型：`MSDFFontData`、`MSDFAtlasInfo`、`MSDFMetrics`、`MSDFGlyphDef`、`MSDFBounds`、`MSDFKerning`、`PositionedGlyph`、`MSDFLayoutResult`、`MSDFLayoutOptions`。
+デファクトスタンダードの `msdf-atlas-gen` JSON をパースし、テキストをCSSピクセルクアッドにアトラスUV（y-downローカル空間；v=0はアトラス上部）で配置します。`layout()` をWebGLバックエンドの `setMSDFTexture` + `addGlyph`（[WebGL ポイントレイヤー](/reference/core-renderer/#webgl-ポイントレイヤー) を参照）と組み合わせて、解像度非依存のGPUテキストを実現します。型：`MSDFFontData`、`MSDFAtlasInfo`、`MSDFMetrics`、`MSDFGlyphDef`、`MSDFBounds`、`MSDFKerning`、`PositionedGlyph`、`MSDFLayoutResult`、`MSDFLayoutOptions`。
 
 ## MSDFTextEntity
 
