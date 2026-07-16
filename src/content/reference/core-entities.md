@@ -1,12 +1,66 @@
 ---
 title: 'Other entities'
-description: 'SplineEntity (vectomancy curve rendering), DOMPortalEntity (projecting a real DOM element into the scene), and SVGEntity (rasterized SVG blitting) from the @vectojs/core main entry.'
-order: 16
+description: 'Rect/Circle/Group shape primitives, plus SplineEntity (vectomancy curve rendering), DOMPortalEntity (projecting a real DOM element into the scene), and SVGEntity (rasterized SVG blitting) from the @vectojs/core main entry.'
+order: 8
 ---
 
 # Other entities (from `.`)
 
 Part of [`@vectojs/core`](/reference/core-api/).
+
+## Rect, Circle, Group (primitives)
+
+_Added in `@vectojs/core` 1.9.0._ Three ready-to-instantiate entities so a
+plain box, dot, or transform container no longer needs a bespoke
+[`Entity`](/reference/core-entity/) subclass.
+
+```ts
+import { Rect, Circle, Group } from '@vectojs/core';
+
+const box = new Rect({ width: 120, height: 64, fill: '#38bdf8', radius: 8 });
+const dot = new Circle({ radius: 24, fill: '#f97316' });
+const toolbar = new Group(saveBtn, undoBtn, redoBtn); // transform-only container
+toolbar.set({ x: 20, y: 20 });
+scene.add(box, dot, toolbar); // variadic add()
+```
+
+**`Rect`** — axis-aligned rectangle from local `(0,0)` to `(width, height)`.
+
+| `RectOptions` | Default     | Effect                                                       |
+| ------------- | ----------- | ------------------------------------------------------------ |
+| `width`       | `0`         | Local width; matches the entity hit/a11y box.                |
+| `height`      | `0`         | Local height.                                                |
+| `fill`        | `'#38bdf8'` | CSS fill, or `null` for none (explicit `null` is preserved). |
+| `stroke`      | `null`      | CSS stroke, or `null` for none.                              |
+| `strokeWidth` | `1`         | Stroke width (local units).                                  |
+| `radius`      | `0`         | Uniform corner radius; `0` = sharp corners.                  |
+
+A solid-fill, square-cornered, unstroked `Rect` opts into the WebGL
+instanced-rect fast path (`getBatchRect`, `pointBackend: 'webgl'` only); any
+stroke or corner radius renders through the exact Canvas path.
+
+**`Circle`** — disc centered on its local origin `(0,0)`. Its a11y shadow box
+is the bounding square offset by `-radius` so it covers the drawn disc.
+
+| `CircleOptions` | Default     | Effect                                         |
+| --------------- | ----------- | ---------------------------------------------- |
+| `radius`        | `0`         | Radius (local units). Setter re-syncs the box. |
+| `fill`          | `'#38bdf8'` | CSS fill, or `null` for none.                  |
+| `stroke`        | `null`      | CSS stroke, or `null` for none.                |
+| `strokeWidth`   | `1`         | Stroke width (local units).                    |
+
+A solid-fill, unstroked `Circle` opts into the circle point-batch fast path
+(`getBatchCircle`); a stroked circle renders through the exact Canvas path.
+
+**`Group`** — a transform-only container: draws nothing and is invisible to
+hit-testing (`isPointInside` returns `false`), existing only to compose one
+transform (`x`/`y`/`scale`/`rotation`/`opacity`) onto its children. The scene's
+hit-test recurses into children first, so they stay independently interactive.
+Pass children inline: `new Group(a, b, c)`.
+
+See also [`Entity.set()`](/reference/core-entity/) and variadic
+[`add()`](/reference/core-entity/) — the ergonomic helpers these primitives are
+built to be used with.
 
 ## SplineEntity + loadSpline
 

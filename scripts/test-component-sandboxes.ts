@@ -12,6 +12,7 @@ import {
   printReport,
   type CheckResult,
 } from './test-utils';
+import { VERSIONS } from '../src/consts';
 
 async function main(): Promise<void> {
   const { stop } = await ensureBuiltAndServed();
@@ -174,9 +175,13 @@ async function main(): Promise<void> {
     const iframeSource = await page.evaluate(() =>
       document.querySelector('iframe[title="Text live demo"]')?.getAttribute('src'),
     );
+    // Derive the expected cache-bust token from VERSIONS (the single source of
+    // truth) rather than hardcoding it, so a version bump can't leave this
+    // assertion silently stale the way `core-1.8.0-ui-1.9.0` did.
+    const expectedCacheToken = `v=core-${VERSIONS.core}-ui-${VERSIONS.ui}`;
     results.push({
       name: 'documentation pages invalidate previously cached sandbox documents',
-      pass: iframeSource?.includes('v=core-1.8.0-ui-1.9.0') ?? false,
+      pass: iframeSource?.includes(expectedCacheToken) ?? false,
       detail: iframeSource ?? 'Text demo iframe not found',
     });
     await page.close();

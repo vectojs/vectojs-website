@@ -1,7 +1,7 @@
 ---
 title: 'Text & Bidi'
 description: 'The @vectojs/core/text subpath: MSDF font parsing and GPU text rendering, TextEntity/GridTextEntity, and the built-in Arabic shaping + bidi resolver.'
-order: 15
+order: 7
 ---
 
 # Text & Bidi — `@vectojs/core/text`

@@ -1,7 +1,7 @@
 ---
 title: 'Cookbook'
 description: 'Common patterns and recipes for VectoJS: modals, tooltips, virtualized lists, drag-and-drop, animated charts, and more.'
-order: 12
+order: 17
 ---
 
 # Cookbook

@@ -12,17 +12,18 @@ export const BUILD_ID = Date.now().toString(36);
 
 export const VERSIONS = {
   core: '1.9.0',
-  ui: '1.9.0',
+  ui: '1.9.1',
   three: '0.1.6',
   graph3d: '0.2.0',
   videoExporter: '0.2.2',
-  devtools: '0.4.0',
+  devtools: '0.4.2',
 } as const;
 
 export const SITE = {
   title: 'VectoJS',
   description: 'A mathematical UI rendering framework driven by Vectomancy',
   github: 'https://github.com/vectojs/vectojs',
+  gallery: 'https://gallery.vectojs.org',
 };
 
 export interface DemoMeta {

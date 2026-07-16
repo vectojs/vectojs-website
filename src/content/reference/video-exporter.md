@@ -1,7 +1,7 @@
 ---
 title: '@vectojs/video-exporter'
 description: 'CLI and library for stepping a VectoJS scene frame-by-frame and encoding its canvas output as H.264 MP4 with Chromium and FFmpeg.'
-order: 5
+order: 47
 ---
 
 # `@vectojs/video-exporter`

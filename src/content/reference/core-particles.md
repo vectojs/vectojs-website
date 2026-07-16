@@ -1,7 +1,7 @@
 ---
 title: 'ComputeParticleEntity'
 description: 'The high-throughput particle layer: per-particle Float32Array memory layout, spring/damping/explosion CPU simulation, and the WebGPU compute path with automatic CPU fallback.'
-order: 14
+order: 6
 ---
 
 # `ComputeParticleEntity` — high-throughput particle layer

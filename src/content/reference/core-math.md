@@ -1,7 +1,7 @@
 ---
 title: 'Math utilities'
 description: 'SpatialHashGrid for O(1)-average broad-phase spatial queries and SpringPhysics for a single-value critically-tunable spring — the general-purpose math helpers exported from @vectojs/core.'
-order: 17
+order: 9
 ---
 
 # Math utilities (from `.`)

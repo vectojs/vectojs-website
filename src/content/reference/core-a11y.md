@@ -1,7 +1,7 @@
 ---
 title: 'a11yRoot & the agent contract'
 description: 'How every interactive Entity projects a transparent ARIA shadow node into the DOM — the A11yAttributes shape, the canvas-performance-and-DOM-grade-accessibility contract, and the sync gotchas that cause stale or missing shadow nodes.'
-order: 18
+order: 10
 ---
 
 # a11yRoot & the agent contract

@@ -1,7 +1,7 @@
 ---
 title: 'Text & Typography'
 description: "VectoJS's text system: cold/hot LayoutEngine split, streaming for LLM output, rich text with mixed styles, MSDF fonts, Arabic/BiDi, and exclusion shapes."
-order: 7
+order: 14
 ---
 
 # Text & Typography

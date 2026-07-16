@@ -1,7 +1,7 @@
 ---
 title: 'GraphLayout & D3ForceLayout'
 description: 'The graph data model and the worker-friendly GraphLayout contract, plus its D3ForceLayout implementation over d3-force-3d.'
-order: 22
+order: 45
 ---
 
 # `GraphLayout` & `D3ForceLayout`
@@ -47,6 +47,11 @@ interface GraphLayout {
   setGraph(data: GraphData): void;
   step(iterations?: number): boolean; // advances the sim, refreshes `positions`; false once cooled
   readonly positions: Float32Array; // xyz triplets, index-aligned with GraphData.nodes
+  // Optional runtime pin controls (since 0.2.0) — for interactive drag-to-pin.
+  // GraphInteraction feature-detects pinNode before enabling drag.
+  pinNode?(nodeIndex: number, x: number, y: number, z: number): void;
+  unpinNode?(nodeIndex: number): void; // release a pinned node back to free simulation
+  reheat?(alpha?: number): void; // raise alpha so a cooled sim responds to a pin/unpin
   dispose(): void; // release simulation resources; instance unusable afterward
 }
 ```
@@ -95,6 +100,20 @@ layout.step(5); // 5 ticks in one call — cheaper per-frame amortization
 // for graphs whose visual settle time matters more
 // than per-tick smoothness
 ```
+
+**Pinning (since 0.2.0).** `D3ForceLayout` implements the optional pin controls
+over d3-force's `fx`/`fy`/`fz`, which is what powers
+[`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction-hover-select-drag-to-pin)'s
+drag-to-pin:
+
+```ts
+layout.pinNode(i, x, y, z); // clamp node i to (x,y,z) every tick; also updates positions[i] now
+layout.reheat(0.3); // wake a cooled sim so the rest settles around the pin
+layout.unpinNode(i); // clear fx/fy/fz — node i is free again
+```
+
+Out-of-range indices are ignored (a stale pointer interaction can't crash the
+layout), and `reheat`'s alpha is clamped to d3's usual `[alphaMin, 1]` range.
 
 **Changing forces live.** `D3ForceLayoutOptions` are constructor-only; there is
 no live setter. To apply a new `chargeStrength`/`linkDistance` (for example

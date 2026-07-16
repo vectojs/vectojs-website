@@ -1,7 +1,7 @@
 ---
 title: 'Button'
 description: 'Canvas-rendered button component with a semantic button projection for accessibility and automation.'
-order: 21
+order: 12
 ---
 
 # `Button`
@@ -13,7 +13,7 @@ same box. Users see canvas pixels; screen readers and automation tools operate t
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Button</span></div>
-  <iframe src="/sandbox/ui/button.html?v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame" loading="eager" title="Button live demo" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/button.html?v=core-1.9.0-ui-1.9.1" class="sandbox-frame component-demo-frame" loading="eager" title="Button live demo" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Hover changes the painted state. Clicks route through the same button role that Playwright can find.</figcaption>
 </figure>
 

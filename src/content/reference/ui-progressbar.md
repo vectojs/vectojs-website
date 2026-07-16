@@ -1,7 +1,7 @@
 ---
 title: 'UI: ProgressBar'
 description: 'Canvas progress indicator with optional percentage label and progressbar semantics.'
-order: 39
+order: 30
 ---
 
 # `ProgressBar`
@@ -12,7 +12,7 @@ order: 39
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ProgressBar</span></div>
-  <iframe src="/sandbox/ui/component.html?name=progressbar&v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ProgressBar live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=progressbar&v=core-1.9.0-ui-1.9.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ProgressBar live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Use `setValue()` to clamp and repaint progress changes.</figcaption>
 </figure>
 

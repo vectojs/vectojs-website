@@ -1,7 +1,7 @@
 ---
 title: 'UI: Popover'
 description: 'Click-triggered overlay panel that can contain arbitrary VectoJS children.'
-order: 47
+order: 38
 ---
 
 # `Popover`
@@ -12,7 +12,7 @@ order: 47
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Popover</span></div>
-  <iframe src="/sandbox/ui/component.html?name=popover&v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Popover live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=popover&v=core-1.9.0-ui-1.9.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Popover live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Click the target twice to open and close the popover.</figcaption>
 </figure>
 

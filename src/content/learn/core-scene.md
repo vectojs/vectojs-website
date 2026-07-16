@@ -1,7 +1,7 @@
 ---
 title: 'Core Scene Architecture'
 description: 'Deep dive into the Virtual Math Tree, Scene lifecycle, Entity system, hit-testing, and the render pipeline.'
-order: 3
+order: 8
 ---
 
 # Core Scene Architecture

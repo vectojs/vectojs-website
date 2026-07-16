@@ -1,7 +1,7 @@
 ---
 title: 'Layout engine'
 description: 'The @vectojs/core/layout subpath: the cold/hot split that separates expensive text segmentation+measurement from cheap wrap+position arithmetic, streaming memoization, rich text, and exclusion shapes.'
-order: 12
+order: 4
 ---
 
 # Layout engine (cold/hot split) — `@vectojs/core/layout`

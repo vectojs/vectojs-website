@@ -1,7 +1,7 @@
 ---
 title: 'UI: Checkbox'
 description: 'Checkbox control with native input semantics and canvas visual state.'
-order: 34
+order: 25
 ---
 
 # `Checkbox`
@@ -12,7 +12,7 @@ order: 34
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Checkbox</span></div>
-  <iframe src="/sandbox/ui/component.html?name=checkbox&v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Checkbox live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=checkbox&v=core-1.9.0-ui-1.9.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Checkbox live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Canvas clicks and native input changes share the same `change` path.</figcaption>
 </figure>
 

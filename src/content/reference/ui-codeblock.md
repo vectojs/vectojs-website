@@ -1,7 +1,7 @@
 ---
 title: 'UI: CodeBlock'
 description: 'Single-leaf canvas code block used by Markdown for fenced code.'
-order: 49
+order: 40
 ---
 
 # `CodeBlock`
@@ -13,7 +13,7 @@ syntax-colored text itself, avoiding one child entity per token.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · CodeBlock</span></div>
-  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.9.0-ui-1.9.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Use this directly only for custom renderers; normal docs should go through `Markdown`.</figcaption>
 </figure>
 

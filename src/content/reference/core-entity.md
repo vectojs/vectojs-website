@@ -1,7 +1,7 @@
 ---
 title: 'Entity'
 description: 'The abstract base of every Virtual Math Tree node: transforms, the animation system, capture/bubble events, and the a11y/batching hooks a custom Entity can override.'
-order: 11
+order: 3
 ---
 
 # `Entity` (abstract)
@@ -45,8 +45,9 @@ abstract class Entity {
 ## Tree & transform methods
 
 ```ts
-add(child: Entity): this                     // also flags a11yNeedsReorder + markDirty
+add(...children: Entity[]): this             // attach one or more children in order; also flags a11yNeedsReorder + markDirty
 remove(child: Entity): this
+set(props: Partial<this>): this              // assign several own props through their normal setters; returns this
 setPosition(x: number, y: number): this
 getGlobalPosition(): Point                   // world position; accumulates translate→scale→rotate up to (excluding) root
 getWorldTransform(): AffineTransform         // exact accumulated Canvas T·S·R matrix { a,b,c,d,e,f }
@@ -63,6 +64,16 @@ destroy(): void                              // clear animations + listeners, de
 nested rotation plus non-uniform scale, the composed matrix can contain shear;
 use `getWorldTransform()`, `localToWorld()`, `worldToLocal()`, or
 `getWorldBounds()` when exact geometry matters.
+
+Since 1.9.0, `add()` is **variadic** — `parent.add(a, b, c)` attaches each child
+in argument order (the single-child path stays O(1)). `set(props)` is a
+construction-time ergonomic that assigns several own properties in one call,
+each through its normal setter (so a property with a configured
+`setTransition` still animates, and `interactive` still flags the a11y reorder):
+`rect.set({ x: 40, y: 40, width: 120, fill: '#38bdf8' })`. It is a plain
+`for…in` over the given object and touches no per-frame path. Both pair
+naturally with the [`Rect`/`Circle`/`Group`](/reference/core-entities/)
+primitives.
 
 ## Animation
 

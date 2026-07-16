@@ -1,7 +1,7 @@
 ---
 title: 'UI: TreeView'
 description: 'Hierarchical tree component with eager or lazy child loading.'
-order: 43
+order: 34
 ---
 
 # `TreeView`
@@ -12,7 +12,7 @@ order: 43
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · TreeView</span></div>
-  <iframe src="/sandbox/ui/component.html?name=treeview&v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="TreeView live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=treeview&v=core-1.9.0-ui-1.9.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="TreeView live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Click parent rows to expand or collapse them.</figcaption>
 </figure>
 

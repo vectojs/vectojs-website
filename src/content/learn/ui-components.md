@@ -1,7 +1,7 @@
 ---
 title: 'UI Components'
 description: 'Overview of the @vectojs/ui component library: forms, layout containers, overlays, and rich content.'
-order: 5
+order: 16
 ---
 
 # UI Components

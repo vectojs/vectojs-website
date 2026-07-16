@@ -1,12 +1,12 @@
 ---
 title: '@vectojs/graph3d'
 description: '3D force-directed graph visualization: a pluggable GraphLayout interface plus an instanced Three.js renderer that draws any graph in two draw calls.'
-order: 7
+order: 44
 ---
 
 # `@vectojs/graph3d`
 
-Version documented: **0.1.0**
+Version documented: **0.2.0**
 
 3D force-directed graph visualization for VectoJS: a pluggable `GraphLayout` contract (worker-friendly, positions as one flat `Float32Array`) plus `Graph3D`, an instanced Three.js renderer that draws any graph — however many nodes — in exactly two draw calls. See the live [Les Misérables demo](/demos/graph3d/) for the canonical 77-node/254-link dataset in motion.
 
@@ -57,10 +57,10 @@ movement stay smooth even after the layout settles.
 
 ## Reference pages
 
-| Page                                                          | Covers                                                                                                                       |
-| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| [`GraphLayout` & `D3ForceLayout`](/reference/graph3d-layout/) | `GraphData` data model, the worker-friendly `GraphLayout` contract, `D3ForceLayout` options and the force-restart pattern.   |
-| [`Graph3D` & picking](/reference/graph3d-renderer/)           | The instanced Three.js renderer (`setGraphData`/`applyPositions`/`dispose`) and the raycasting/`instanceId` picking pattern. |
+| Page                                                          | Covers                                                                                                                                                             |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`GraphLayout` & `D3ForceLayout`](/reference/graph3d-layout/) | `GraphData` data model, the worker-friendly `GraphLayout` contract, `D3ForceLayout` options and the force-restart pattern.                                         |
+| [`Graph3D` & picking](/reference/graph3d-renderer/)           | The instanced Three.js renderer (`setGraphData`/`applyPositions`/`pickNode`/`getNodePosition`/`dispose`) plus `GraphInteraction` — hover, select, and drag-to-pin. |
 
 ---
 

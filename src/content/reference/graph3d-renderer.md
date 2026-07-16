@@ -1,7 +1,7 @@
 ---
 title: 'Graph3D & picking'
 description: 'The instanced Three.js renderer that draws any graph in two draw calls, plus the raycasting pattern for hover/click node picking.'
-order: 23
+order: 46
 ---
 
 # `Graph3D` & picking
@@ -46,6 +46,17 @@ applyPositions(positions: Float32Array): void
 // node matrices and link endpoints. Call after every layout step that moved
 // something; cheap enough to call every frame while a simulation is running.
 
+pickNode(raycaster: THREE.Raycaster): number | null   // since 0.2.0
+// Hit-test only the node cloud with a caller-configured raycaster (set from
+// camera + pointer NDC) and return the nearest struck node's index — aligned
+// with the `GraphData.nodes` array — or `null` on a miss. Links are never
+// picked, so a ray grazing a link line reports a miss.
+
+getNodePosition(index: number, target: THREE.Vector3): THREE.Vector3 | null   // since 0.2.0
+// Read a node's current world position (as last written by applyPositions)
+// straight from its instance matrix into `target`. `null` for an out-of-range
+// index or when the node mesh does not exist.
+
 dispose(): void
 // Releases geometry/material/mesh GPU resources for both the node mesh and
 // link lines, and empties `group`.
@@ -65,11 +76,10 @@ wasted work compared to just always drawing them.
 
 ## Picking (hover / click)
 
-`Graph3D` doesn't ship its own raycasting helper — `group.children` is a plain
-Three.js `InstancedMesh` + `LineSegments`, so standard `THREE.Raycaster`
-instance-picking applies directly. `intersectObjects` reports which node
-**instance** was hit via `.instanceId`, index-aligned with the `GraphData.nodes`
-array passed to `setGraphData`:
+Since 0.2.0, `pickNode()` hit-tests **only** the node cloud, so you no longer
+hand-roll `intersectObjects` + `instanceId` filtering against the mixed
+node/link children. Configure a `THREE.Raycaster` from the camera and pointer
+NDC, then read back the struck node index (aligned with `GraphData.nodes`):
 
 ```ts
 const raycaster = new THREE.Raycaster();
@@ -81,21 +91,45 @@ canvas.addEventListener('pointermove', (e) => {
   ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
 
   raycaster.setFromCamera(ndc, camera);
-  const hits = raycaster.intersectObjects(graph.group.children, false);
-  const hit = hits.find((h) => h.instanceId !== undefined); // only the node mesh sets this
-  const node = hit ? data.nodes[hit.instanceId!] : null;
+  const index = graph.pickNode(raycaster); // number | null; links never match
+  const node = index !== null ? data.nodes[index] : null;
 });
 ```
 
-Filtering on `instanceId !== undefined` is what discriminates a node hit from a
-link-line hit (`LineSegments` intersections never carry an `instanceId`) when
-both are passed to the same `intersectObjects` call — see the live demo's
-[`src/demos/graph3d.ts`](https://github.com/vectojs/vectojs-website/blob/main/src/demos/graph3d.ts)
-for the full hover-label pattern, including pausing the render loop via
-`IntersectionObserver`/`visibilitychange` when the canvas is off-screen or the
-tab is hidden.
+## `GraphInteraction` — hover / select / drag-to-pin
+
+Since 0.2.0, `GraphInteraction` wraps the pointer plumbing above into hover,
+select, and drag-to-pin — the piece every interactive 3D-graph app would
+otherwise rebuild by hand. It owns three pointer listeners on `domElement` and
+nothing else: no scene, no render loop, no controls. The host keeps driving its
+own animation loop and layout `step()`.
+
+```ts
+const interaction = new GraphInteraction({
+  graph, // the Graph3D
+  camera, // the camera picking rays are built from
+  domElement: canvas, // element pointer events are read from
+  layout, // GraphLayout; required for drag-to-pin (needs pinNode)
+  nodeCount: data.nodes.length, // optional index guard
+  onHover: (i) => {
+    /* i: number | null */
+  },
+  onSelect: (i) => {
+    /* click that wasn't a drag; null = empty-space deselect */
+  },
+  setControlsEnabled: (enabled) => (controls.enabled = enabled), // suspend OrbitControls mid-drag
+});
+// …later
+interaction.dispose(); // removes the pointer listeners
+```
+
+Drag is **feature-detected**: without a pin-capable layout (a `pinNode`
+implementation, as [`D3ForceLayout`](/reference/graph3d-layout/) provides) a
+press falls back to select. `onDragStart`/`onDrag`/`onDragEnd`, `pinOnDrag`
+(default `true`), `dragReheat` (default `0.3`), and `dragThreshold` (default `4`
+px) round out the options.
 
 ## Related
 
-[`GraphLayout` & `D3ForceLayout`](/reference/graph3d-layout/) (produces the `positions` buffer this consumes) ·
+[`GraphLayout` & `D3ForceLayout`](/reference/graph3d-layout/) (produces the `positions` buffer this consumes, and the `pinNode` drag-to-pin relies on) ·
 [`@vectojs/graph3d` overview](/reference/graph3d/)

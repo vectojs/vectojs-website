@@ -1,7 +1,7 @@
 ---
 title: 'UI: ScrollView'
 description: 'Clipped scroll container with wheel and pointer-drag scrolling.'
-order: 41
+order: 32
 ---
 
 # `ScrollView`
@@ -13,7 +13,7 @@ area.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ScrollView</span></div>
-  <iframe src="/sandbox/ui/component.html?name=scrollview&v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ScrollView live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=scrollview&v=core-1.9.0-ui-1.9.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ScrollView live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Wheel or drag inside the viewport; avoid nested competing scroll owners.</figcaption>
 </figure>
 

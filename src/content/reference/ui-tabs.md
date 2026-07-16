@@ -1,7 +1,7 @@
 ---
 title: 'UI: Tabs'
 description: 'Tabbed panel container that mounts the active content view.'
-order: 38
+order: 29
 ---
 
 # `Tabs`
@@ -12,7 +12,7 @@ order: 38
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Tabs</span></div>
-  <iframe src="/sandbox/ui/component.html?name=tabs&v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Tabs live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=tabs&v=core-1.9.0-ui-1.9.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Tabs live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Switching tabs removes inactive content from the entity tree.</figcaption>
 </figure>
 

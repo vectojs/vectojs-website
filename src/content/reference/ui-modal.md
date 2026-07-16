@@ -1,7 +1,7 @@
 ---
 title: 'UI: Modal'
 description: 'Blocking overlay component with a card, backdrop, and spring enter/exit motion.'
-order: 45
+order: 36
 ---
 
 # `Modal`
@@ -13,7 +13,7 @@ out.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Modal</span></div>
-  <iframe src="/sandbox/ui/component.html?name=modal&v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Modal live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=modal&v=core-1.9.0-ui-1.9.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Modal live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Open the modal, then close it with the canvas-rendered close button.</figcaption>
 </figure>
 

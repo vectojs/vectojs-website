@@ -1,7 +1,7 @@
 ---
 title: 'Slider'
 description: 'Canvas slider component that exposes the WAI-ARIA slider contract and repaints smoothly in on-demand scenes.'
-order: 22
+order: 13
 ---
 
 # `Slider`
@@ -13,7 +13,7 @@ exposing `role="slider"` with `valuemin`, `valuemax`, and live `value` metadata.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Slider</span></div>
-  <iframe src="/sandbox/ui/slider.html?v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Slider live demo" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/slider.html?v=core-1.9.0-ui-1.9.1" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Slider live demo" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Drag the thumb and watch the label and progress bar update from the same change event.</figcaption>
 </figure>
 

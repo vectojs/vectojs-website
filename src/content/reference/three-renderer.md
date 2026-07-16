@@ -1,7 +1,7 @@
 ---
 title: 'ThreeRenderer'
 description: 'Use Three.js as the IRenderer backend for a VectoJS Scene: implemented methods, the GLSL gradient shader layout, and the linewidth caveat.'
-order: 21
+order: 43
 ---
 
 # `ThreeRenderer`

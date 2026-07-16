@@ -1,7 +1,7 @@
 ---
 title: 'Scene'
 description: 'The top-level VectoJS orchestrator: constructor options, the render loop, renderMode/maxFPS and the idle auto-throttle, lifecycle methods, and the pluggable WebGL/WebGPU backend registry.'
-order: 10
+order: 2
 ---
 
 # `Scene`
@@ -17,7 +17,7 @@ Top-level orchestrator. One `Scene` per `<canvas>`. Add `Entity` objects with
 
 ```ts
 const scene = new Scene(document.querySelector('canvas')!);
-scene.add(new CircleEntity().setPosition(100, 100));
+scene.add(new Circle({ radius: 24, fill: '#38bdf8' }).setPosition(100, 100));
 scene.start();
 ```
 

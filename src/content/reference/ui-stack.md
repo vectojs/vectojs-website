@@ -1,7 +1,7 @@
 ---
 title: 'UI: Stack'
 description: 'Structural layout container for vertical or horizontal child placement.'
-order: 30
+order: 21
 ---
 
 # `Stack`
@@ -12,7 +12,7 @@ order: 30
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Stack</span></div>
-  <iframe src="/sandbox/ui/component.html?name=stack&v=core-1.8.0-ui-1.9.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Stack live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=stack&v=core-1.9.0-ui-1.9.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Stack live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Children keep their own sizes; `Stack` only writes their local `x` and `y`.</figcaption>
 </figure>
 

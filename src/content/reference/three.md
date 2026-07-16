@@ -1,7 +1,7 @@
 ---
 title: '@vectojs/three'
 description: 'Three.js adapters for VectoJS: render 2D UI panels as 3D textures (ThreeAdapter) or use Three.js as the rendering backend (ThreeRenderer).'
-order: 4
+order: 41
 ---
 
 # `@vectojs/three`

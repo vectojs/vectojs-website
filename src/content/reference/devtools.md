@@ -1,12 +1,12 @@
 ---
 title: '@vectojs/devtools'
 description: 'The in-page Virtual Math Tree inspector — entity picking, a live tree view, transform readout, and keyboard nudge editing, itself rendered with VectoJS.'
-order: 6
+order: 48
 ---
 
 # `@vectojs/devtools`
 
-Version documented: **0.4.0**
+Version documented: **0.4.2**
 
 `@vectojs/devtools` is the answer to "where's the Elements panel?" — an in-page inspector for the Virtual Math Tree, so debugging a VectoJS scene stays in state space instead of pixel space. The panel is itself a VectoJS `Scene` (dogfooding the framework it inspects), docked to the right edge of the page.
 

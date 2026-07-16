@@ -1,7 +1,7 @@
 ---
 title: 'Particle Systems'
 description: 'ComputeParticleEntity: WebGPU compute particles, CPU fallback, the 8-float memory layout, mouse interaction, and triggerExplosion.'
-order: 6
+order: 12
 ---
 
 # Particle Systems
