@@ -31,6 +31,26 @@ const tabs = new Tabs({
 });
 ```
 
+## Hiding the bar for a single tab
+
+Editors and terminal-style apps often want Vim's `showtabline=1` behavior: no
+tab bar while only one tab exists. Pass `autoHideTabBar: true`
+(`@vectojs/ui` >= 1.9.5) — the bar (and its pointer hit region) disappears
+below two tabs, the content occupies the full height, and the bar returns as
+soon as a second tab is added. Owners laying out siblings around the bar
+should read the live `effectiveTabBarHeight` getter instead of assuming
+`tabHeight`.
+
+```ts
+const tabs = new Tabs({
+  width: 480,
+  height: 260,
+  autoHideTabBar: true,
+  tabs: [{ id: 'only', label: 'untitled', content: editorView }],
+});
+tabs.effectiveTabBarHeight; // 0 now, tabHeight once a second tab opens
+```
+
 ## Maintainer checklist
 
 - Keep tab content sizing in sync with container size.
