@@ -1,0 +1,90 @@
+---
+title: 'Texto y Bidi'
+description: 'La subruta @vectojs/core/text: análisis de fuentes MSDF y renderizado de texto en GPU, TextEntity/GridTextEntity, y el conformado árabe + resolvedor bidi integrados.'
+order: 7
+---
+
+# Texto y Bidi — `@vectojs/core/text`
+
+Parte de [`@vectojs/core`](/reference/core-api/). Construido sobre la
+división frío/caliente del [Motor de disposición](/reference/core-layout/).
+
+## MSDFFont
+
+```ts
+new MSDFFont(data: MSDFFontData)
+MSDFFont.parse(json: string | MSDFFontData): MSDFFont   // lee JSON de msdf-atlas-gen
+font.getGlyph(unicode: number): MSDFGlyphDef | undefined
+font.layout(text, fontSizePx, opts?: MSDFLayoutOptions): MSDFLayoutResult   // respeta \\n, kerning, letterSpacing
+font.distanceRange / font.atlasWidth / font.atlasHeight
+```
+
+Analiza el JSON de facto `msdf-atlas-gen` y coloca texto en cuadriláteros de píxeles CSS con
+UVs de atlas (espacio local y hacia abajo; v=0 en la parte superior del atlas). Combina `layout()` con el
+backend WebGL `setMSDFTexture` + `addGlyph` (ver [Capa de puntos WebGL](/reference/core-renderer/#webgl-point-layer))
+para texto GPU independiente de resolución. Tipos:
+`MSDFFontData`, `MSDFAtlasInfo`, `MSDFMetrics`, `MSDFGlyphDef`, `MSDFBounds`,
+`MSDFKerning`, `PositionedGlyph`, `MSDFLayoutResult`, `MSDFLayoutOptions`.
+
+## MSDFTextEntity
+
+```ts
+new MSDFTextEntity(text: string, options: MSDFTextEntityOptions)
+// options: { font: MSDFFont, texture: TexImageSource, fallbackFont?, fontSize?, color?, lineHeight?, letterSpacing? }
+setText(text: string): void
+```
+
+Renderiza glifos MSDF nítidos a través de la capa de puntos WebGL cuando la escena ejecuta
+`pointBackend: 'webgl'`; de lo contrario recurre a Canvas2D `fillText` con
+`fallbackFont`. La disposición se calcula **fuera del hilo principal** a través de `LayoutWorkerManager` y se
+aplica en la devolución de llamada, llamando a `markDirty()` — por lo que el texto aparece un tick asíncrono después de
+la construcción/`setText`.
+
+## TextEntity y GridTextEntity (desde `.`)
+
+```ts
+new TextEntity(text: string, atlas: GlyphAtlas, maxWidth: number, fontSize = 32)
+text.setText(text): this        // pase frío (re-segmentar + re-medir), luego reflujo
+text.setMaxWidth(maxWidth): this // solo pase caliente — reutiliza PreparedText en caché (redimensionamiento responsivo barato)
+text.setTextAlign(align: 'left' | 'justify'): this
+text.setHyphenator(fn: ((word: string) => string[]) | null): this
+
+new GridTextEntity(_atlas: any, fontSize = 10)
+grid.updateGrid(ascii: string[])   // cuadrícula de celdas monoespaciadas; interactive=false (a11y desactivado por rendimiento)
+```
+
+`setTextAlign('justify')` estira las líneas ajustadas hasta `maxWidth` (espacios entre palabras,
+o espacios entre caracteres en líneas CJK sin espacios); la última línea de cada
+párrafo permanece suelta. `setHyphenator()` conecta una función palabra → partes (ej. los
+patrones Knuth–Liang del paquete npm `hyphen`) para que las palabras largas puedan dividirse a media palabra
+con un `-` visible; los guiones blandos (U+00AD) ya presentes en el texto fuente funcionan sin
+un separador silábico. Ambos se aplican porque `TextEntity` renderiza **por glifo** en el
+`x` calculado de cada nodo — la matemática de justificación/separación silábica se respeta visualmente.
+
+`MSDFTextEntity` y los componentes `Text`/`RichText` de `@vectojs/ui` comparten el mismo
+`LayoutEngine` subyacente, pero aún no exponen estos dos métodos — `Text`/`RichText`
+renderizan cada línea ajustada como una sola llamada `fillText()` nativa por rendimiento, lo que
+descartaría silenciosamente los desplazamientos de justificación por glifo incluso si la opción estuviera
+expuesta. Usa `TextEntity` directamente (o impulsa un `LayoutEngine` crudo con `textAlign`/
+`hyphenate` configurado) cuando necesites texto justificado o separado silábicamente hoy.
+
+## Bidi / conformado
+
+```ts
+ArabicShaper.shapeArabic(text: string): ShapedResult   // { shapedText, indexMap: Int32Array } — unión de formas de presentación
+BidiResolver.getBaseLevel(text: string): number
+BidiResolver.resolveLevels(text: string): Uint8Array
+BidiResolver.reorderVisual(nodes: any[], baseLevel: number): void
+```
+
+Bidi integrado ligero: clases de dirección basadas en rangos (R/AL hebreo/árabe,
+dígitos EN/AN) y selección de formas de presentación contextual árabe. `indexMap` mapea
+índices conformados de vuelta a la cadena fuente para hit-testing / mapeo de cursor.
+
+Ver [Texto y Tipografía](/learn/text-typography/) para uso.
+
+## Relacionados
+
+[Motor de disposición](/reference/core-layout/) (el pase frío/caliente que esto renderiza) ·
+[Renderizadores](/reference/core-renderer/) (capa de puntos WebGL, proyección de contenido) ·
+[Visión general de `@vectojs/core`](/reference/core-api/)
