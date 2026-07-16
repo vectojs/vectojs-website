@@ -1,0 +1,69 @@
+---
+title: 'Moteur de mise en page'
+description: "Le sous-chemin @vectojs/core/layout : la division froid/chaud qui sépare la segmentation et mesure coûteuses du texte du calcul bon marché d'enroulement et de position, la mémoïsation en continu, le texte enrichi et les formes d'exclusion."
+order: 4
+---
+
+# Moteur de mise en page (division froid/chaud) — `@vectojs/core/layout`
+
+Partie de [`@vectojs/core`](/reference/core-api/).
+
+`LayoutEngine` sépare le passage **froid** coûteux (segmenter + mesurer, via
+`Intl.Segmenter`) du passage **chaud** bon marché (enrouler + calculer la position), de
+sorte que le redimensionnement/reflux/animation ne re-mesure pas.
+
+```ts
+new LayoutEngine(maxWidth: number, maxHeight: number, measurer?: GlyphMeasurer | null)
+
+// Froid : segmenter + mesurer une fois → PreparedText réutilisable
+prepare(text, fontAtlas, fontSize = 32): PreparedText
+prepareRich(spans: StyledSpan[], fontAtlas, baseFontSize = 32, baseStyle?: TextStyle): PreparedText
+
+// Chaud : placer un PreparedText en glyphes positionnés (lit maxWidth/maxHeight du moteur)
+layoutPrepared(prepared, exclusionMask?, exclusions?: ExclusionRect[]): LayoutResult
+layoutPreparedIntoBuffer(prepared, buffer: LayoutResultBuffer, exclusionMask?): void   // réutilise un stockage de coordonnées typé
+
+// Ponctuel (froid+chaud ensemble)
+layoutText(text, fontAtlas, fontSize = 32, exclusionMask?): LayoutResult
+layoutTextIntoBuffer(text, fontAtlas, fontSize, buffer, exclusionMask?): void
+```
+
+- **Mémoïsation en continu.** `prepare`/`prepareRich` mettent en cache les résultats
+  par paragraphe, donc la re-préparation d'un texte croissant (par exemple un flux de
+  tokens LLM) ne mesure que les nouveaux paragraphes.
+- **Texte enrichi.** `StyledSpan = { text, style?: TextStyle }` ; `TextStyle =
+{ fontSize?, color?, bold?, italic?, href? }`. Un changement de style en milieu de
+  mot est honoré par glyphe. `fontSize` affecte la largeur mesurée + la hauteur de
+  ligne ; le reste sont des métadonnées de rendu portées aux nœuds
+  (`PreparedGlyph.style` → `LayoutNode.style`).
+- **Exclusions (formes d'exclusion).** `computeLineSegments(top, bottom, maxWidth,
+exclusions: ExclusionRect[]): LineSegment[]` est le cœur pur et testable : les
+  intervalles `[x0,x1)` libres sur une bande de ligne après soustraction des rects
+  qui se chevauchent. O(n log n). Passer `[]`/omettre laisse le chemin monocollone
+  byte-identique.
+
+## Types clés de mise en page
+
+- `GlyphAtlas` — `{ [char]: { width, baseSize, ast } }` métriques pré-mesurées.
+- `GlyphMeasurer` — `{ measure(char, fontSize): number }` ; fournissez le vôtre ou
+  utilisez `createCanvasMeasurer(fontFamily?, baseSize?)` (`measureText` hors écran,
+  mis à l'échelle linéairement + mis en cache ; retourne `null` dans les
+  environnements sans DOM → le moteur garde un repli `0.5em`).
+- `PreparedText` → `PreparedParagraph[]` → `PreparedWord[]` → `PreparedGlyph[]`.
+- `LayoutResult` — `{ nodes: LayoutNode[], totalWidth, totalHeight,
+fallbackToCanvas? }` ; `LayoutNode` est un glyphe positionné.
+- `LayoutResultBuffer` — résultat en tableau typé plat (`xs/ys/ws/hs`, `chars`,
+  `count`, `CAPACITY = 16384`) ; `reset()` avant réutilisation, `toLayoutResult()`
+  pour matérialiser.
+- `LayoutWorkerManager.getInstance()` — singleton pour la mise en page hors-thread ;
+  `queueLayout(entityId, text, { fontId, fontSize, maxWidth, maxHeight, callback,
+... })` / `cancelLayout(entityId)`. Utilisé par [`MSDFTextEntity`](/reference/core-text/#msdftextentity).
+
+Voir [Texte et typographie](/learn/text-typography/) pour l'utilisation, et
+[Texte et Bidi](/reference/core-text/) pour la couche de rendu des polices/glyphes qui
+consomme la sortie de ce moteur.
+
+## Associé
+
+[Texte et Bidi](/reference/core-text/) · [`Entity`](/reference/core-entity/) ·
+[`@vectojs/core` overview](/reference/core-api/)

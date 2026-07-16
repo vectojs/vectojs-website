@@ -1,0 +1,78 @@
+---
+title: 'Référence API @vectojs/core'
+description: "Vue d'ensemble et carte des points d'entrée du moteur de rendu zero-DOM derrière Vecto — Scene, Entity, mise en page, renderers, particules, texte et utilitaires mathématiques ont chacun leur propre page de référence dédiée."
+order: 1
+---
+
+# `@vectojs/core` — Référence API
+
+Le moteur de rendu zero-DOM derrière Vecto. Une `Scene` possède un arbre de nœuds
+`Entity` (le **Virtual Math Tree**), pilote une boucle `requestAnimationFrame`, peint
+via un `IRenderer` indépendant du backend (Canvas 2D par défaut), et projette
+une couche d'ombre ARIA/automatisation transparente pour que le canvas reste accessible
+et pilotable par un agent.
+
+> Cette page et ses sous-pages sont générées à partir du `.d.ts` publié (surface
+> publique) et du source `packages/core/src` (comportement). Les signatures ici
+> prévalent sur tout ce qui se trouve dans les guides narratifs `docs/usage/*` — en
+> particulier le vrai constructeur est `new Scene(canvasElement, options)`, **pas**
+> la forme `{ canvasId }` que montre une partie de la prose plus ancienne.
+
+## Pages de référence
+
+Chaque domaine ci-dessous a sa propre page dédiée — signatures, pièges et un
+pied de page « Associé » renvoyant vers les autres :
+
+| Domaine                                               | Couvre                                                                                                                                          |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`Scene`](/reference/core-scene/)                     | Constructeur, `SceneOptions`, champs publics, `renderMode`/`maxFPS`/régulation de l'inactivité, méthodes de cycle de vie, registre de backends. |
+| [`Entity`](/reference/core-entity/)                   | Le nœud VMT abstrait : transformations, système d'animation, événements capture/bulle, hooks a11y/lot.                                          |
+| [Moteur de mise en page](/reference/core-layout/)     | La division froid/chaud du `LayoutEngine`, la mémoïsation en continu, le texte enrichi, les formes d'exclusion.                                 |
+| [Renderers](/reference/core-renderer/)                | `IRenderer`, `CanvasRenderer`, `SVGRenderer`, la couche WebGL points/rects/sprites/MSDF, la projection de contenu, `parseColorToRGBA`.          |
+| [`ComputeParticleEntity`](/reference/core-particles/) | La couche de particules à haut débit : disposition mémoire, simulation CPU, WebGPU vs CPU.                                                      |
+| [Texte et Bidi](/reference/core-text/)                | `MSDFFont`, `MSDFTextEntity`, `TextEntity`/`GridTextEntity`, shape arabe + résolveur bidi.                                                      |
+| [Autres entités](/reference/core-entities/)           | `SplineEntity`, `DOMPortalEntity`, `SVGEntity`.                                                                                                 |
+| [Utilitaires mathématiques](/reference/core-math/)    | `SpatialHashGrid`, `SpringPhysics`.                                                                                                             |
+| [a11yRoot et le contrat agent](/reference/core-a11y/) | La projection d'ombre DOM, `A11yAttributes`, pièges de synchronisation.                                                                         |
+
+## Points d'entrée et carte des modules
+
+`@vectojs/core` fournit une entrée principale avec effets de bord et trois
+sous-chemins optimisables par tree-shaking :
+
+| Importation              | Contenus                                                                                                                                              | Effet de bord                                                                                                                           |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `@vectojs/core` (`.`)    | Tout : `Scene`, `Entity`, toutes les entités, renderers, mise en page, texte.                                                                         | À l'importation, enregistre automatiquement **les deux** backends enfichables (renderer WebGL points + gestionnaire WebGPU particules). |
+| `@vectojs/core/layout`   | `LayoutEngine`, `PreparedText`, `createCanvasMeasurer`, `LayoutResultBuffer`, `LayoutWorkerManager`, `computeLineSegments`, types de mise en page.    | Aucun.                                                                                                                                  |
+| `@vectojs/core/renderer` | `IRenderer`, `CanvasRenderer`, `SVGRenderer`, `PointRenderer`, `createWebGLPointRenderer`, `WebGPUParticleSystemManager`, `parseColorToRGBA`, `RGBA`. | Aucun.                                                                                                                                  |
+| `@vectojs/core/text`     | `MSDFFont`, `MSDFTextEntity`, `SVGEntity`, `ArabicShaper`, `BidiResolver`, `prepareContentGrid`, `PreparedContentGrid`, types MSDF.                   | Aucun.                                                                                                                                  |
+
+**Piège :** l'enregistrement automatique des backends ne vit que dans l'entrée `.`
+(`Scene.registerWebGLPointRendererCreator(createWebGLPointRenderer)` et
+`Scene.registerWebGPUParticleSystemManager(WebGPUParticleSystemManager)` s'exécutent à
+l'importation). Si vous construisez une `Scene` après avoir importé uniquement des
+sous-chemins, enregistrez vous-même les backends ou alors `pointBackend: 'webgl'` / les
+particules WebGPU tombent silencieusement en mode dégradé. Voir
+[`Scene`](/reference/core-scene/) pour l'API du registre.
+
+## Pages recommandées du site de documentation (core)
+
+- **Apprendre / Concepts fondamentaux** — Scene, le Virtual Math Tree, la boucle de rendu,
+  `IRenderer`, le modèle zero-DOM.
+- **Apprendre / Modes de rendu et performance** — `always` vs `onDemand`, `maxFPS`, la
+  régulation à 2 fps en inactivité et la règle `markDirty()`-entre-les-images, mouvement
+  réduit.
+- **Apprendre / Construire une Entity personnalisée** — `isPointInside`/`render`,
+  transformations, écrêtage `getBounds`, les voies rapides `getBatchCircle`/`getBatchRect`.
+- **Apprendre / Événements et hit-testing** — capture/bulle, `VectoJSEvent`,
+  `findEntityAt`, `change`/IME des contrôles de formulaire.
+- **Apprendre / Accessibilité et automatisation** — le contrat d'ombre DOM, les agents
+  basés sur `getByRole`, `debugA11y`, la régulation.
+- **Apprendre / Texte et typographie** — la division froid/chaud du `LayoutEngine`, la
+  mémoïsation en continu, le texte MSDF, l'exclusion/enroulement, le bidi.
+- **Apprendre / Particules** — `ComputeParticleEntity`, WebGPU vs CPU, la disposition
+  8-floats, `resize()`-d'abord.
+- **Référence / API** — les sous-pages ci-dessus (Scene, Entity, moteur de mise en page,
+  renderers, particules, texte, utilitaires mathématiques, contrat a11y).
+- **Référence / Registre des backends** — backends WebGL/WebGPU enfichables, couvert
+  dans [`Scene`](/reference/core-scene/#pluggable-backend-registry-static).
