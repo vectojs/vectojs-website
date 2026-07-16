@@ -14,7 +14,7 @@ can participate through public `setMaxWidth()` and `setSelectable()` capabilitie
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Table</span></div>
-  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.9.0-ui-1.9.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Table live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.9.2-ui-1.9.3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Table live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Use focused demos for column sizing instead of debugging table output inside a giant gallery.</figcaption>
 </figure>
 
