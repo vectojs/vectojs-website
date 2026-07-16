@@ -1,0 +1,17 @@
+---
+import Base from '../../layouts/Base.astro';
+import Home from '../../components/Home.astro';
+import { PREFIXED_LOCALES } from '../../i18n/config';
+
+export function getStaticPaths() {
+  return PREFIXED_LOCALES.map((locale) => ({ params: { locale } }));
+}
+---
+
+<Base>
+  <Home />
+</Base>
+
+<script>
+  import '../../hero';
+</script>

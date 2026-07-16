@@ -1,5 +1,16 @@
 ---
 import { SITE, BUILD_ID } from '../consts';
+import {
+  DEFAULT_LOCALE,
+  HTML_LANG,
+  LOCALE_NAMES,
+  PREFIXED_LOCALES,
+  isLocale,
+  localizedPath,
+  parseLocale,
+  type Locale,
+} from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
 
 interface Props {
   title?: string;
@@ -7,18 +18,44 @@ interface Props {
 }
 const { title, description = SITE.description } = Astro.props;
 const fullTitle = title ? `${title} · ${SITE.title}` : SITE.title;
-const demos = 'https://gallery.vectojs.org';
+const demos = SITE.gallery;
+
+// Locale is derived from the URL by Astro's i18n routing. `Astro.currentLocale`
+// is the configured default ('en') on unprefixed paths and the matching locale
+// on /<locale>/… paths, so every page gets a correct locale without threading a
+// prop through each route.
+const rawLocale = Astro.currentLocale ?? DEFAULT_LOCALE;
+const locale: Locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+const t = useTranslations(locale);
+const htmlLang = HTML_LANG[locale];
 
 const pathname = Astro.url.pathname;
-const isDemos = pathname.startsWith('/demos');
-const isLearn = pathname.startsWith('/learn');
-const isReference = pathname.startsWith('/reference');
-const isBlog = pathname.startsWith('/blog');
-const isHome = pathname === '/';
+// Strip any locale prefix before matching sections, so nav highlighting works
+// identically on `/reference/…` and `/ja/reference/…`.
+const { rest: localeless } = parseLocale(pathname);
+const isDemos = localeless.startsWith('/demos');
+const isLearn = localeless.startsWith('/learn');
+const isReference = localeless.startsWith('/reference');
+const isBlog = localeless.startsWith('/blog');
+const isHome = localeless === '/' || pathname === '/';
+
+// Localized nav targets. Docs (learn/reference) and home carry the locale
+// prefix; the blog and the external Gallery are not localized.
+const homeHref = localizedPath('/', locale);
+const learnHref = localizedPath('/learn/introduction/', locale);
+const referenceHref = localizedPath('/reference/core-api/', locale);
+
+// Language switcher targets: keep the reader on the same doc where possible by
+// swapping only the locale prefix on the current path. The blog is English-only,
+// so from a blog page every option points at that same English page.
+function switchLocaleHref(target: Locale): string {
+  if (isBlog) return pathname;
+  return localizedPath(localeless, target);
+}
 ---
 
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang={htmlLang} data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <!-- Theme must resolve before any paint: reads the stored preference (else
@@ -114,7 +151,7 @@ const isHome = pathname === '/';
     <header class="navbar">
       <div class="container nav-container">
         <!-- Left: logo -->
-        <a href="/" class="nav-logo" aria-label="Vecto home">
+        <a href={homeHref} class="nav-logo" aria-label={t('nav.home')}>
           <svg
             class="nav-logo-mark"
             viewBox="0 0 32 32"
@@ -162,7 +199,7 @@ const isHome = pathname === '/';
           class="nav-search-trigger"
           id="search-open"
           type="button"
-          aria-label="Search documentation (Ctrl+K)"
+          aria-label={t('search.label')}
         >
           <svg
             class="nav-search-icon"
@@ -175,23 +212,23 @@ const isHome = pathname === '/';
             <circle cx="8.5" cy="8.5" r="5.5"></circle>
             <line x1="13" y1="13" x2="18" y2="18" stroke-linecap="round"></line>
           </svg>
-          <span class="nav-search-label">Search docs…</span>
+          <span class="nav-search-label">{t('search.short')}</span>
           <kbd class="nav-search-kbd">Ctrl K</kbd>
         </button>
 
         <!-- Right: nav links + GitHub -->
-        <nav class="nav-links" aria-label="Site navigation">
-          <a href={demos} class:list={[{ 'nav-link-active': isDemos }]}>Demos</a>
-          <a href="/learn/introduction/" class:list={[{ 'nav-link-active': isLearn }]}>Learn</a>
-          <a href="/reference/core-api/" class:list={[{ 'nav-link-active': isReference }]}
-            >Reference</a
+        <nav class="nav-links" aria-label={t('nav.siteNav')}>
+          <a href={demos} class:list={[{ 'nav-link-active': isDemos }]}>{t('nav.gallery')}</a>
+          <a href={learnHref} class:list={[{ 'nav-link-active': isLearn }]}>{t('nav.learn')}</a>
+          <a href={referenceHref} class:list={[{ 'nav-link-active': isReference }]}
+            >{t('nav.reference')}</a
           >
-          <a href="/blog/" class:list={[{ 'nav-link-active': isBlog }]}>Blog</a>
+          <a href="/blog/" class:list={[{ 'nav-link-active': isBlog }]}>{t('nav.blog')}</a>
           <button
             class="nav-theme-toggle"
             id="theme-toggle"
             type="button"
-            aria-label="Switch to light theme"
+            aria-label={t('theme.switchLight')}
           >
             <svg
               class="nav-theme-icon nav-theme-icon-sun"
@@ -218,12 +255,63 @@ const isHome = pathname === '/';
               ></path>
             </svg>
           </button>
+
+          <!-- Language switcher (desktop). Progressive-enhancement <details>;
+               swaps only the locale prefix to keep the reader on the same doc. -->
+          <details class="nav-lang" id="nav-lang-desktop">
+            <summary
+              class="nav-lang-summary"
+              aria-label={t('lang.switcher')}
+              title={t('lang.label')}
+            >
+              <svg
+                class="nav-lang-icon"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                aria-hidden="true"
+              >
+                <circle cx="10" cy="10" r="7.5"></circle>
+                <path
+                  d="M2.5 10h15M10 2.5c2 2.4 3 5 3 7.5s-1 5.1-3 7.5c-2-2.4-3-5-3-7.5s1-5.1 3-7.5Z"
+                ></path>
+              </svg>
+              <span class="nav-lang-current">{LOCALE_NAMES[locale]}</span>
+            </summary>
+            <ul class="nav-lang-menu" role="list">
+              <li>
+                <a
+                  href={switchLocaleHref(DEFAULT_LOCALE)}
+                  class:list={[{ 'nav-lang-active': locale === DEFAULT_LOCALE }]}
+                  data-set-locale={DEFAULT_LOCALE}
+                  hreflang={HTML_LANG[DEFAULT_LOCALE]}
+                  lang={HTML_LANG[DEFAULT_LOCALE]}>{LOCALE_NAMES[DEFAULT_LOCALE]}</a
+                >
+              </li>
+              {
+                PREFIXED_LOCALES.map((loc) => (
+                  <li>
+                    <a
+                      href={switchLocaleHref(loc)}
+                      class:list={[{ 'nav-lang-active': locale === loc }]}
+                      data-set-locale={loc}
+                      hreflang={HTML_LANG[loc]}
+                      lang={HTML_LANG[loc]}
+                    >
+                      {LOCALE_NAMES[loc]}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </details>
           <a
             href={SITE.github}
             target="_blank"
             rel="noopener noreferrer"
             class="nav-github-link"
-            aria-label="View source on GitHub"
+            aria-label={t('nav.viewSource')}
           >
             <svg class="nav-github-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path
@@ -238,7 +326,7 @@ const isHome = pathname === '/';
           class="nav-menu-toggle"
           id="nav-menu-toggle"
           type="button"
-          aria-label="Open menu"
+          aria-label={t('nav.openMenu')}
           aria-expanded="false"
           aria-controls="nav-mobile-menu"
         >
@@ -249,14 +337,14 @@ const isHome = pathname === '/';
       </div>
 
       <!-- Mobile: slide-down menu (shown ≤768px when open) -->
-      <nav class="nav-mobile-menu" id="nav-mobile-menu" aria-label="Mobile navigation">
-        <a href={demos} class:list={[{ 'nav-link-active': isDemos }]}>Demos</a>
-        <a href="/learn/introduction/" class:list={[{ 'nav-link-active': isLearn }]}>Learn</a>
-        <a href="/reference/core-api/" class:list={[{ 'nav-link-active': isReference }]}
-          >Reference</a
+      <nav class="nav-mobile-menu" id="nav-mobile-menu" aria-label={t('nav.mobileNav')}>
+        <a href={demos} class:list={[{ 'nav-link-active': isDemos }]}>{t('nav.gallery')}</a>
+        <a href={learnHref} class:list={[{ 'nav-link-active': isLearn }]}>{t('nav.learn')}</a>
+        <a href={referenceHref} class:list={[{ 'nav-link-active': isReference }]}
+          >{t('nav.reference')}</a
         >
-        <a href="/blog/" class:list={[{ 'nav-link-active': isBlog }]}>Blog</a>
-        <a href={SITE.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        <a href="/blog/" class:list={[{ 'nav-link-active': isBlog }]}>{t('nav.blog')}</a>
+        <a href={SITE.github} target="_blank" rel="noopener noreferrer">{t('nav.github')} ↗</a>
         <button
           class="nav-theme-toggle nav-theme-toggle-mobile"
           id="theme-toggle-mobile"
@@ -286,8 +374,55 @@ const isHome = pathname === '/';
             <path d="M17 11.5A7 7 0 1 1 8.5 3a5.5 5.5 0 0 0 8.5 8.5Z" stroke-linejoin="round"
             ></path>
           </svg>
-          <span>Toggle theme</span>
+          <span>{t('theme.toggle')}</span>
         </button>
+
+        <!-- Language switcher: swaps only the locale prefix, keeping the reader
+             on the same doc. Progressive enhancement — a plain <details> that
+             works without JS. -->
+        <details class="nav-lang" id="nav-lang">
+          <summary class="nav-lang-summary" aria-label={t('lang.switcher')} title={t('lang.label')}>
+            <svg
+              class="nav-lang-icon"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              aria-hidden="true"
+            >
+              <circle cx="10" cy="10" r="7.5"></circle>
+              <path d="M2.5 10h15M10 2.5c2 2.4 3 5 3 7.5s-1 5.1-3 7.5c-2-2.4-3-5-3-7.5s1-5.1 3-7.5Z"
+              ></path>
+            </svg>
+            <span class="nav-lang-current">{LOCALE_NAMES[locale]}</span>
+          </summary>
+          <ul class="nav-lang-menu" role="list">
+            <li>
+              <a
+                href={switchLocaleHref(DEFAULT_LOCALE)}
+                class:list={[{ 'nav-lang-active': locale === DEFAULT_LOCALE }]}
+                data-set-locale={DEFAULT_LOCALE}
+                hreflang={HTML_LANG[DEFAULT_LOCALE]}
+                lang={HTML_LANG[DEFAULT_LOCALE]}>{LOCALE_NAMES[DEFAULT_LOCALE]}</a
+              >
+            </li>
+            {
+              PREFIXED_LOCALES.map((loc) => (
+                <li>
+                  <a
+                    href={switchLocaleHref(loc)}
+                    class:list={[{ 'nav-lang-active': locale === loc }]}
+                    data-set-locale={loc}
+                    hreflang={HTML_LANG[loc]}
+                    lang={HTML_LANG[loc]}
+                  >
+                    {LOCALE_NAMES[loc]}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </details>
       </nav>
     </header>
 
@@ -297,7 +432,10 @@ const isHome = pathname === '/';
       id="search-modal"
       role="dialog"
       aria-modal="true"
-      aria-label="Search documentation"
+      aria-label={t('search.dialog')}
+      data-search-index={localizedPath('/search-index.json', locale)}
+      data-hint={t('search.hint')}
+      data-no-results={t('search.noResults')}
       hidden
     >
       <div class="search-backdrop" id="search-backdrop"></div>
@@ -318,14 +456,19 @@ const isHome = pathname === '/';
             type="search"
             class="search-field-input"
             id="search-input"
-            placeholder="Search documentation…"
+            placeholder={t('search.placeholder')}
             autocomplete="off"
             spellcheck="false"
           />
           <kbd class="search-field-esc">Esc</kbd>
         </div>
-        <div class="search-body" id="search-results" role="listbox" aria-label="Search results">
-          <p class="search-empty" id="search-hint">Start typing to search…</p>
+        <div
+          class="search-body"
+          id="search-results"
+          role="listbox"
+          aria-label={t('search.results')}
+        >
+          <p class="search-empty" id="search-hint">{t('search.hint')}</p>
         </div>
       </div>
     </div>
@@ -336,37 +479,37 @@ const isHome = pathname === '/';
       id="shortcuts-modal"
       role="dialog"
       aria-modal="true"
-      aria-label="Keyboard shortcuts"
+      aria-label={t('shortcuts.title')}
       hidden
     >
       <div class="shortcuts-backdrop" id="shortcuts-backdrop"></div>
       <div class="shortcuts-panel">
         <div class="shortcuts-header">
-          <span class="shortcuts-title">Keyboard shortcuts</span>
-          <button class="shortcuts-close" id="shortcuts-close" aria-label="Close shortcuts"
+          <span class="shortcuts-title">{t('shortcuts.title')}</span>
+          <button class="shortcuts-close" id="shortcuts-close" aria-label={t('shortcuts.close')}
             >✕</button
           >
         </div>
         <dl class="shortcuts-list">
           <div class="shortcut-row">
             <dt><kbd>Ctrl</kbd> <kbd>K</kbd></dt>
-            <dd>Open search</dd>
+            <dd>{t('shortcuts.openSearch')}</dd>
           </div>
           <div class="shortcut-row">
             <dt><kbd>↑</kbd> <kbd>↓</kbd></dt>
-            <dd>Navigate search results</dd>
+            <dd>{t('shortcuts.navResults')}</dd>
           </div>
           <div class="shortcut-row">
             <dt><kbd>Enter</kbd></dt>
-            <dd>Open selected result</dd>
+            <dd>{t('shortcuts.openResult')}</dd>
           </div>
           <div class="shortcut-row">
             <dt><kbd>Esc</kbd></dt>
-            <dd>Close modal / search</dd>
+            <dd>{t('shortcuts.closeModal')}</dd>
           </div>
           <div class="shortcut-row">
             <dt><kbd>?</kbd></dt>
-            <dd>Show this help panel</dd>
+            <dd>{t('shortcuts.showHelp')}</dd>
           </div>
         </dl>
       </div>
@@ -378,7 +521,7 @@ const isHome = pathname === '/';
 
     <footer class="footer">
       <div class="container footer-container">
-        <p>&copy; 2026 VectoJS. Built with Astro and VectoJS.</p>
+        <p>{t('footer.copyright')}</p>
         <div class="footer-links">
           <a href={SITE.github}>GitHub</a>
           <a href="https://astro.build">Astro</a>
@@ -405,10 +548,15 @@ const isHome = pathname === '/';
       let INDEX: SearchEntry[] = [];
       let indexLoaded = false;
 
+      // Locale-aware index URL + copy, injected server-side via data attributes.
+      const SEARCH_INDEX_URL = modal.dataset.searchIndex || '/search-index.json';
+      const HINT_TEXT = modal.dataset.hint || 'Start typing to search…';
+      const NO_RESULTS_TPL = modal.dataset.noResults || 'No results for "{query}"';
+
       async function ensureIndex(): Promise<void> {
         if (indexLoaded) return;
         try {
-          const res = await fetch('/search-index.json');
+          const res = await fetch(SEARCH_INDEX_URL);
           INDEX = await res.json();
           indexLoaded = true;
         } catch {
@@ -436,7 +584,7 @@ const isHome = pathname === '/';
         if (!q) {
           resultsBox.innerHTML = '';
           resultsBox.appendChild(hint);
-          hint.textContent = 'Start typing to search…';
+          hint.textContent = HINT_TEXT;
           activeIdx = -1;
           resultLinks = [];
           return;
@@ -451,7 +599,7 @@ const isHome = pathname === '/';
 
         if (matches.length === 0) {
           resultsBox.innerHTML = '';
-          hint.textContent = `No results for "${query}"`;
+          hint.textContent = NO_RESULTS_TPL.replace('{query}', query);
           resultsBox.appendChild(hint);
           resultLinks = [];
           return;
@@ -596,6 +744,19 @@ const isHome = pathname === '/';
             /* private browsing / storage disabled — theme still applies this session */
           }
           applyThemeLabel(next);
+        });
+      });
+
+      // Language switcher — persist the chosen locale in the `locale` cookie so
+      // the homepage redirect Function (functions/index.js) treats it as the
+      // manual override on future visits and never geo-redirects against it.
+      // The anchors still navigate normally; this only records the intent.
+      document.querySelectorAll<HTMLAnchorElement>('a[data-set-locale]').forEach((link) => {
+        link.addEventListener('click', () => {
+          const loc = link.dataset.setLocale;
+          if (loc) {
+            document.cookie = `locale=${encodeURIComponent(loc)}; Path=/; Max-Age=31536000; SameSite=Lax`;
+          }
         });
       });
     </script>

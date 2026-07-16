@@ -95,6 +95,15 @@ export default defineConfig({
   site: 'https://vectojs.org',
   trailingSlash: 'always',
   server: { port: 1111 },
+  // English is the default locale and stays unprefixed (existing /reference/…,
+  // /learn/… URLs are unchanged); the other six locales are served under a
+  // /<locale>/ prefix. Docs + homepage are localized; the blog is not (its
+  // localized routes are simply never generated — see src/i18n/config.ts).
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en', 'zh-cn', 'zh-tw', 'ja', 'fr', 'es', 'ko'],
+    routing: { prefixDefaultLocale: false, redirectToDefaultLocale: false },
+  },
   // Two philosophy essays moved from the Learn docs into the Blog section.
   redirects: {
     '/learn/rethinking-frontend/': '/blog/rethinking-frontend/',

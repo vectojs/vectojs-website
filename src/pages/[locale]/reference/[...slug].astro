@@ -1,0 +1,42 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import { PREFIXED_LOCALES } from '../../../i18n/config';
+
+// Localized Reference routes for every non-default locale. Mirrors the Learn
+// localized route: translation from `i18nDocs` when present, else English body
+// with `isFallback`. See src/pages/[locale]/learn/[...slug].astro for rationale.
+export async function getStaticPaths() {
+  const englishEntries = await getCollection('reference');
+  const paths = [];
+  for (const locale of PREFIXED_LOCALES) {
+    for (const entry of englishEntries) {
+      const translated = await getEntry('i18nDocs', `${locale}/reference/${entry.id}`);
+      paths.push({
+        params: { locale, slug: entry.id },
+        props: { entry, translated: translated ?? null },
+      });
+    }
+  }
+  return paths;
+}
+
+const { entry, translated } = Astro.props;
+const source = translated ?? entry;
+const isFallback = !translated;
+const { Content, headings } = await render(source);
+const wordCount = (source.body ?? '').split(/\s+/).filter(Boolean).length;
+const readingTime = Math.max(1, Math.round(wordCount / 200));
+---
+
+<DocsLayout
+  title={source.data.title}
+  description={source.data.description}
+  collection="reference"
+  slug={entry.id}
+  headings={headings}
+  readingTime={readingTime}
+  isFallback={isFallback}
+>
+  <Content />
+</DocsLayout>

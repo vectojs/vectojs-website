@@ -370,6 +370,90 @@ body.page-home::before {
   height: 20px;
 }
 
+/* Language switcher — a progressive-enhancement <details> disclosure. Works
+   without JS (native toggle); styled to match the nav's other controls. */
+.nav-lang {
+  position: relative;
+}
+
+.nav-lang-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Hide the default disclosure triangle across engines. */
+.nav-lang-summary::-webkit-details-marker {
+  display: none;
+}
+.nav-lang-summary::marker {
+  content: '';
+}
+
+.nav-lang-summary:hover {
+  color: var(--text-color);
+  border-color: var(--accent);
+}
+
+.nav-lang-icon {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+.nav-lang-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  min-width: 160px;
+  margin: 0;
+  padding: 0.4rem;
+  list-style: none;
+  background: rgba(var(--surface-3-rgb), 0.98);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.32);
+  z-index: 60;
+}
+
+.nav-lang-menu li {
+  margin: 0;
+}
+
+.nav-lang-menu a {
+  display: block;
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  color: var(--text-color-2);
+  text-decoration: none;
+  font-size: 0.92rem;
+  white-space: nowrap;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.nav-lang-menu a:hover {
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+}
+
+.nav-lang-active {
+  color: var(--accent) !important;
+  font-weight: 600;
+}
+
 /* Mobile hamburger toggle + slide-down menu (revealed in the 768px media query) */
 .nav-menu-toggle {
   display: none;
@@ -2162,6 +2246,19 @@ html {
   background-size: contain;
   background-repeat: no-repeat;
   flex-shrink: 0;
+}
+
+/* Translation-fallback banner: shown on a localized doc route whose body has
+   not been translated yet and is therefore served in English. */
+.fallback-notice {
+  margin: 0 0 1.75rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  background: rgba(var(--accent-rgb), 0.08);
+  color: var(--text-color-2);
+  font-size: 0.85rem;
 }
 
 /* ── Callout boxes ──────────────────────────────────────────── */

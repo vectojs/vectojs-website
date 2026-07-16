@@ -1,6 +1,8 @@
 ---
 import Base from './Base.astro';
 import { LEARN_PAGES, REFERENCE_PAGES, VERSIONS, SITE } from '../consts';
+import { DEFAULT_LOCALE, isLocale, localizedPath, type Locale } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
 import type { MarkdownHeading } from 'astro';
 
 interface Props {
@@ -10,9 +12,17 @@ interface Props {
   slug: string;
   headings: MarkdownHeading[];
   readingTime?: number;
+  /** True when this localized page falls back to the English body. */
+  isFallback?: boolean;
 }
 
-const { title, description, collection, slug, headings, readingTime } = Astro.props;
+const { title, description, collection, slug, headings, readingTime, isFallback } = Astro.props;
+
+const rawLocale = Astro.currentLocale ?? DEFAULT_LOCALE;
+const locale: Locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+const t = useTranslations(locale);
+// Prefix a docs path with the active locale (no-op for English).
+const dl = (path: string): string => localizedPath(path, locale);
 
 const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 
@@ -100,7 +110,7 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
     <button
       class="docs-mobile-menu-btn"
       id="docs-drawer-open"
-      aria-label="Open navigation menu"
+      aria-label={t('docs.openNav')}
       aria-expanded="false"
       aria-controls="docs-sidebar"
     >
@@ -115,7 +125,7 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
         <line x1="3" y1="10" x2="17" y2="10" stroke-linecap="round"></line>
         <line x1="3" y1="15" x2="17" y2="15" stroke-linecap="round"></line>
       </svg>
-      <span>Menu</span>
+      <span>{t('docs.menu')}</span>
     </button>
     <span class="docs-mobile-current">{title}</span>
   </div>
@@ -125,7 +135,7 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
 
   <div class="docs-layout" id="docs-layout">
     <!-- Left sidebar: full docs tree (also acts as mobile drawer) -->
-    <aside class="docs-sidebar" id="docs-sidebar" aria-label="Documentation navigation">
+    <aside class="docs-sidebar" id="docs-sidebar" aria-label={t('docs.nav')}>
       <nav class="sidebar-nav">
         <!-- Only the active section's tree — showing Learn's ~17 pages AND
              Reference's ~30 together made the sidebar excessively long. The
@@ -134,10 +144,10 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
         {
           collection === 'learn' ? (
             <div class="sidebar-group">
-              <span class="sidebar-group-label">Learn</span>
+              <span class="sidebar-group-label">{t('nav.learn')}</span>
               {LEARN_PAGES.map((page) => (
                 <a
-                  href={`/learn/${page.slug}/`}
+                  href={dl(`/learn/${page.slug}/`)}
                   class:list={['sidebar-link', { active: slug === page.slug }]}
                 >
                   {page.title}
@@ -146,11 +156,11 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
             </div>
           ) : (
             <div class="sidebar-group">
-              <span class="sidebar-group-label">Reference</span>
+              <span class="sidebar-group-label">{t('nav.reference')}</span>
               {referenceGroups.map((g) =>
                 g.children.length === 0 ? (
                   <a
-                    href={`/reference/${g.header.slug}/`}
+                    href={dl(`/reference/${g.header.slug}/`)}
                     class:list={['sidebar-link', { active: slug === g.header.slug }]}
                   >
                     {g.header.title}
@@ -180,7 +190,7 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
                     <div class="sidebar-collapsible-body">
                       {[g.header, ...g.children].map((page) => (
                         <a
-                          href={`/reference/${page.slug}/`}
+                          href={dl(`/reference/${page.slug}/`)}
                           class:list={['sidebar-link', { active: slug === page.slug }]}
                         >
                           {page.title}
@@ -206,7 +216,7 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
         id="sidebar-resize-handle"
         role="separator"
         aria-orientation="vertical"
-        aria-label="Resize navigation sidebar"
+        aria-label={t('docs.resizeSidebar')}
         tabindex="0"
       >
       </div>
@@ -216,13 +226,15 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
     <article class="docs-content prose">
       {
         readingTime && (
-          <p
-            class="reading-time"
-            aria-label={`Estimated reading time: ${readingTime} minute${
-              readingTime !== 1 ? 's' : ''
-            }`}
-          >
-            {readingTime} min read
+          <p class="reading-time">
+            {readingTime} {t('doc.readingTime')}
+          </p>
+        )
+      }
+      {
+        isFallback && (
+          <p class="fallback-notice" role="note">
+            {t('fallback.notice')}
           </p>
         )
       }
@@ -230,38 +242,38 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
 
       <!-- Feedback widget -->
       <div class="feedback-widget">
-        <span class="feedback-label">Was this page helpful?</span>
+        <span class="feedback-label">{t('docs.feedbackPrompt')}</span>
         <div class="feedback-btns">
           <a
             href={`${SITE.github}/issues/new?labels=documentation&title=${encodeURIComponent(
               `Docs helpful: ${title}`,
-            )}&body=${encodeURIComponent(`Page: /${collection}/${slug}/`)}`}
+            )}&body=${encodeURIComponent(`Page: ${dl(`/${collection}/${slug}/`)}`)}`}
             target="_blank"
             rel="noopener noreferrer"
-            class="feedback-btn feedback-yes">Yes</a
+            class="feedback-btn feedback-yes">{t('docs.feedbackYes')}</a
           >
           <a
             href={`${SITE.github}/issues/new?labels=documentation&title=${encodeURIComponent(
               `Docs needs work: ${title}`,
             )}&body=${encodeURIComponent(
-              `Page: /${collection}/${slug}/\n\nWhat was unclear or missing:\n`,
+              `Page: ${dl(`/${collection}/${slug}/`)}\n\nWhat was unclear or missing:\n`,
             )}`}
             target="_blank"
             rel="noopener noreferrer"
-            class="feedback-btn feedback-no">Needs work</a
+            class="feedback-btn feedback-no">{t('docs.feedbackNo')}</a
           >
         </div>
       </div>
 
       <!-- Prev / Next navigation -->
-      <nav class="docs-pagination" aria-label="Page navigation">
+      <nav class="docs-pagination" aria-label={t('docs.pageNav')}>
         {
           prevPage && (
             <a
-              href={`/${prevPage.collection}/${prevPage.slug}/`}
+              href={dl(`/${prevPage.collection}/${prevPage.slug}/`)}
               class="docs-pagination-link docs-pagination-prev"
             >
-              <span class="pagination-label">← Previous</span>
+              <span class="pagination-label">{t('docs.prev')}</span>
               <span class="pagination-title">{prevPage.title}</span>
             </a>
           )
@@ -269,10 +281,10 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
         {
           nextPage && (
             <a
-              href={`/${nextPage.collection}/${nextPage.slug}/`}
+              href={dl(`/${nextPage.collection}/${nextPage.slug}/`)}
               class="docs-pagination-link docs-pagination-next"
             >
-              <span class="pagination-label">Next →</span>
+              <span class="pagination-label">{t('docs.next')}</span>
               <span class="pagination-title">{nextPage.title}</span>
             </a>
           )
@@ -281,12 +293,12 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
     </article>
 
     <!-- Right sticky TOC -->
-    <aside class="docs-toc" aria-label="Table of contents">
+    <aside class="docs-toc" aria-label={t('toc.tableOfContents')}>
       {
         tocHeadings.length > 0 && (
           <Fragment>
             <nav class="toc-nav">
-              <span class="toc-label">On this page</span>
+              <span class="toc-label">{t('toc.onThisPage')}</span>
               {tocHeadings.map((h) => (
                 <a href={`#${h.slug}`} class:list={['toc-link', `toc-depth-${h.depth}`]}>
                   {h.text}
@@ -301,7 +313,7 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
         id="toc-resize-handle"
         role="separator"
         aria-orientation="vertical"
-        aria-label="Resize table of contents"
+        aria-label={t('docs.resizeToc')}
         tabindex="0"
       >
       </div>
@@ -313,8 +325,8 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
     class="sidebar-expand-btn"
     id="sidebar-expand-btn"
     type="button"
-    aria-label="Collapse navigation sidebar"
-    title="Toggle sidebar"
+    aria-label={t('docs.collapseSidebar')}
+    title={t('docs.toggleSidebar')}
   >
     <svg
       class="collapse-icon"
@@ -336,8 +348,8 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
     class="toc-expand-btn"
     id="toc-expand-btn"
     type="button"
-    aria-label="Collapse table of contents"
-    title="Toggle table of contents"
+    aria-label={t('docs.collapseToc')}
+    title={t('docs.toggleToc')}
   >
     <svg
       class="collapse-icon"
