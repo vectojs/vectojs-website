@@ -29,7 +29,15 @@ const menu = new ContextMenu({
   ],
 });
 
-target.on('contextmenu', (event) => menu.showAtPoint(event.globalX, event.globalY));
+// `'contextmenu'` is not a VectoEvent — only pointerdown/up are dispatched
+// into the tree. Filter `pointerdown` on the native right button (2), and
+// pass the owning entity as the third arg so `showAtPoint` can find the
+// scene even on the very first call (before any manual `scene.add(menu)`).
+target.on('pointerdown', (event) => {
+  const pointer = event.nativeEvent as PointerEvent | undefined;
+  if (pointer?.button !== 2 || event.sceneX === undefined || event.sceneY === undefined) return;
+  menu.showAtPoint(event.sceneX, event.sceneY, target);
+});
 ```
 
 ## Liste de vérification pour les mainteneurs

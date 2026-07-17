@@ -81,6 +81,8 @@ export const LEARN_PAGES: DocPage[] = [
   { slug: 'accessibility', title: 'Accessibility' },
   { slug: 'ui-components', title: 'UI Components' },
   { slug: 'cookbook', title: 'Cookbook' },
+  { slug: 'streaming', title: 'Streaming & Real-Time Text' },
+  { slug: 'cross-environment', title: 'Cross-Environment Consistency' },
 ];
 
 export const REFERENCE_PAGES: DocPage[] = [
