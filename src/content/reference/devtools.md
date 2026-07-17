@@ -88,18 +88,98 @@ reflects the application's final shortcut or selection decision. Call
 `pointercancel`, which makes interrupted drag and selection transactions visible
 instead of leaving a diagnostic gap after `pointerdown`.
 
+## Scene auditing
+
+`auditScene` walks the tree and reports layout defects as structured, JSON-safe
+findings — the numeric answer to "does anything overflow, overlap, or escape?":
+
+```typescript
+import { auditScene } from '@vectojs/devtools/headless';
+
+const findings = auditScene(scene, {
+  tolerance: 0.5, // px slack before an escape/overlap counts
+  includeOverlay: false, // modals/highlights excluded by default
+  ignore: (e) => e.id.startsWith('debug-'), // prune subtrees
+  ignoreOverlap: (a, b) => a.id === 'badge', // allow intentional stacking
+});
+// -> AuditFinding[]: { kind, entityId, entityPath, worldBounds, message,
+//    containerBounds?, overflow?{left,right,top,bottom}, otherId?, intersection? }
+```
+
+Four `kind`s are detected, deterministically sorted:
+
+- `text-overflow` — a text-bearing entity's measured box escapes its nearest sized ancestor.
+- `clip-overflow` — content escapes a `clipChildren` ancestor (pixels cut off).
+- `overlap` — **siblings only**; parent-child containment is normal.
+- `viewport-overflow` — an entity with no sized ancestor drawn outside the canvas.
+
+Known blind spots: scrollable containers exempt the vertical axis (override the
+list via `scrollableTypes`, matched by `constructor.name`), and `opacity: 0`
+entities are skipped.
+
+The panel's **Audit** button runs the same check in place of the tree view;
+`panel.audit()` returns the findings and `panel.selectFinding(i)` highlights one.
+
+Use it as a CI gate: `expect(auditScene(scene)).toEqual([])`.
+
+## Snapshots & diffs
+
+```typescript
+import { captureSnapshot, diffSnapshots } from '@vectojs/devtools/headless';
+
+const before = captureSnapshot(scene); // deterministic JSON tree
+// … perform an interaction …
+const diffs = diffSnapshots(before, captureSnapshot(scene));
+// -> [{ path: "root > GridEntity[0]", kind: "changed", changes: { x: {from,to} } }]
+```
+
+Diffs key on **structural paths** (`type[index]` chains), never entity ids —
+ids are random per run. Default-valued props are omitted from snapshots, so
+diffs stay quiet. Snapshot pairs make precise golden-state assertions in smoke
+tests: instead of screenshotting, assert that an interaction changed exactly
+the entities it should have.
+
 ## Lower-level model utilities
 
 The tree-building and picking logic is exported separately if you want to build a custom inspector UI instead of the built-in panel:
 
 ```typescript
-import { buildTreeModel, findEntityAt, describeEntity, pickInScene } from '@vectojs/devtools';
+import {
+  buildTreeModel,
+  findEntityAt,
+  describeEntity,
+  inspectEntity,
+  entityPath,
+  pickInScene,
+} from '@vectojs/devtools';
 
 buildTreeModel(root: Entity): { nodes: TreeNode[]; index: Map<string, Entity> };
 findEntityAt(root: Entity, x: number, y: number): Entity | null; // scene-space point → entity
 describeEntity(entity: Entity): string[]; // human-readable state lines
+inspectEntity(entity: Entity): EntityInfo; // structured, JSON-safe state
+entityPath(entity: Entity): string; // ancestry chain ("Scene > Card#<id> > Text#<id>", ids truncated to 8 chars)
 pickInScene(scene: Scene, sceneX: number, sceneY: number): Entity | null; // overlay-first pick
 ```
+
+`inspectEntity` is the structured sibling of `describeEntity`: world bounds and
+transform, interaction flags, `clipChildren`, child count, a duck-typed text
+preview (`.text`/`.value`), and the a11y projection attributes when present.
+
+## Debugging workflows
+
+The devtools model layer answers layout questions with numbers — reach for it
+before reaching for a screenshot. Symptom → tool:
+
+| Symptom                                              | Workflow                                                                                                                                                                                                                |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Which entity owns this pixel?"                      | `pickInScene(scene, x, y)` → `inspectEntity(hit)`; in-page, the panel's **Pick** button                                                                                                                                 |
+| "Why is this entity positioned/sized wrong?"         | `inspectEntity` for world bounds + transform, then walk `entityPath` upward — the first ancestor whose bounds are wrong owns the bug                                                                                    |
+| "Something overflows/overlaps but I can't see where" | `auditScene(scene)` — each finding carries `entityPath`, world bounds, and per-edge overflow amounts                                                                                                                    |
+| "This interaction moved something it shouldn't"      | `captureSnapshot` before, interact, `diffSnapshots` after — the diff lists exactly what changed                                                                                                                         |
+| "A click/wheel/keypress goes to the wrong place"     | `createEventTrace(scene)` — each entry shows source (`canvas`/`a11y`/`content`/`document`), target path, coordinates, and the final `defaultPrevented`                                                                  |
+| "Text drag-selection or copy is being intercepted"   | Event trace with `entry.source === 'content'` — it means the browser event began on a selectable projection; check `defaultPrevented` and the target path                                                               |
+| "A drag gets stuck / never commits"                  | Pointer traces are transactional: expect `pointerdown` → moves → exactly one `pointerup` (commit) **or** `pointercancel` (rollback); a missing terminal entry means the entity wasn't projected or capture was bypassed |
+| "Is this a regression?"                              | Keep a committed snapshot (`captureSnapshot`) of the healthy scene and `diffSnapshots` against it in CI                                                                                                                 |
 
 ## Design notes
 

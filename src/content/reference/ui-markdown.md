@@ -61,16 +61,51 @@ When an application owns container sizing or CSS zoom, notify the Scene with
 
 ## Streaming
 
-For token streams, append only the new delta:
+For token streams, append only the new delta — and batch tokens per animation
+frame rather than appending per token:
 
 ```ts
-for await (const token of llmStream) {
-  markdown.appendMarkdown(token);
-  scrollView.scrollToBottom();
+let pending = '';
+let scheduled = false;
+function pushToken(token: string) {
+  pending += token;
+  if (scheduled) return;
+  scheduled = true;
+  requestAnimationFrame(() => {
+    scheduled = false;
+    const chunk = pending;
+    pending = '';
+    markdown.appendMarkdown(chunk);
+    scrollView.scrollToBottom();
+  });
 }
+for await (const token of llmStream) pushToken(token);
 ```
 
 Avoid calling `setContent(fullDocumentSoFar)` for every token; that rebuilds the whole subtree.
+The full recipe — bottom-follow stickiness, long-transcript segmentation,
+render-mode choice — is in the [Streaming & Real-Time Text](/learn/streaming/) guide.
+
+## Performance model
+
+What each call actually costs, so streaming code can be reasoned about:
+
+- **Parsing is off-thread by default.** `appendMarkdown` posts the accumulated
+  source to a `Worker` built from an embedded bundle (no network request); the
+  token diff and entity updates apply when the parse returns. Environments
+  without `Worker` (some test runners, SSR) fall back to synchronous lexing —
+  same result, main-thread cost.
+- **Lexing is O(document) per append**, not O(chunk): the whole accumulated
+  source is re-tokenized each call. Batch per frame (above) and segment long
+  transcripts into one `Markdown` entity per message so the live document stays
+  small.
+- **Finished blocks are reused, not rebuilt.** `appendMarkdown` prefix-matches
+  the new token list against the old one by raw source; every already-rendered
+  block keeps its entity instance. The common streaming case — the last
+  paragraph grew — updates that paragraph's spans in place.
+- **`setContent()` reuses nothing.** It removes every child and re-renders the
+  full token list. It is the correct call for _replacing_ a document, and the
+  wrong call for growing one.
 
 ## Extension point
 
