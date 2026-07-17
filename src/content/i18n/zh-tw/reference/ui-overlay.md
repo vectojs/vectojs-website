@@ -12,7 +12,7 @@ overlay 系列在正常的 entity 樹之上渲染短暫的 UI。覆蓋層透過 
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Overlay</span></div>
-  <iframe src="/sandbox/ui/overlay.html?v=core-1.9.0-ui-1.9.1" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Overlay live demo" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/overlay.html?v=core-1.9.2-ui-1.9.5" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Overlay live demo" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>懸停或點擊啟動器。Popover 和 ContextMenu 的定位避免了在巨大的展示廊中難以察覺的溢出缺陷。</figcaption>
 </figure>
 

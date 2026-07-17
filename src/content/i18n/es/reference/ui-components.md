@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Referencia de Componentes
 
 > Componentes reutilizables de alto nivel para el motor Canvas zero-DOM de VectoJS.
-> Versión documentada: **1.9.3**. Fuente de verdad: `dist/index.d.ts` (superficie pública) y `packages/ui/src/*` (comportamiento).
+> Versión documentada: **1.9.5**. Fuente de verdad: `dist/index.d.ts` (superficie pública) y `packages/ui/src/*` (comportamiento).
 
 Cada componente es una hoja o contenedor en el Virtual Math Tree (VMT). Nada aquí es DOM real — los componentes se dibujan a sí mismos en un Canvas mediante un `IRenderer`. La accesibilidad, la automatización de agentes y la capacidad de rastreo provienen de un **A11y Shadow DOM** paralelo: cuando un componente es `interactive`, la `Scene` proyecta un único nodo DOM real oculto y transparente posicionado sobre la caja del componente, construido a partir de `getA11yAttributes()`. Es por eso que `page.getByRole('button', { name })` / `fill()` / los lectores de pantalla funcionan contra una UI de Canvas puro.
 
@@ -619,7 +619,12 @@ interface TabsOptions {
   color?: string;
   selectedColor?: string;
   borderColor?: string;
+  closable?: boolean; // muestra un botón de cierre; los clics se enrutan a onClose
+  tabWidth?: number; // ancho preferido en px; la barra se desplaza al desbordarse (por defecto 160)
+  minTabWidth?: number; // límite inferior antes de que el desplazamiento se active (por defecto 96)
+  autoHideTabBar?: boolean; // oculta la barra con < 2 pestañas (por defecto false; 1.9.5)
   onChange?: (value: string) => void;
+  onClose?: (value: string) => void;
 }
 
 interface TabItem {
@@ -630,6 +635,8 @@ interface TabItem {
 ```
 
 Un contenedor de selección por pestañas. Monta automáticamente la vista de contenido de la pestaña activa y la traslada dentro del espacio restante. Proyecta `{ role: 'tablist' }` para accesibilidad. El payload del evento `'change'` estandarizado lleva `{ value }`.
+
+Las pestañas mantienen un `tabWidth` preferido fijo y la barra se desplaza horizontalmente una vez que se desbordan (rueda, o desplazamiento automático para mantener visible la pestaña activa) en lugar de reducirse a tiras finas — a partir de 1.9.4, `tabWidth` es un objetivo más allá del cual la barra se desplaza, no un ancho que se estira para llenar (lo que antes desorientaba los clics de cierre en tiras anchas). Con `autoHideTabBar` (1.9.5), la barra y su región de impacto desaparecen mientras existan menos de dos pestañas y el contenido ocupa toda la altura (semántica `showtabline=1` de Vim); el getter `effectiveTabBarHeight` informa la altura actual de la barra (`0` cuando está oculta), y la geometría del contenido se re-sincroniza cada fotograma para que reasignar `tabs` no pueda dejar contenido obsoleto o desplazado.
 
 ---
 

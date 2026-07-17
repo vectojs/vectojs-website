@@ -18,7 +18,7 @@ order: 29
 
 ## Exemple minimal
 
-```ts
+````ts
 import { Tabs, Text } from '@vectojs/ui';
 
 const tabs = new Tabs({
@@ -29,7 +29,26 @@ const tabs = new Tabs({
     { id: 'api', label: 'API', content: new Text('Panneau API') },
   ],
 });
-```
+
+## Masquer la barre pour un seul onglet
+
+Les éditeurs et les applications de type terminal souhaitent souvent le comportement `showtabline=1` de Vim : pas
+de barre d'onglets tant qu'un seul onglet existe. Passez `autoHideTabBar: true`
+(`@vectojs/ui` >= 1.9.5) — la barre (et sa zone d'impact du pointeur) disparaît
+en dessous de deux onglets, le contenu occupe toute la hauteur, et la barre revient dès
+qu'un second onglet est ajouté. Les propriétaires qui disposent des frères autour de la barre
+devraient lire l'accesseur live `effectiveTabBarHeight` plutôt que de supposer
+`tabHeight`.
+
+```ts
+const tabs = new Tabs({
+  width: 480,
+  height: 260,
+  autoHideTabBar: true,
+  tabs: [{ id: 'only', label: 'untitled', content: editorView }],
+});
+tabs.effectiveTabBarHeight; // 0 maintenant, tabHeight dès qu'un second onglet s'ouvre
+````
 
 ## Liste de vérification pour les mainteneurs
 

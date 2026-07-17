@@ -12,7 +12,7 @@ order: 29
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Tabs</span></div>
-  <iframe src="/sandbox/ui/component.html?name=tabs&v=core-1.9.0-ui-1.9.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Tabs live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=tabs&v=core-1.9.2-ui-1.9.5" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Tabs live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>切換分頁會從 entity 樹中移除非作用中的內容。</figcaption>
 </figure>
 
@@ -29,6 +29,20 @@ const tabs = new Tabs({
     { id: 'api', label: 'API', content: new Text('API panel') },
   ],
 });
+```
+
+## 隱藏單一分頁的分頁列
+
+編輯器以及終端風格的應用程式通常需要 Vim 的 `showtabline=1` 行為：僅存在一個分頁時不顯示分頁列。傳入 `autoHideTabBar: true`（需要 `@vectojs/ui` >= 1.9.5）——分頁列（及其指標點擊區域）在少於兩個分頁時消失，內容佔據全部高度，一旦加入第二個分頁，分頁列即刻恢復。在分頁列周圍佈局兄弟元素的擁有者應讀取即時的 `effectiveTabBarHeight` 獲取器，而不是假設 `tabHeight`。
+
+```ts
+const tabs = new Tabs({
+  width: 480,
+  height: 260,
+  autoHideTabBar: true,
+  tabs: [{ id: 'only', label: 'untitled', content: editorView }],
+});
+tabs.effectiveTabBarHeight; // 0 now, tabHeight once a second tab opens
 ```
 
 ## 維護者檢查清單

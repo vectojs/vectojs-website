@@ -12,7 +12,7 @@ order: 29
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Tabs</span></div>
-  <iframe src="/sandbox/ui/component.html?name=tabs&v=core-1.9.0-ui-1.9.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Tabs live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=tabs&v=core-1.9.2-ui-1.9.5" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Tabs live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>切换选项卡会从实体树中移除非活动内容。</figcaption>
 </figure>
 
@@ -29,6 +29,20 @@ const tabs = new Tabs({
     { id: 'api', label: 'API', content: new Text('API panel') },
   ],
 });
+```
+
+## 隐藏单个标签页的标签栏
+
+编辑器以及终端风格的应用程序通常需要 Vim 的 `showtabline=1` 行为：仅存在一个标签页时不显示标签栏。传入 `autoHideTabBar: true`（需要 `@vectojs/ui` >= 1.9.5）——标签栏（及其指针点击区域）在少于两个标签页时消失，内容占据全部高度，一旦添加第二个标签页，标签栏即刻恢复。在标签栏周围布局兄弟元素的拥有者应读取实时的 `effectiveTabBarHeight` 获取器，而不是假设 `tabHeight`。
+
+```ts
+const tabs = new Tabs({
+  width: 480,
+  height: 260,
+  autoHideTabBar: true,
+  tabs: [{ id: 'only', label: 'untitled', content: editorView }],
+});
+tabs.effectiveTabBarHeight; // 0 now, tabHeight once a second tab opens
 ```
 
 ## 维护者检查清单

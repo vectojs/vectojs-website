@@ -18,7 +18,7 @@ order: 29
 
 ## Ejemplo mínimo
 
-```ts
+````ts
 import { Tabs, Text } from '@vectojs/ui';
 
 const tabs = new Tabs({
@@ -29,7 +29,26 @@ const tabs = new Tabs({
     { id: 'api', label: 'API', content: new Text('Panel de API') },
   ],
 });
-```
+
+## Ocultar la barra para una sola pestaña
+
+Los editores y las aplicaciones tipo terminal a menudo quieren el comportamiento `showtabline=1` de Vim: sin
+barra de pestañas mientras solo exista una pestaña. Pasa `autoHideTabBar: true`
+(`@vectojs/ui` >= 1.9.5) — la barra (y su región de impacto de puntero) desaparece
+por debajo de dos pestañas, el contenido ocupa toda la altura y la barra regresa tan
+pronto como se añade una segunda pestaña. Los propietarios que distribuyen hermanos alrededor de la barra
+deben leer el getter en vivo `effectiveTabBarHeight` en lugar de asumir
+`tabHeight`.
+
+```ts
+const tabs = new Tabs({
+  width: 480,
+  height: 260,
+  autoHideTabBar: true,
+  tabs: [{ id: 'only', label: 'untitled', content: editorView }],
+});
+tabs.effectiveTabBarHeight; // 0 ahora, tabHeight cuando se abra una segunda pestaña
+````
 
 ## Lista de verificación para mantenedores
 

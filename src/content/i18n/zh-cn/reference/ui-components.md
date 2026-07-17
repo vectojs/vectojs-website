@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — 组件参考
 
 > 适用于 VectoJS zero-DOM Canvas 引擎的可复用高级组件。
-> 文档版本：**1.9.1**。权威来源：`dist/index.d.ts`（公共表面）和 `packages/ui/src/*`（行为）。
+> 文档版本：**1.9.5**。权威来源：`dist/index.d.ts`（公共表面）和 `packages/ui/src/*`（行为）。
 
 每个组件都是 Virtual Math Tree (VMT) 中的叶节点或容器节点。这里没有真正的 DOM——组件通过 `IRenderer` 在 Canvas 上绘制自身。可访问性、智能体自动化和可爬取性来自一个并行的 **A11y Shadow DOM**：当一个组件是 `interactive` 时，`Scene` 会投影一个位于组件框上方的、隐藏的透明真实 DOM 节点，该节点由 `getA11yAttributes()` 构建。这就是为什么 `page.getByRole('button', { name })` / `fill()` / 屏幕阅读器可以在纯 Canvas UI 上工作的原因。
 
@@ -27,7 +27,7 @@ order: 11
 | 覆盖层与瞬态 UI | [`Overlay`](/reference/ui-overlay/)、[`Tooltip`](/reference/ui-tooltip/)、[`Popover`](/reference/ui-popover/)、[`ContextMenu`](/reference/ui-contextmenu/)、[`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class="sandbox component-gallery">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">在线 · @vectojs/ui 1.9.1 · 可滚动</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">在线 · @vectojs/ui 1.9.5 · 可滚动</span></div>
   <iframe src="/sandbox/ui-components.html" class="sandbox-frame component-gallery-frame" loading="eager" title="每个 VectoJS UI 组件的交互式画廊" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>包级冒烟画廊：先确保广泛覆盖，调试特定行为时使用聚焦的组件页面。</figcaption>
 </figure>
@@ -620,7 +620,12 @@ interface TabsOptions {
   color?: string;
   selectedColor?: string;
   borderColor?: string;
+  closable?: boolean; // 显示关闭按钮；点击路由到 onClose
+  tabWidth?: number; // 首选像素宽度；溢出时标签栏滚动（默认 160）
+  minTabWidth?: number; // 触发滚动的最小宽度（默认 96）
+  autoHideTabBar?: boolean; // 少于 2 个标签时隐藏标签栏（默认 false；1.9.5）
   onChange?: (value: string) => void;
+  onClose?: (value: string) => void;
 }
 
 interface TabItem {
@@ -630,7 +635,9 @@ interface TabItem {
 }
 ```
 
-标签选择容器。自动挂载活动标签的内容视图并在剩余空间内进行平移。为可访问性投影 `{ role: 'tablist' }`。标准化的 `'change'` 事件负载携带 `{ value }`。
+选项卡选择容器。自动挂载活动选项卡的内容视图并在剩余空间内进行平移。为可访问性投影 `{ role: 'tablist' }`。标准化的 `'change'` 事件负载携带 `{ value }`。
+
+Tabs 保持固定的首选 `tabWidth`，标签栏在溢出时水平滚动（滚轮，或自动滚动以使活动标签可见），而不是缩成碎片——从 1.9.4 开始，`tabWidth` 是标签栏滚动的目标宽度，不是拉伸填充的宽度（之前这会导致宽条上的关闭命中定位错误）。启用 `autoHideTabBar`（1.9.5）后，当标签少于两个时，标签栏及其点击区域消失，内容占据全部高度（Vim `showtabline=1` 语义）；`effectiveTabBarHeight` 获取器报告标签栏的当前高度（隐藏时为 `0`），并且内容几何信息每帧重新同步，因此重新分配 `tabs` 不会留下陈旧或偏移的内容。
 
 ---
 
