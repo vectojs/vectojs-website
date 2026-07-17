@@ -39,9 +39,32 @@ no-op so headless layout / `toSVG()` still work.
 | `debugA11y`            | `boolean`                     | `false`          | Render shadow nodes with a blue dashed outline (dev aid) instead of `opacity:0`. They stay clickable by automation either way.                                                                                                                                                                 |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | Custom renderer (e.g. `ThreeRenderer` from [`@vectojs/three`](/reference/three-renderer/)).                                                                                                                                                                                                    |
 | `disableWindowResize`  | `boolean`                     | `false`          | Skip the auto `window` resize listener. Use inside a custom layout container / offscreen canvas, then drive size with `resize(w, h)`.                                                                                                                                                          |
+| `maxDPR`               | `number`                      | `undefined`      | Cap the device pixel ratio used to size the Canvas2D and `pointBackend: 'webgl'` backing stores. `undefined` reads the real, uncapped `devicePixelRatio`. Re-applied on every `resize()` call, not just at construction. See "Capping render DPR" below.                                       |
 
 Note: `renderMode` is a **public field** (default `'always'`), not a constructor
 option — set `scene.renderMode = 'onDemand'` after construction.
+
+### Capping render DPR (`maxDPR`)
+
+Backing-store render cost scales with `logical size × dpr²`, not linearly —
+a full-screen scene that's smooth at DPR 1 (most dev laptops) can overrun its
+16ms frame budget on a DPR-3 display, invisible until someone actually tests
+on one. This bites `pointBackend: 'webgl'` hardest, since it renders a
+separate stacked canvas whose fragment/overdraw cost is exactly this DPR²
+curve — a full-screen 1200-particle field measured **116ms** max-frame at
+DPR 3 versus flawless 60fps at DPR 1.
+
+```ts
+const scene = new Scene(canvas, { pointBackend: 'webgl', maxDPR: 2 });
+```
+
+`maxDPR: 2` keeps the display retina-crisp (2× already exceeds what most
+eyes resolve at normal viewing distance) while capping the backing-store
+pixel count — roughly halving it at DPR 3, since `2² / 3² ≈ 0.44×` the
+pixels. Before this option existed, the only workaround was monkey-patching
+`window.devicePixelRatio` before constructing the Scene; prefer `maxDPR`
+now — it's re-applied correctly on every resize, which a one-time
+`Object.defineProperty` patch is not.
 
 ## Public fields
 
