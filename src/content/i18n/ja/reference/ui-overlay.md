@@ -41,7 +41,7 @@ scene.add(popover);
 | `Tooltip`      | オプションの遅延付きでターゲットにホバー | 軽量な説明テキスト                      |
 | `Popover`      | ターゲットのクリック                     | 子ノードを持つ小さな一時パネル          |
 | `ContextMenu`  | 通常は右クリックまたはクリック           | セパレーター/項目付きのコマンドメニュー |
-| `Overlay`      | 手動の `showAt()`/`showAtPoint()`        | カスタムのフローティングコンポーネント  |
+| `Overlay`      | 手動の `showAt()`/`showAtPoint(source?)` | カスタムのフローティングコンポーネント  |
 
 ## メンテナー向けチェックリスト
 

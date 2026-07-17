@@ -39,9 +39,20 @@ no-op으로 저하되어 헤드리스 레이아웃 / `toSVG()`가 여전히 작�
 | `debugA11y`            | `boolean`                     | `false`          | 섀도우 노드를 `opacity:0` 대신 파란색 점선 외곽선(개발 보조)으로 렌더링. 어느 쪽이든 자동화로 클릭 가능한 상태 유지.                                                                                                                                                    |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | 커스텀 렌더러(예: [`@vectojs/three`](/reference/three-renderer/)의 `ThreeRenderer`).                                                                                                                                                                                    |
 | `disableWindowResize`  | `boolean`                     | `false`          | 자동 `window` 리사이즈 리스너 건너뜀. 커스텀 레이아웃 컨테이너 / 오프스크린 캔버스 내부에서 사용한 후 `resize(w, h)`로 크기 제어.                                                                                                                                       |
+| `maxDPR`               | `number`                      | `undefined`      | Canvas2D 및 `pointBackend: 'webgl'` 백킹 스토어의 크기 조정에 사용되는 디바이스 픽셀 비율 상한. `undefined`는 실제 상한 없는 `devicePixelRatio`를 읽음. 모든 `resize()` 호출 시 재적용됨(구축 시에만이 아님). 아래 \"렌더 DPR 상한 설정\" 참조.                         |
 
 참고: `renderMode`는 **공개 필드**(기본값 `'always'`)이며 생성자 옵션이
 아닙니다 — 생성 후 `scene.renderMode = 'onDemand'`로 설정하세요.
+
+### 렌더 DPR 상한 설정 (`maxDPR`)
+
+백킹 스토어 렌더 비용은 `논리적 크기 × dpr²`로 확장되며, 선형이 아닙니다 — DPR 1(대부분의 개발 노트북)에서 부드러운 전체 화면 Scene이 DPR 3 디스플레이에서 16ms 프레임 예산을 초과할 수 있으며, 실제로 그 디스플레이에서 테스트되기 전까지는 보이지 않습니다. 이는 `pointBackend: 'webgl'`에서 가장 심각합니다. 별도의 스택 캔버스를 렌더링하므로 프래그먼트/오버드로 비용이 정확히 이 DPR² 곡선을 따르기 때문입니다 — 전체 화면 1200-파티클 필드는 DPR 3에서 **116ms** 최대 프레임, DPR 1에서는 완벽한 60fps였습니다.
+
+```ts
+const scene = new Scene(canvas, { pointBackend: 'webgl', maxDPR: 2 });
+```
+
+`maxDPR: 2`는 디스플레이를 레티나 선명도로 유지하면서(2배는 일반 시청 거리에서 대부분의 눈이 해결할 수 있는 한계를 초과), 백킹 스토어 픽셀 수를 제한합니다 — DPR 3에서 `2² / 3² ≈ 0.44×`의 픽셀로 약 절반입니다. 이 옵션이 존재하기 전에는 Scene 구축 전에 `window.devicePixelRatio`를 몽키패치하는 것만이 해결책이었습니다. 이제는 `maxDPR`를 사용하세요 — 모든 리사이즈에서 올바르게 재적용되며, 일회성 `Object.defineProperty` 패치로는 불가능합니다.
 
 ## 공개 필드
 

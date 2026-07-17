@@ -34,7 +34,7 @@ const tabs = new Tabs({
 
 Les éditeurs et les applications de type terminal souhaitent souvent le comportement `showtabline=1` de Vim : pas
 de barre d'onglets tant qu'un seul onglet existe. Passez `autoHideTabBar: true`
-(`@vectojs/ui` >= 1.9.5) — la barre (et sa zone d'impact du pointeur) disparaît
+(`@vectojs/ui` >= 1.10.0) — la barre (et sa zone d'impact du pointeur) disparaît
 en dessous de deux onglets, le contenu occupe toute la hauteur, et la barre revient dès
 qu'un second onglet est ajouté. Les propriétaires qui disposent des frères autour de la barre
 devraient lire l'accesseur live `effectiveTabBarHeight` plutôt que de supposer

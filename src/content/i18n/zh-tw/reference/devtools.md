@@ -175,3 +175,4 @@ devtools 模型層用數字回答佈局問題 — 在截圖之前使用它。症
 - 面板場景以 `contentProjection: false` 和 `renderMode: 'onDemand'` 建構 — 它不得投射自己的 DOM 內容或在閒置時每幀重新繪製。
 - 選取狀態存在於面板上，而非主機上：`select()`/`armPick()` 永不變更受檢查的場景，除了高亮 overlay 實體（透過 `showOverlay()` 新增並在 `destroy()` 時移除）。
 - 自動重新整理是一個純計時器，而非 Scene 動畫 — 即使主機場景完全閒置（`onDemand`，無任何髒標記）也能運作。
+- 停靠欄（預設 `position: fixed; right: 0; width: 320px`，全視口高度）及其畫布為 `pointer-events: none`，反映了主 `Scene` 自身的 `a11yRoot` 選擇退出的方式，而各個互動式陰影元素透過 `auto` 重新選擇加入（`@vectojs/devtools@0.4.3+`）。這意味著點擊停靠欄的空白背景/裝飾區域會穿透到下方的宿主內容——包括宿主應用自身的右邊緣控制項（分頁關閉按鈕、工具欄按鈕），否則它們會位於停靠欄的 320px 範圍內。只有面板自身的 a11y 投射控制項（按鈕、VMT 樹列）透過它們自己的 `auto` 選擇加入而獨立可點擊。

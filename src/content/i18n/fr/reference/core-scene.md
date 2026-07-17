@@ -39,9 +39,32 @@ que la mise en page sans tête / `toSVG()` fonctionne toujours.
 | `debugA11y`            | `boolean`                     | `false`          | Rendre les nœuds d'ombre avec un contour bleu en tireté (aide au développement) au lieu de `opacity:0`. Ils restent cliquables par l'automatisation dans les deux cas.                                                                                                                                                               |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | Renderer personnalisé (p. ex. `ThreeRenderer` de [`@vectojs/three`](/reference/three-renderer/)).                                                                                                                                                                                                                                    |
 | `disableWindowResize`  | `boolean`                     | `false`          | Ignorer l'écouteur de redimensionnement automatique de `window`. À utiliser dans un conteneur de mise en page personnalisé / canvas hors écran, puis piloter la taille avec `resize(w, h)`.                                                                                                                                          |
+| `maxDPR`               | `number`                      | `undefined`      | Limite le ratio de pixels de l'appareil utilisé pour dimensionner les stockages de Canvas2D et `pointBackend: 'webgl'`. `undefined` lit le `devicePixelRatio` réel sans limite. Réappliqué à chaque appel `resize()`, pas seulement à la construction. Voir "Limitation du DPR de rendu" ci-dessous.                                 |
 
 Remarque : `renderMode` est un **champ public** (défaut `'always'`), pas une option
 du constructeur — définissez `scene.renderMode = 'onDemand'` après la construction.
+
+### Limitation du DPR de rendu (`maxDPR`)
+
+Le coût de rendu du stockage de sauvegarde évolue avec `taille logique × dpr²`, pas linéairement —
+une scène plein écran fluide à DPR 1 (la plupart des laptops de développement) peut dépasser son
+budget de trame de 16 ms sur un écran DPR-3, invisible jusqu'à ce que quelqu'un teste
+réellement dessus. Cela impacte le plus `pointBackend: 'webgl'`, car il rend un
+canvas empilé séparé dont le coût de fragment/sur-dessin est exactement cette courbe DPR² —
+un champ de 1200 particules plein écran a mesuré **116 ms** de trame maximale à
+DPR 3 contre 60 ips parfaits à DPR 1.
+
+```ts
+const scene = new Scene(canvas, { pointBackend: 'webgl', maxDPR: 2 });
+```
+
+`maxDPR: 2` maintient l'affichage net (2× dépasse déjà ce que la plupart des
+yeux résolvent à distance de visualisation normale) tout en limitant le nombre de pixels
+du stockage de sauvegarde — environ la moitié à DPR 3, car `2² / 3² ≈ 0.44×` les
+pixels. Avant que cette option n'existe, la seule solution était de monkey-patch
+`window.devicePixelRatio` avant de construire la Scene ; préférez `maxDPR`
+maintenant — il est réappliqué correctement à chaque redimensionnement, ce qu'un
+`Object.defineProperty` ponctuel ne fait pas.
 
 ## Champs publics
 
