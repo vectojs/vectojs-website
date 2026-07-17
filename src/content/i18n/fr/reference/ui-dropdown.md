@@ -12,7 +12,7 @@ order: 27
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Dropdown</span></div>
-  <iframe src="/sandbox/ui/component.html?name=dropdown&v=core-1.9.2-ui-1.9.5" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de Dropdown" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=dropdown&v=core-1.9.2-ui-1.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de Dropdown" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Ouvrez-le avec le pointeur ou le clavier ; le menu se monte via le chemin de superposition de la scène.</figcaption>
 </figure>
 

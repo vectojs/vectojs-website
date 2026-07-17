@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Référence des composants
 
 > Composants réutilisables de haut niveau pour le moteur Canvas zero-DOM VectoJS.
-> Version documentée : **1.9.5**. Source de vérité : `dist/index.d.ts` (surface publique) et `packages/ui/src/*` (comportement).
+> Version documentée : **1.10.0**. Source de vérité : `dist/index.d.ts` (surface publique) et `packages/ui/src/*` (comportement).
 
 Chaque composant est une feuille ou un conteneur dans l'Arbre Mathématique Virtuel (VMT). Rien ici n'est du vrai DOM — les composants se dessinent eux-mêmes sur un Canvas via un `IRenderer`. L'accessibilité, l'automatisation par agent et la crawlabilité proviennent d'un **A11y Shadow DOM** parallèle : lorsqu'un composant est `interactive`, la `Scene` projette un seul nœud DOM réel caché et transparent positionné au-dessus de la boîte du composant, construit à partir de `getA11yAttributes()`. C'est pourquoi `page.getByRole('button', { name })` / `fill()` / les lecteurs d'écran fonctionnent sur une UI pure-Canvas.
 
@@ -26,7 +26,7 @@ La galerie ci-dessous est maintenant un test de smoke au niveau du paquet. Pour 
 | Superpositions & UI transitoire | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class=\"sandbox component-gallery\">
-  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.9.5 · scroll inside</span></div>
+  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.10.0 · scroll inside</span></div>
   <iframe src=\"/sandbox/ui-components.html\" class=\"sandbox-frame component-gallery-frame\" loading=\"eager\" title=\"Galerie interactive de tous les composants UI VectoJS\" sandbox=\"allow-scripts allow-same-origin allow-popups\"></iframe>
   <figcaption>Galerie de smoke au niveau du paquet : couverture large d'abord, pages de composants ciblées lors du débogage d'un comportement spécifique.</figcaption>
 </figure>
@@ -622,7 +622,7 @@ interface TabsOptions {
   closable?: boolean; // affiche une option de fermeture ; les clics sont dirigés vers onClose
   tabWidth?: number; // largeur préférée en px ; la barre défile en cas de débordement (défaut 160)
   minTabWidth?: number; // limite inférieure avant que le défilement ne s'active (défaut 96)
-  autoHideTabBar?: boolean; // masque la barre quand < 2 onglets (défaut false ; 1.9.5)
+  autoHideTabBar?: boolean; // masque la barre quand < 2 onglets (défaut false ; 1.10.0)
   onChange?: (value: string) => void;
   onClose?: (value: string) => void;
 }
@@ -636,7 +636,7 @@ interface TabItem {
 
 Un conteneur de sélection par onglets. Monte automatiquement la vue de contenu de l'onglet actif et la translate dans l'espace restant. Projette `{ role: 'tablist' }` pour l'accessibilité. La charge utile standardisée de l'événement `'change'` contient `{ value }`.
 
-Les onglets conservent une `tabWidth` préférée fixe et la barre défile horizontalement une fois qu'ils débordent (molette, ou défilement automatique pour garder l'onglet actif visible) plutôt que de rétrécir en lamelles — depuis la 1.9.4, `tabWidth` est une cible au-delà de laquelle la barre défile, pas une largeur à étirer pour remplir (ce qui désorientait auparavant les clics de fermeture sur les larges bandes). Avec `autoHideTabBar` (1.9.5), la barre et sa zone d'impact disparaissent lorsqu'il y a moins de deux onglets et le contenu occupe toute la hauteur (sémantique `showtabline=1` de Vim) ; l'accesseur `effectiveTabBarHeight` indique la hauteur actuelle de la barre (`0` quand elle est masquée), et la géométrie du contenu se re-synchronise à chaque trame pour que la réaffectation de `tabs` ne puisse pas laisser de contenu obsolète ou décalé.
+Les onglets conservent une `tabWidth` préférée fixe et la barre défile horizontalement une fois qu'ils débordent (molette, ou défilement automatique pour garder l'onglet actif visible) plutôt que de rétrécir en lamelles — depuis la 1.9.4, `tabWidth` est une cible au-delà de laquelle la barre défile, pas une largeur à étirer pour remplir (ce qui désorientait auparavant les clics de fermeture sur les larges bandes). Avec `autoHideTabBar` (1.10.0), la barre et sa zone d'impact disparaissent lorsqu'il y a moins de deux onglets et le contenu occupe toute la hauteur (sémantique `showtabline=1` de Vim) ; l'accesseur `effectiveTabBarHeight` indique la hauteur actuelle de la barre (`0` quand elle est masquée), et la géométrie du contenu se re-synchronise à chaque trame pour que la réaffectation de `tabs` ne puisse pas laisser de contenu obsolète ou décalé.
 
 ---
 

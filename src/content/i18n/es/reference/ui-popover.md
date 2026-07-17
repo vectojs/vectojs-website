@@ -12,7 +12,7 @@ order: 38
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Popover</span></div>
-  <iframe src="/sandbox/ui/component.html?name=popover&v=core-1.9.2-ui-1.9.5" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Popover" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=popover&v=core-1.9.2-ui-1.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Popover" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Haz clic en el objetivo dos veces para abrir y cerrar el popover.</figcaption>
 </figure>
 

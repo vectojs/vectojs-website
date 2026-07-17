@@ -12,7 +12,7 @@ order: 31
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Table</span></div>
-  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.9.2-ui-1.9.5" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Table 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.9.2-ui-1.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Table 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>거대한 갤러리 내부에서 테이블 출력을 디버깅하는 대신 컬럼 크기 조정에 초점을 맞춘 데모를 사용하세요.</figcaption>
 </figure>
 

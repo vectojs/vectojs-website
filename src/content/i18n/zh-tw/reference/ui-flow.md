@@ -12,7 +12,7 @@ order: 22
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Flow</span></div>
-  <iframe src="/sandbox/ui/component.html?name=flow&v=core-1.9.2-ui-1.9.5" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Flow live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=flow&v=core-1.9.2-ui-1.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Flow live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>使用 `maxWidth` 定義子項目換行到下一行的位置。</figcaption>
 </figure>
 

@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — コンポーネントリファレンス
 
 > VectoJS ゼロ DOM Canvas エンジン向けの再利用可能な高レベルコンポーネント。
-> ドキュメントバージョン：**1.9.5**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
+> ドキュメントバージョン：**1.10.0**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
 
 すべてのコンポーネントは、Virtual Math Tree（VMT）のリーフまたはコンテナです。ここにあるものは実際の DOM ではありません — コンポーネントは `IRenderer` を介して Canvas に自身を描画します。アクセシビリティ、エージェント自動化、クローラビリティは、並行する **A11y シャドウ DOM** から提供されます：コンポーネントが `interactive` の場合、`Scene` はコンポーネントのボックスの上に配置された単一の隠れた透明な実際の DOM ノードを投影します。これは `getA11yAttributes()` から構築されます。これが、`page.getByRole('button', { name })` / `fill()` / スクリーンリーダーが純粋な Canvas UI に対して機能する理由です。
 
@@ -26,7 +26,7 @@ order: 11
 | オーバーレイと一時的 UI | [`Overlay`](/reference/ui-overlay/)、[`Tooltip`](/reference/ui-tooltip/)、[`Popover`](/reference/ui-popover/)、[`ContextMenu`](/reference/ui-contextmenu/)、[`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class=\"sandbox component-gallery\">
-  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.9.5 · 内部をスクロール</span></div>
+  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.10.0 · 内部をスクロール</span></div>
   <iframe src=\"/sandbox/ui-components.html\" class=\"sandbox-frame component-gallery-frame\" loading=\"eager\" title=\"すべての VectoJS UI コンポーネントのインタラクティブギャラリー\" sandbox=\"allow-scripts allow-same-origin allow-popups\"></iframe>
   <figcaption>パッケージレベルのスモークギャラリー：まず広範なカバレッジ、特定の動作をデバッグするときは焦点を絞ったコンポーネントページ。</figcaption>
 </figure>
@@ -622,7 +622,7 @@ interface TabsOptions {
   closable?: boolean; // 閉じるアフォーダンスを表示; クリックは onClose にルーティング
   tabWidth?: number; // 推奨幅（px）; オーバーフロー時にバーがスクロール（デフォルト 160）
   minTabWidth?: number; // スクロールが始まる下限（デフォルト 96）
-  autoHideTabBar?: boolean; // タブが 2 つ未満のときにバーを非表示（デフォルト false; 1.9.5）
+  autoHideTabBar?: boolean; // タブが 2 つ未満のときにバーを非表示（デフォルト false; 1.10.0）
   onChange?: (value: string) => void;
   onClose?: (value: string) => void;
 }
@@ -636,7 +636,7 @@ interface TabItem {
 
 タブ選択コンテナ。アクティブなタブのコンテンツビューを自動マウントし、残りのスペース内で変換します。アクセシビリティのために `{ role: 'tablist' }` を投影します。標準化された `'change'` イベントペイロードは `{ value }` を運びます。
 
-Tabs は固定の推奨 `tabWidth` を維持し、タブがオーバーフローすると縮小せずにバーが水平方向にスクロールします（ホイール、またはアクティブタブを表示するための自動スクロール）— 1.9.4 以降、`tabWidth` はバーがスクロールしていく目標値であり、引き伸ばして埋める幅ではありません（以前はワイドストリップで閉じるヒットが誤ってターゲットされていました）。`autoHideTabBar`（1.9.5）を使用すると、タブが 2 つ未満の間はバーとそのヒット領域が非表示になり、コンテンツが全高を占めます（Vim の `showtabline=1` セマンティクス）; `effectiveTabBarHeight` ゲッターはバーの現在の高さを報告し（非表示時は `0`）、コンテンツジオメトリは毎フレーム再同期されるため、`tabs` の再割り当てによって古くなったりずれたりしたコンテンツが残ることはありません。
+Tabs は固定の推奨 `tabWidth` を維持し、タブがオーバーフローすると縮小せずにバーが水平方向にスクロールします（ホイール、またはアクティブタブを表示するための自動スクロール）— 1.9.4 以降、`tabWidth` はバーがスクロールしていく目標値であり、引き伸ばして埋める幅ではありません（以前はワイドストリップで閉じるヒットが誤ってターゲットされていました）。`autoHideTabBar`（1.10.0）を使用すると、タブが 2 つ未満の間はバーとそのヒット領域が非表示になり、コンテンツが全高を占めます（Vim の `showtabline=1` セマンティクス）; `effectiveTabBarHeight` ゲッターはバーの現在の高さを報告し（非表示時は `0`）、コンテンツジオメトリは毎フレーム再同期されるため、`tabs` の再割り当てによって古くなったりずれたりしたコンテンツが残ることはありません。
 
 ---
 

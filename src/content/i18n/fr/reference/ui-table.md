@@ -14,7 +14,7 @@ peuvent participer via les capacités publiques `setMaxWidth()` et `setSelectabl
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Table</span></div>
-  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.9.2-ui-1.9.5" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de Table" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.9.2-ui-1.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de Table" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Utilisez des démos ciblées pour le dimensionnement des colonnes au lieu de déboguer la sortie du tableau dans une grande galerie.</figcaption>
 </figure>
 

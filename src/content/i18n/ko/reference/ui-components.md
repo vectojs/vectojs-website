@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — 컴포넌트 레퍼런스
 
 > VectoJS zero-DOM Canvas 엔진을 위한 재사용 가능한 고수준 컴포넌트입니다.
-> 문서 버전: **1.9.5**. 진실 공급원: `dist/index.d.ts`(공개 표면) 및 `packages/ui/src/*`(동작).
+> 문서 버전: **1.10.0**. 진실 공급원: `dist/index.d.ts`(공개 표면) 및 `packages/ui/src/*`(동작).
 
 모든 컴포넌트는 Virtual Math Tree(VMT)의 리프 또는 컨테이너입니다. 여기 있는 어떤 것도 실제 DOM이 아닙니다 — 컴포넌트는 `IRenderer`를 통해 Canvas에 자신을 그립니다. 접근성, 에이전트 자동화, 크롤링 가능성은 병렬 **A11y Shadow DOM**에서 제공됩니다: 컴포넌트가 `interactive`하면 `Scene`이 컴포넌트의 박스 위에 위치한 단일 숨겨진 투명한 실제 DOM 노드를 `getA11yAttributes()`에서 빌드하여 프로젝션합니다. 이것이 `page.getByRole('button', { name })` / `fill()` / 스크린 리더가 순수 Canvas UI에서 작동하는 이유입니다.
 
@@ -29,7 +29,7 @@ order: 11
 | 오버레이 및 일시적 UI | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class=\"sandbox component-gallery\">
-  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.9.5 · scroll inside</span></div>
+  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.10.0 · scroll inside</span></div>
   <iframe src=\"/sandbox/ui-components.html\" class=\"sandbox-frame component-gallery-frame\" loading=\"eager\" title=\"모든 VectoJS UI 컴포넌트의 대화형 갤러리\" sandbox=\"allow-scripts allow-same-origin allow-popups\"></iframe>
   <figcaption>패키지 수준 스모크 갤러리: 먼저 광범위한 범위, 특정 동작 디버깅 시 집중된 컴포넌트 페이지.</figcaption>
 </figure>
@@ -628,7 +628,7 @@ interface TabsOptions {
   closable?: boolean; // 닫기 표시 표시; 클릭은 onClose로 라우팅
   tabWidth?: number; // 기본 설정 너비(px); 오버플로 시 막대 스크롤(기본값 160)
   minTabWidth?: number; // 스크롤이 시작되는 하한(기본값 96)
-  autoHideTabBar?: boolean; // 탭이 2개 미만일 때 막대 숨김(기본값 false; 1.9.5)
+  autoHideTabBar?: boolean; // 탭이 2개 미만일 때 막대 숨김(기본값 false; 1.10.0)
   onChange?: (value: string) => void;
   onClose?: (value: string) => void;
 }
@@ -642,7 +642,7 @@ interface TabItem {
 
 탭 선택 컨테이너. 활성 탭의 콘텐츠 뷰를 자동으로 마운트하고 나머지 공간 내에서 변환합니다. 접근성을 위해 `{ role: 'tablist' }`를 프로젝션합니다. 표준화된 `'change'` 이벤트 페이로드에는 `{ value }`가 포함됩니다.
 
-Tabs는 고정된 기본 설정 `tabWidth`를 유지하며 탭이 오버플로되면 줄어들지 않고 막대가 수평으로 스크롤됩니다(휠 또는 활성 탭을 계속 보기 위한 자동 스크롤) — 1.9.4부터 `tabWidth`는 막대가 지나치는 대상 너비이지 늘여서 채우는 너비가 아닙니다(이전에는 넓은 스트립에서 닫기 히트가 잘못 지정됨). `autoHideTabBar`(1.9.5)를 사용하면 탭이 2개 미만인 동안 막대와 히트 영역이 사라지고 콘텐츠가 전체 높이를 차지합니다(Vim `showtabline=1` 의미). `effectiveTabBarHeight` 게터는 막대의 현재 높이를 보고하며(숨겨졌을 때 `0`), 콘텐츠 지오메트리는 매 프레임 다시 동기화되므로 `tabs`를 재할당해도 오래되었거나 오프셋된 콘텐츠가 남을 수 없습니다.
+Tabs는 고정된 기본 설정 `tabWidth`를 유지하며 탭이 오버플로되면 줄어들지 않고 막대가 수평으로 스크롤됩니다(휠 또는 활성 탭을 계속 보기 위한 자동 스크롤) — 1.9.4부터 `tabWidth`는 막대가 지나치는 대상 너비이지 늘여서 채우는 너비가 아닙니다(이전에는 넓은 스트립에서 닫기 히트가 잘못 지정됨). `autoHideTabBar`(1.10.0)를 사용하면 탭이 2개 미만인 동안 막대와 히트 영역이 사라지고 콘텐츠가 전체 높이를 차지합니다(Vim `showtabline=1` 의미). `effectiveTabBarHeight` 게터는 막대의 현재 높이를 보고하며(숨겨졌을 때 `0`), 콘텐츠 지오메트리는 매 프레임 다시 동기화되므로 `tabs`를 재할당해도 오래되었거나 오프셋된 콘텐츠가 남을 수 없습니다.
 
 ---
 
