@@ -49,20 +49,38 @@ interface MarkdownOptions {
 
 ## ストリーミング
 
-トークンストリームの場合、新しいデルタのみを追加します：
+トークンストリームの場合、新しいデルタのみを追加します — そして、トークンごとに追加するのではなく、アニメーションフレームごとにトークンをバッチ処理します：
 
 ```ts
-for await (const token of llmStream) {
-  markdown.appendMarkdown(token);
-  scrollView.scrollToBottom();
+let pending = '';
+let scheduled = false;
+function pushToken(token: string) {
+  pending += token;
+  if (scheduled) return;
+  scheduled = true;
+  requestAnimationFrame(() => {
+    scheduled = false;
+    const chunk = pending;
+    pending = '';
+    markdown.appendMarkdown(chunk);
+    scrollView.scrollToBottom();
+  });
 }
+for await (const token of llmStream) pushToken(token);
 ```
 
-トークンごとに `setContent(fullDocumentSoFar)` を呼び出すことは避けてください。それはサブツリー全体を再構築します。
+トークンごとに `setContent(fullDocumentSoFar)` を呼び出すことは避けてください。それはサブツリー全体を再構築します。完全なレシピ — ボトムフォローの粘着性、長文トランスクリプトの分割、レンダーモードの選択 — は[ストリーミング＆リアルタイムテキスト](/learn/streaming/)ガイドにあります。
+
+## パフォーマンスモデル
+
+各呼び出しの実際のコストを理解することで、ストリーミングコードを合理的に分析できます：
+
+- **デフォルトで解析はオフスレッドです。** `appendMarkdown` は蓄積されたソースを、埋め込まれたバンドルから構築された `Worker` にポストします（ネットワークリクエストなし）。パースが戻ったときに、トークンの差分とエンティティの更新が適用されます。`Worker` がない環境（一部のテストランナー、SSR）は同期字句解析にフォールバックします — 同じ結果、メインスレッドのコストがかかります。
+- **字句解析はチャンク単位ではなくドキュメント単位で O(ドキュメント) です。** 呼び出しごとに蓄積されたソース全体が再トークン化されます。フレームごとにバッチ処理し（上記参照）、長いトランスクリプトをメッセージごとに1つの `Markdown` エンティティに分割して、ライブドキュメントを小さく保ちます。
+- **完了したブロックは再利用され、再構築されません。** `appendMarkdown` は新しいトークンリストを古いものと生ソースでプレフィックスマッチします。既にレンダリングされたすべてのブロックはそのエンティティインスタンスを保持します。一般的なストリーミングケース — 最後の段落が成長した — は、その段落のスパンをその場で更新します。
+- **`setContent()` は何も再利用しません。** すべての子を削除し、トークンリスト全体を再レンダリングします。これはドキュメントを_置き換える_場合は正しい呼び出しであり、_成長させる_場合は誤った呼び出しです。
 
 ## 拡張ポイント
-
-`renderToken(token)` は protected であるため、カスタムレンダラーは通常のトークンを組み込みレンダラーに委任しながら、アプリケーション固有のブロックのために `Markdown` をサブクラス化できます。
 
 ## メンテナー向けチェックリスト
 

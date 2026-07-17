@@ -49,20 +49,38 @@ interface MarkdownOptions {
 
 ## 串流
 
-對於 token 串流，只附加新的差異：
+對於 token 串流，只附加新的差異 — 並按動畫幀批量處理 token，而不是每個 token 都附加：
 
 ```ts
-for await (const token of llmStream) {
-  markdown.appendMarkdown(token);
-  scrollView.scrollToBottom();
+let pending = '';
+let scheduled = false;
+function pushToken(token: string) {
+  pending += token;
+  if (scheduled) return;
+  scheduled = true;
+  requestAnimationFrame(() => {
+    scheduled = false;
+    const chunk = pending;
+    pending = '';
+    markdown.appendMarkdown(chunk);
+    scrollView.scrollToBottom();
+  });
 }
+for await (const token of llmStream) pushToken(token);
 ```
 
-避免為每個 token 呼叫 `setContent(fullDocumentSoFar)`；那會重建整個子樹。
+避免為每個 token 呼叫 `setContent(fullDocumentSoFar)`；那會重建整個子樹。完整的方案 — 底部跟隨黏性、長轉錄分段、渲染模式選擇 — 在[串流與即時文字](/learn/streaming/)指南中。
+
+## 效能模型
+
+每次呼叫的實際開銷，以便可以理性分析串流程式碼：
+
+- **解析預設在背景執行緒進行。** `appendMarkdown` 將累積的原始碼發佈到由內嵌 bundle 建構的 `Worker`（無網路請求）；當解析返回時，套用 token 差異和實體更新。沒有 `Worker` 的環境（某些測試執行器、SSR）回退到同步詞法分析 — 相同的結果，主執行緒成本。
+- **每次附加的詞法分析是 O(文件大小)**，而非 O(區塊大小)：每次呼叫都會重新標記化整個累積的原始碼。按幀批次處理（如上所述），並將長篇轉錄分段為每則訊息一個 `Markdown` 實體，以使即時文件保持較小。
+- **已完成的區塊會被重複使用，而非重建。** `appendMarkdown` 透過原始原始碼將新 token 列表與舊列表進行前綴匹配；每個已渲染的區塊保持其實體實例。常見的串流情況 — 最後一個段落增長 — 原地更新該段落的跨度。
+- **`setContent()` 不重複使用任何內容。** 它移除所有子元素並重新渲染完整的 token 列表。它是_替換_文件的正確呼叫，而_增長_文件的錯誤呼叫。
 
 ## 擴充點
-
-`renderToken(token)` 是 protected 的，因此自訂渲染器可以為應用程式特定的區塊建立 `Markdown` 的子類別，同時仍將一般 token 委派給內建渲染器。
 
 ## 維護者檢查清單
 

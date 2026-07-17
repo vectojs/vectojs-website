@@ -87,18 +87,87 @@ trace.subscribe((entry) => {
 `pointercancel`이 포함되어, 중단된 드래그 및 선택 트랜잭션이 `pointerdown` 후
 진단 공백을 남기는 대신 표시됩니다.
 
+## 씬 감사(Audit)
+
+`auditScene`은 트리를 탐색하고 레이아웃 결함을 구조화된 JSON-안전한 결과로 보고합니다 — "무언가가 오버플로우, 오버랩 또는 이스케이프하고 있는가?"에 대한 숫자 답변입니다:
+
+```typescript
+import { auditScene } from '@vectojs/devtools/headless';
+
+const findings = auditScene(scene, {
+  tolerance: 0.5, // 이스케이프/오버랩으로 간주되기 전 px 여유
+  includeOverlay: false, // 모달/강조 표시는 기본적으로 제외
+  ignore: (e) => e.id.startsWith('debug-'), // 서브트리 제외
+  ignoreOverlap: (a, b) => a.id === 'badge', // 의도적 스태킹 허용
+});
+// -> AuditFinding[]: { kind, entityId, entityPath, worldBounds, message,
+//    containerBounds?, overflow?{left,right,top,bottom}, otherId?, intersection? }
+```
+
+4가지 `kind`가 감지되며, 결정론적으로 정렬됩니다:
+
+- `text-overflow` — 텍스트를 포함하는 엔터티의 측정된 박스가 가장 가까운 크기 지정된 조상을 초과합니다.
+- `clip-overflow` — 콘텐츠가 `clipChildren` 조상을 초과합니다(픽셀이 잘림).
+- `overlap` — **형제만 해당**; 부모-자식 포함 관계는 정상입니다.
+- `viewport-overflow` — 크기 지정된 조상이 없는 엔터티가 캔버스 밖에 그려집니다.
+
+알려진 사각지대: 스크롤 가능한 컨테이너는 수직 축을 면제하며(`scrollableTypes`로 목록 재정의 가능, `constructor.name`으로 일치), `opacity: 0` 엔터티는 건너뜁니다.
+
+패널의 **Audit** 버튼은 트리 뷰 대신 동일한 검사를 실행합니다; `panel.audit()`은 결과를 반환하고 `panel.selectFinding(i)`은 하나를 강조 표시합니다.
+
+CI 게이트로 사용: `expect(auditScene(scene)).toEqual([])`.
+
+## 스냅샷 및 차이점(diff)
+
+```typescript
+import { captureSnapshot, diffSnapshots } from '@vectojs/devtools/headless';
+
+const before = captureSnapshot(scene); // 결정론적 JSON 트리
+// … 상호작용 수행 …
+const diffs = diffSnapshots(before, captureSnapshot(scene));
+// -> [{ path: "root > GridEntity[0]", kind: "changed", changes: { x: {from,to} } }]
+```
+
+차이점은 **구조적 경로**(`type[index]` 체인)를 키로 사용하며, 절대 엔터티 ID를 사용하지 않습니다 — ID는 실행마다 무작위입니다. 기본값 속성은 스냅샷에서 생략되므로 diff가 깔끔하게 유지됩니다. 스냅샷 쌍은 스모크 테스트에서 정확한 golden state 어설션을 가능하게 합니다: 스크린샷 대신, 상호작용이 정확히 의도한 엔터티만 변경했음을 어설션합니다.
+
 ## 저수준 모델 유틸리티
 
 트리 구축 및 선택 로직은 내장 패널 대신 커스텀 인스펙터 UI를 구축하려는 경우 별도로 내보내집니다:
 
 ```typescript
-import { buildTreeModel, findEntityAt, describeEntity, pickInScene } from '@vectojs/devtools';
+import {
+  buildTreeModel,
+  findEntityAt,
+  describeEntity,
+  inspectEntity,
+  entityPath,
+  pickInScene,
+} from '@vectojs/devtools';
 
 buildTreeModel(root: Entity): { nodes: TreeNode[]; index: Map<string, Entity> };
 findEntityAt(root: Entity, x: number, y: number): Entity | null; // scene-공간 포인트 → 엔터티
 describeEntity(entity: Entity): string[]; // 사람이 읽을 수 있는 상태 라인
+inspectEntity(entity: Entity): EntityInfo; // 구조화된 JSON-안전 상태
+entityPath(entity: Entity): string; // 조상 체인 ("Scene > Card#<id> > Text#<id>", ID는 8자로 잘림)
 pickInScene(scene: Scene, sceneX: number, sceneY: number): Entity | null; // 오버레이-우선 선택
 ```
+
+`inspectEntity`는 `describeEntity`의 구조화된 형제입니다: 월드 경계 및 변환, 상호작용 플래그, `clipChildren`, 자식 수, 덕 타이핑된 텍스트 미리보기(`.text`/`.value`), 그리고 존재할 때 a11y 프로젝션 속성. `entityPath`는 엔터티의 조상 체인을 생성합니다(예: `"Scene > Card#<id> > Text#<id>"`, ID는 8자로 잘림).
+
+## 디버깅 워크플로우
+
+devtools 모델 레이어는 레이아웃 질문에 숫자로 답합니다 — 스크린샷을 찍기 전에 사용하세요. 증상 → 도구:
+
+| 증상                                                 | 워크플로우                                                                                                                                                                                                |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "어느 엔터티가 이 픽셀을 소유하고 있나요?"           | `pickInScene(scene, x, y)` → `inspectEntity(hit)`; 페이지 내에서는 패널의 **Pick** 버튼                                                                                                                   |
+| "이 엔터티의 위치/크기가 왜 잘못되었나요?"           | `inspectEntity`로 월드 경계 + 변환 확인, `entityPath`를 위로 올라가며 — 경계가 잘못된 첫 번째 조상이 버그를 소유                                                                                          |
+| "무언가 오버플로우/오버랩되지만 어딘지 모르겠어요"   | `auditScene(scene)` — 각 결과는 `entityPath`, 월드 경계, 가장자리별 오버플로우 양을 포함                                                                                                                  |
+| "이 상호작용이 움직이면 안 되는 것을 움직였어요"     | `captureSnapshot` 전, 상호작용 후 `diffSnapshots` — diff는 정확히 무엇이 변경되었는지 나열                                                                                                                |
+| "클릭/휠/키프레스가 잘못된 곳으로 전달됩니다"        | `createEventTrace(scene)` — 각 항목은 source(`canvas`/`a11y`/`content`/`document`), 대상 경로, 좌표 및 최종 `defaultPrevented`를 표시                                                                     |
+| "텍스트 드래그 선택 또는 복사가 가로채지고 있습니다" | `entry.source === 'content'`인 이벤트 트레이스 — 브라우저 이벤트가 선택 가능한 프로젝션에서 시작되었음을 의미; `defaultPrevented`와 대상 경로 확인                                                        |
+| "드래그가 멈추거나 커밋되지 않습니다"                | 포인터 트레이스는 트랜잭션 방식: `pointerdown` → 이동 → 정확히 하나의 `pointerup`(커밋) **또는** `pointercancel`(롤백)을 예상; 종료 항목이 없으면 엔터티가 프로젝션되지 않았거나 캡처가 우회되었음을 의미 |
+| "이게 회귀(Regression)인가요?"                       | 정상 Scene의 커밋된 스냅샷(`captureSnapshot`)을 유지하고 CI에서 `diffSnapshots` 실행                                                                                                                      |
 
 ## 디자인 노트
 

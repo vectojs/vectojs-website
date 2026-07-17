@@ -54,20 +54,39 @@ Core 1.8은 변환된 산문을 2차원 커서 지오메트리로 라우팅하�
 
 ## 스트리밍
 
-토큰 스트림의 경우, 새로운 델타만 추가하세요:
+토큰 스트림의 경우, 새로운 델타만 추가하세요 — 그리고 토큰마다 추가하는 대신 애니메이션 프레임별로 토큰을 배치 처리합니다:
 
 ```ts
-for await (const token of llmStream) {
-  markdown.appendMarkdown(token);
-  scrollView.scrollToBottom();
+let pending = '';
+let scheduled = false;
+function pushToken(token: string) {
+  pending += token;
+  if (scheduled) return;
+  scheduled = true;
+  requestAnimationFrame(() => {
+    scheduled = false;
+    const chunk = pending;
+    pending = '';
+    markdown.appendMarkdown(chunk);
+    scrollView.scrollToBottom();
+  });
 }
+for await (const token of llmStream) pushToken(token);
 ```
 
 모든 토큰에 대해 `setContent(fullDocumentSoFar)`를 호출하지 마세요. 전체 서브트리를 재구축합니다.
+전체 레시피 — 하단 고정 스티키니스, 긴 트랜스크립트 세분화, 렌더 모드 선택 — 은 [스트리밍 및 실시간 텍스트](/learn/streaming/) 가이드에 있습니다.
+
+## 성능 모델
+
+각 호출의 실제 비용을 통해 스트리밍 코드를 합리적으로 분석할 수 있습니다:
+
+- **파싱은 기본적으로 오프-스레드입니다.** `appendMarkdown`은 누적된 소스를 임베디드 번들로 빌드된 `Worker`에 게시합니다(네트워크 요청 없음); 파싱이 반환될 때 토큰 diff와 엔터티 업데이트가 적용됩니다. `Worker`가 없는 환경(일부 테스트 러너, SSR)은 동기식 렉싱으로 폴백합니다 — 동일한 결과, 메인 스레드 비용.
+- **렉싱은 추가당 O(문서)입니다**, O(청크)가 아닙니다: 호출할 때마다 누적된 전체 소스가 다시 토큰화됩니다. 프레임별로 배치 처리하고(위 참조) 긴 트랜스크립트를 메시지당 하나의 `Markdown` 엔터티로 분할하여 라이브 문서를 작게 유지하세요.
+- **완료된 블록은 재사용되며 재구축되지 않습니다.** `appendMarkdown`은 새 토큰 목록을 원시 소스로 이전 목록과 접두사 일치시킵니다; 이미 렌더링된 모든 블록은 해당 엔터티 인스턴스를 유지합니다. 일반적인 스트리밍 사례 — 마지막 단락이 커짐 — 해당 단락의 스팬을 제자리에서 업데이트합니다.
+- **`setContent()`는 아무것도 재사용하지 않습니다.** 모든 자식을 제거하고 전체 토큰 목록을 다시 렌더링합니다. 이는 문서를 _대체_하는 경우 올바른 호출이며, 문서를 _성장_시키는 경우 잘못된 호출입니다.
 
 ## 확장 지점
-
-`renderToken(token)`은 protected이므로, 커스텀 렌더러가 앱별 블록을 위해 `Markdown`을 서브클래싱하면서 일반 토큰은 내장 렌더러에 위임할 수 있습니다.
 
 ## 유지보수 체크리스트
 

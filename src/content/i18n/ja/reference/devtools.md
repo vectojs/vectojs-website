@@ -79,18 +79,87 @@ trace.subscribe((entry) => {
 
 `source` は `"canvas"`、`"a11y"`、`"content"`、または `"document"` です。`content` ソースは、ブラウザイベントが選択可能な `[data-vecto-content]` ミラー上で発生したことを意味します。トレースは所有するEntityを検証し、シーン/ローカル座標を記録し、マイクロタスクで確定するため、`defaultPrevented` はアプリケーションの最終的なショートカットまたは選択決定を反映します。診断サーフェスがアンマウントされたら `trace.destroy()` を呼び出します。ポインターのトレースには `pointercancel` が含まれるため、中断されたドラッグや選択トランザクションが `pointerdown` 後の診断ギャップを残さずに可視化されます。
 
+## シーン監査
+
+`auditScene` はツリーを走査し、レイアウトの欠陥を構造化されたJSON安全な所見として報告します — 「何かがオーバーフロー、オーバーラップ、またはエスケープしているか？」という質問に数値で答えます：
+
+```typescript
+import { auditScene } from '@vectojs/devtools/headless';
+
+const findings = auditScene(scene, {
+  tolerance: 0.5, // エスケープ/オーバーラップとカウントされる前のpx余裕
+  includeOverlay: false, // モーダル/ハイライトはデフォルトで除外
+  ignore: (e) => e.id.startsWith('debug-'), // サブツリーを除外
+  ignoreOverlap: (a, b) => a.id === 'badge', // 意図的なスタッキングを許可
+});
+// -> AuditFinding[]: { kind, entityId, entityPath, worldBounds, message,
+//    containerBounds?, overflow?{left,right,top,bottom}, otherId?, intersection? }
+```
+
+4つの `kind` が検出され、決定論的にソートされます：
+
+- `text-overflow` — テキストを持つエンティティの測定ボックスが、最も近いサイズ指定された祖先を超えています。
+- `clip-overflow` — コンテンツが `clipChildren` 祖先を超えています（ピクセルが切り取られます）。
+- `overlap` — **兄弟のみ**；親子の包含は正常です。
+- `viewport-overflow` — サイズ指定された祖先がないエンティティがキャンバスの外に描画されています。
+
+既知の盲点：スクロール可能なコンテナは垂直軸を除外します（リストは `scrollableTypes` で上書き可能、`constructor.name` で照合）。`opacity: 0` のエンティティはスキップされます。
+
+パネルの **Audit** ボタンはツリービューの代わりに同じチェックを実行します；`panel.audit()` は所見を返し、`panel.selectFinding(i)` で1つをハイライトします。
+
+CIゲートとして使用：`expect(auditScene(scene)).toEqual([])`。
+
+## スナップショットと差分
+
+```typescript
+import { captureSnapshot, diffSnapshots } from '@vectojs/devtools/headless';
+
+const before = captureSnapshot(scene); // 決定論的JSONツリー
+// … インタラクションを実行 …
+const diffs = diffSnapshots(before, captureSnapshot(scene));
+// -> [{ path: "root > GridEntity[0]", kind: "changed", changes: { x: {from,to} } }]
+```
+
+差分は**構造パス**（`type[index]` チェーン）をキーにし、エンティティIDは決して使用しません — IDは実行ごとにランダムです。デフォルト値のプロパティはスナップショットから省略されるため、差分は静かです。スナップショットのペアは、スモークテストで正確なゴールデンステートアサーションを可能にします：スクリーンショットの代わりに、インタラクションが正確に意図したエンティティのみを変更したことをアサートします。
+
 ## 低レベルモデルユーティリティ
 
 組み込みのパネルの代わりにカスタムインスペクターUIを構築したい場合、ツリー構築とピッキングのロジックは別途エクスポートされています：
 
 ```typescript
-import { buildTreeModel, findEntityAt, describeEntity, pickInScene } from '@vectojs/devtools';
+import {
+  buildTreeModel,
+  findEntityAt,
+  describeEntity,
+  inspectEntity,
+  entityPath,
+  pickInScene,
+} from '@vectojs/devtools';
 
 buildTreeModel(root: Entity): { nodes: TreeNode[]; index: Map<string, Entity> };
 findEntityAt(root: Entity, x: number, y: number): Entity | null; // シーン空間の点 → エンティティ
 describeEntity(entity: Entity): string[]; // 人間が読める状態行
+inspectEntity(entity: Entity): EntityInfo; // 構造化されたJSON安全な状態
+entityPath(entity: Entity): string; // 祖先チェーン（"Scene > Card#<id> > Text#<id>"、IDは8文字に切り詰め）
 pickInScene(scene: Scene, sceneX: number, sceneY: number): Entity | null; // オーバーレイ優先ピック
 ```
+
+`inspectEntity` は `describeEntity` の構造化された兄弟です：ワールド境界とトランスフォーム、インタラクションフラグ、`clipChildren`、子カウント、ダックタイピングされたテキストプレビュー（`.text`/`.value`）、および存在する場合のa11yプロジェクション属性。`entityPath` はエンティティの祖先チェーンを生成します（例：`"Scene > Card#<id> > Text#<id>"`、IDは8文字に切り詰められます）。
+
+## デバッグワークフロー
+
+devtoolsモデルレイヤーはレイアウトの質問に数値で答えます — スクリーンショットの前にこれを使用してください。症状 → ツール：
+
+| 症状                                                              | ワークフロー                                                                                                                                                                                                                                       |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 「どのエンティティがこのピクセルを所有している？」                | `pickInScene(scene, x, y)` → `inspectEntity(hit)`；ページ内では、パネルの **Pick** ボタン                                                                                                                                                          |
+| 「なぜこのエンティティの位置/サイズがおかしい？」                 | `inspectEntity` でワールド境界＋トランスフォームを確認し、`entityPath` を上に辿る — 最初に境界がおかしい祖先がバグを所有している                                                                                                                   |
+| 「どこかでオーバーフロー/オーバーラップしているが見つけられない」 | `auditScene(scene)` — 各所見に `entityPath`、ワールド境界、エッジごとのオーバーフロー量が含まれる                                                                                                                                                  |
+| 「このインタラクションが動かすべきでないものを動かした」          | 前に `captureSnapshot`、インタラクション、後に `diffSnapshots` — diff は正確に何が変わったかをリストする                                                                                                                                           |
+| 「クリック/ホイール/キープレスが間違った場所に行く」              | `createEventTrace(scene)` — 各エントリーが source（`canvas`/`a11y`/`content`/`document`）、ターゲットパス、座標、最終的な `defaultPrevented` を表示                                                                                                |
+| 「テキストのドラッグ選択やコピーがインターセプトされる」          | `entry.source === 'content'` のイベントトレース — ブラウザイベントが選択可能なプロジェクション上で開始されたことを意味する；`defaultPrevented` とターゲットパスを確認                                                                              |
+| 「ドラッグがスタックする/コミットされない」                       | ポインタートレースはトランザクショナル：`pointerdown` → 移動 → 正確に1つの `pointerup`（コミット）**または** `pointercancel`（ロールバック）を期待；終端エントリーがない場合、エンティティが投影されていないかキャプチャがバイパスされたことを示す |
+| 「これはリグレッションか？」                                      | 健全なシーンのコミット済みスナップショット（`captureSnapshot`）を保持し、CIで `diffSnapshots` を実行する                                                                                                                                           |
 
 ## 設計ノート
 

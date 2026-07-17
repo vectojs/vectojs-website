@@ -88,18 +88,87 @@ trace.subscribe((entry) => {
 `pointercancel`，使中斷的拖放和選取交易可見，
 而非在 `pointerdown` 之後留下診斷缺口。
 
+## Scene 稽核
+
+`auditScene` 遍歷樹並以結構化的、JSON 安全的發現項報告佈局缺陷 —— 用數字回答「是否有內容溢出、重疊或超出邊界？」：
+
+```typescript
+import { auditScene } from '@vectojs/devtools/headless';
+
+const findings = auditScene(scene, {
+  tolerance: 0.5, // px 容差，超出此值才計為溢出/重疊
+  includeOverlay: false, // 預設排除模態框/高亮
+  ignore: (e) => e.id.startsWith('debug-'), // 修剪子樹
+  ignoreOverlap: (a, b) => a.id === 'badge', // 允許有意堆疊
+});
+// -> AuditFinding[]: { kind, entityId, entityPath, worldBounds, message,
+//    containerBounds?, overflow?{left,right,top,bottom}, otherId?, intersection? }
+```
+
+檢測四種 `kind`，確定性排序：
+
+- `text-overflow` —— 包含文字的實體的測量盒超出其最近的已定義尺寸的祖先。
+- `clip-overflow` —— 內容超出 `clipChildren` 祖先（像素被裁剪）。
+- `overlap` —— **僅兄弟元素**；父子包含關係是正常的。
+- `viewport-overflow` —— 沒有已定義尺寸祖先的實體繪製到畫布之外。
+
+已知盲點：可滾動容器豁免垂直軸（透過 `scrollableTypes` 覆蓋列表，以 `constructor.name` 匹配），並且 `opacity: 0` 實體被跳過。
+
+面板的 **Audit** 按鈕執行相同的檢查以替代樹視圖；`panel.audit()` 返回發現項，`panel.selectFinding(i)` 高亮其中一個。
+
+用作 CI 門禁：`expect(auditScene(scene)).toEqual([])`。
+
+## 快照與差異比較
+
+```typescript
+import { captureSnapshot, diffSnapshots } from '@vectojs/devtools/headless';
+
+const before = captureSnapshot(scene); // 確定性 JSON 樹
+// … 執行互動 …
+const diffs = diffSnapshots(before, captureSnapshot(scene));
+// -> [{ path: "root > GridEntity[0]", kind: "changed", changes: { x: {from,to} } }]
+```
+
+差異比較基於**結構路徑**（`type[index]` 鏈），從不使用實體 id——id 在每次執行中是隨機的。預設值的屬性從快照中省略，因此差異保持簡潔。快照對在冒煙測試中實現精確的黃金狀態斷言：無需截圖，斷言某個互動恰好改變了它應該改變的實體。
+
 ## 低階模型工具
 
 如果您想建立自訂檢查器 UI 而非內建面板，樹建立和選取邏輯會獨立匯出：
 
 ```typescript
-import { buildTreeModel, findEntityAt, describeEntity, pickInScene } from '@vectojs/devtools';
+import {
+  buildTreeModel,
+  findEntityAt,
+  describeEntity,
+  inspectEntity,
+  entityPath,
+  pickInScene,
+} from '@vectojs/devtools';
 
 buildTreeModel(root: Entity): { nodes: TreeNode[]; index: Map<string, Entity> };
 findEntityAt(root: Entity, x: number, y: number): Entity | null; // 場景空間點 → 實體
 describeEntity(entity: Entity): string[]; // 人類可讀的狀態行
+inspectEntity(entity: Entity): EntityInfo; // 結構化、JSON 安全的狀態
+entityPath(entity: Entity): string; // 祖先鏈（"Scene > Card#<id> > Text#<id>"，ID 截斷至 8 個字元）
 pickInScene(scene: Scene, sceneX: number, sceneY: number): Entity | null; // overlay 優先選取
 ```
+
+`inspectEntity` 是 `describeEntity` 的結構化兄弟：世界邊界和變換、互動標誌、`clipChildren`、子元素數量、鴨子型別的文字預覽（`.text`/`.value`），以及存在時的無障礙功能投影屬性。`entityPath` 生成實體的祖先鏈（例如 `"Scene > Card#<id> > Text#<id>"`，ID 截斷至 8 個字元）。
+
+## 除錯工作流程
+
+devtools 模型層用數字回答佈局問題 — 在截圖之前使用它。症狀 → 工具：
+
+| 症狀                                | 工作流程                                                                                                                                             |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 「哪個實體擁有這個像素？」          | `pickInScene(scene, x, y)` → `inspectEntity(hit)`；在頁面內，面板的 **Pick** 按鈕                                                                    |
+| 「為什麼這個實體的位置/尺寸不對？」 | `inspectEntity` 獲取世界邊界和變換，然後向上遍歷 `entityPath` —— 邊界有問題的第一個祖先擁有該 bug                                                    |
+| 「有內容溢出/重疊但我找不到位置」   | `auditScene(scene)` —— 每個發現項包含 `entityPath`、世界邊界和每個邊緣的溢出量                                                                       |
+| 「這個互動移動了不該動的實體」      | `captureSnapshot` 之前，互動，`diffSnapshots` 之後 —— diff 精確列出變化的內容                                                                        |
+| 「點擊/滾輪/按鍵去到了錯誤的地方」  | `createEventTrace(scene)` —— 每個條目顯示 source（`canvas`/`a11y`/`content`/`document`）、目標路徑、座標以及最終的 `defaultPrevented`                |
+| 「文字拖曳選取或複製被攔截」        | 事件追蹤中 `entry.source === 'content'` —— 表示瀏覽器事件始於可選擇的投射；檢查 `defaultPrevented` 和目標路徑                                        |
+| 「拖曳卡住/從未提交」               | 指標追蹤是事務性的：期望 `pointerdown` → 移動 → 正好一個 `pointerup`（提交）**或** `pointercancel`（回滾）；缺少終止條目表示實體未被投射或捕獲被繞過 |
+| 「這是迴歸嗎？」                    | 保留健康場景的已提交快照（`captureSnapshot`）並在 CI 中對其執行 `diffSnapshots`                                                                      |
 
 ## 設計備註
 

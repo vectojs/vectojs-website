@@ -49,20 +49,38 @@ interface MarkdownOptions {
 
 ## 流式传输
 
-对于 token 流，只追加新的增量：
+对于 token 流，只追加新的增量 —— 并按动画帧批量处理 token，而不是每个 token 都追加：
 
 ```ts
-for await (const token of llmStream) {
-  markdown.appendMarkdown(token);
-  scrollView.scrollToBottom();
+let pending = '';
+let scheduled = false;
+function pushToken(token: string) {
+  pending += token;
+  if (scheduled) return;
+  scheduled = true;
+  requestAnimationFrame(() => {
+    scheduled = false;
+    const chunk = pending;
+    pending = '';
+    markdown.appendMarkdown(chunk);
+    scrollView.scrollToBottom();
+  });
 }
+for await (const token of llmStream) pushToken(token);
 ```
 
-避免为每个 token 调用 `setContent(fullDocumentSoFar)`；那会重建整个子树。
+避免为每个 token 调用 `setContent(fullDocumentSoFar)`；那会重建整个子树。完整的方案 —— 底部跟随粘性、长转录分段、渲染模式选择 —— 在[流式与实时文本](/learn/streaming/)指南中。
+
+## 性能模型
+
+每次调用的实际开销，以便可以理性分析流式代码：
+
+- **解析默认在后台线程进行。** `appendMarkdown` 将累积的源码发布到由内嵌 bundle 构建的 `Worker`（无网络请求）；当解析返回时，应用 token 差异和实体更新。没有 `Worker` 的环境（某些测试运行器、SSR）回退到同步词法分析 —— 相同的结果，主线程成本。
+- **每次追加的词法分析是 O(文档大小)**，而非 O(块大小)：每次调用都会重新标记化整个累积的源码。按帧批处理（如上所述），并将长篇转录分段为每条消息一个 `Markdown` 实体，以使实时文档保持较小。
+- **已完成的块会被重用，而非重建。** `appendMarkdown` 通过原始源码将新 token 列表与旧列表进行前缀匹配；每个已渲染的块保持其实体实例。常见的流式情况 —— 最后一个段落增长 —— 原地更新该段落的跨度。
+- **`setContent()` 不重用任何内容。** 它移除所有子元素并重新渲染完整的 token 列表。它是_替换_文档的正确调用，而_增长_文档的错误调用。
 
 ## 扩展点
-
-`renderToken(token)` 是 protected 的，因此自定义渲染器可以子类化 `Markdown` 以处理应用特定的块，同时仍将普通 token 委托给内置渲染器。
 
 ## 维护者检查清单
 

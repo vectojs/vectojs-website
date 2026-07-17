@@ -88,18 +88,87 @@ refleje la decisión final de acceso directo o selección de la aplicación. Lla
 `pointercancel`, lo que hace visibles las transacciones de arrastre y selección interrumpidas
 en lugar de dejar un vacío diagnóstico después de `pointerdown`.
 
+## Auditoría de escena
+
+`auditScene` recorre el árbol e informa defectos de diseño como hallazgos estructurados y seguros para JSON — la respuesta numérica a "¿algo se desborda, superpone o escapa?":
+
+```typescript
+import { auditScene } from '@vectojs/devtools/headless';
+
+const findings = auditScene(scene, {
+  tolerance: 0.5, // px de holgura antes de que un escape/superposición cuente
+  includeOverlay: false, // modales/destacados excluidos por defecto
+  ignore: (e) => e.id.startsWith('debug-'), // podar subárboles
+  ignoreOverlap: (a, b) => a.id === 'badge', // permitir apilamiento intencional
+});
+// -> AuditFinding[]: { kind, entityId, entityPath, worldBounds, message,
+//    containerBounds?, overflow?{left,right,top,bottom}, otherId?, intersection? }
+```
+
+Se detectan cuatro `kind`, ordenados determinísticamente:
+
+- `text-overflow` — la caja medida de una entidad con texto escapa de su ancestro con tamaño más cercano.
+- `clip-overflow` — el contenido escapa de un ancestro `clipChildren` (píxeles recortados).
+- `overlap` — **solo hermanos**; la contención padre-hijo es normal.
+- `viewport-overflow` — una entidad sin ancestro con tamaño dibujada fuera del canvas.
+
+Puntos ciegos conocidos: los contenedores desplazables eximen el eje vertical (anula la lista mediante `scrollableTypes`, coincididos por `constructor.name`), y las entidades con `opacity: 0` se omiten.
+
+El botón **Audit** del panel ejecuta la misma verificación en lugar de la vista de árbol; `panel.audit()` devuelve los hallazgos y `panel.selectFinding(i)` resalta uno.
+
+Úsalo como compuerta de CI: `expect(auditScene(scene)).toEqual([])`.
+
+## Instantáneas y diferencias
+
+```typescript
+import { captureSnapshot, diffSnapshots } from '@vectojs/devtools/headless';
+
+const before = captureSnapshot(scene); // árbol JSON determinista
+// … realizar una interacción …
+const diffs = diffSnapshots(before, captureSnapshot(scene));
+// -> [{ path: "root > GridEntity[0]", kind: "changed", changes: { x: {from,to} } }]
+```
+
+Las diferencias se basan en **rutas estructurales** (cadenas `type[index]`), nunca en IDs de entidad — los IDs son aleatorios por ejecución. Las propiedades con valores por defecto se omiten de las instantáneas, por lo que las diferencias se mantienen limpias. Los pares de instantáneas permiten aserciones de estado golden precisas en pruebas de humo: en lugar de capturar pantalla, afirma que una interacción cambió exactamente las entidades que debería.
+
 ## Utilidades de modelo de nivel inferior
 
 La lógica de construcción de árbol y selección se exporta por separado si quieres construir una UI de inspector personalizada en lugar del panel integrado:
 
 ```typescript
-import { buildTreeModel, findEntityAt, describeEntity, pickInScene } from '@vectojs/devtools';
+import {
+  buildTreeModel,
+  findEntityAt,
+  describeEntity,
+  inspectEntity,
+  entityPath,
+  pickInScene,
+} from '@vectojs/devtools';
 
 buildTreeModel(root: Entity): { nodes: TreeNode[]; index: Map<string, Entity> };
 findEntityAt(root: Entity, x: number, y: number): Entity | null; // punto en espacio de escena → entidad
 describeEntity(entity: Entity): string[]; // líneas de estado legibles por humanos
+inspectEntity(entity: Entity): EntityInfo; // estado estructurado y seguro para JSON
+entityPath(entity: Entity): string; // cadena de ascendencia ("Scene > Card#<id> > Text#<id>", ids truncados a 8 caracteres)
 pickInScene(scene: Scene, sceneX: number, sceneY: number): Entity | null; // selección con prioridad de superposición
 ```
+
+`inspectEntity` es el hermano estructurado de `describeEntity`: límites y transformación mundial, banderas de interacción, `clipChildren`, recuento de hijos, una vista previa de texto con tipado dinámico (`.text`/`.value`), y los atributos de proyección de accesibilidad cuando están presentes. `entityPath` genera la cadena de ascendencia de la entidad (ej. `"Scene > Card#<id> > Text#<id>"`, IDs truncados a 8 caracteres).
+
+## Flujos de trabajo de depuración
+
+La capa de modelo de devtools responde preguntas de diseño con números — úsala antes de recurrir a una captura de pantalla. Síntoma → herramienta:
+
+| Síntoma                                                               | Flujo de trabajo                                                                                                                                                                                                                                             |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| "¿Qué entidad posee este píxel?"                                      | `pickInScene(scene, x, y)` → `inspectEntity(hit)`; en página, el botón **Pick** del panel                                                                                                                                                                    |
+| "¿Por qué esta entidad tiene la posición/tamaño incorrecto?"          | `inspectEntity` para límites mundiales + transformación, luego recorre `entityPath` hacia arriba — el primer ancestro con límites incorrectos posee el bug                                                                                                   |
+| "Algo se desborda/superpone pero no veo dónde"                        | `auditScene(scene)` — cada hallazgo incluye `entityPath`, límites mundiales y cantidades de desbordamiento por borde                                                                                                                                         |
+| "Esta interacción movió algo que no debería"                          | `captureSnapshot` antes, interactuar, `diffSnapshots` después — el diff lista exactamente qué cambió                                                                                                                                                         |
+| "Un clic/rueda/tecla va al lugar equivocado"                          | `createEventTrace(scene)` — cada entrada muestra source (`canvas`/`a11y`/`content`/`document`), ruta de destino, coordenadas, y el `defaultPrevented` final                                                                                                  |
+| "La selección por arrastre de texto o copia está siendo interceptada" | Traza de eventos con `entry.source === 'content'` — significa que el evento del navegador comenzó en una proyección seleccionable; verifica `defaultPrevented` y la ruta de destino                                                                          |
+| "Un arrastre se atasca / nunca se completa"                           | Las trazas de puntero son transaccionales: espera `pointerdown` → movimientos → exactamente un `pointerup` (confirmación) **o** `pointercancel` (reversión); una entrada terminal faltante significa que la entidad no fue proyectada o se omitió la captura |
+| "¿Es esto una regresión?"                                             | Guarda una instantánea confirmada (`captureSnapshot`) de la escena saludable y ejecuta `diffSnapshots` contra ella en CI                                                                                                                                     |
 
 ## Notas de diseño
 

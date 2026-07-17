@@ -61,21 +61,39 @@ Cuando una aplicación controla el tamaño del contenedor o el zoom CSS, notific
 
 ## Transmisión por streaming
 
-Para flujos de tokens, agrega solo el nuevo delta:
+Para flujos de tokens, agrega solo el nuevo delta — y agrupa tokens por fotograma de animación en lugar de agregar por token:
 
 ```ts
-for await (const token of llmStream) {
-  markdown.appendMarkdown(token);
-  scrollView.scrollToBottom();
+let pending = '';
+let scheduled = false;
+function pushToken(token: string) {
+  pending += token;
+  if (scheduled) return;
+  scheduled = true;
+  requestAnimationFrame(() => {
+    scheduled = false;
+    const chunk = pending;
+    pending = '';
+    markdown.appendMarkdown(chunk);
+    scrollView.scrollToBottom();
+  });
 }
+for await (const token of llmStream) pushToken(token);
 ```
 
 Evita llamar a `setContent(fullDocumentSoFar)` por cada token; eso reconstruye todo el subárbol.
+La receta completa — adherencia de seguimiento inferior, segmentación de transcripciones largas, elección de modo de renderizado — está en la guía [Streaming y texto en tiempo real](/learn/streaming/).
+
+## Modelo de rendimiento
+
+Lo que realmente cuesta cada llamada, para que el código de streaming pueda razonarse:
+
+- **El análisis sintáctico está fuera del hilo principal por defecto.** `appendMarkdown` envía la fuente acumulada a un `Worker` construido desde un paquete incrustado (sin solicitud de red); el diff de tokens y las actualizaciones de entidades se aplican cuando el análisis regresa. Los entornos sin `Worker` (algunos ejecutores de pruebas, SSR) recurren al análisis léxico sincrónico — mismo resultado, costo en el hilo principal.
+- **El análisis léxico es O(documento) por adjunto**, no O(fragmento): toda la fuente acumulada se retokeniza en cada llamada. Agrupa por fotograma (arriba) y segmenta transcripciones largas en una entidad `Markdown` por mensaje para que el documento en vivo se mantenga pequeño.
+- **Los bloques terminados se reutilizan, no se reconstruyen.** `appendMarkdown` compara por prefijo la nueva lista de tokens con la anterior mediante la fuente original; cada bloque ya renderizado mantiene su instancia de entidad. El caso común de streaming — el último párrafo creció — actualiza los spans de ese párrafo en el lugar.
+- **`setContent()` no reutiliza nada.** Elimina cada hijo y vuelve a renderizar la lista completa de tokens. Es la llamada correcta para _reemplazar_ un documento, y la llamada incorrecta para _hacer crecer_ uno.
 
 ## Punto de extensión
-
-`renderToken(token)` es protected, por lo que los renderizadores personalizados pueden crear subclases de `Markdown` para bloques
-específicos de la aplicación mientras siguen delegando los tokens normales al renderizador integrado.
 
 ## Lista de verificación para mantenedores
 

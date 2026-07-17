@@ -61,21 +61,39 @@ Lorsquʼune application gère le dimensionnement du conteneur ou le zoom CSS, no
 
 ## Flux en continu
 
-Pour les flux de jetons, ajoutez uniquement le nouveau delta :
+Pour les flux de jetons, ajoutez uniquement le nouveau delta — et regroupez les jetons par trame d'animation plutôt que d'ajouter par jeton :
 
 ```ts
-for await (const token of llmStream) {
-  markdown.appendMarkdown(token);
-  scrollView.scrollToBottom();
+let pending = '';
+let scheduled = false;
+function pushToken(token: string) {
+  pending += token;
+  if (scheduled) return;
+  scheduled = true;
+  requestAnimationFrame(() => {
+    scheduled = false;
+    const chunk = pending;
+    pending = '';
+    markdown.appendMarkdown(chunk);
+    scrollView.scrollToBottom();
+  });
 }
+for await (const token of llmStream) pushToken(token);
 ```
 
-Évitez dʼappeler `setContent(fullDocumentSoFar)` pour chaque jeton ; cela reconstruit tout le sous-arbre.
+Évitez d'appeler `setContent(fullDocumentSoFar)` pour chaque jeton ; cela reconstruit tout le sous-arbre.
+La recette complète — adhérence de suivi inférieur, segmentation des longs transcripts, choix du mode de rendu — se trouve dans le guide [Streaming & Texte en temps réel](/learn/streaming/).
 
-## Point dʼextension
+## Modèle de performance
 
-`renderToken(token)` est protégé, donc les moteurs de rendu personnalisés peuvent sous-classer `Markdown` pour des blocs
-spécifiques à lʼapplication tout en déléguant les jetons normaux au moteur de rendu intégré.
+Ce que coûte réellement chaque appel, afin que le code de streaming puisse être raisonné :
+
+- **L'analyse est hors thread par défaut.** `appendMarkdown` poste la source accumulée vers un `Worker` construit à partir d'un bundle intégré (aucune requête réseau) ; le diff de jetons et les mises à jour d'entités s'appliquent lorsque l'analyse revient. Les environnements sans `Worker` (certains exécuteurs de tests, SSR) tombent en analyse lexicale synchrone — même résultat, coût sur le thread principal.
+- **L'analyse lexicale est O(document) par ajout**, pas O(morceau) : toute la source accumulée est re-tokenisée à chaque appel. Regroupez par trame (ci-dessus) et segmentez les longs transcripts en une entité `Markdown` par message pour que le document en direct reste petit.
+- **Les blocs terminés sont réutilisés, pas reconstruits.** `appendMarkdown` fait correspondre par préfixe la nouvelle liste de jetons avec l'ancienne via la source brute ; chaque bloc déjà rendu conserve son instance d'entité. Le cas de streaming courant — le dernier paragraphe a grandi — met à jour les étendues de ce paragraphe sur place.
+- **`setContent()` ne réutilise rien.** Il supprime chaque enfant et réaffiche la liste complète des jetons. C'est l'appel correct pour _remplacer_ un document, et l'appel incorrect pour _agrandir_ un document.
+
+## Point d'extension
 
 ## Liste de vérification pour les mainteneurs
 

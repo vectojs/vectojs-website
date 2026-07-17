@@ -79,18 +79,87 @@ trace.subscribe((entry) => {
 
 `source` 是 `"canvas"`、`"a11y"`、`"content"` 或 `"document"`。`content` 源意味着浏览器事件始于一个可选择的 `[data-vecto-content]` 镜像。追踪验证拥有它的 Entity，记录场景/局部坐标，并在一个微任务中最终确定，以便 `defaultPrevented` 反映应用最终的快捷键或选择决定。当诊断表面卸载时调用 `trace.destroy()`。指针追踪包含 `pointercancel`，这使得被中断的拖拽和选择事务可见，而不是在 `pointerdown` 之后留下诊断空隙。
 
+## Scene 审计
+
+`auditScene` 遍历树并以结构化的、JSON 安全的发现项报告布局缺陷 —— 用数字回答"是否有内容溢出、重叠或超出边界？"：
+
+```typescript
+import { auditScene } from '@vectojs/devtools/headless';
+
+const findings = auditScene(scene, {
+  tolerance: 0.5, // px 容差，超过此值才计为溢出/重叠
+  includeOverlay: false, // 默认排除模态框/高亮
+  ignore: (e) => e.id.startsWith('debug-'), // 修剪子树
+  ignoreOverlap: (a, b) => a.id === 'badge', // 允许有意堆叠
+});
+// -> AuditFinding[]: { kind, entityId, entityPath, worldBounds, message,
+//    containerBounds?, overflow?{left,right,top,bottom}, otherId?, intersection? }
+```
+
+检测四种 `kind`，确定性排序：
+
+- `text-overflow` —— 包含文本的实体的测量盒超出其最近的已定义尺寸的祖先。
+- `clip-overflow` —— 内容超出 `clipChildren` 祖先（像素被裁剪）。
+- `overlap` —— **仅兄弟元素**；父子包含关系是正常的。
+- `viewport-overflow` —— 没有已定义尺寸祖先的实体绘制到画布之外。
+
+已知盲点：可滚动容器豁免垂直轴（通过 `scrollableTypes` 覆盖列表，以 `constructor.name` 匹配），并且 `opacity: 0` 实体被跳过。
+
+面板的 **Audit** 按钮运行相同的检查以替代树视图；`panel.audit()` 返回发现项，`panel.selectFinding(i)` 高亮其中一个。
+
+用作 CI 门禁：`expect(auditScene(scene)).toEqual([])`。
+
+## 快照与差异比较
+
+```typescript
+import { captureSnapshot, diffSnapshots } from '@vectojs/devtools/headless';
+
+const before = captureSnapshot(scene); // 确定性 JSON 树
+// … 执行交互 …
+const diffs = diffSnapshots(before, captureSnapshot(scene));
+// -> [{ path: "root > GridEntity[0]", kind: "changed", changes: { x: {from,to} } }]
+```
+
+差异比较基于**结构路径**（`type[index]` 链），从不使用实体 id——id 在每次运行中是随机的。默认值的属性从快照中省略，因此差异保持简洁。快照对在冒烟测试中实现精确的黄金状态断言：无需截图，断言某个交互恰好改变了它应该改变的实体。
+
 ## 更底层的模型工具
 
 如果你想构建自定义检查器 UI 而不是内置面板，树构建和拾取逻辑是单独导出的：
 
 ```typescript
-import { buildTreeModel, findEntityAt, describeEntity, pickInScene } from '@vectojs/devtools';
+import {
+  buildTreeModel,
+  findEntityAt,
+  describeEntity,
+  inspectEntity,
+  entityPath,
+  pickInScene,
+} from '@vectojs/devtools';
 
 buildTreeModel(root: Entity): { nodes: TreeNode[]; index: Map<string, Entity> };
 findEntityAt(root: Entity, x: number, y: number): Entity | null; // scene-space point → entity
 describeEntity(entity: Entity): string[]; // human-readable state lines
+inspectEntity(entity: Entity): EntityInfo; // structured, JSON-safe state
+entityPath(entity: Entity): string; // ancestry chain ("Scene > Card#<id> > Text#<id>", ids truncated to 8 chars)
 pickInScene(scene: Scene, sceneX: number, sceneY: number): Entity | null; // overlay-first pick
 ```
+
+`inspectEntity` 是 `describeEntity` 的结构化兄弟：世界边界和变换、交互标志、`clipChildren`、子元素数量、鸭子类型的文本预览（`.text`/`.value`），以及存在时的辅助功能投影属性。`entityPath` 生成实体的祖先链（例如 `"Scene > Card#<id> > Text#<id>"`，ID 截断至 8 个字符）。
+
+## 调试工作流
+
+devtools 模型层用数字回答布局问题 —— 在截图之前用它。症状 → 工具：
+
+| 症状                              | 工作流                                                                                                                                                 |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| "哪个实体拥有这个像素？"          | `pickInScene(scene, x, y)` → `inspectEntity(hit)`；在页面内，面板的 **Pick** 按钮                                                                      |
+| "为什么这个实体的位置/尺寸不对？" | `inspectEntity` 获取世界边界和变换，然后向上遍历 `entityPath` —— 边界有问题的第一个祖先拥有该 bug                                                      |
+| "有内容溢出/重叠但我找不到位置"   | `auditScene(scene)` —— 每个发现项包含 `entityPath`、世界边界和每个边缘的溢出量                                                                         |
+| "这个交互移动了不该动的实体"      | `captureSnapshot` 之前，交互，`diffSnapshots` 之后 —— diff 精确列出变化的内容                                                                          |
+| "点击/滚轮/按键去到了错误的地方"  | `createEventTrace(scene)` —— 每个条目显示 source（`canvas`/`a11y`/`content`/`document`）、目标路径、坐标以及最终的 `defaultPrevented`                  |
+| "文本拖拽选择或复制被拦截"        | 事件追踪中 `entry.source === 'content'` —— 意味着浏览器事件始于可选择的投影；检查 `defaultPrevented` 和目标路径                                        |
+| "拖拽卡住/从未提交"               | 指针追踪是事务性的：期望 `pointerdown` → 移动 → 正好一个 `pointerup`（提交）**或** `pointercancel`（回滚）；缺少终止条目意味着实体未被投影或捕获被绕过 |
+| "这是回归吗？"                    | 保留健康场景的提交快照（`captureSnapshot`）并在 CI 中对其运行 `diffSnapshots`                                                                          |
 
 ## 设计说明
 
