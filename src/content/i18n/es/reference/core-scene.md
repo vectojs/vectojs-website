@@ -39,9 +39,32 @@ no-op para que la disposición sin interfaz gráfica / `toSVG()` sigan funcionan
 | `debugA11y`            | `boolean`                     | `false`          | Renderiza nodos sombra con un contorno punteado azul (ayuda de desarrollo) en lugar de `opacity:0`. Siguen siendo cliqueables por automatización de cualquier forma.                                                                                                                                                                 |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | Renderizador personalizado (ej. `ThreeRenderer` de [`@vectojs/three`](/reference/three-renderer/)).                                                                                                                                                                                                                                  |
 | `disableWindowResize`  | `boolean`                     | `false`          | Omite el listener automático de `window` resize. Úsalo dentro de un contenedor de diseño personalizado / canvas fuera de pantalla, luego controla el tamaño con `resize(w, h)`.                                                                                                                                                      |
+| `maxDPR`               | `number`                      | `undefined`      | Limita la relación de píxeles del dispositivo utilizada para dimensionar los almacenes de respaldo de Canvas2D y `pointBackend: 'webgl'`. `undefined` lee el `devicePixelRatio` real sin límite. Se reaplica en cada llamada `resize()`, no solo en la construcción. Ver "Limitación del DPR de renderizado" más abajo.              |
 
 Nota: `renderMode` es un **campo público** (por defecto `'always'`), no una opción
 del constructor — establece `scene.renderMode = 'onDemand'` después de la construcción.
+
+### Limitación del DPR de renderizado (`maxDPR`)
+
+El costo de renderizado del almacén de respaldo escala con `tamaño lógico × dpr²`, no linealmente —
+una escena a pantalla completa que funciona sin problemas a DPR 1 (la mayoría de los portátiles de desarrollo) puede exceder su
+presupuesto de fotograma de 16ms en una pantalla DPR-3, invisible hasta que alguien realmente pruebe
+en una. Esto afecta más a `pointBackend: 'webgl'`, ya que renderiza un
+canvas apilado separado cuyo costo de fragmento/overdraw es exactamente esta curva DPR² —
+un campo de 1200 partículas a pantalla completa midió **116ms** de fotograma máximo a
+DPR 3 frente a 60fps impecables a DPR 1.
+
+```ts
+const scene = new Scene(canvas, { pointBackend: 'webgl', maxDPR: 2 });
+```
+
+`maxDPR: 2` mantiene la pantalla nítida (2× ya supera lo que la mayoría de los
+ojos resuelven a distancia de visualización normal) mientras limita la cantidad de píxeles
+del almacén de respaldo — aproximadamente la mitad a DPR 3, ya que `2² / 3² ≈ 0.44×` los
+píxeles. Antes de que existiera esta opción, la única solución era monkey-patching
+`window.devicePixelRatio` antes de construir la Scene; prefiere `maxDPR`
+ahora — se reaplica correctamente en cada resize, cosa que un
+`Object.defineProperty` puntual no hace.
 
 ## Campos públicos
 

@@ -626,7 +626,7 @@ interface TabsOptions {
   closable?: boolean; // 显示关闭按钮；点击路由到 onClose
   tabWidth?: number; // 首选像素宽度；溢出时标签栏滚动（默认 160）
   minTabWidth?: number; // 触发滚动的最小宽度（默认 96）
-  autoHideTabBar?: boolean; // 少于 2 个标签时隐藏标签栏（默认 false；1.10.0）
+  autoHideTabBar?: boolean; // 少于 2 个标签时隐藏标签栏（默认 false；1.9.5）
   onChange?: (value: string) => void;
   onClose?: (value: string) => void;
 }
@@ -640,7 +640,7 @@ interface TabItem {
 
 选项卡选择容器。自动挂载活动选项卡的内容视图并在剩余空间内进行平移。为可访问性投影 `{ role: 'tablist' }`。标准化的 `'change'` 事件负载携带 `{ value }`。
 
-Tabs 保持固定的首选 `tabWidth`，标签栏在溢出时水平滚动（滚轮，或自动滚动以使活动标签可见），而不是缩成碎片——从 1.9.4 开始，`tabWidth` 是标签栏滚动的目标宽度，不是拉伸填充的宽度（之前这会导致宽条上的关闭命中定位错误）。启用 `autoHideTabBar`（1.10.0）后，当标签少于两个时，标签栏及其点击区域消失，内容占据全部高度（Vim `showtabline=1` 语义）；`effectiveTabBarHeight` 获取器报告标签栏的当前高度（隐藏时为 `0`），并且内容几何信息每帧重新同步，因此重新分配 `tabs` 不会留下陈旧或偏移的内容。
+Tabs 保持固定的首选 `tabWidth`，标签栏在溢出时水平滚动（滚轮，或自动滚动以使活动标签可见），而不是缩成碎片——从 1.9.4 开始，`tabWidth` 是标签栏滚动的目标宽度，不是拉伸填充的宽度（之前这会导致宽条上的关闭命中定位错误）。启用 `autoHideTabBar`（1.9.5）后，当标签少于两个时，标签栏及其点击区域消失，内容占据全部高度（Vim `showtabline=1` 语义）；`effectiveTabBarHeight` 获取器报告标签栏的当前高度（隐藏时为 `0`），并且内容几何信息每帧重新同步，因此重新分配 `tabs` 不会留下陈旧或偏移的内容。
 
 ---
 

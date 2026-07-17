@@ -631,7 +631,7 @@ interface TabsOptions {
   closable?: boolean; // 닫기 표시 표시; 클릭은 onClose로 라우팅
   tabWidth?: number; // 기본 설정 너비(px); 오버플로 시 막대 스크롤(기본값 160)
   minTabWidth?: number; // 스크롤이 시작되는 하한(기본값 96)
-  autoHideTabBar?: boolean; // 탭이 2개 미만일 때 막대 숨김(기본값 false; 1.10.0)
+  autoHideTabBar?: boolean; // 탭이 2개 미만일 때 막대 숨김(기본값 false; 1.9.5)
   onChange?: (value: string) => void;
   onClose?: (value: string) => void;
 }
@@ -645,7 +645,7 @@ interface TabItem {
 
 탭 선택 컨테이너. 활성 탭의 콘텐츠 뷰를 자동으로 마운트하고 나머지 공간 내에서 변환합니다. 접근성을 위해 `{ role: 'tablist' }`를 프로젝션합니다. 표준화된 `'change'` 이벤트 페이로드에는 `{ value }`가 포함됩니다.
 
-Tabs는 고정된 기본 설정 `tabWidth`를 유지하며 탭이 오버플로되면 줄어들지 않고 막대가 수평으로 스크롤됩니다(휠 또는 활성 탭을 계속 보기 위한 자동 스크롤) — 1.9.4부터 `tabWidth`는 막대가 지나치는 대상 너비이지 늘여서 채우는 너비가 아닙니다(이전에는 넓은 스트립에서 닫기 히트가 잘못 지정됨). `autoHideTabBar`(1.10.0)를 사용하면 탭이 2개 미만인 동안 막대와 히트 영역이 사라지고 콘텐츠가 전체 높이를 차지합니다(Vim `showtabline=1` 의미). `effectiveTabBarHeight` 게터는 막대의 현재 높이를 보고하며(숨겨졌을 때 `0`), 콘텐츠 지오메트리는 매 프레임 다시 동기화되므로 `tabs`를 재할당해도 오래되었거나 오프셋된 콘텐츠가 남을 수 없습니다.
+Tabs는 고정된 기본 설정 `tabWidth`를 유지하며 탭이 오버플로되면 줄어들지 않고 막대가 수평으로 스크롤됩니다(휠 또는 활성 탭을 계속 보기 위한 자동 스크롤) — 1.9.4부터 `tabWidth`는 막대가 지나치는 대상 너비이지 늘여서 채우는 너비가 아닙니다(이전에는 넓은 스트립에서 닫기 히트가 잘못 지정됨). `autoHideTabBar`(1.9.5)를 사용하면 탭이 2개 미만인 동안 막대와 히트 영역이 사라지고 콘텐츠가 전체 높이를 차지합니다(Vim `showtabline=1` 의미). `effectiveTabBarHeight` 게터는 막대의 현재 높이를 보고하며(숨겨졌을 때 `0`), 콘텐츠 지오메트리는 매 프레임 다시 동기화되므로 `tabs`를 재할당해도 오래되었거나 오프셋된 콘텐츠가 남을 수 없습니다.
 
 ---
 

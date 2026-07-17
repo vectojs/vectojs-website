@@ -625,7 +625,7 @@ interface TabsOptions {
   closable?: boolean; // muestra un botón de cierre; los clics se enrutan a onClose
   tabWidth?: number; // ancho preferido en px; la barra se desplaza al desbordarse (por defecto 160)
   minTabWidth?: number; // límite inferior antes de que el desplazamiento se active (por defecto 96)
-  autoHideTabBar?: boolean; // oculta la barra con < 2 pestañas (por defecto false; 1.10.0)
+  autoHideTabBar?: boolean; // oculta la barra con < 2 pestañas (por defecto false; 1.9.5)
   onChange?: (value: string) => void;
   onClose?: (value: string) => void;
 }
@@ -639,7 +639,7 @@ interface TabItem {
 
 Un contenedor de selección por pestañas. Monta automáticamente la vista de contenido de la pestaña activa y la traslada dentro del espacio restante. Proyecta `{ role: 'tablist' }` para accesibilidad. El payload del evento `'change'` estandarizado lleva `{ value }`.
 
-Las pestañas mantienen un `tabWidth` preferido fijo y la barra se desplaza horizontalmente una vez que se desbordan (rueda, o desplazamiento automático para mantener visible la pestaña activa) en lugar de reducirse a tiras finas — a partir de 1.9.4, `tabWidth` es un objetivo más allá del cual la barra se desplaza, no un ancho que se estira para llenar (lo que antes desorientaba los clics de cierre en tiras anchas). Con `autoHideTabBar` (1.10.0), la barra y su región de impacto desaparecen mientras existan menos de dos pestañas y el contenido ocupa toda la altura (semántica `showtabline=1` de Vim); el getter `effectiveTabBarHeight` informa la altura actual de la barra (`0` cuando está oculta), y la geometría del contenido se re-sincroniza cada fotograma para que reasignar `tabs` no pueda dejar contenido obsoleto o desplazado.
+Las pestañas mantienen un `tabWidth` preferido fijo y la barra se desplaza horizontalmente una vez que se desbordan (rueda, o desplazamiento automático para mantener visible la pestaña activa) en lugar de reducirse a tiras finas — a partir de 1.9.4, `tabWidth` es un objetivo más allá del cual la barra se desplaza, no un ancho que se estira para llenar (lo que antes desorientaba los clics de cierre en tiras anchas). Con `autoHideTabBar` (1.9.5), la barra y su región de impacto desaparecen mientras existan menos de dos pestañas y el contenido ocupa toda la altura (semántica `showtabline=1` de Vim); el getter `effectiveTabBarHeight` informa la altura actual de la barra (`0` cuando está oculta), y la geometría del contenido se re-sincroniza cada fotograma para que reasignar `tabs` no pueda dejar contenido obsoleto o desplazado.
 
 ---
 

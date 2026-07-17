@@ -34,8 +34,19 @@ Sceneは2つの透過的な兄弟 `<div>` をキャンバスの**親**要素に�
 | `debugA11y`            | `boolean`                     | `false`          | シャドウノードを `opacity:0` の代わりに青い破線のアウトラインでレンダリングします（開発支援）。どちらにせよ自動化からはクリック可能です。                                                                                                                                                                                               |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | カスタムレンダラー（例：[`@vectojs/three`](/reference/three-renderer/) の `ThreeRenderer`）。                                                                                                                                                                                                                                           |
 | `disableWindowResize`  | `boolean`                     | `false`          | 自動 `window` リサイズリスナーをスキップします。カスタムレイアウトコンテナ/オフスクリーンキャンバス内で使用し、`resize(w, h)` でサイズを駆動します。                                                                                                                                                                                    |
+| `maxDPR`               | `number`                      | `undefined`      | デバイスピクセル比を上限で抑え、Canvas2Dおよび`pointBackend: 'webgl'`バッキングストアのサイズ設定に使用します。`undefined`は実際の上限なしの`devicePixelRatio`を読み取ります。`resize()`呼び出しのたびに再適用されます（構築時だけでなく）。以下の「DPRレンダリングの上限」を参照してください。                                         |
 
 注意：`renderMode` は**パブリックフィールド**（デフォルト `'always'`）であり、コンストラクタオプションではありません — 構築後に `scene.renderMode = 'onDemand'` を設定してください。
+
+### レンダリングDPRの上限（`maxDPR`）
+
+バッキングストアのレンダリングコストは`論理サイズ × dpr²`でスケーリングし、線形ではありません — DPR 1（ほとんどの開発用ラップトップ）でスムーズなフルスクリーンシーンは、DPR 3のディスプレイで16msのフレームバジェットを超過する可能性があり、実際にそのディスプレイでテストされるまで見えません。これは`pointBackend: 'webgl'`で最も顕著で、別のスタックキャンバスをレンダリングするため、そのフラグメント/オーバードローコストは正確にこのDPR²曲線になります — フルスクリーンの1200パーティクルフィールドでは、DPR 3で**116ms**の最大フレーム、DPR 1では完璧な60fpsでした。
+
+```ts
+const scene = new Scene(canvas, { pointBackend: 'webgl', maxDPR: 2 });
+```
+
+`maxDPR: 2`はディスプレイをRetina級に鮮明に保ち（2倍は通常の視距離でほとんどの目が解像できる限界を超えています）ながら、バッキングストアのピクセル数を上限で抑えます — DPR 3では`2² / 3² ≈ 0.44×`のピクセルになるため、約半分になります。このオプションが存在する前は、Scene構築前に`window.devicePixelRatio`をモンキーパッチするしか回避策がありませんでした。現在は`maxDPR`を推奨します — これはすべてのリサイズで正しく再適用され、1回限りの`Object.defineProperty`パッチでは実現できません。
 
 ## パブリックフィールド
 
