@@ -625,7 +625,7 @@ interface TabsOptions {
   closable?: boolean; // 顯示關閉按鈕；點擊路由到 onClose
   tabWidth?: number; // 首選像素寬度；溢出時分頁列滾動（預設 160）
   minTabWidth?: number; // 觸發滾動的最小寬度（預設 96）
-  autoHideTabBar?: boolean; // 少於 2 個分頁時隱藏分頁列（預設 false；1.10.0）
+  autoHideTabBar?: boolean; // 少於 2 個分頁時隱藏分頁列（預設 false；1.9.5）
   onChange?: (value: string) => void;
   onClose?: (value: string) => void;
 }
@@ -639,7 +639,7 @@ interface TabItem {
 
 一個標籤頁選取容器。自動掛載活躍標籤的內容檢視，並在剩餘空間內平移它。為無障礙投射 `{ role: 'tablist' }`。標準化的 `'change'` 事件 payload 攜帶 `{ value }`。
 
-Tabs 保持固定的首選 `tabWidth`，分頁列在溢出時水平滾動（滾輪，或自動滾動以使作用中分頁可見），而不是縮成碎片——從 1.9.4 開始，`tabWidth` 是分頁列滾動的目標寬度，不是拉伸填滿的寬度（之前這會導致寬條上的關閉命中定位錯誤）。啟用 `autoHideTabBar`（1.10.0）後，當分頁少於兩個時，分頁列及其點擊區域消失，內容佔據全部高度（Vim `showtabline=1` 語意）；`effectiveTabBarHeight` 獲取器報告分頁列的當前高度（隱藏時為 `0`），並且內容幾何資訊每影格重新同步，因此重新指派 `tabs` 不會留下陳舊或偏移的內容。
+Tabs 保持固定的首選 `tabWidth`，分頁列在溢出時水平滾動（滾輪，或自動滾動以使作用中分頁可見），而不是縮成碎片——從 1.9.4 開始，`tabWidth` 是分頁列滾動的目標寬度，不是拉伸填滿的寬度（之前這會導致寬條上的關閉命中定位錯誤）。啟用 `autoHideTabBar`（1.9.5）後，當分頁少於兩個時，分頁列及其點擊區域消失，內容佔據全部高度（Vim `showtabline=1` 語意）；`effectiveTabBarHeight` 獲取器報告分頁列的當前高度（隱藏時為 `0`），並且內容幾何資訊每影格重新同步，因此重新指派 `tabs` 不會留下陳舊或偏移的內容。
 
 ---
 

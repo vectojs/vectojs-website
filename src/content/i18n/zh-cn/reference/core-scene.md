@@ -34,8 +34,19 @@ Scene 将两个透明的兄弟 `<div>` 附加到 canvas 的**父**元素中（�
 | `debugA11y`            | `boolean`                     | `false`          | 用蓝色虚线轮廓渲染影子节点（开发辅助），而不是 `opacity:0`。无论哪种方式它们都保持可被自动化点击。                                                                                                                                           |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | 自定义渲染器（例如来自 [`@vectojs/three`](/reference/three-renderer/) 的 `ThreeRenderer`）。                                                                                                                                                 |
 | `disableWindowResize`  | `boolean`                     | `false`          | 跳过自动的 `window` 调整大小监听器。在自定义布局容器 / 离屏 canvas 中使用，然后用 `resize(w, h)` 驱动尺寸。                                                                                                                                  |
+| `maxDPR`               | `number`                      | `undefined`      | 用于设置 Canvas2D 和 `pointBackend: 'webgl'` 后备存储尺寸的设备像素比上限。`undefined` 读取真实的、未限制的 `devicePixelRatio`。在每次 `resize()` 调用时重新应用，而不仅仅在构造时。见下方\"限制渲染 DPR\"。                                 |
 
 注意：`renderMode` 是一个**公共字段**（默认 `'always'`），而不是构造函数选项 —— 在构造后设置 `scene.renderMode = 'onDemand'`。
+
+### 限制渲染 DPR（`maxDPR`）
+
+后备存储的渲染成本与 `逻辑尺寸 × dpr²` 成比例，而非线性——在全屏场景中，在 DPR 1（大多数开发笔记本）下流畅运行的场景可能在 DPR 3 显示器上超出其 16ms 帧预算，且直到有人实际在该显示器上测试才可见。这对 `pointBackend: 'webgl'` 影响最大，因为它渲染一个独立的叠加画布，其片段/过度绘制成本恰好是这个 DPR² 曲线——一个全屏 1200 粒子场在 DPR 3 下测得 **116ms** 最大帧，而在 DPR 1 下则为完美的 60fps。
+
+```ts
+const scene = new Scene(canvas, { pointBackend: 'webgl', maxDPR: 2 });
+```
+
+`maxDPR: 2` 保持显示视网膜清晰（2× 已经超过大多数眼睛在正常观看距离下的分辨能力），同时限制了后备存储像素数量——在 DPR 3 下大约减半，因为 `2² / 3² ≈ 0.44×` 像素。在此选项出现之前，唯一的解决方法是在构造 Scene 之前猴子补丁 `window.devicePixelRatio`；现在首选 `maxDPR`——它在每次调整大小时正确重新应用，而一次性 `Object.defineProperty` 补丁则做不到。
 
 ## 公共字段
 
