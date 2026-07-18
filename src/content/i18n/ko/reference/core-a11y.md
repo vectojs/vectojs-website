@@ -57,6 +57,7 @@ VMT `keydown` 이벤트를 수신해야 하는 경우 `tabIndex: 0`을 명시적
 - `getA11yTree()`는 중첩된 `A11yTreeNode[]` 스냅샷을 반환하여
   어설션에 사용할 수 있습니다; `getA11yElement(id)`는 특정 섀도우 엘리먼트를 가져옵니다.
 - `a11yFullViewport`는 다른 모든 노드 뒤에 경계 없는 상호작용 표면을 마운트합니다.
+- Core 1.11.1부터 새로 투영된 대화형 엔터티는 shadow node가 생성되는 동일한 프레임에서 Canvas 페인트 순서에 맞는 `z-index`를 받습니다. 따라서 새 오버레이의 backdrop은 다음 렌더 패스를 기다리지 않고 첫 포인터 상호작용부터 기존 디자인 컨트롤 위에 놓입니다.
 
 사용법 및 테스트 패턴은 [Accessibility](/learn/accessibility/)를 참조하세요.
 

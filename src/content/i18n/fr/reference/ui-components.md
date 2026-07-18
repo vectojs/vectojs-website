@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Référence des composants
 
 > Composants réutilisables de haut niveau pour le moteur Canvas zero-DOM VectoJS.
-> Version documentée : **1.10.0**. Source de vérité : `dist/index.d.ts` (surface publique) et `packages/ui/src/*` (comportement).
+> Version documentée : **1.11.3**. Source de vérité : `dist/index.d.ts` (surface publique) et `packages/ui/src/*` (comportement).
 
 Chaque composant est une feuille ou un conteneur dans l'Arbre Mathématique Virtuel (VMT). Rien ici n'est du vrai DOM — les composants se dessinent eux-mêmes sur un Canvas via un `IRenderer`. L'accessibilité, l'automatisation par agent et la crawlabilité proviennent d'un **A11y Shadow DOM** parallèle : lorsqu'un composant est `interactive`, la `Scene` projette un seul nœud DOM réel caché et transparent positionné au-dessus de la boîte du composant, construit à partir de `getA11yAttributes()`. C'est pourquoi `page.getByRole('button', { name })` / `fill()` / les lecteurs d'écran fonctionnent sur une UI pure-Canvas.
 
@@ -26,7 +26,7 @@ La galerie ci-dessous est maintenant un test de smoke au niveau du paquet. Pour 
 | Superpositions & UI transitoire | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class=\"sandbox component-gallery\">
-  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.10.0 · scroll inside</span></div>
+  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.11.3 · scroll inside</span></div>
   <iframe src=\"/sandbox/ui-components.html\" class=\"sandbox-frame component-gallery-frame\" loading=\"eager\" title=\"Galerie interactive de tous les composants UI VectoJS\" sandbox=\"allow-scripts allow-same-origin allow-popups\"></iframe>
   <figcaption>Galerie de smoke au niveau du paquet : couverture large d'abord, pages de composants ciblées lors du débogage d'un comportement spécifique.</figcaption>
 </figure>
@@ -234,10 +234,13 @@ interface CardOptions {
   radius?: number;        // défaut 12
   padding?: number;       // défaut 0 (les consommateurs positionnent les enfants manuellement)
   label?: string;         // quand défini → interactif + role=\"group\" landmark
+  onClick?: (event: unknown) => void; // exige label ; rend toute la Card cliquable
 }
 ```
 
 Un panneau d'arrière-plan arrondi avec bordure optionnelle. Ajoutez des enfants via `add()` ; ils sont rendus par-dessus dans l'espace local de la carte. **Décoratif par défaut** (pas de nœud d'ombre, pas interactif). Passer `label` le rend interactif et projette `{ role: 'group', label }` pour que les technologies d'assistance/agents puissent trouver la région. `padding` est uniquement informatif — il n'insère pas automatiquement les enfants.
+
+`setContent(content, fit = true)` héberge une seule entité de contenu et maintient par défaut sa largeur et sa hauteur alignées sur la Card. Passez `false` ou `{ width?, height? }` pour désactiver le suivi par axe. `onClick` exige `label`, ce qui évite une région interactive sans nom dans l'arbre a11y.
 
 ---
 
@@ -734,7 +737,8 @@ type ContextMenuItem =
 
 Composant de menu déclenché par clic droit. Prend en charge les icônes, raccourcis, séparateurs et sous-menus récursifs.
 
-- `showAtPoint(x: number, y: number): void` — Affiche le menu à une position globale sur l'écran.
+- `showAtPoint(x: number, y: number, source?: Scene | Entity): void` — affiche le menu à un point de la Scene. Passez une source montée si le menu ne l'est pas encore.
+- Les menus imbriqués partagent un seul backdrop possédé par le menu racine. L'activation d'une commande, un pointerdown extérieur, `hide()` ou `destroy()` ferme toute la chaîne sans laisser de surface sémantique ou de pointeur masquée.
 
 ---
 
@@ -794,7 +798,7 @@ interface PanelOptions {
 }
 ```
 
-Un système de panneaux fractionnés redimensionnables.
+Un système de panneaux fractionnés redimensionnables. `Panel.setContent(content, fit = true)` héberge une entité et suit la largeur et la hauteur du Panel après le déplacement d'un séparateur ou un redimensionnement direct. Passez `false` ou `{ width?, height? }` lorsque le contenu doit posséder une ou deux dimensions.
 
 ---
 

@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Component Reference
 
 > Reusable high-level components for the VectoJS zero-DOM Canvas engine.
-> Version documented: **1.10.0**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
+> Version documented: **1.11.3**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
 
 Every component is a leaf or container in the Virtual Math Tree (VMT). Nothing here is real DOM — components draw themselves to a Canvas via an `IRenderer`. Accessibility, agent automation, and crawlability come from a parallel **A11y Shadow DOM**: when a component is `interactive`, the `Scene` projects a single hidden, transparent real DOM node positioned over the component's box, built from `getA11yAttributes()`. That is why `page.getByRole('button', { name })` / `fill()` / screen readers work against a pure-Canvas UI.
 
@@ -29,7 +29,7 @@ component pages so one behavior can be inspected without scrolling through every
 | Overlays & transient UI | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class="sandbox component-gallery">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/ui 1.10.0 · scroll inside</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/ui 1.11.3 · scroll inside</span></div>
   <iframe src="/sandbox/ui-components.html" class="sandbox-frame component-gallery-frame" loading="eager" title="Interactive gallery of every VectoJS UI component" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Package-level smoke gallery: broad coverage first, focused component pages when debugging a specific behavior.</figcaption>
 </figure>
@@ -237,10 +237,16 @@ interface CardOptions {
   radius?: number;        // default 12
   padding?: number;       // default 0 (consumers position children manually)
   label?: string;         // when set → interactive + role="group" landmark
+  onClick?: (event: unknown) => void; // requires label; makes the whole card clickable
 }
 ```
 
 A rounded background panel with optional border. Add children via `add()`; they render on top in the card's local space. **Decorative by default** (no shadow node, not interactive). Passing `label` makes it interactive and projects `{ role: 'group', label }` so assistive tech/agents can find the region. `padding` is informational only — it does not auto-inset children.
+
+`setContent(content, fit = true)` hosts one content entity and keeps its size
+matched to the card on both axes by default. Pass `false` or
+`{ width?, height? }` to opt out per axis. `onClick` requires `label`, preventing
+an unnamed interactive region in the a11y tree.
 
 ---
 
@@ -740,7 +746,12 @@ type ContextMenuItem =
 
 Right-click triggered menu component. Supports icons, shortcuts, dividers, and recursive submenus.
 
-- `showAtPoint(x: number, y: number): void` — Displays the menu at a global screen position.
+- `showAtPoint(x: number, y: number, source?: Scene | Entity): void` — displays
+  the menu at a scene point. Pass a mounted source when the menu has not been
+  mounted yet.
+- Nested menus share one root-owned backdrop. Command activation, outside
+  pointerdown, `hide()`, or `destroy()` closes the complete chain without
+  leaving hidden semantic or pointer surfaces behind.
 
 ---
 
@@ -800,7 +811,10 @@ interface PanelOptions {
 }
 ```
 
-A resizable split pane system.
+A resizable split pane system. `Panel.setContent(content, fit = true)` hosts one
+entity and tracks the panel's width and height after divider drags or direct
+resizes. Pass `false` or `{ width?, height? }` when content intentionally owns
+one or both dimensions.
 
 ---
 

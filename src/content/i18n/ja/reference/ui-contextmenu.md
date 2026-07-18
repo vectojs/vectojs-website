@@ -8,11 +8,13 @@ order: 39
 
 `ContextMenu` はコマンドサーフェス用のオーバーレイメニューです。
 
+UI 1.11.1–1.11.3 では、ネストしたメニューチェーンのライフサイクルが安全になりました。ルートメニューが所有する単一の backdrop がチェーン全体を閉じるか破棄し、非表示メニューはセマンティック面やポインターのヒット面を残さず、各ルートメニューは安定した backdrop ID を持ちます。外側の `pointerdown` は即座に閉じますが、キーボードと支援技術向けのセマンティックな `click` 操作は維持されます。
+
 ## 試してみる
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ContextMenu</span></div>
-  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.9.2-ui-1.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.11.1-ui-1.11.3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>ランチャーをクリックして、制約されたビューポート内でメニューを開きます。</figcaption>
 </figure>
 

@@ -56,6 +56,10 @@ for programmatic focus only; returning `undefined` removes the explicit value.
 - `getA11yTree()` returns a nested `A11yTreeNode[]` snapshot for assertions;
   `getA11yElement(id)` fetches a specific shadow element.
 - `a11yFullViewport` mounts a boundless interaction surface behind all others.
+- Since Core 1.11.1, newly projected interactive entities receive their
+  canvas paint-order `z-index` during the same frame that creates the shadow
+  node. A fresh overlay backdrop therefore sits above older design controls on
+  its first pointer interaction instead of waiting for another render pass.
 
 See [Accessibility](/learn/accessibility/) for usage and testing patterns.
 

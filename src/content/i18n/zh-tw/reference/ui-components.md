@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — 元件參考
 
 > 適用於 VectoJS zero-DOM Canvas 引擎的可重複使用高層級元件。
-> 文件版本：**1.10.0**。事實來源：`dist/index.d.ts`（公開表面）和 `packages/ui/src/*`（行為）。
+> 文件版本：**1.11.3**。事實來源：`dist/index.d.ts`（公開表面）和 `packages/ui/src/*`（行為）。
 
 每個元件都是 Virtual Math Tree (VMT) 中的葉節點或容器。這裡沒有任何東西是真實的 DOM — 元件會透過 `IRenderer` 將自己繪製到 Canvas 上。無障礙、agent 自動化和可爬取性來自一個平行的 **A11y Shadow DOM**：當元件為 `interactive` 時，`Scene` 會投射一個單一隱藏、透明的真實 DOM 節點，定位在元件的方塊上方，根據 `getA11yAttributes()` 構建。這就是為什麼 `page.getByRole('button', { name })` / `fill()` / 螢幕閱讀器可以在純 Canvas UI 上運作的原因。
 
@@ -26,7 +26,7 @@ order: 11
 | 疊層與暫態 UI | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class="sandbox component-gallery">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/ui 1.10.0 · 內部可捲動</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/ui 1.11.3 · 內部可捲動</span></div>
   <iframe src="/sandbox/ui-components.html" class="sandbox-frame component-gallery-frame" loading="eager" title="所有 VectoJS UI 元件的互動式展示" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>套件層級冒煙展示：先進行廣泛覆蓋，在除錯特定行為時使用專門的元件頁面。</figcaption>
 </figure>
@@ -234,10 +234,13 @@ interface CardOptions {
   radius?: number;        // 預設 12
   padding?: number;       // 預設 0（使用者手動定位子節點）
   label?: string;         // 設定時 → interactive + role=\"group\" 地標
+  onClick?: (event: unknown) => void; // 需要 label；讓整張 Card 可點擊
 }
 ```
 
 一個可選邊框的圓角背景面板。透過 `add()` 加入子節點；它們會在 Card 的局部空間中渲染在上層。**預設為裝飾性**（無陰影節點，非互動式）。傳遞 `label` 會使其變為互動式並投射 `{ role: 'group', label }`，以便輔助技術/agent 可以找到該區域。`padding` 僅供資訊參考 — 它不會自動內縮子節點。
+
+`setContent(content, fit = true)` 承載單一內容實體，並預設持續讓其寬高符合 Card。傳遞 `false` 或 `{ width?, height? }` 可依軸退出。`onClick` 需要 `label`，以避免在 a11y tree 中建立沒有名稱的互動區域。
 
 ---
 
@@ -734,7 +737,8 @@ type ContextMenuItem =
 
 右鍵觸發的選單元件。支援圖示、快捷鍵、分隔線和遞迴子選單。
 
-- `showAtPoint(x: number, y: number): void` — 在全局螢幕位置顯示選單。
+- `showAtPoint(x: number, y: number, source?: Scene | Entity): void` — 在 Scene 座標顯示選單。選單尚未掛載時，請傳入已掛載的 source。
+- 巢狀選單共用一個由根選單擁有的 backdrop。指令啟動、外部 pointerdown、`hide()` 或 `destroy()` 會關閉整條選單鏈，不會留下隱藏的語意或指標介面。
 
 ---
 
@@ -794,7 +798,7 @@ interface PanelOptions {
 }
 ```
 
-一個可調整大小的分割窗格系統。
+一個可調整大小的分割窗格系統。`Panel.setContent(content, fit = true)` 承載一個實體，並在拖曳分隔線或直接調整大小後追蹤 Panel 的寬高。內容需要自行擁有某個尺寸時，請傳入 `false` 或 `{ width?, height? }`。
 
 ---
 

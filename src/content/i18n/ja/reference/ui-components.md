@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — コンポーネントリファレンス
 
 > VectoJS ゼロ DOM Canvas エンジン向けの再利用可能な高レベルコンポーネント。
-> ドキュメントバージョン：**1.10.0**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
+> ドキュメントバージョン：**1.11.3**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
 
 すべてのコンポーネントは、Virtual Math Tree（VMT）のリーフまたはコンテナです。ここにあるものは実際の DOM ではありません — コンポーネントは `IRenderer` を介して Canvas に自身を描画します。アクセシビリティ、エージェント自動化、クローラビリティは、並行する **A11y シャドウ DOM** から提供されます：コンポーネントが `interactive` の場合、`Scene` はコンポーネントのボックスの上に配置された単一の隠れた透明な実際の DOM ノードを投影します。これは `getA11yAttributes()` から構築されます。これが、`page.getByRole('button', { name })` / `fill()` / スクリーンリーダーが純粋な Canvas UI に対して機能する理由です。
 
@@ -26,7 +26,7 @@ order: 11
 | オーバーレイと一時的 UI | [`Overlay`](/reference/ui-overlay/)、[`Tooltip`](/reference/ui-tooltip/)、[`Popover`](/reference/ui-popover/)、[`ContextMenu`](/reference/ui-contextmenu/)、[`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class=\"sandbox component-gallery\">
-  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.10.0 · 内部をスクロール</span></div>
+  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.11.3 · 内部をスクロール</span></div>
   <iframe src=\"/sandbox/ui-components.html\" class=\"sandbox-frame component-gallery-frame\" loading=\"eager\" title=\"すべての VectoJS UI コンポーネントのインタラクティブギャラリー\" sandbox=\"allow-scripts allow-same-origin allow-popups\"></iframe>
   <figcaption>パッケージレベルのスモークギャラリー：まず広範なカバレッジ、特定の動作をデバッグするときは焦点を絞ったコンポーネントページ。</figcaption>
 </figure>
@@ -234,10 +234,13 @@ interface CardOptions {
   radius?: number;        // デフォルト 12
   padding?: number;       // デフォルト 0（コンシューマーが子を手動で配置）
   label?: string;         // 設定時 → interactive + role=\"group\" ランドマーク
+  onClick?: (event: unknown) => void; // label が必須。Card 全体をクリック可能にする
 }
 ```
 
 オプションのボーダー付き角丸背景パネル。`add()` で子を追加します。子はカードのローカル空間で上にレンダリングされます。**デフォルトでは装飾的**（シャドウノードなし、interactive ではありません）。`label` を渡すと interactive になり、`{ role: 'group', label }` を投影するため、支援技術/エージェントが領域を見つけられます。`padding` は情報提供のみです — 子を自動的にインセットしません。
+
+`setContent(content, fit = true)` は1つのコンテンツエンティティを保持し、デフォルトで幅と高さを Card に追従させます。軸ごとに追従を解除するには `false` または `{ width?, height? }` を渡します。`onClick` には `label` が必要なため、a11y tree に名前のないインタラクティブ領域は作られません。
 
 ---
 
@@ -734,7 +737,8 @@ type ContextMenuItem =
 
 右クリックでトリガーされるメニューコンポーネント。アイコン、ショートカット、区切り線、再帰的サブメニューをサポートします。
 
-- `showAtPoint(x: number, y: number): void` — グローバル画面位置にメニューを表示します。
+- `showAtPoint(x: number, y: number, source?: Scene | Entity): void` — Scene 座標にメニューを表示します。メニューが未マウントなら、マウント済みの source を渡します。
+- ネストしたメニューはルートメニュー所有の1つの backdrop を共有します。コマンド実行、外側の pointerdown、`hide()`、`destroy()` は、非表示のセマンティック面やポインター面を残さずチェーン全体を閉じます。
 
 ---
 
@@ -794,7 +798,7 @@ interface PanelOptions {
 }
 ```
 
-リサイズ可能な分割ペインシステム。
+リサイズ可能な分割ペインシステムです。`Panel.setContent(content, fit = true)` は1つのエンティティを保持し、区切り線のドラッグや直接リサイズの後も Panel の幅と高さに追従します。コンテンツが一方または両方の寸法を所有する場合は `false` または `{ width?, height? }` を渡します。
 
 ---
 

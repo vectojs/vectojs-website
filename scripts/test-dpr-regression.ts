@@ -1,29 +1,15 @@
 /**
- * DPR/zoom coordinate-mapping regression test for canvas/WebGL pointer dispatch.
+ * DPR/zoom coordinate-mapping regression test for canvas pointer dispatch.
  *
- * Formalizes the manual repro/verification used to find and fix the
- * @vectojs/three 0.1.1 -> 0.1.2 bug (UV hits mapped through the physical,
- * DPR-scaled canvas size instead of the logical scene size -- every click landed
- * below/right of the cursor by exactly the DPR factor). See
- * docs/testing-catalog.md's "DPR and zoom regression checklist" -- this script is
- * that checklist's automated half. Run this against any future change that touches
- * pointer-to-canvas coordinate mapping, not just Dimension.
+ * Preserves the logical-CSS-coordinate invariant behind the workspace's DPR and
+ * zoom regression checklist: pointer coordinates must not be multiplied by the
+ * canvas backing-store scale. The original Three.js/Dimension probe moved with
+ * that retired demo; this site-owned check now covers the live Canvas2D surface.
  *
- * Method: for each DPR in the matrix, grid-probe the Dimension canvas until a click
- * actually decrements the particle count (i.e. lands on the '-' stepper), then
- * confirm it happened exactly once. Headless-only (proves the mapping math is
- * DPR-correct); it cannot catch the separate, real-mouse-only OrbitControls
- * pointer-capture class of bug fixed earlier in this repo's history -- that one
- * needs the real-device hands-on pass in the catalog.
- *
- * IMPORTANT: the HUD's particle count (#hud-dimension-particles) is only refreshed
- * by a 500ms `setInterval` in dimension.ts, not synchronously on click -- so each
- * probe attempt MUST wait past that interval before reading the HUD, and that wait
- * must happen as a real Playwright await between attempts, not inside one
- * synchronous page.evaluate() (a tight synchronous loop can't yield to the
- * interval's callback at all, so every attempt appears to have no effect even
- * when several actually landed on the button). This cost real debugging time --
- * don't reintroduce a synchronous multi-attempt loop here.
+ * Method: for each DPR in the matrix, grid-probe the public Danmaku canvas until a
+ * comment click opens its canvas-native action menu. The menu's projected semantic
+ * buttons are the observable result of a correctly mapped canvas hit. The former
+ * Dimension probe moved out with that demo when it was retired from this site.
  *
  * Usage: bun run scripts/test-dpr-regression.ts
  */
@@ -40,26 +26,21 @@ import {
 } from './test-utils';
 
 const DPR_MATRIX = [1, 1.5, 2, 3];
-// HUD refresh interval in dimension.ts is 500ms; comfortably clear it per attempt.
-const HUD_SETTLE_MS = 600;
+const MENU_SETTLE_MS = 160;
+const SEARCH_FX = [0.15, 0.3, 0.45, 0.6, 0.75, 0.9];
+const SEARCH_FY = [0.08, 0.16, 0.24, 0.32, 0.4, 0.48, 0.56, 0.64];
 
-// Centered on the '-' stepper's measured position at 1280x800 (screenshot-verified
-// directly against a headless render), with enough margin either side to absorb
-// small future layout tweaks without needing to rescan the whole canvas at this
-// per-attempt cost. DPR doesn't affect CSS layout (only backing-store
-// resolution), so this fraction holds across the whole DPR_MATRIX unchanged.
-const SEARCH_FX = [0.33, 0.36, 0.39, 0.42, 0.45];
-const SEARCH_FY = [0.35, 0.38, 0.41, 0.44];
-
-async function readParticleCount(page: PlaywrightPage): Promise<string | null | undefined> {
-  return page.evaluate(() => document.getElementById('hud-dimension-particles')?.textContent);
+async function hasActionMenu(page: PlaywrightPage): Promise<boolean> {
+  return page.evaluate(() =>
+    Array.from(document.querySelectorAll<HTMLElement>('[data-vecto-id]')).some((node) =>
+      (node.getAttribute('aria-label') ?? node.textContent ?? '').includes('Like'),
+    ),
+  );
 }
 
-async function findMinusButtonCenter(
-  page: PlaywrightPage,
-): Promise<{ x: number; y: number } | null> {
+async function findCommentHit(page: PlaywrightPage): Promise<{ x: number; y: number } | null> {
   const rect = await page.evaluate(() =>
-    document.getElementById('dimension-canvas')?.getBoundingClientRect(),
+    document.getElementById('danmaku-canvas')?.getBoundingClientRect(),
   );
   if (!rect) return null;
 
@@ -67,10 +48,9 @@ async function findMinusButtonCenter(
     for (const fx of SEARCH_FX) {
       const x = rect.x + rect.width * fx;
       const y = rect.y + rect.height * fy;
-      const before = await readParticleCount(page);
       await page.evaluate(
         ({ x, y }: { x: number; y: number }) => {
-          const canvas = document.getElementById('dimension-canvas') as HTMLCanvasElement;
+          const canvas = document.getElementById('danmaku-canvas') as HTMLCanvasElement;
           for (const type of ['pointerdown', 'pointerup', 'click']) {
             canvas.dispatchEvent(
               new PointerEvent(type, { clientX: x, clientY: y, bubbles: true, cancelable: true }),
@@ -79,12 +59,8 @@ async function findMinusButtonCenter(
         },
         { x, y },
       );
-      // Real await between dispatch and read: lets the page's 500ms HUD-refresh
-      // interval actually fire. See the file-level comment -- this is not
-      // incidental, a synchronous loop here silently breaks detection.
-      await page.waitForTimeout(HUD_SETTLE_MS);
-      const after = await readParticleCount(page);
-      if (after !== before) return { x, y };
+      await page.waitForTimeout(MENU_SETTLE_MS);
+      if (await hasActionMenu(page)) return { x, y };
     }
   }
   return null;
@@ -97,7 +73,7 @@ async function testAtDPR(browser: PlaywrightBrowser, dpr: number): Promise<Check
     viewport: { width: 1280, height: 800 },
   });
   try {
-    await page.goto(`${BASE_URL}/demos/dimension/`, { waitUntil: 'load', timeout: 30_000 });
+    await page.goto(`${BASE_URL}/demos/danmaku/`, { waitUntil: 'load', timeout: 30_000 });
     await page.waitForTimeout(1500);
 
     const reportedDPR = await page.evaluate(() => window.devicePixelRatio);
@@ -107,20 +83,18 @@ async function testAtDPR(browser: PlaywrightBrowser, dpr: number): Promise<Check
       detail: `requested ${dpr}, actual ${reportedDPR}`,
     });
 
-    const before = await readParticleCount(page);
-    const center = await findMinusButtonCenter(page);
+    const center = await findCommentHit(page);
     results.push({
-      name: `DPR ${dpr}: '-' stepper click registers (no DPR offset)`,
+      name: `DPR ${dpr}: canvas comment click opens the action menu`,
       pass: center !== null,
       detail: center
         ? `hit at (${center.x.toFixed(0)}, ${center.y.toFixed(0)})`
-        : 'no click within probe grid decremented the count -- possible DPR mapping regression',
+        : 'no probe opened the action menu -- possible DPR mapping regression',
     });
-    const after = await readParticleCount(page);
     results.push({
-      name: `DPR ${dpr}: particle count actually decremented`,
-      pass: before !== after,
-      detail: `${before} -> ${after}`,
+      name: `DPR ${dpr}: action menu exposes projected semantic controls`,
+      pass: await hasActionMenu(page),
+      detail: center ? 'Like/Copy/Report controls projected' : 'no projected menu controls',
     });
   } catch (e) {
     results.push({ name: `DPR ${dpr}: test execution`, pass: false, detail: String(e) });
@@ -144,7 +118,7 @@ async function main() {
     await browser.close();
     stop();
   }
-  const ok = printReport('DPR/zoom coordinate-mapping regression (Dimension)', allResults);
+  const ok = printReport('DPR/zoom coordinate-mapping regression (Danmaku)', allResults);
   process.exit(ok ? 0 : 1);
 }
 

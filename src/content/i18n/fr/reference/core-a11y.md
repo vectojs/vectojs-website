@@ -63,6 +63,10 @@ retourner `undefined` supprime la valeur explicite.
   `getA11yElement(id)` récupère un élément d'ombre spécifique.
 - `a11yFullViewport` monte une surface d'interaction sans limites derrière toutes les
   autres.
+- Depuis Core 1.11.1, toute nouvelle entité interactive projetée reçoit le `z-index`
+  correspondant à l'ordre de peinture du canvas dans l'image qui crée son nœud d'ombre.
+  Le backdrop d'un nouvel overlay se place donc au-dessus des contrôles existants dès la
+  première interaction du pointeur, sans attendre un autre rendu.
 
 Voir [Accessibilité](/learn/accessibility/) pour les modèles d'utilisation et de test.
 
