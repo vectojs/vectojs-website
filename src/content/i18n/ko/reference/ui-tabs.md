@@ -33,7 +33,7 @@ const tabs = new Tabs({
 
 ## 단일 탭의 막대 숨기기
 
-편집기 및 터미널 스타일 앱은 종종 Vim의 `showtabline=1` 동작을 원합니다: 탭이 하나만 있는 동안 탭 막대가 없습니다. `autoHideTabBar: true`를 전달하세요(`@vectojs/ui` >= 1.10.0) — 탭이 2개 미만인 동안 막대(및 포인터 히트 영역)가 사라지고, 콘텐츠가 전체 높이를 차지하며, 두 번째 탭이 추가되면 즉시 막대가 돌아옵니다. 막대 주위에 형제를 배치하는 소유자는 `tabHeight`를 가정하는 대신 라이브 `effectiveTabBarHeight` 게터를 읽어야 합니다.
+편집기 및 터미널 스타일 앱은 종종 Vim의 `showtabline=1` 동작을 원합니다: 탭이 하나만 있는 동안 탭 막대가 없습니다. `autoHideTabBar: true`를 전달하세요(`@vectojs/ui` >= 1.9.5) — 탭이 2개 미만인 동안 막대(및 포인터 히트 영역)가 사라지고, 콘텐츠가 전체 높이를 차지하며, 두 번째 탭이 추가되면 즉시 막대가 돌아옵니다. 막대 주위에 형제를 배치하는 소유자는 `tabHeight`를 가정하는 대신 라이브 `effectiveTabBarHeight` 게터를 읽어야 합니다.
 
 ```ts
 const tabs = new Tabs({

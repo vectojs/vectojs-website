@@ -34,7 +34,7 @@ const tabs = new Tabs({
 
 Los editores y las aplicaciones tipo terminal a menudo quieren el comportamiento `showtabline=1` de Vim: sin
 barra de pestañas mientras solo exista una pestaña. Pasa `autoHideTabBar: true`
-(`@vectojs/ui` >= 1.10.0) — la barra (y su región de impacto de puntero) desaparece
+(`@vectojs/ui` >= 1.9.5) — la barra (y su región de impacto de puntero) desaparece
 por debajo de dos pestañas, el contenido ocupa toda la altura y la barra regresa tan
 pronto como se añade una segunda pestaña. Los propietarios que distribuyen hermanos alrededor de la barra
 deben leer el getter en vivo `effectiveTabBarHeight` en lugar de asumir
