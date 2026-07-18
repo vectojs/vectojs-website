@@ -13,7 +13,7 @@ el sistema de animación compartido.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Toggle</span></div>
-  <iframe src="/sandbox/ui/component.html?name=toggle&v=core-1.9.2-ui-1.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Toggle" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=toggle&v=core-1.11.1-ui-1.11.3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Toggle" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>El pulsador se reorienta suavemente mientras el estado semántico `checked` se mantiene actual.</figcaption>
 </figure>
 

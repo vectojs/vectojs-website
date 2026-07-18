@@ -12,7 +12,7 @@ order: 15
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Overlay</span></div>
-  <iframe src="/sandbox/ui/overlay.html?v=core-1.9.2-ui-1.10.0" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Overlay 라이브 데모" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/overlay.html?v=core-1.11.1-ui-1.11.3" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Overlay 라이브 데모" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>실행기를 호버하거나 클릭해보세요. Popover와 ContextMenu는 거대한 갤러리에서 발견하기 어려운 오버플로 결함을 피하기 위해 배치됩니다.</figcaption>
 </figure>
 

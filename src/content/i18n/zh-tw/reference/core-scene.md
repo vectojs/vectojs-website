@@ -48,6 +48,16 @@ const scene = new Scene(canvas, { pointBackend: 'webgl', maxDPR: 2 });
 
 `maxDPR: 2` 保持顯示視網膜清晰（2× 已經超過大多數眼睛在正常觀看距離下的分辨能力），同時限制了後備儲存像素數量——在 DPR 3 下大約減半，因為 `2² / 3² ≈ 0.44×` 像素。在此選項出現之前，唯一的解決方法是在建構 Scene 之前猴子補丁 `window.devicePixelRatio`；現在首選 `maxDPR`——它在每次調整大小時正確重新套用，而一次性 `Object.defineProperty` 補丁則做不到。
 
+### 限制渲染 DPR（`maxDPR`）
+
+後備儲存的渲染成本與 `邏輯尺寸 × dpr²` 成比例，而非線性——在全螢幕場景中，在 DPR 1（大多數開發筆電）下流暢執行的場景可能在 DPR 3 顯示器上超出其 16ms 幀預算，且直到有人實際在該顯示器上測試才可見。這對 `pointBackend: 'webgl'` 影響最大，因為它渲染一個獨立的疊加畫布，其片段/過度繪製成本恰好是這個 DPR² 曲線——一個全螢幕 1200 粒子場在 DPR 3 下測得 **116ms** 最大幀，而在 DPR 1 下則為完美的 60fps。
+
+```ts
+const scene = new Scene(canvas, { pointBackend: 'webgl', maxDPR: 2 });
+```
+
+`maxDPR: 2` 保持顯示視網膜清晰（2× 已經超過大多數眼睛在正常觀看距離下的分辨能力），同時限制了後備儲存像素數量——在 DPR 3 下大約減半，因為 `2² / 3² ≈ 0.44×` 像素。在此選項出現之前，唯一的解決方法是在建構 Scene 之前猴子補丁 `window.devicePixelRatio`；現在首選 `maxDPR`——它在每次調整大小時正確重新套用，而一次性 `Object.defineProperty` 補丁則做不到。
+
 ## 公開欄位
 
 ```ts

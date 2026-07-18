@@ -8,11 +8,13 @@ order: 39
 
 `ContextMenu`는 명령 표면을 위한 오버레이 메뉴입니다.
 
+UI 1.11.1–1.11.3에서는 중첩 메뉴 체인의 수명 주기가 안전해졌습니다. 루트 메뉴가 소유한 하나의 backdrop이 전체 체인을 닫거나 파괴하고, 숨겨진 메뉴는 시맨틱 또는 포인터 히트 표면을 남기지 않으며, 각 루트 메뉴는 안정적인 backdrop ID를 가집니다. 바깥쪽 `pointerdown`은 즉시 메뉴를 닫지만 키보드와 보조 기술을 위한 시맨틱 `click` 활성화는 유지됩니다.
+
 ## 직접 사용해보기
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ContextMenu</span></div>
-  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.9.2-ui-1.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.11.1-ui-1.11.3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>실행기를 클릭하여 제한된 뷰포트 내에서 메뉴를 열어보세요.</figcaption>
 </figure>
 

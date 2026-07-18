@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — 컴포넌트 레퍼런스
 
 > VectoJS zero-DOM Canvas 엔진을 위한 재사용 가능한 고수준 컴포넌트입니다.
-> 문서 버전: **1.10.0**. 진실 공급원: `dist/index.d.ts`(공개 표면) 및 `packages/ui/src/*`(동작).
+> 문서 버전: **1.11.3**. 진실 공급원: `dist/index.d.ts`(공개 표면) 및 `packages/ui/src/*`(동작).
 
 모든 컴포넌트는 Virtual Math Tree(VMT)의 리프 또는 컨테이너입니다. 여기 있는 어떤 것도 실제 DOM이 아닙니다 — 컴포넌트는 `IRenderer`를 통해 Canvas에 자신을 그립니다. 접근성, 에이전트 자동화, 크롤링 가능성은 병렬 **A11y Shadow DOM**에서 제공됩니다: 컴포넌트가 `interactive`하면 `Scene`이 컴포넌트의 박스 위에 위치한 단일 숨겨진 투명한 실제 DOM 노드를 `getA11yAttributes()`에서 빌드하여 프로젝션합니다. 이것이 `page.getByRole('button', { name })` / `fill()` / 스크린 리더가 순수 Canvas UI에서 작동하는 이유입니다.
 
@@ -29,7 +29,7 @@ order: 11
 | 오버레이 및 일시적 UI | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class=\"sandbox component-gallery\">
-  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.10.0 · scroll inside</span></div>
+  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.11.3 · scroll inside</span></div>
   <iframe src=\"/sandbox/ui-components.html\" class=\"sandbox-frame component-gallery-frame\" loading=\"eager\" title=\"모든 VectoJS UI 컴포넌트의 대화형 갤러리\" sandbox=\"allow-scripts allow-same-origin allow-popups\"></iframe>
   <figcaption>패키지 수준 스모크 갤러리: 먼저 광범위한 범위, 특정 동작 디버깅 시 집중된 컴포넌트 페이지.</figcaption>
 </figure>
@@ -237,10 +237,13 @@ interface CardOptions {
   radius?: number;        // 기본값 12
   padding?: number;       // 기본값 0 (소비자가 수동으로 자식 배치)
   label?: string;         // 설정 시 → interactive + role="group" 랜드마크
+  onClick?: (event: unknown) => void; // label 필수; Card 전체를 클릭 가능하게 함
 }
 ```
 
 선택적 테두리가 있는 둥근 배경 패널. `add()`를 통해 자식을 추가하세요; 카드의 로컬 공간 상단에 렌더링됩니다. **기본적으로 장식용**(그림자 노드 없음, interactive 아님). `label`을 전달하면 interactive하게 되고 `{ role: 'group', label }`을 프로젝션하여 보조 기술/에이전트가 영역을 찾을 수 있습니다. `padding`은 정보 제공용입니다 — 자식을 자동으로 안쪽으로 삽입하지 않습니다.
+
+`setContent(content, fit = true)`는 하나의 콘텐츠 엔터티를 호스팅하고 기본적으로 너비와 높이를 Card에 맞춰 유지합니다. 축별로 맞춤을 해제하려면 `false` 또는 `{ width?, height? }`를 전달하세요. `onClick`에는 `label`이 필요하므로 a11y tree에 이름 없는 대화형 영역이 생기지 않습니다.
 
 ---
 
@@ -628,7 +631,7 @@ interface TabsOptions {
   closable?: boolean; // 닫기 표시 표시; 클릭은 onClose로 라우팅
   tabWidth?: number; // 기본 설정 너비(px); 오버플로 시 막대 스크롤(기본값 160)
   minTabWidth?: number; // 스크롤이 시작되는 하한(기본값 96)
-  autoHideTabBar?: boolean; // 탭이 2개 미만일 때 막대 숨김(기본값 false; 1.10.0)
+  autoHideTabBar?: boolean; // 탭이 2개 미만일 때 막대 숨김(기본값 false; 1.9.5)
   onChange?: (value: string) => void;
   onClose?: (value: string) => void;
 }
@@ -642,7 +645,7 @@ interface TabItem {
 
 탭 선택 컨테이너. 활성 탭의 콘텐츠 뷰를 자동으로 마운트하고 나머지 공간 내에서 변환합니다. 접근성을 위해 `{ role: 'tablist' }`를 프로젝션합니다. 표준화된 `'change'` 이벤트 페이로드에는 `{ value }`가 포함됩니다.
 
-Tabs는 고정된 기본 설정 `tabWidth`를 유지하며 탭이 오버플로되면 줄어들지 않고 막대가 수평으로 스크롤됩니다(휠 또는 활성 탭을 계속 보기 위한 자동 스크롤) — 1.9.4부터 `tabWidth`는 막대가 지나치는 대상 너비이지 늘여서 채우는 너비가 아닙니다(이전에는 넓은 스트립에서 닫기 히트가 잘못 지정됨). `autoHideTabBar`(1.10.0)를 사용하면 탭이 2개 미만인 동안 막대와 히트 영역이 사라지고 콘텐츠가 전체 높이를 차지합니다(Vim `showtabline=1` 의미). `effectiveTabBarHeight` 게터는 막대의 현재 높이를 보고하며(숨겨졌을 때 `0`), 콘텐츠 지오메트리는 매 프레임 다시 동기화되므로 `tabs`를 재할당해도 오래되었거나 오프셋된 콘텐츠가 남을 수 없습니다.
+Tabs는 고정된 기본 설정 `tabWidth`를 유지하며 탭이 오버플로되면 줄어들지 않고 막대가 수평으로 스크롤됩니다(휠 또는 활성 탭을 계속 보기 위한 자동 스크롤) — 1.9.4부터 `tabWidth`는 막대가 지나치는 대상 너비이지 늘여서 채우는 너비가 아닙니다(이전에는 넓은 스트립에서 닫기 히트가 잘못 지정됨). `autoHideTabBar`(1.9.5)를 사용하면 탭이 2개 미만인 동안 막대와 히트 영역이 사라지고 콘텐츠가 전체 높이를 차지합니다(Vim `showtabline=1` 의미). `effectiveTabBarHeight` 게터는 막대의 현재 높이를 보고하며(숨겨졌을 때 `0`), 콘텐츠 지오메트리는 매 프레임 다시 동기화되므로 `tabs`를 재할당해도 오래되었거나 오프셋된 콘텐츠가 남을 수 없습니다.
 
 ---
 
@@ -740,7 +743,8 @@ type ContextMenuItem =
 
 우클릭으로 트리거되는 메뉴 컴포넌트. 아이콘, 단축키, 구분선 및 재귀적 서브메뉴를 지원합니다.
 
-- `showAtPoint(x: number, y: number): void` — 전역 화면 위치에 메뉴를 표시합니다.
+- `showAtPoint(x: number, y: number, source?: Scene | Entity): void` — Scene 좌표에 메뉴를 표시합니다. 메뉴가 아직 마운트되지 않았다면 마운트된 source를 전달하세요.
+- 중첩 메뉴는 루트 메뉴가 소유한 하나의 backdrop을 공유합니다. 명령 활성화, 외부 pointerdown, `hide()` 또는 `destroy()`는 숨겨진 시맨틱 또는 포인터 표면을 남기지 않고 전체 체인을 닫습니다.
 
 ---
 
@@ -800,7 +804,7 @@ interface PanelOptions {
 }
 ```
 
-크기 조정 가능한 분할 창 시스템입니다.
+크기 조정 가능한 분할 창 시스템입니다. `Panel.setContent(content, fit = true)`는 하나의 엔터티를 호스팅하고 구분선 드래그나 직접 크기 변경 후에도 Panel의 너비와 높이를 추적합니다. 콘텐츠가 한 축 또는 두 축의 크기를 직접 소유해야 할 때는 `false` 또는 `{ width?, height? }`를 전달하세요.
 
 ---
 

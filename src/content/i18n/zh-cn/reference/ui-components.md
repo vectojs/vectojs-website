@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — 组件参考
 
 > 适用于 VectoJS zero-DOM Canvas 引擎的可复用高级组件。
-> 文档版本：**1.10.0**。权威来源：`dist/index.d.ts`（公共表面）和 `packages/ui/src/*`（行为）。
+> 文档版本：**1.11.3**。权威来源：`dist/index.d.ts`（公共表面）和 `packages/ui/src/*`（行为）。
 
 每个组件都是 Virtual Math Tree (VMT) 中的叶节点或容器节点。这里没有真正的 DOM——组件通过 `IRenderer` 在 Canvas 上绘制自身。可访问性、智能体自动化和可爬取性来自一个并行的 **A11y Shadow DOM**：当一个组件是 `interactive` 时，`Scene` 会投影一个位于组件框上方的、隐藏的透明真实 DOM 节点，该节点由 `getA11yAttributes()` 构建。这就是为什么 `page.getByRole('button', { name })` / `fill()` / 屏幕阅读器可以在纯 Canvas UI 上工作的原因。
 
@@ -27,7 +27,7 @@ order: 11
 | 覆盖层与瞬态 UI | [`Overlay`](/reference/ui-overlay/)、[`Tooltip`](/reference/ui-tooltip/)、[`Popover`](/reference/ui-popover/)、[`ContextMenu`](/reference/ui-contextmenu/)、[`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class="sandbox component-gallery">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">在线 · @vectojs/ui 1.10.0 · 可滚动</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">在线 · @vectojs/ui 1.11.3 · 可滚动</span></div>
   <iframe src="/sandbox/ui-components.html" class="sandbox-frame component-gallery-frame" loading="eager" title="每个 VectoJS UI 组件的交互式画廊" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>包级冒烟画廊：先确保广泛覆盖，调试特定行为时使用聚焦的组件页面。</figcaption>
 </figure>
@@ -235,10 +235,13 @@ interface CardOptions {
   radius?: number;        // 默认 12
   padding?: number;       // 默认 0（使用者手动定位子节点）
   label?: string;         // 设置后 → interactive + role="group" 地标
+  onClick?: (event: unknown) => void; // 需要 label；让整张 Card 可点击
 }
 ```
 
 一个带圆角的背景面板，可选的边框。通过 `add()` 添加子节点；它们会在卡的局部空间中渲染在上方。**默认是装饰性的**（无影子节点，不可交互）。传递 `label` 会使其变为交互式并投影 `{ role: 'group', label }`，以便辅助技术/智能体可以找到该区域。`padding` 仅作信息提示——不会自动缩进子节点。
+
+`setContent(content, fit = true)` 承载单个内容实体，并默认让其宽高持续匹配 Card。传递 `false` 或 `{ width?, height? }` 可按轴选择退出。`onClick` 要求提供 `label`，以避免在 a11y 树中产生无名称的交互区域。
 
 ---
 
@@ -623,7 +626,7 @@ interface TabsOptions {
   closable?: boolean; // 显示关闭按钮；点击路由到 onClose
   tabWidth?: number; // 首选像素宽度；溢出时标签栏滚动（默认 160）
   minTabWidth?: number; // 触发滚动的最小宽度（默认 96）
-  autoHideTabBar?: boolean; // 少于 2 个标签时隐藏标签栏（默认 false；1.10.0）
+  autoHideTabBar?: boolean; // 少于 2 个标签时隐藏标签栏（默认 false；1.9.5）
   onChange?: (value: string) => void;
   onClose?: (value: string) => void;
 }
@@ -637,7 +640,7 @@ interface TabItem {
 
 选项卡选择容器。自动挂载活动选项卡的内容视图并在剩余空间内进行平移。为可访问性投影 `{ role: 'tablist' }`。标准化的 `'change'` 事件负载携带 `{ value }`。
 
-Tabs 保持固定的首选 `tabWidth`，标签栏在溢出时水平滚动（滚轮，或自动滚动以使活动标签可见），而不是缩成碎片——从 1.9.4 开始，`tabWidth` 是标签栏滚动的目标宽度，不是拉伸填充的宽度（之前这会导致宽条上的关闭命中定位错误）。启用 `autoHideTabBar`（1.10.0）后，当标签少于两个时，标签栏及其点击区域消失，内容占据全部高度（Vim `showtabline=1` 语义）；`effectiveTabBarHeight` 获取器报告标签栏的当前高度（隐藏时为 `0`），并且内容几何信息每帧重新同步，因此重新分配 `tabs` 不会留下陈旧或偏移的内容。
+Tabs 保持固定的首选 `tabWidth`，标签栏在溢出时水平滚动（滚轮，或自动滚动以使活动标签可见），而不是缩成碎片——从 1.9.4 开始，`tabWidth` 是标签栏滚动的目标宽度，不是拉伸填充的宽度（之前这会导致宽条上的关闭命中定位错误）。启用 `autoHideTabBar`（1.9.5）后，当标签少于两个时，标签栏及其点击区域消失，内容占据全部高度（Vim `showtabline=1` 语义）；`effectiveTabBarHeight` 获取器报告标签栏的当前高度（隐藏时为 `0`），并且内容几何信息每帧重新同步，因此重新分配 `tabs` 不会留下陈旧或偏移的内容。
 
 ---
 
@@ -735,7 +738,8 @@ type ContextMenuItem =
 
 右键点击触发的菜单组件。支持图标、快捷键、分隔线和递归子菜单。
 
-- `showAtPoint(x: number, y: number): void` — 在全局屏幕位置显示菜单。
+- `showAtPoint(x: number, y: number, source?: Scene | Entity): void` — 在 Scene 坐标显示菜单。尚未挂载菜单时，请传入一个已挂载的 source。
+- 嵌套菜单共享一个由根菜单拥有的 backdrop。命令激活、外部 pointerdown、`hide()` 或 `destroy()` 会关闭整条菜单链，不会留下隐藏的语义或指针表面。
 
 ---
 
@@ -795,7 +799,7 @@ interface PanelOptions {
 }
 ```
 
-可调整大小的拆分面板系统。
+可调整大小的拆分面板系统。`Panel.setContent(content, fit = true)` 承载一个实体，并在分隔条拖动或直接调整大小后跟踪 Panel 的宽高。内容需要自行拥有某个尺寸时，请传递 `false` 或 `{ width?, height? }`。
 
 ---
 

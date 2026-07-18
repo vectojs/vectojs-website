@@ -24,16 +24,11 @@ export interface DemoInfo {
   path?: string;
 }
 
-// Every demo follows the same <slug>-canvas id convention (verified against
-// src/consts.ts + each demo's .astro on 2026-07-03).
-export const DEMOS: DemoInfo[] = [
-  { slug: 'danmaku', canvasId: 'danmaku-canvas' },
-  { slug: 'nexus', canvasId: 'nexus-canvas' },
-  { slug: 'chat', canvasId: 'chat-canvas' },
-  { slug: 'catch', canvasId: 'catch-canvas' },
-  { slug: 'graph', canvasId: 'graph-canvas' },
-  { slug: 'dimension', canvasId: 'dimension-canvas' },
-];
+// Keep this list aligned with the public demo registry in src/consts.ts. Demos
+// moved to the Gallery must leave this smoke-test matrix in the same change so
+// the harness never turns an intentional route retirement into a false runtime
+// regression.
+export const DEMOS: DemoInfo[] = [{ slug: 'danmaku', canvasId: 'danmaku-canvas' }];
 
 const MIME: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',

@@ -8,11 +8,17 @@ order: 39
 
 `ContextMenu` is an overlay menu for command surfaces.
 
+UI 1.11.1–1.11.3 made nested chains lifecycle-safe: one root-owned backdrop
+closes or destroys the complete chain, hidden menus leave neither a semantic
+nor pointer hit surface behind, and each root menu owns a stable backdrop
+identity. Outside `pointerdown` dismisses immediately, while semantic `click`
+activation remains available to keyboards and assistive technology.
+
 ## Try it
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ContextMenu</span></div>
-  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.9.2-ui-1.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.11.1-ui-1.11.3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Click the launcher to open the menu inside a constrained viewport.</figcaption>
 </figure>
 
@@ -45,3 +51,5 @@ target.on('pointerdown', (event) => {
 - Do not let menu text overflow the panel.
 - Keep disabled rows non-interactive.
 - Reposition nested submenus through the overlay root.
+- Keep the root menu as the sole owner of the shared backdrop and close the
+  complete submenu chain on command, outside pointerdown, or destruction.

@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Referencia de Componentes
 
 > Componentes reutilizables de alto nivel para el motor Canvas zero-DOM de VectoJS.
-> Versión documentada: **1.10.0**. Fuente de verdad: `dist/index.d.ts` (superficie pública) y `packages/ui/src/*` (comportamiento).
+> Versión documentada: **1.11.3**. Fuente de verdad: `dist/index.d.ts` (superficie pública) y `packages/ui/src/*` (comportamiento).
 
 Cada componente es una hoja o contenedor en el Virtual Math Tree (VMT). Nada aquí es DOM real — los componentes se dibujan a sí mismos en un Canvas mediante un `IRenderer`. La accesibilidad, la automatización de agentes y la capacidad de rastreo provienen de un **A11y Shadow DOM** paralelo: cuando un componente es `interactive`, la `Scene` proyecta un único nodo DOM real oculto y transparente posicionado sobre la caja del componente, construido a partir de `getA11yAttributes()`. Es por eso que `page.getByRole('button', { name })` / `fill()` / los lectores de pantalla funcionan contra una UI de Canvas puro.
 
@@ -26,7 +26,7 @@ La galería a continuación es ahora una prueba de humo a nivel de paquete. Para
 | Superposiciones y UI transitoria | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class=\"sandbox component-gallery\">
-  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">en vivo · @vectojs/ui 1.10.0 · desplázate dentro</span></div>
+  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">en vivo · @vectojs/ui 1.11.3 · desplázate dentro</span></div>
   <iframe src=\"/sandbox/ui-components.html\" class=\"sandbox-frame component-gallery-frame\" loading=\"eager\" title=\"Galería interactiva de cada componente de UI de VectoJS\" sandbox=\"allow-scripts allow-same-origin allow-popups\"></iframe>
   <figcaption>Galería de prueba de humo a nivel de paquete: cobertura amplia primero, páginas de componentes enfocadas al depurar un comportamiento específico.</figcaption>
 </figure>
@@ -234,10 +234,13 @@ interface CardOptions {
   radius?: number;        // por defecto 12
   padding?: number;       // por defecto 0 (los consumidores posicionan los hijos manualmente)
   label?: string;         // cuando se establece → interactivo + role=\"group\" landmark
+  onClick?: (event: unknown) => void; // requiere label; hace clicable toda la Card
 }
 ```
 
 Un panel de fondo redondeado con borde opcional. Agrega hijos mediante `add()`; se renderizan encima en el espacio local de la tarjeta. **Decorativo por defecto** (sin nodo de sombra, no interactivo). Pasar `label` lo hace interactivo y proyecta `{ role: 'group', label }` para que la tecnología de asistencia/agentes puedan encontrar la región. `padding` es solo informativo — no inserta automáticamente los hijos.
+
+`setContent(content, fit = true)` aloja una sola entidad de contenido y mantiene por defecto su anchura y altura ajustadas a la Card. Pasa `false` o `{ width?, height? }` para desactivar el ajuste por eje. `onClick` exige `label`, lo que evita una región interactiva sin nombre en el árbol a11y.
 
 ---
 
@@ -622,7 +625,7 @@ interface TabsOptions {
   closable?: boolean; // muestra un botón de cierre; los clics se enrutan a onClose
   tabWidth?: number; // ancho preferido en px; la barra se desplaza al desbordarse (por defecto 160)
   minTabWidth?: number; // límite inferior antes de que el desplazamiento se active (por defecto 96)
-  autoHideTabBar?: boolean; // oculta la barra con < 2 pestañas (por defecto false; 1.10.0)
+  autoHideTabBar?: boolean; // oculta la barra con < 2 pestañas (por defecto false; 1.9.5)
   onChange?: (value: string) => void;
   onClose?: (value: string) => void;
 }
@@ -636,7 +639,7 @@ interface TabItem {
 
 Un contenedor de selección por pestañas. Monta automáticamente la vista de contenido de la pestaña activa y la traslada dentro del espacio restante. Proyecta `{ role: 'tablist' }` para accesibilidad. El payload del evento `'change'` estandarizado lleva `{ value }`.
 
-Las pestañas mantienen un `tabWidth` preferido fijo y la barra se desplaza horizontalmente una vez que se desbordan (rueda, o desplazamiento automático para mantener visible la pestaña activa) en lugar de reducirse a tiras finas — a partir de 1.9.4, `tabWidth` es un objetivo más allá del cual la barra se desplaza, no un ancho que se estira para llenar (lo que antes desorientaba los clics de cierre en tiras anchas). Con `autoHideTabBar` (1.10.0), la barra y su región de impacto desaparecen mientras existan menos de dos pestañas y el contenido ocupa toda la altura (semántica `showtabline=1` de Vim); el getter `effectiveTabBarHeight` informa la altura actual de la barra (`0` cuando está oculta), y la geometría del contenido se re-sincroniza cada fotograma para que reasignar `tabs` no pueda dejar contenido obsoleto o desplazado.
+Las pestañas mantienen un `tabWidth` preferido fijo y la barra se desplaza horizontalmente una vez que se desbordan (rueda, o desplazamiento automático para mantener visible la pestaña activa) en lugar de reducirse a tiras finas — a partir de 1.9.4, `tabWidth` es un objetivo más allá del cual la barra se desplaza, no un ancho que se estira para llenar (lo que antes desorientaba los clics de cierre en tiras anchas). Con `autoHideTabBar` (1.9.5), la barra y su región de impacto desaparecen mientras existan menos de dos pestañas y el contenido ocupa toda la altura (semántica `showtabline=1` de Vim); el getter `effectiveTabBarHeight` informa la altura actual de la barra (`0` cuando está oculta), y la geometría del contenido se re-sincroniza cada fotograma para que reasignar `tabs` no pueda dejar contenido obsoleto o desplazado.
 
 ---
 
@@ -734,7 +737,8 @@ type ContextMenuItem =
 
 Componente de menú activado por click derecho. Soporta iconos, atajos, separadores y submenús recursivos.
 
-- `showAtPoint(x: number, y: number): void` — Muestra el menú en una posición global de pantalla.
+- `showAtPoint(x: number, y: number, source?: Scene | Entity): void` — muestra el menú en un punto de la Scene. Pasa una fuente montada si el menú aún no está montado.
+- Los menús anidados comparten un único backdrop propiedad del menú raíz. La activación de un comando, un pointerdown exterior, `hide()` o `destroy()` cierra toda la cadena sin dejar superficies semánticas o de puntero ocultas.
 
 ---
 
@@ -794,7 +798,7 @@ interface PanelOptions {
 }
 ```
 
-Un sistema de panel dividido redimensionable.
+Un sistema de panel dividido redimensionable. `Panel.setContent(content, fit = true)` aloja una entidad y sigue la anchura y altura del Panel después de arrastrar un divisor o redimensionarlo directamente. Pasa `false` o `{ width?, height? }` cuando el contenido deba controlar una o ambas dimensiones.
 
 ---
 

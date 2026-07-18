@@ -12,7 +12,7 @@ order: 37
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Tooltip</span></div>
-  <iframe src="/sandbox/ui/component.html?name=tooltip&v=core-1.9.2-ui-1.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Tooltip" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=tooltip&v=core-1.11.1-ui-1.11.3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Tooltip" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Pasa el ratón sobre el objetivo para verificar la colocación y el cierre.</figcaption>
 </figure>
 
