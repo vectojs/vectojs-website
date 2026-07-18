@@ -8,11 +8,13 @@ order: 39
 
 `ContextMenu` es un menú superpuesto para superficies de comandos.
 
+Las versiones UI 1.11.1–1.11.3 hacen seguro el ciclo de vida de las cadenas anidadas: un único backdrop propiedad del menú raíz cierra o destruye toda la cadena, los menús ocultos no dejan superficies semánticas ni de puntero y cada menú raíz conserva una identidad estable para su backdrop. Un `pointerdown` exterior descarta la cadena de inmediato, mientras que la activación semántica mediante `click` sigue disponible para teclados y tecnologías de asistencia.
+
 ## Pruébalo
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ContextMenu</span></div>
-  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.9.2-ui-1.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de ContextMenu" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.11.1-ui-1.11.3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de ContextMenu" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Haz clic en el lanzador para abrir el menú dentro de un viewport limitado.</figcaption>
 </figure>
 

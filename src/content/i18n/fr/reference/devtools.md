@@ -6,7 +6,7 @@ order: 48
 
 # `@vectojs/devtools`
 
-Version documentée : **0.4.2**
+Version documentée : **0.4.3**
 
 `@vectojs/devtools` est la réponse à « où est le panneau Éléments ? » — un inspecteur
 dans la page pour le Virtual Math Tree, afin que le débogage d'une scène VectoJS reste
@@ -58,6 +58,12 @@ if (import.meta.env.DEV) {
 - **Édition par touches de déplacement** : avec une entité sélectionnée, les touches
   fléchées la déplacent de 1 px (Maj : 10 px) ; `+`/`-` modifient l'opacité par pas de 0,1.
   Utile pour confirmer _quelle_ entité possède un bug de mise en page avant de toucher au code.
+
+Depuis la version 0.4.3, le dock fixé à droite et son canvas utilisent
+`pointer-events: none` ; seuls les contrôles interactifs projetés réactivent les
+événements du pointeur. L'inspecteur ne vole donc plus les entrées destinées aux
+contrôles hôtes situés sous les pixels vides du dock, tandis que ses lignes VMT et ses
+boutons restent cliquables.
 
 ## API
 

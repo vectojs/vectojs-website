@@ -57,6 +57,7 @@ solo para enfoque programático; devolver `undefined` elimina el valor explícit
 - `getA11yTree()` devuelve una instantánea `A11yTreeNode[]` anidada para aserciones;
   `getA11yElement(id)` obtiene un elemento sombra específico.
 - `a11yFullViewport` monta una superficie de interacción sin límites detrás de todas las demás.
+- Desde Core 1.11.1, cada entidad interactiva recién proyectada recibe el `z-index` correspondiente al orden de pintura del canvas en el mismo fotograma que crea su nodo sombra. Por tanto, el backdrop de una superposición nueva queda por encima de los controles de diseño existentes desde la primera interacción del puntero, sin esperar otro renderizado.
 
 Ver [Accesibilidad](/learn/accessibility/) para patrones de uso y pruebas.
 

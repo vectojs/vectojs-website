@@ -6,7 +6,7 @@ order: 48
 
 # `@vectojs/devtools`
 
-Version documented: **0.4.2**
+Version documented: **0.4.3**
 
 `@vectojs/devtools` is the answer to "where's the Elements panel?" — an in-page inspector for the Virtual Math Tree, so debugging a VectoJS scene stays in state space instead of pixel space. The panel is itself a VectoJS `Scene` (dogfooding the framework it inspects), docked to the right edge of the page.
 
@@ -43,6 +43,11 @@ if (import.meta.env.DEV) {
 - **Selection highlight**: the selected entity's world-space bounding box is drawn as an outline on the _host_ scene's overlay layer, so you see exactly what's selected relative to the live render.
 - **State readout**: geometry, scale/rotation/opacity, the full world transform matrix, and animation state as plain text — the numbers a screenshot can't give you directly.
 - **Keyboard nudge editing**: with an entity selected, arrow keys move it by 1px (Shift: 10px); `+`/`-` step opacity by 0.1. Useful for confirming _which_ entity a layout bug belongs to before touching code.
+
+Since 0.4.3, the fixed right-edge dock and its canvas use
+`pointer-events: none`; only their projected interactive controls opt back in.
+The inspector therefore no longer steals input from host controls underneath
+empty dock pixels, while its VMT rows and buttons remain clickable.
 
 ## API
 

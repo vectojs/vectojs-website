@@ -40,6 +40,7 @@ order: 10
 - `getA11yTree()` 回傳一個巢狀的 `A11yTreeNode[]` 快照以供斷言；
   `getA11yElement(id)` 擷取特定的陰影元素。
 - `a11yFullViewport` 在所有其他項目之後掛載一個無界的互動表面。
+- 從 Core 1.11.1 起，新投影的互動實體會在建立 shadow node 的同一影格取得與畫布繪製順序一致的 `z-index`。因此，新覆蓋層的 backdrop 在第一次指標互動時就位於既有設計控制項之上，不必等待下一次渲染。
 
 使用模式和測試模式請參閱 [Accessibility](/learn/accessibility/)。
 

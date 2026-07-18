@@ -8,11 +8,13 @@ order: 39
 
 `ContextMenu` 是用于命令表面的覆盖层菜单。
 
+UI 1.11.1–1.11.3 让嵌套菜单链具备安全的生命周期：由根菜单拥有的单一 backdrop 会关闭或销毁整条菜单链，隐藏的菜单不会留下语义或指针命中表面，每个根菜单也拥有稳定的 backdrop 标识。外部 `pointerdown` 会立即关闭菜单，同时仍保留面向键盘和辅助技术的语义 `click` 激活。
+
 ## 试试看
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ContextMenu</span></div>
-  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.9.2-ui-1.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.11.1-ui-1.11.3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>点击启动器以在受约束的视口内打开菜单。</figcaption>
 </figure>
 
