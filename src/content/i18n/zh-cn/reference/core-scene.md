@@ -29,7 +29,7 @@ Scene 将两个透明的兄弟 `<div>` 附加到 canvas 的**父**元素中（�
 | `pointBackend`         | `'canvas' \| 'webgl'`         | `'canvas'`       | 可表示的 `getBatchCircle()`/`getBatchRect()` 叶子的后端。`'webgl'` 堆叠一个 WebGL2 canvas（`z-index:5`）并批处理这些图元；不可用的 WebGL2 回退到 Canvas。GL 层在 2D 内容之上合成，因此跨层的画家顺序不会交错。                               |
 | `particleBackend`      | `'auto' \| 'webgpu' \| 'cpu'` | `'auto'`         | [`ComputeParticleEntity`](/reference/core-particles/) 后端。`'auto'` 尝试 WebGPU 并在回退到 CPU 之前发出警告。`'webgpu'` 显式请求 WebGPU，但当前会记录一个错误，并且在初始化失败时仍然回退。`'cpu'` 强制 CPU 模拟（设置 `webgpuDisabled`）。 |
 | `maxFPS`               | `number`                      | `60`             | 帧率上限。`0` = 不限制（原生刷新）。连续动画仍然运行，只是频率更低。（在 `NODE_ENV=test`/`VITEST` 下内部为 `0`。）也可通过 `scene.maxFPS` 实时设置。                                                                                         |
-| `respectReducedMotion` | `boolean`                     | `true`           | 当操作系统请求 `prefers-reduced-motion` 时，上限为 `REDUCED_MOTION_FPS`（30）—— 或该值与 `maxFPS` 中较低者。`false` 忽略操作系统设置。                                                                                                       |
+| `respectReducedMotion` | `boolean`                     | `true`           | 当操作系统请求 `prefers-reduced-motion` 时，上限为 `REDUCED*MOTION*FPS`（30）—— 或该值与 `maxFPS` 中较低者。`false` 忽略操作系统设置。                                                                                                       |
 | `a11ySyncInterval`     | `number`                      | `0`              | 将 a11y 影子 DOM 同步节流至最多每 N ms 一次。`0` = 每个渲染帧同步。小值（例如 `100`）在繁重动画期间保持 a11y 层最终一致，同时节省每帧 DOM 写入。也可通过 `scene.a11ySyncInterval` 实时设置。                                                 |
 | `debugA11y`            | `boolean`                     | `false`          | 用蓝色虚线轮廓渲染影子节点（开发辅助），而不是 `opacity:0`。无论哪种方式它们都保持可被自动化点击。                                                                                                                                           |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | 自定义渲染器（例如来自 [`@vectojs/three`](/reference/three-renderer/) 的 `ThreeRenderer`）。                                                                                                                                                 |
@@ -73,7 +73,7 @@ scene.a11yNeedsReorder: boolean
 
 > 如果你在自定义 `update()` 内部通过修改 `entity.x` 等手动制作动画，在 `update()` **内部**调用 `markDirty()` 无济于事 —— 渲染后重置会清除它，下一帧的静态检查看到 `dirty === false` 并将你节流到 2 fps。要么通过 [`entity.animate()`](/reference/core-entity/#动画)（它在补间运行时保持场景非静态）驱动运动，要么在帧**之间**调用 `scene.markDirty()`（从事件处理器、单独的 `rAF` 或计时器），以便该标志存活到下一次循环迭代。
 
-`effectiveMaxFPS` = `maxFPS`，当操作系统请求减弱动效且 `respectReducedMotion` 开启时，进一步降低到 30（`REDUCED_MOTION_FPS`）。`0` 表示不限制。
+`effectiveMaxFPS` = `maxFPS`，当操作系统请求减弱动效且 `respectReducedMotion` 开启时，进一步降低到 30（`REDUCED*MOTION*FPS`）。`0` 表示不限制。
 
 ## 生命周期方法
 

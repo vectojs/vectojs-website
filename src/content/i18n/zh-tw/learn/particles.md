@@ -75,14 +75,14 @@ window.addEventListener('resize', () => {
 
 | 偏移常數                     | 索引 | 欄位       | 備註                                                |
 | ---------------------------- | ---- | ---------- | --------------------------------------------------- |
-| `PARTICLE_OFFSET_POSITION_X` | 0    | position.x | 當前世界空間 x                                      |
-| `PARTICLE_OFFSET_POSITION_Y` | 1    | position.y | 當前世界空間 y                                      |
-| `PARTICLE_OFFSET_VELOCITY_X` | 2    | velocity.x |                                                     |
-| `PARTICLE_OFFSET_VELOCITY_Y` | 3    | velocity.y |                                                     |
-| `PARTICLE_OFFSET_ORIGIN_X`   | 4    | origin.x   | 彈簧靜止/錨點                                       |
-| `PARTICLE_OFFSET_ORIGIN_Y`   | 5    | origin.y   |                                                     |
-| `PARTICLE_OFFSET_SIZE`       | 6    | size       | 每個粒子的大小覆蓋值                                |
-| `PARTICLE_OFFSET_LIFE`       | 7    | life       | `-1` = 永久；`≥0` 以 0.5/s 衰減；`0` = 死亡（跳過） |
+| `PARTICLE*OFFSET*POSITION_X` | 0    | position.x | 當前世界空間 x                                      |
+| `PARTICLE*OFFSET*POSITION_Y` | 1    | position.y | 當前世界空間 y                                      |
+| `PARTICLE*OFFSET*VELOCITY_X` | 2    | velocity.x |                                                     |
+| `PARTICLE*OFFSET*VELOCITY_Y` | 3    | velocity.y |                                                     |
+| `PARTICLE*OFFSET*ORIGIN_X`   | 4    | origin.x   | 彈簧靜止/錨點                                       |
+| `PARTICLE*OFFSET*ORIGIN_Y`   | 5    | origin.y   |                                                     |
+| `PARTICLE*OFFSET*SIZE`       | 6    | size       | 每個粒子的大小覆蓋值                                |
+| `PARTICLE*OFFSET*LIFE`       | 7    | life       | `-1` = 永久；`≥0` 以 0.5/s 衰減；`0` = 死亡（跳過） |
 
 你可以直接讀寫 `particleData` 來設定自訂陣型。寫入後，設定 `needsInit = true` 以在下一幀觸發 GPU 上傳。
 

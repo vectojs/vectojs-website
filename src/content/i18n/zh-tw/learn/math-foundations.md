@@ -176,7 +176,7 @@ $$P(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t) t^2 P_2 + t^3 P_3$$
 
 目前的實作將每個 Bézier 段取樣為固定解析度的 `Float32Array` 折線並予以快取。對於指標 $C(x, y)$，它計算到每個相鄰線段的平方距離，並在以下條件下接受命中：
 
-$$d^2(C, \overline{P_iP_{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
+$$d^2(C, \overline{P*iP*{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
 
 快取的近似值使得重複命中測試廉價且確定性高。它並非解析式的五次/Truncated Newton 求解器：非常高曲率的段可能在樣本之間產生偏差，因此在選擇 `hitTolerance` 時要考慮到這種近似。`hitTest: 'aabb'` 則完全跳過精細化。
 

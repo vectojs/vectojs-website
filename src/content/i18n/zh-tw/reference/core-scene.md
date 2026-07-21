@@ -29,7 +29,7 @@ Scene 會將兩個透明的兄弟 `<div>` 附加到 canvas 的**父**元素中�
 | `pointBackend`         | `'canvas' \| 'webgl'`         | `'canvas'`       | 用於可表示的 `getBatchCircle()`/`getBatchRect()` 葉的後端。`'webgl'` 疊加一個 WebGL2 canvas（`z-index:5`）並批次處理那些基本元件；不可用的 WebGL2 會回退到 Canvas。GL 層在 2D 內容之上合成，因此跨層畫家順序不會交錯。         |
 | `particleBackend`      | `'auto' \| 'webgpu' \| 'cpu'` | `'auto'`         | [`ComputeParticleEntity`](/reference/core-particles/) 後端。`'auto'` 嘗試 WebGPU 並在回退到 CPU 前警告。`'webgpu'` 明確請求 WebGPU，但目前會記錄錯誤，且若初始化失敗仍會回退。`'cpu'` 強制 CPU 模擬（設定 `webgpuDisabled`）。 |
 | `maxFPS`               | `number`                      | `60`             | 幀率上限。`0` = 無上限（原生更新率）。連續動畫仍會執行，只是頻率較低。（在 `NODE_ENV=test`/`VITEST` 下內部為 `0`。）也可透過 `scene.maxFPS` 即時設定。                                                                         |
-| `respectReducedMotion` | `boolean`                     | `true`           | 當 OS 請求 `prefers-reduced-motion` 時，上限為 `REDUCED_MOTION_FPS`（30）— 或該值與 `maxFPS` 中較低者。`false` 會忽略 OS 設定。                                                                                                |
+| `respectReducedMotion` | `boolean`                     | `true`           | 當 OS 請求 `prefers-reduced-motion` 時，上限為 `REDUCED*MOTION*FPS`（30）— 或該值與 `maxFPS` 中較低者。`false` 會忽略 OS 設定。                                                                                                |
 | `a11ySyncInterval`     | `number`                      | `0`              | 將 a11y 陰影 DOM 同步節流到每 N 毫秒最多一次。`0` = 每個渲染的幀都同步。較小的值（例如 `100`）在繁重動畫期間讓 a11y 層最終一致，同時節省每幀 DOM 寫入。也可透過 `scene.a11ySyncInterval` 即時設定。                            |
 | `debugA11y`            | `boolean`                     | `false`          | 以藍色虛線外框（開發輔助）渲染陰影節點，而非 `opacity:0`。無論哪種方式，它們對自動化都保持可點擊。                                                                                                                             |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | 自訂 renderer（例如來自 [`@vectojs/three`](/reference/three-renderer/) 的 `ThreeRenderer`）。                                                                                                                                  |
@@ -78,7 +78,7 @@ scene.a11yNeedsReorder: boolean
 > 驅動動作（它在補間執行時讓場景保持非靜態），或在幀**之間**呼叫 `scene.markDirty()`
 > （從事件處理常式、獨立的 `rAF` 或計時器），讓旗標存活到下一個迴圈迭代。
 
-`effectiveMaxFPS` = `maxFPS`，當 OS 請求減少動態效果且 `respectReducedMotion` 開啟時，進一步降低到 30（`REDUCED_MOTION_FPS`）。`0` 表示無上限。
+`effectiveMaxFPS` = `maxFPS`，當 OS 請求減少動態效果且 `respectReducedMotion` 開啟時，進一步降低到 30（`REDUCED*MOTION*FPS`）。`0` 表示無上限。
 
 ## 生命週期方法
 

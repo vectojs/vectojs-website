@@ -27,7 +27,7 @@ order: 47
 bun add @vectojs/video-exporter
 ```
 
-내보내기는 `PATH`에 `ffmpeg`가 필요합니다. Chromium은 `PUPPETEER_EXECUTABLE_PATH`에서 확인된 후, 있는 경우 `/usr/bin/chromium`, 그 다음 Puppeteer의 구성된 또는 번들 브라우저에서 확인됩니다.
+내보내기는 `PATH`에 `ffmpeg`가 필요합니다. Chromium은 `PUPPETEER*EXECUTABLE*PATH`에서 확인된 후, 있는 경우 `/usr/bin/chromium`, 그 다음 Puppeteer의 구성된 또는 번들 브라우저에서 확인됩니다.
 
 ```bash
 ffmpeg -version
@@ -104,4 +104,4 @@ await exportPromise;
 
 ## Chromium 샌드박스 정책
 
-샌드박스는 일반 사용자에 대해 활성화 상태를 유지합니다. 루트 또는 `VECTO_CHROMIUM_NO_SANDBOX=1`이 명시적으로 설정된 경우에만 비활성화되며, 내보내기는 두 경우 모두 경고합니다. 환경 플래그는 제한된 CI 실행기를 위한 것입니다; 다른 곳에서는 일반 비루트 프로세스를 선호하세요.
+샌드박스는 일반 사용자에 대해 활성화 상태를 유지합니다. 루트 또는 `VECTO*CHROMIUM*NO_SANDBOX=1`이 명시적으로 설정된 경우에만 비활성화되며, 내보내기는 두 경우 모두 경고합니다. 환경 플래그는 제한된 CI 실행기를 위한 것입니다; 다른 곳에서는 일반 비루트 프로세스를 선호하세요.

@@ -25,19 +25,19 @@ new ComputeParticleEntity(options?: ComputeParticleOptions)
 
 ## Disposition mémoire par particule
 
-`particleData: Float32Array` de longueur `maxParticles × PARTICLE_STRIDE_FLOATS`
-(`PARTICLE_STRIDE_FLOATS = 8`). Par particule, 8 flottants :
+`particleData: Float32Array` de longueur `maxParticles × PARTICLE*STRIDE*FLOATS`
+(`PARTICLE*STRIDE*FLOATS = 8`). Par particule, 8 flottants :
 
 | Constante de décalage        | Index | Champ                                                                    |
 | ---------------------------- | ----- | ------------------------------------------------------------------------ |
-| `PARTICLE_OFFSET_POSITION_X` | 0     | position.x                                                               |
-| `PARTICLE_OFFSET_POSITION_Y` | 1     | position.y                                                               |
-| `PARTICLE_OFFSET_VELOCITY_X` | 2     | velocity.x                                                               |
-| `PARTICLE_OFFSET_VELOCITY_Y` | 3     | velocity.y                                                               |
-| `PARTICLE_OFFSET_ORIGIN_X`   | 4     | origin.x (ancrage du ressort)                                            |
-| `PARTICLE_OFFSET_ORIGIN_Y`   | 5     | origin.y                                                                 |
-| `PARTICLE_OFFSET_SIZE`       | 6     | taille                                                                   |
-| `PARTICLE_OFFSET_LIFE`       | 7     | vie : `-1` = perpétuelle, `>=0` décroît à `0,5/s`, `0` = morte (ignorée) |
+| `PARTICLE*OFFSET*POSITION_X` | 0     | position.x                                                               |
+| `PARTICLE*OFFSET*POSITION_Y` | 1     | position.y                                                               |
+| `PARTICLE*OFFSET*VELOCITY_X` | 2     | velocity.x                                                               |
+| `PARTICLE*OFFSET*VELOCITY_Y` | 3     | velocity.y                                                               |
+| `PARTICLE*OFFSET*ORIGIN_X`   | 4     | origin.x (ancrage du ressort)                                            |
+| `PARTICLE*OFFSET*ORIGIN_Y`   | 5     | origin.y                                                                 |
+| `PARTICLE*OFFSET*SIZE`       | 6     | taille                                                                   |
+| `PARTICLE*OFFSET*LIFE`       | 7     | vie : `-1` = perpétuelle, `>=0` décroît à `0,5/s`, `0` = morte (ignorée) |
 
 ## Méthodes
 

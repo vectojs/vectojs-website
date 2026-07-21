@@ -75,14 +75,14 @@ Cada partícula son 8 valores `float32` consecutivos en `entity.particleData`:
 
 | Constante de offset          | Índice | Campo      | Notas                                                       |
 | ---------------------------- | ------ | ---------- | ----------------------------------------------------------- |
-| `PARTICLE_OFFSET_POSITION_X` | 0      | position.x | x actual en el espacio del mundo                            |
-| `PARTICLE_OFFSET_POSITION_Y` | 1      | position.y | y actual en el espacio del mundo                            |
-| `PARTICLE_OFFSET_VELOCITY_X` | 2      | velocity.x |                                                             |
-| `PARTICLE_OFFSET_VELOCITY_Y` | 3      | velocity.y |                                                             |
-| `PARTICLE_OFFSET_ORIGIN_X`   | 4      | origin.x   | Punto de reposo/anclaje del resorte                         |
-| `PARTICLE_OFFSET_ORIGIN_Y`   | 5      | origin.y   |                                                             |
-| `PARTICLE_OFFSET_SIZE`       | 6      | size       | Anulación de tamaño por partícula                           |
-| `PARTICLE_OFFSET_LIFE`       | 7      | life       | `-1` = perpetua; `≥0` decae a 0.5/s; `0` = muerta (omitida) |
+| `PARTICLE*OFFSET*POSITION_X` | 0      | position.x | x actual en el espacio del mundo                            |
+| `PARTICLE*OFFSET*POSITION_Y` | 1      | position.y | y actual en el espacio del mundo                            |
+| `PARTICLE*OFFSET*VELOCITY_X` | 2      | velocity.x |                                                             |
+| `PARTICLE*OFFSET*VELOCITY_Y` | 3      | velocity.y |                                                             |
+| `PARTICLE*OFFSET*ORIGIN_X`   | 4      | origin.x   | Punto de reposo/anclaje del resorte                         |
+| `PARTICLE*OFFSET*ORIGIN_Y`   | 5      | origin.y   |                                                             |
+| `PARTICLE*OFFSET*SIZE`       | 6      | size       | Anulación de tamaño por partícula                           |
+| `PARTICLE*OFFSET*LIFE`       | 7      | life       | `-1` = perpetua; `≥0` decae a 0.5/s; `0` = muerta (omitida) |
 
 Puedes leer y escribir `particleData` directamente para configurar formaciones personalizadas. Tras escribir, establece `needsInit = true` para desencadenar una subida a la GPU en el siguiente frame.
 

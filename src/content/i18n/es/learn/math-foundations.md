@@ -176,7 +176,7 @@ Donde $P_0, P_1, P_2, P_3 \in \mathbb{R}^2$ son los puntos de control.
 
 La implementación actual muestrea cada segmento de Bézier en una polilínea `Float32Array` de resolución fija y la almacena en caché. Para un puntero $C(x, y)$, calcula la distancia al cuadrado a cada segmento de línea adyacente y acepta el impacto cuando:
 
-$$d^2(C, \overline{P_iP_{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
+$$d^2(C, \overline{P*iP*{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
 
 La aproximación en caché hace que los impactos repetidos sean baratos y deterministas. No es un solucionador analítico de quíntica/Newton: los segmentos de muy alta curvatura pueden desviarse entre las muestras, así que elige `hitTolerance` teniendo en cuenta esa aproximación. `hitTest: 'aabb'` se salta el refinamiento por completo.
 

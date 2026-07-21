@@ -27,7 +27,7 @@ order: 47
 bun add @vectojs/video-exporter
 ```
 
-エクスポーターは`PATH`に`ffmpeg`が必要です。Chromiumは `PUPPETEER_EXECUTABLE_PATH`、次に `/usr/bin/chromium`（存在する場合）、その後Puppeteerの設定またはバンドルされたブラウザから解決されます。
+エクスポーターは`PATH`に`ffmpeg`が必要です。Chromiumは `PUPPETEER*EXECUTABLE*PATH`、次に `/usr/bin/chromium`（存在する場合）、その後Puppeteerの設定またはバンドルされたブラウザから解決されます。
 
 ```bash
 ffmpeg -version
@@ -104,4 +104,4 @@ await exportPromise;
 
 ## Chromiumサンドボックスポリシー
 
-通常のユーザーではサンドボックスは有効のままです。rootの場合、または `VECTO_CHROMIUM_NO_SANDBOX=1` が明示的に設定されている場合にのみ無効になり、エクスポーターはいずれの場合も警告を表示します。この環境フラグは制約されたCIランナーを対象としています；それ以外の場所では通常の非rootプロセスを推奨します。
+通常のユーザーではサンドボックスは有効のままです。rootの場合、または `VECTO*CHROMIUM*NO_SANDBOX=1` が明示的に設定されている場合にのみ無効になり、エクスポーターはいずれの場合も警告を表示します。この環境フラグは制約されたCIランナーを対象としています；それ以外の場所では通常の非rootプロセスを推奨します。

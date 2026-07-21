@@ -176,7 +176,7 @@ $$P(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t) t^2 P_2 + t^3 P_3$$
 
 当前实现将每个贝塞尔段采样为固定分辨率的`Float32Array`折线并缓存它。对于指针$C(x, y)$，它计算到每个相邻线段的平方距离，并在以下条件下接受命中：
 
-$$d^2(C, \overline{P_iP_{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
+$$d^2(C, \overline{P*iP*{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
 
 缓存的近似值使重复命中测试变得廉价且确定。它不是解析的五次/牛顿求解器：极高曲率的段可能在样本之间产生偏差，因此在选择`hitTolerance`时请考虑这一近似。`hitTest: 'aabb'`完全跳过细化。
 

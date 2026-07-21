@@ -29,7 +29,7 @@ Sceneは2つの透過的な兄弟 `<div>` をキャンバスの**親**要素に�
 | `pointBackend`         | `'canvas' \| 'webgl'`         | `'canvas'`       | 表現可能な `getBatchCircle()`/`getBatchRect()` リーフのバックエンド。`'webgl'` はWebGL2キャンバス（`z-index:5`）をスタックし、それらのプリミティブをバッチします；WebGL2が利用不可の場合はCanvasにフォールバックします。GLレイヤーは2Dコンテンツの上に合成されるため、レイヤー間のペインターズオーダーはインターリーブされません。      |
 | `particleBackend`      | `'auto' \| 'webgpu' \| 'cpu'` | `'auto'`         | [`ComputeParticleEntity`](/reference/core-particles/) のバックエンド。`'auto'` はWebGPUを試行し、CPUにフォールバックする前に警告を出力します。`'webgpu'` は明示的にWebGPUを要求しますが、現在はエラーをログに出力し、初期化に失敗した場合もフォールバックします。`'cpu'` はCPUシミュレーションを強制します（`webgpuDisabled` を設定）。 |
 | `maxFPS`               | `number`                      | `60`             | フレームレート上限。`0` = 上限なし（ネイティブリフレッシュレート）。連続アニメーションは引き続き実行されますが、頻度が低くなります。（内部的に `NODE_ENV=test`/`VITEST` では `0`。）`scene.maxFPS` でライブ設定も可能。                                                                                                                 |
-| `respectReducedMotion` | `boolean`                     | `true`           | OSが `prefers-reduced-motion` を要求する場合、`REDUCED_MOTION_FPS`（30）に制限 — またはそれと `maxFPS` の低い方。`false` はOS設定を無視します。                                                                                                                                                                                         |
+| `respectReducedMotion` | `boolean`                     | `true`           | OSが `prefers-reduced-motion` を要求する場合、`REDUCED*MOTION*FPS`（30）に制限 — またはそれと `maxFPS` の低い方。`false` はOS設定を無視します。                                                                                                                                                                                         |
 | `a11ySyncInterval`     | `number`                      | `0`              | a11yシャドウDOM同期をNミリ秒あたり最大1回にスロットル。`0` = レンダリングされたフレームごとに同期。小さい値（例：`100`）は、激しいアニメーション中もa11yレイヤーを結果的に一貫性を保ちつつ、フレームごとのDOM書き込みを節約します。`scene.a11ySyncInterval` でライブ設定も可能。                                                        |
 | `debugA11y`            | `boolean`                     | `false`          | シャドウノードを `opacity:0` の代わりに青い破線のアウトラインでレンダリングします（開発支援）。どちらにせよ自動化からはクリック可能です。                                                                                                                                                                                               |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | カスタムレンダラー（例：[`@vectojs/three`](/reference/three-renderer/) の `ThreeRenderer`）。                                                                                                                                                                                                                                           |
@@ -73,7 +73,7 @@ scene.a11yNeedsReorder: boolean
 
 > カスタム `update()` 内で `entity.x` などを変更して手動アニメーションを行う場合、`update()` **内**で `markDirty()` を呼び出しても効果はありません — ポストレンダリングのリセットがそれを消去し、次のフレームの静的チェックは `dirty === false` を認識して2fpsにスロットルします。モーションを [`entity.animate()`](/reference/core-entity/#アニメーション) で駆動するか（トゥイーン実行中はシーンを非静的状態に保つ）、またはフレーム**間**（イベントハンドラー、別個の `rAF`、またはタイマーから）`scene.markDirty()` を呼び出して、フラグが次のループ反復まで生存するようにしてください。
 
-`effectiveMaxFPS` = `maxFPS`。OSが動きの低減を要求し、`respectReducedMotion` がオンの場合、さらに30（`REDUCED_MOTION_FPS`）に引き下げられます。`0` は上限なしを意味します。
+`effectiveMaxFPS` = `maxFPS`。OSが動きの低減を要求し、`respectReducedMotion` がオンの場合、さらに30（`REDUCED*MOTION*FPS`）に引き下げられます。`0` は上限なしを意味します。
 
 ## ライフサイクルメソッド
 

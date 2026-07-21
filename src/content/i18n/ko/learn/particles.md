@@ -75,14 +75,14 @@ window.addEventListener('resize', () => {
 
 | 오프셋 상수                  | 인덱스 | 필드       | 설명                                                  |
 | ---------------------------- | ------ | ---------- | ----------------------------------------------------- |
-| `PARTICLE_OFFSET_POSITION_X` | 0      | position.x | 현재 월드 공간 x                                      |
-| `PARTICLE_OFFSET_POSITION_Y` | 1      | position.y | 현재 월드 공간 y                                      |
-| `PARTICLE_OFFSET_VELOCITY_X` | 2      | velocity.x |                                                       |
-| `PARTICLE_OFFSET_VELOCITY_Y` | 3      | velocity.y |                                                       |
-| `PARTICLE_OFFSET_ORIGIN_X`   | 4      | origin.x   | 스프링의 정지/앵커 지점                               |
-| `PARTICLE_OFFSET_ORIGIN_Y`   | 5      | origin.y   |                                                       |
-| `PARTICLE_OFFSET_SIZE`       | 6      | size       | 파티클별 크기 재정의                                  |
-| `PARTICLE_OFFSET_LIFE`       | 7      | life       | `-1` = 영구; `≥0`은 0.5/s로 감소; `0` = 죽음 (건너뜀) |
+| `PARTICLE*OFFSET*POSITION_X` | 0      | position.x | 현재 월드 공간 x                                      |
+| `PARTICLE*OFFSET*POSITION_Y` | 1      | position.y | 현재 월드 공간 y                                      |
+| `PARTICLE*OFFSET*VELOCITY_X` | 2      | velocity.x |                                                       |
+| `PARTICLE*OFFSET*VELOCITY_Y` | 3      | velocity.y |                                                       |
+| `PARTICLE*OFFSET*ORIGIN_X`   | 4      | origin.x   | 스프링의 정지/앵커 지점                               |
+| `PARTICLE*OFFSET*ORIGIN_Y`   | 5      | origin.y   |                                                       |
+| `PARTICLE*OFFSET*SIZE`       | 6      | size       | 파티클별 크기 재정의                                  |
+| `PARTICLE*OFFSET*LIFE`       | 7      | life       | `-1` = 영구; `≥0`은 0.5/s로 감소; `0` = 죽음 (건너뜀) |
 
 `particleData`를 직접 읽고 써서 사용자 정의 형태를 설정할 수 있습니다. 작성 후 `needsInit = true`로 설정하면 다음 프레임에서 GPU 업로드가 트리거됩니다.
 

@@ -27,7 +27,7 @@ order: 47
 bun add @vectojs/video-exporter
 ```
 
-匯出器需要 `ffmpeg` 在 `PATH` 上。Chromium 從 `PUPPETEER_EXECUTABLE_PATH` 解析，然後在存在時從 `/usr/bin/chromium` 解析，然後從 Puppeteer 設定或捆綁的瀏覽器解析。
+匯出器需要 `ffmpeg` 在 `PATH` 上。Chromium 從 `PUPPETEER*EXECUTABLE*PATH` 解析，然後在存在時從 `/usr/bin/chromium` 解析，然後從 Puppeteer 設定或捆綁的瀏覽器解析。
 
 ```bash
 ffmpeg -version
@@ -104,4 +104,4 @@ await exportPromise;
 
 ## Chromium 沙箱策略
 
-沙箱對一般用戶保持啟用。僅在 root 或明確設定 `VECTO_CHROMIUM_NO_SANDBOX=1` 時停用，且匯出器在任一種情況下都會發出警告。環境變數適用於受限的 CI 執行器；其他地方請使用一般的非 root 行程。
+沙箱對一般用戶保持啟用。僅在 root 或明確設定 `VECTO*CHROMIUM*NO_SANDBOX=1` 時停用，且匯出器在任一種情況下都會發出警告。環境變數適用於受限的 CI 執行器；其他地方請使用一般的非 root 行程。

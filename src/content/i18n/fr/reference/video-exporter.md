@@ -27,7 +27,7 @@ Version documentée : **0.2.2**
 bun add @vectojs/video-exporter
 ```
 
-L'exportateur nécessite `ffmpeg` dans le `PATH`. Chromium est résolu depuis `PUPPETEER_EXECUTABLE_PATH`, puis `/usr/bin/chromium` lorsqu'il est présent, puis le navigateur configuré ou intégré de Puppeteer.
+L'exportateur nécessite `ffmpeg` dans le `PATH`. Chromium est résolu depuis `PUPPETEER*EXECUTABLE*PATH`, puis `/usr/bin/chromium` lorsqu'il est présent, puis le navigateur configuré ou intégré de Puppeteer.
 
 ```bash
 ffmpeg -version
@@ -104,4 +104,4 @@ await exportPromise;
 
 ## Politique de sandbox Chromium
 
-Le sandbox reste activé pour les utilisateurs normaux. Il est désactivé uniquement pour root ou lorsque `VECTO_CHROMIUM_NO_SANDBOX=1` est explicitement défini, et l'exportateur émet un avertissement dans les deux cas. La variable d'environnement est destinée aux exécuteurs CI contraints ; préférez un processus normal non-root ailleurs.
+Le sandbox reste activé pour les utilisateurs normaux. Il est désactivé uniquement pour root ou lorsque `VECTO*CHROMIUM*NO_SANDBOX=1` est explicitement défini, et l'exportateur émet un avertissement dans les deux cas. La variable d'environnement est destinée aux exécuteurs CI contraints ; préférez un processus normal non-root ailleurs.

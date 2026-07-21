@@ -176,7 +176,7 @@ $$P(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t) t^2 P_2 + t^3 P_3$$
 
 현재 구현은 각 베지어 세그먼트를 고정 해상도의 `Float32Array` 폴리라인으로 샘플링하고 캐싱합니다. 포인터 $C(x, y)$에 대해 각 인접 선분까지의 제곱 거리를 계산하고 다음 조건을 만족할 때 히트를 수락합니다:
 
-$$d^2(C, \\overline{P_iP_{i+1}}) \\le \\left(\\frac{\\text{lineWidth}}{2} + \\text{hitTolerance}\\right)^2$$
+$$d^2(C, \\overline{P*iP*{i+1}}) \\le \\left(\\frac{\\text{lineWidth}}{2} + \\text{hitTolerance}\\right)^2$$
 
 캐시된 근사는 반복된 히트를 저렴하고 결정론적으로 만듭니다. 이는 해석적 5차/Newton 솔버가 아닙니다: 매우 높은 곡률의 세그먼트는 샘플 간에 편차가 발생할 수 있으므로 그 근사를 염두에 두고 `hitTolerance`를 선택하세요. `hitTest: 'aabb'`는 정제 과정을 완전히 건너뜁니다.
 
