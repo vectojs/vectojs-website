@@ -248,6 +248,24 @@ function renderRow(text: string) {
 
 재사용 가능한 버퍼는 핫 레이아웃에서 글리프당 하나의 `LayoutNode` 객체 할당을 피합니다. 제약사항: 고정 용량, 단일 컬럼만 지원 (BiDi 시각적 재정렬, 제외 사각형 없음). 이러한 기능이 필요하면 `layoutPrepared()`를 사용하고, 핫 경로에서는 `toLayoutResult()`를 피하세요 — 노드 객체를 할당하기 때문입니다.
 
+### `TextRasterCache` — 텍스트를 다시 셰이핑하는 대신 반복 텍스트를 블리팅하기
+
+_Core 1.12.0부터._ 뷰가 **동일한 짧은 문자열을 프레임당 수천 번** 그릴 때(단막/탄막, 채팅/로그 꼬리, 파티클 레이블, 반복되는 셀 값), 병목은 레이아웃이 아니라 `fillText` 자체입니다. 각 호출은 문자열을 다시 셰이핑하고, CSS 색상을 다시 파싱하며, CPU 메인 스레드에서 글리프를 래스터화합니다; 프레임당 수천 번의 호출에서 메인 스레드는 네이티브(`(program)`) 코드에 고정되고 GPU는 굶주려 다운클럭됩니다. `fillText`를 미리-래스터화된 실행의 `drawImage`로 교체하면 그 호출별 CPU 비용이 저렴한 비트맵 블리트로 바뀝니다:
+
+```typescript
+import { TextRasterCache } from '@vectojs/core';
+
+const cache = new TextRasterCache(); // one per scene/renderer
+
+function drawLabel(text: string, x: number, baselineY: number) {
+  const r = cache.get('600 24px system-ui', '#38bdf8', text);
+  if (r) renderer.drawImage(r.canvas, x - r.offsetX, baselineY - r.offsetY, r.width, r.height);
+  else renderer.fillText(text, x, baselineY, '600 24px system-ui', '#38bdf8'); // headless fallback
+}
+```
+
+이점은 **재사용**에서 나옵니다: 서로 다른 `(font, color, text)` 실행 집합이 한정되어 있을 때(구문 라이브러리, 작은 팔레트, 몇 개의 폰트 크기) 정상 상태의 적중률은 100%에 근접합니다. 삽입-순서 제거 상한(`maxEntries`, 기본값 4096)은 무제한으로 사용자가 입력한 콘텐츠에 대해 메모리를 제한하며, `dpr > 1`은 블리트 크기가 CSS 픽셀로 유지되는 동안 HiDPI에서 텍스트를 선명하게 유지합니다. 매우 다양하거나 한 번만 그려지는 텍스트에는 도움이 되지 **않습니다** — 그것은 순수한 오버헤드입니다. [렌더러 레퍼런스](/reference/core-renderer/#textrastercache)를 참조하세요.
+
 ## CPU 계산 vs 렌더링 병목 현상
 
 전통적인 브라우저 DOM 프레임워크에서 성능 병목은 거의 항상 브라우저의 **렌더링 및 리플로우 레이아웃 파이프라인**(DOM 조작, 스타일 재계산, 페인팅)에 있습니다. 그러나 VectoJS는 DOM을 완전히 우회하고 레이아웃, 컬링, 상호작용을 메모리에서 수학적으로 처리하기 때문에, 성능 병목 현상이 GPU/렌더링 레이어에서 **JavaScript 단일 스레드 CPU 계산**으로 직접 이동합니다.

@@ -14,7 +14,7 @@ order: 7
 bun add @vectojs/core @vectojs/ui
 ```
 
-VectoJS 分為核心數學引擎和高階元件庫。大多數應用程式會同時使用兩者。
+VectoJS 分為核心執行環境和高階元件庫。大多數應用程式會同時匯入兩者。`@vectojs/core` 打包並重新匯出它所建構於其上的獨立引擎——`@vectojs/text`、`@vectojs/layout`、`@vectojs/math` 和 `@vectojs/animation`——因此這個兩套件的安裝就是你所需要的一切；只有在你想要更小的依賴表面時，才需要個別動用那些套件。
 
 ## HTML 設定
 

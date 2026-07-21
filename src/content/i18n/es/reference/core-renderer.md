@@ -153,6 +153,43 @@ new CanvasRenderer(canvas: HTMLCanvasElement)
 cada `fill()` agrupado a `MAX_BATCH = 64` sub-rutas (un solo `fill()` de Canvas2D es
 superlineal en el número de sub-rutas). Obtén un manejador mediante `scene.getRenderer()`.
 
+## TextRasterCache
+
+_Desde Core 1.12.0._
+
+```ts
+new TextRasterCache(options?: { maxEntries?: number; dpr?: number })
+cache.get(font: string, color: string, text: string): TextRaster | null
+cache.clear(): void
+cache.stats: { hits: number; misses: number; size: number }
+```
+
+Una caché de runs de texto prerrasterizados, para vistas que dibujan las **mismas
+cadenas cortas miles de veces por frame** (danmaku/barrage, colas de chat/logs,
+celdas de cuadrículas de datos, etiquetas de partículas). `ctx.fillText()` es
+engañosamente costoso a escala: cada llamada vuelve a conformar la cadena, vuelve a
+analizar el color CSS y rasteriza los glifos en el hilo principal de la CPU — un perfil
+muestra el hilo principal saturado en código nativo (`(program)`) mientras la GPU está
+ociosa, sin trabajo.
+
+`get()` rasteriza cada run `(font, color, text)` distinto a un pequeño canvas fuera de
+pantalla una vez; en cada frame posterior lo bliteas con `drawImage` en lugar de volver
+a conformarlo. Blitea en la línea base de `fillText` restando los offsets devueltos:
+
+```ts
+const r = cache.get('600 24px system-ui', '#38bdf8', label);
+if (r) renderer.drawImage(r.canvas, x - r.offsetX, baselineY - r.offsetY, r.width, r.height);
+else renderer.fillText(label, x, baselineY, '600 24px system-ui', '#38bdf8'); // headless fallback
+```
+
+`TextRaster` es `{ canvas, width, height, offsetX, offsetY }` (dimensiones en píxeles
+CSS). Las instancias están aisladas (sin estado global compartido); `dpr > 1` mantiene
+el texto nítido en HiDPI mientras el tamaño del blit se mantiene en píxeles CSS; un tope
+de expulsión por orden de inserción (`maxEntries`, por defecto 4096) acota la memoria
+frente a contenido sin límite (tecleado por el usuario); `get()` devuelve `null` en un
+contexto headless/sin DOM para que mantengas un fallback a `fillText`. La ganancia viene
+de la **reutilización** — un run dibujado solo una vez es puro sobrecoste.
+
 ## SVGRenderer
 
 ```ts

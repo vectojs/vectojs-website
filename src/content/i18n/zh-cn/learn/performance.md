@@ -248,6 +248,24 @@ function renderRow(text: string) {
 
 可重用缓冲区避免了在每个热布局上为每个字形分配一个`LayoutNode`对象。约束：固定容量，仅单列（无BiDi视觉重排，无排除矩形）。当你需要这些功能时使用`layoutPrepared()`；在热路径上避免`toLayoutResult()`，因为它分配节点对象。
 
+### `TextRasterCache` —— 用位块传输重复文本，而非重新塑形
+
+_自 Core 1.12.0 起。_ 当一个视图**每帧绘制相同的短字符串数千次**（弹幕、聊天/日志尾部、粒子标签、重复的单元格值）时，瓶颈不在布局 —— 而在 `fillText` 本身。每次调用都会重新塑形字符串、重新解析 CSS 颜色，并在 CPU 主线程上栅格化字形；在每帧数千次调用时，主线程被钉在原生（`(program)`）代码上，而 GPU 却处于饥饿和降频状态。将 `fillText` 替换为对预栅格化文本段的 `drawImage`，可以把这种每次调用的 CPU 开销转变为廉价的位图位块传输：
+
+```typescript
+import { TextRasterCache } from '@vectojs/core';
+
+const cache = new TextRasterCache(); // one per scene/renderer
+
+function drawLabel(text: string, x: number, baselineY: number) {
+  const r = cache.get('600 24px system-ui', '#38bdf8', text);
+  if (r) renderer.drawImage(r.canvas, x - r.offsetX, baselineY - r.offsetY, r.width, r.height);
+  else renderer.fillText(text, x, baselineY, '600 24px system-ui', '#38bdf8'); // headless fallback
+}
+```
+
+收益来自**重用**：当不同的 `(font, color, text)` 文本段集合是有界的（一个短语库、一个小调色板、几种字号）时，稳态命中率接近 100%。一个按插入顺序的淘汰上限（`maxEntries`，默认 4096）针对无界的用户输入内容限制内存，而 `dpr > 1` 在保持位块传输尺寸以 CSS 像素为单位的同时让文本在 HiDPI 上保持清晰。它对高度多变或只绘制一次的文本**没有**帮助 —— 那纯粹是开销。参见[渲染器参考](/reference/core-renderer/#textrastercache)。
+
 ## CPU计算 vs 渲染瓶颈
 
 在传统的浏览器DOM框架中，性能瓶颈几乎总是位于浏览器的**渲染和重排布局管线**（DOM操作、样式重新计算和绘制）中。然而，由于VectoJS完全绕过DOM并在内存中数学地处理布局、剔除和交互，性能瓶颈从GPU/渲染层直接转移到**JavaScript单线程CPU计算**。

@@ -1,6 +1,6 @@
 ---
 title: '@vectojs/core APIリファレンス'
-description: 'Vectoの背後にあるゼロDOMレンダリングエンジンの概要とエントリポイントマップ — Scene、Entity、レイアウト、レンダラー、パーティクル、テキスト、数学ユーティリティはそれぞれ専用のリファレンスページがあります。'
+description: 'Vectoの背後にあるゼロDOMレンダリングエンジンの概要とエントリポイントマップ — coreのScene、Entity、レンダラー、パーティクル、a11y、そしてcoreが再エクスポートするスタンドアロンの@vectojs/text、@vectojs/layout、@vectojs/math、@vectojs/animationエンジン。'
 order: 1
 ---
 
@@ -28,14 +28,20 @@ Vectoの背後にあるゼロDOMレンダリングエンジン。`Scene` は `En
 
 ## エントリポイントとモジュールマップ
 
-`@vectojs/core` は1つの副作用を持つメインエントリと、3つのツリーシェイク可能なサブパスを提供します：
+layout、text-shaping、math、animationの各エンジンは、それぞれ独立したスタンドアロンのパッケージとして公開されています。`@vectojs/core` はそれらすべてに**依存し再エクスポートする**ため、以下のインポートはすべて `@vectojs/core`（およびツリーシェイク可能なサブパス）から解決され続けます。シーングラフランタイムなしで依存の範囲を小さく抑えたいときは、スタンドアロンのパッケージから直接インポートしてください。
 
-| インポート               | 内容                                                                                                                                                   | 副作用                                                                                                                 |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| `@vectojs/core` (`.`)    | すべて：`Scene`、`Entity`、全エンティティ、レンダラー、レイアウト、テキスト。                                                                          | インポート時に**両方**のプラガブルバックエンド（WebGL点レンダラー + WebGPUパーティクルマネージャー）を自動登録します。 |
-| `@vectojs/core/layout`   | `LayoutEngine`、`PreparedText`、`createCanvasMeasurer`、`LayoutResultBuffer`、`LayoutWorkerManager`、`computeLineSegments`、レイアウト型。             | なし。                                                                                                                 |
-| `@vectojs/core/renderer` | `IRenderer`、`CanvasRenderer`、`SVGRenderer`、`PointRenderer`、`createWebGLPointRenderer`、`WebGPUParticleSystemManager`、`parseColorToRGBA`、`RGBA`。 | なし。                                                                                                                 |
-| `@vectojs/core/text`     | `MSDFFont`、`MSDFTextEntity`、`SVGEntity`、`ArabicShaper`、`BidiResolver`、`prepareContentGrid`、`PreparedContentGrid`、MSDF型。                       | なし。                                                                                                                 |
+`@vectojs/core` は1つの副作用を持つメインエントリと、3つのツリーシェイク可能なサブパスを、4つのスタンドアロンパッケージとともに提供します：
+
+| インポート               | 内容                                                                                                                                                                                              | 副作用                                                                                                                 |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `@vectojs/core` (`.`)    | すべて：`Scene`、`Entity`、全エンティティ、レンダラー、加えて再エクスポートされたlayout、text、math、animationの各エンジン。                                                                      | インポート時に**両方**のプラガブルバックエンド（WebGL点レンダラー + WebGPUパーティクルマネージャー）を自動登録します。 |
+| `@vectojs/core/layout`   | `@vectojs/layout` を再エクスポート：`LayoutEngine`、`PreparedText`、`createCanvasMeasurer`、`LayoutResultBuffer`、`LayoutWorkerManager`、`computeLineSegments`、レイアウト型。                    | なし。                                                                                                                 |
+| `@vectojs/core/renderer` | `IRenderer`、`CanvasRenderer`、`SVGRenderer`、`PointRenderer`、`createWebGLPointRenderer`、`WebGPUParticleSystemManager`、`parseColorToRGBA`、`RGBA`。                                            | なし。                                                                                                                 |
+| `@vectojs/core/text`     | `@vectojs/text` に加えてcore常駐の `MSDFTextEntity`/`SVGEntity` を再エクスポート：`MSDFFont`、`ArabicShaper`、`BidiResolver`、`Typography`、`prepareContentGrid`、`PreparedContentGrid`、MSDF型。 | なし。                                                                                                                 |
+| `@vectojs/text`          | スタンドアロンのテキストシェイピングプリミティブ：`BidiResolver`、`ArabicShaper`、`Typography`、`MSDFFont`、`prepareContentGrid`、`PreparedContentGrid`。リーフパッケージ（`bidi-js` のみ）。     | なし。                                                                                                                 |
+| `@vectojs/layout`        | スタンドアロンのレイアウトエンジン：`LayoutEngine`、`LayoutWorkerManager`、`createCanvasMeasurer`、測定ヘルパー。`@vectojs/text` に依存。                                                         | なし。                                                                                                                 |
+| `@vectojs/math`          | スタンドアロンの空間/物理数学：`SpatialHashGrid`、`SpringPhysics`。リーフパッケージ。                                                                                                             | なし。                                                                                                                 |
+| `@vectojs/animation`     | スタンドアロンのイージング + ドライバー：`Easing`、`TweenDriver`、`SpringDriver`。`@vectojs/math` に依存。                                                                                        | なし。                                                                                                                 |
 
 **注意点：** バックエンドの自動登録は `.` エントリにのみ存在します（`Scene.registerWebGLPointRendererCreator(createWebGLPointRenderer)` と `Scene.registerWebGPUParticleSystemManager(WebGPUParticleSystemManager)` がインポート時に実行されます）。サブパスのみをインポートした後に `Scene` を構築する場合は、自分でバックエンドを登録するか、`pointBackend: 'webgl'` / WebGPUパーティクルを静かにフォールバックさせてください。レジストリAPIについては [`Scene`](/reference/core-scene/) を参照してください。
 

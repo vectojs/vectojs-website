@@ -1,6 +1,6 @@
 ---
 title: '@vectojs/core API 레퍼런스'
-description: 'Vecto의 제로-DOM 렌더링 엔진 개요 및 진입점 맵 — Scene, Entity, 레이아웃, 렌더러, 파티클, 텍스트 및 수학 유틸리티는 각각 자체 참조 페이지를 가지고 있습니다.'
+description: 'Vecto 뒤에 있는 제로-DOM 렌더링 엔진의 개요 및 진입점 맵 — 코어의 Scene, Entity, 렌더러, 파티클, a11y와 함께, 코어가 재-내보내기하는 독립형 @vectojs/text, @vectojs/layout, @vectojs/math, @vectojs/animation 엔진.'
 order: 1
 ---
 
@@ -36,15 +36,25 @@ Vecto의 제로-DOM 렌더링 엔진입니다. `Scene`은 `Entity` 노드의 트
 
 ## 진입점 및 모듈 맵
 
-`@vectojs/core`는 하나의 부수 효과가 있는 메인 진입점과 세 개의 트리-쉐이커블
-하위 경로를 제공합니다:
+레이아웃, 텍스트 셰이핑, 수학, 애니메이션 엔진은 각각 자체 독립형
+패키지로 게시됩니다. `@vectojs/core`는 이들 모두에 **의존하고 재-내보내기**하므로
+아래의 모든 임포트는 여전히 `@vectojs/core`에서(그리고 트리-쉐이커블
+하위 경로에서) 해석됩니다. 씬 그래프 런타임 없이 더 작은 의존성 표면을
+원할 때는 독립형 패키지에서 직접 임포트하세요.
 
-| 임포트                   | 내용                                                                                                                                                  | 부수 효과                                                                                       |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `@vectojs/core` (`.`)    | 전체: `Scene`, `Entity`, 모든 엔터티, 렌더러, 레이아웃, 텍스트.                                                                                       | 임포트 시 **두** 플러그형 백엔드(WebGL 포인트 렌더러 + WebGPU 파티클 관리자)를 자동 등록합니다. |
-| `@vectojs/core/layout`   | `LayoutEngine`, `PreparedText`, `createCanvasMeasurer`, `LayoutResultBuffer`, `LayoutWorkerManager`, `computeLineSegments`, 레이아웃 타입.            | 없음.                                                                                           |
-| `@vectojs/core/renderer` | `IRenderer`, `CanvasRenderer`, `SVGRenderer`, `PointRenderer`, `createWebGLPointRenderer`, `WebGPUParticleSystemManager`, `parseColorToRGBA`, `RGBA`. | 없음.                                                                                           |
-| `@vectojs/core/text`     | `MSDFFont`, `MSDFTextEntity`, `SVGEntity`, `ArabicShaper`, `BidiResolver`, `prepareContentGrid`, `PreparedContentGrid`, MSDF 타입.                    | 없음.                                                                                           |
+`@vectojs/core`는 하나의 부수 효과가 있는 메인 진입점과 세 개의 트리-쉐이커블
+하위 경로를, 네 개의 독립형 패키지와 함께 제공합니다:
+
+| 임포트                   | 내용                                                                                                                                                                                    | 부수 효과                                                                                       |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `@vectojs/core` (`.`)    | 전체: `Scene`, `Entity`, 모든 엔터티, 렌더러, 그리고 재-내보내기된 레이아웃, 텍스트, 수학, 애니메이션 엔진.                                                                             | 임포트 시 **두** 플러그형 백엔드(WebGL 포인트 렌더러 + WebGPU 파티클 관리자)를 자동 등록합니다. |
+| `@vectojs/core/layout`   | `@vectojs/layout` 재-내보내기: `LayoutEngine`, `PreparedText`, `createCanvasMeasurer`, `LayoutResultBuffer`, `LayoutWorkerManager`, `computeLineSegments`, 레이아웃 타입.               | 없음.                                                                                           |
+| `@vectojs/core/renderer` | `IRenderer`, `CanvasRenderer`, `SVGRenderer`, `PointRenderer`, `createWebGLPointRenderer`, `WebGPUParticleSystemManager`, `parseColorToRGBA`, `RGBA`.                                   | 없음.                                                                                           |
+| `@vectojs/core/text`     | `@vectojs/text`와 코어-상주 `MSDFTextEntity`/`SVGEntity` 재-내보내기: `MSDFFont`, `ArabicShaper`, `BidiResolver`, `Typography`, `prepareContentGrid`, `PreparedContentGrid`, MSDF 타입. | 없음.                                                                                           |
+| `@vectojs/text`          | 독립형 텍스트 셰이핑 프리미티브: `BidiResolver`, `ArabicShaper`, `Typography`, `MSDFFont`, `prepareContentGrid`, `PreparedContentGrid`. 리프 패키지(`bidi-js`만 의존).                  | 없음.                                                                                           |
+| `@vectojs/layout`        | 독립형 레이아웃 엔진: `LayoutEngine`, `LayoutWorkerManager`, `createCanvasMeasurer`, 측정 헬퍼. `@vectojs/text`에 의존.                                                                 | 없음.                                                                                           |
+| `@vectojs/math`          | 독립형 공간/물리 수학: `SpatialHashGrid`, `SpringPhysics`. 리프 패키지.                                                                                                                 | 없음.                                                                                           |
+| `@vectojs/animation`     | 독립형 이징 + 드라이버: `Easing`, `TweenDriver`, `SpringDriver`. `@vectojs/math`에 의존.                                                                                                | 없음.                                                                                           |
 
 **주의사항:** 백엔드 자동 등록은 `.` 진입점에만 존재합니다
 (`Scene.registerWebGLPointRendererCreator(createWebGLPointRenderer)`와

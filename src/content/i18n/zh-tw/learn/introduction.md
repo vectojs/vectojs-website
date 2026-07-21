@@ -41,12 +41,21 @@ order: 1
 
 ## 套件地圖
 
-| 套件                      | 用途                                                                                    |
-| ------------------------- | --------------------------------------------------------------------------------------- |
-| `@vectojs/core`           | `Scene`、`Entity`、布局、文字、渲染器、事件、無障礙投射和數學工具                       |
-| `@vectojs/ui`             | 高階元件：`Button`、`Input`、`Toggle`、`Markdown`、`ScrollView`、`Dropdown`、`Table` 等 |
-| `@vectojs/three`          | 將 VectoJS 場景投射到 Three.js 紋理上，並將光線投射輸入路由回 2D                        |
-| `@vectojs/video-exporter` | 用於 VectoJS 場景的固定步進 Chromium + FFmpeg H.264 匯出                                |
+| 套件                      | 用途                                                                                                                         |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `@vectojs/core`           | `Scene`、`Entity`、渲染器、事件、命中測試、無障礙投射。依賴並重新匯出下方的引擎，因此你可以從 `@vectojs/core` 匯入所有東西。 |
+| `@vectojs/text`           | 獨立的文字塑形基礎元件：BiDi 解析、阿拉伯文塑形、CSS 對等排版、MSDF 字型、預備內容網格                                       |
+| `@vectojs/layout`         | 獨立的布局引擎：斷行、BiDi 感知的行內布局、排除流、離主執行緒的布局 worker                                                   |
+| `@vectojs/math`           | 獨立的空間/物理數學：`SpatialHashGrid` 粗篩階段與 `SpringPhysics`                                                            |
+| `@vectojs/animation`      | 獨立的緩動函式庫，加上 `TweenDriver` 與 `SpringDriver` 值驅動器                                                              |
+| `@vectojs/ui`             | 高階元件：`Button`、`Input`、`Toggle`、`ScrollView`、`Dropdown`、`Table` 等。零執行期依賴。                                  |
+| `@vectojs/markdown`       | `Markdown` + `CodeBlock` 實體（以 `marked` 解析，以 MathJax 渲染 TeX 數學），建構於 `@vectojs/ui` 之上                       |
+| `@vectojs/three`          | 將 VectoJS 場景投射到 Three.js 紋理上，並將光線投射輸入路由回 2D                                                             |
+| `@vectojs/devtools`       | 頁內虛擬數學樹檢視器：實體樹、點擊挑選、即時幾何讀數                                                                         |
+| `@vectojs/graph3d`        | 3D 力導向圖形視覺化（實例化的 Three.js 渲染器）                                                                              |
+| `@vectojs/video-exporter` | 用於 VectoJS 場景的固定步進 Chromium + FFmpeg H.264 匯出                                                                     |
+
+布局、文字、數學和動畫引擎都以各自的套件發佈，因此可以在不引入場景圖執行環境的情況下使用它們。`@vectojs/core` 依賴並重新匯出所有這些引擎，因此既有的 `import { … } from '@vectojs/core'` 程式碼可以維持不變繼續運作——只有在你想要更小的依賴表面時，才需要動用這些獨立套件。
 
 ## 心智模型
 

@@ -248,6 +248,24 @@ function renderRow(text: string) {
 
 再利用可能なバッファは、各ホットレイアウトでグリフごとに1つの`LayoutNode`オブジェクトをアロケートすることを避けます。制約：固定容量、単一列のみ（BiDiの視覚的並べ替えなし、除外矩形なし）。これらの機能が必要なときは`layoutPrepared()`を使ってください。ノードオブジェクトをアロケートするため、ホットパスでは`toLayoutResult()`を避けてください。
 
+### `TextRasterCache` — 再シェイプする代わりに繰り返しのテキストをブリットする
+
+_Core 1.12.0 以降。_ ビューが**同じ短い文字列を1フレームに何千回も**描画するとき（弾幕、チャット/ログの末尾、パーティクルのラベル、繰り返されるセルの値）、ボトルネックはレイアウトではありません——`fillText` そのものです。各呼び出しは文字列を再シェイプし、CSSの色を再パースし、CPUメインスレッド上でグリフをラスタライズします。1フレームに何千回もの呼び出しになると、メインスレッドはネイティブ（`(program)`）コードに張り付き、GPUは飢えてダウンクロックされます。`fillText` を事前ラスタライズされたランの `drawImage` に置き換えると、その呼び出しごとのCPUコストが安価なビットマップのブリットに変わります：
+
+```typescript
+import { TextRasterCache } from '@vectojs/core';
+
+const cache = new TextRasterCache(); // one per scene/renderer
+
+function drawLabel(text: string, x: number, baselineY: number) {
+  const r = cache.get('600 24px system-ui', '#38bdf8', text);
+  if (r) renderer.drawImage(r.canvas, x - r.offsetX, baselineY - r.offsetY, r.width, r.height);
+  else renderer.fillText(text, x, baselineY, '600 24px system-ui', '#38bdf8'); // headless fallback
+}
+```
+
+その効果は**再利用**から生まれます：異なる `(font, color, text)` のランの集合が有限であるとき（フレーズライブラリ、小さなパレット、いくつかのフォントサイズ）、定常状態のヒット率は100%に近づきます。挿入順の追い出し上限（`maxEntries`、デフォルト4096）は、無制限にユーザーが入力するコンテンツに対してメモリを抑え、`dpr > 1` はブリットサイズをCSSピクセルで保ちながらHiDPIでテキストをくっきりと保ちます。多様性の高いテキストや一度きりの描画には**役立ちません**——それは純粋なオーバーヘッドです。[レンダラーリファレンス](/reference/core-renderer/#textrastercache)を参照してください。
+
 ## CPU計算 と レンダリングのボトルネック
 
 従来のブラウザDOMフレームワークでは、パフォーマンスのボトルネックはほぼ常にブラウザの**レンダリングとリフローのレイアウトパイプライン**（DOM操作、スタイルの再計算、ペインティング）にあります。しかしVectoJSはDOMを完全にバイパスし、レイアウト、カリング、インタラクションを数学的にメモリ内で処理するため、パフォーマンスのボトルネックはGPU/レンダリングレイヤーから直接**JavaScriptのシングルスレッドCPU計算**へと移ります。

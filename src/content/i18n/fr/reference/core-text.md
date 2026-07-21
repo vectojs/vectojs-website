@@ -1,13 +1,20 @@
 ---
 title: 'Texte et Bidi'
-description: "Le sous-chemin @vectojs/core/text : l'analyse des polices MSDF et le rendu de texte GPU, TextEntity/GridTextEntity, et le shape arabe intégré avec résolveur bidi."
+description: 'Le paquet autonome @vectojs/text (aussi le sous-chemin @vectojs/core/text) : métriques typographiques, analyse des polices MSDF, mise en forme arabe et le résolveur bidi, plus les renderers de texte GPU MSDFTextEntity/GridTextEntity résidant dans core.'
 order: 7
 ---
 
-# Texte et Bidi — `@vectojs/core/text`
+# Texte et Bidi — `@vectojs/text`
 
-Partie de [`@vectojs/core`](/reference/core-api/). Construit sur la
-division froid/chaud du [Moteur de mise en page](/reference/core-layout/).
+Les primitives de mise en forme du texte — `BidiResolver`, `ArabicShaper`,
+`Typography`, `MSDFFont`, `prepareContentGrid`/`PreparedContentGrid` — constituent
+le paquet autonome **`@vectojs/text`** (un paquet feuille dépendant uniquement de
+`bidi-js`). Les renderers de texte GPU basés sur `Entity` (`MSDFTextEntity`,
+`SVGEntity`, `TextEntity`/`GridTextEntity`) restent dans
+[`@vectojs/core`](/reference/core-api/) car ils étendent `Entity`. Core re-exporte
+les primitives de `@vectojs/text`, elles se résolvent donc depuis `@vectojs/text`,
+`@vectojs/core` ou le sous-chemin `@vectojs/core/text`. Construit sur la division
+froid/chaud du [Moteur de mise en page](/reference/core-layout/).
 
 ## MSDFFont
 

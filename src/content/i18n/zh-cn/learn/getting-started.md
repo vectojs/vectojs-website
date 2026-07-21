@@ -14,7 +14,7 @@ order: 7
 bun add @vectojs/core @vectojs/ui
 ```
 
-VectoJS分为核心数学引擎和高级组件库。大多数应用需要同时从两者导入。
+VectoJS分为一个核心运行时和一个高级组件库。大多数应用会同时从两者导入。`@vectojs/core` 打包并重新导出它所构建于其上的各个独立引擎 —— `@vectojs/text`、`@vectojs/layout`、`@vectojs/math` 和 `@vectojs/animation` —— 因此这两个包的安装就是你所需要的全部；只有当你想要更小的依赖面时才单独去使用那些包。
 
 ## HTML设置
 

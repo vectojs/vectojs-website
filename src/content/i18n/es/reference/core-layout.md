@@ -1,12 +1,16 @@
 ---
 title: 'Motor de disposición'
-description: 'La subruta @vectojs/core/layout: la división frío/caliente que separa la costosa segmentación+medición de texto de la aritmética barata de ajuste de línea y posicionamiento, memoización en streaming, texto enriquecido y formas de exclusión.'
+description: 'El paquete independiente @vectojs/layout (también la subruta @vectojs/core/layout): la división frío/caliente que separa la costosa segmentación+medición de texto de la aritmética barata de ajuste de línea y posicionamiento, memoización en streaming, texto enriquecido y formas de exclusión.'
 order: 4
 ---
 
-# Motor de disposición (división frío/caliente) — `@vectojs/core/layout`
+# Motor de disposición (división frío/caliente) — `@vectojs/layout`
 
-Parte de [`@vectojs/core`](/reference/core-api/).
+El motor de disposición es el paquete independiente **`@vectojs/layout`** (depende
+solo de [`@vectojs/text`](/reference/core-text/) para las primitivas de shaping).
+[`@vectojs/core`](/reference/core-api/) depende de y lo reexporta, así que puedes
+importarlo desde `@vectojs/layout`, `@vectojs/core` o la subruta `@vectojs/core/layout`
+de forma intercambiable.
 
 `LayoutEngine` separa el costoso pase **frío** (segmentar + medir, a través de
 `Intl.Segmenter`) del barato pase **caliente** (ajustar + aritmética de posicionamiento), para que

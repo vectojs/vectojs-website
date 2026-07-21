@@ -41,12 +41,21 @@ order: 1
 
 ## 패키지 맵
 
-| 패키지                    | 용도                                                                                           |
-| ------------------------- | ---------------------------------------------------------------------------------------------- |
-| `@vectojs/core`           | `Scene`, `Entity`, 레이아웃, 텍스트, 렌더러, 이벤트, a11y 투영, 수학 유틸리티                  |
-| `@vectojs/ui`             | 고수준 컴포넌트: `Button`, `Input`, `Toggle`, `Markdown`, `ScrollView`, `Dropdown`, `Table` 등 |
-| `@vectojs/three`          | VectoJS 씬을 Three.js 텍스처에 투영하고 광선캐스트 입력을 다시 2D로 라우팅                     |
-| `@vectojs/video-exporter` | VectoJS 씬을 위한 고정-스텝 Chromium + FFmpeg H.264 내보내기                                   |
+| 패키지                    | 용도                                                                                                                                                         |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `@vectojs/core`           | `Scene`, `Entity`, 렌더러, 이벤트, 히트 테스트, a11y 투영. 아래 엔진들에 의존하고 이를 재-내보내기하므로 모든 것을 `@vectojs/core`에서 임포트할 수 있습니다. |
+| `@vectojs/text`           | 독립형 텍스트 셰이핑 프리미티브: BiDi 해석, 아랍어 셰이핑, CSS 동등 타이포그래피, MSDF 폰트, 준비된 콘텐츠 그리드                                            |
+| `@vectojs/layout`         | 독립형 레이아웃 엔진: 줄 나눔, BiDi 인식 인라인 레이아웃, 제외 흐름(exclusion flow), 오프-스레드 레이아웃 워커                                               |
+| `@vectojs/math`           | 독립형 공간/물리 수학: `SpatialHashGrid` 광역 단계(broad-phase)와 `SpringPhysics`                                                                            |
+| `@vectojs/animation`      | 독립형 이징 라이브러리와 `TweenDriver` 및 `SpringDriver` 값 드라이버                                                                                         |
+| `@vectojs/ui`             | 고수준 컴포넌트: `Button`, `Input`, `Toggle`, `ScrollView`, `Dropdown`, `Table` 등. 런타임 의존성 제로.                                                      |
+| `@vectojs/markdown`       | `Markdown` + `CodeBlock` 엔티티(`marked`로 파싱하고 MathJax로 TeX 수식 렌더링), `@vectojs/ui` 위에 구축                                                      |
+| `@vectojs/three`          | VectoJS 씬을 Three.js 텍스처에 투영하고 광선캐스트 입력을 다시 2D로 라우팅                                                                                   |
+| `@vectojs/devtools`       | 인-페이지 Virtual Math Tree 인스펙터: 엔티티 트리, 클릭-투-픽, 실시간 지오메트리 판독                                                                        |
+| `@vectojs/graph3d`        | 3D 힘-지향(force-directed) 그래프 시각화(인스턴스형 Three.js 렌더러)                                                                                         |
+| `@vectojs/video-exporter` | VectoJS 씬을 위한 고정-스텝 Chromium + FFmpeg H.264 내보내기                                                                                                 |
+
+레이아웃, 텍스트, 수학, 애니메이션 엔진은 씬 그래프 런타임 없이도 사용할 수 있도록 각각 별도의 패키지로 게시됩니다. `@vectojs/core`는 이들 모두에 의존하고 이를 재-내보내기하므로 기존 `import { … } from '@vectojs/core'` 코드는 변경 없이 계속 작동합니다 — 더 작은 의존성 표면을 원할 때만 독립형 패키지를 사용하세요.
 
 ## 개념 모델
 

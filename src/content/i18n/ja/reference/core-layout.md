@@ -1,12 +1,12 @@
 ---
 title: 'レイアウトエンジン'
-description: '@vectojs/core/layout サブパス：高価なテキストセグメント化+計測を安価な折り返し+位置演算から分離するコールド/ホット分割、ストリーミングメモ化、リッチテキスト、および除外シェイプ。'
+description: 'スタンドアロンの @vectojs/layout パッケージ（@vectojs/core/layout サブパスでもある）：高価なテキストセグメント化+計測を安価な折り返し+位置演算から分離するコールド/ホット分割、ストリーミングメモ化、リッチテキスト、および除外シェイプ。'
 order: 4
 ---
 
-# レイアウトエンジン（コールド/ホット分割） — `@vectojs/core/layout`
+# レイアウトエンジン（コールド/ホット分割） — `@vectojs/layout`
 
-[`@vectojs/core`](/reference/core-api/) の一部です。
+レイアウトエンジンはスタンドアロンの **`@vectojs/layout`** パッケージです（シェイピングプリミティブのために [`@vectojs/text`](/reference/core-text/) にのみ依存します）。[`@vectojs/core`](/reference/core-api/) はそれに依存し再エクスポートするため、`@vectojs/layout`、`@vectojs/core`、または `@vectojs/core/layout` サブパスから区別なくインポートできます。
 
 `LayoutEngine` は高価な**コールド**パス（`Intl.Segmenter` によるセグメント化 + 計測）を安価な**ホット**パス（折り返し + 位置演算）から分離するため、リサイズ/リフロー/アニメーションで再計測が発生しません。
 

@@ -1,12 +1,16 @@
 ---
 title: 'Moteur de mise en page'
-description: "Le sous-chemin @vectojs/core/layout : la division froid/chaud qui sépare la segmentation et mesure coûteuses du texte du calcul bon marché d'enroulement et de position, la mémoïsation en continu, le texte enrichi et les formes d'exclusion."
+description: "Le paquet autonome @vectojs/layout (aussi le sous-chemin @vectojs/core/layout) : la division froid/chaud qui sépare la segmentation et mesure coûteuses du texte du calcul bon marché d'enroulement et de position, la mémoïsation en continu, le texte enrichi et les formes d'exclusion."
 order: 4
 ---
 
-# Moteur de mise en page (division froid/chaud) — `@vectojs/core/layout`
+# Moteur de mise en page (division froid/chaud) — `@vectojs/layout`
 
-Partie de [`@vectojs/core`](/reference/core-api/).
+Le moteur de mise en page est le paquet autonome **`@vectojs/layout`** (il dépend
+uniquement de [`@vectojs/text`](/reference/core-text/) pour les primitives de mise
+en forme). [`@vectojs/core`](/reference/core-api/) en dépend et le re-exporte, vous
+pouvez donc l'importer indifféremment depuis `@vectojs/layout`, `@vectojs/core` ou
+le sous-chemin `@vectojs/core/layout`.
 
 `LayoutEngine` sépare le passage **froid** coûteux (segmenter + mesurer, via
 `Intl.Segmenter`) du passage **chaud** bon marché (enrouler + calculer la position), de

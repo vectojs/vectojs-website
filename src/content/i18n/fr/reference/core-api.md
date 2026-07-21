@@ -1,6 +1,6 @@
 ---
 title: 'Référence API @vectojs/core'
-description: "Vue d'ensemble et carte des points d'entrée du moteur de rendu zero-DOM derrière Vecto — Scene, Entity, mise en page, renderers, particules, texte et utilitaires mathématiques ont chacun leur propre page de référence dédiée."
+description: "Vue d'ensemble et carte des points d'entrée du moteur de rendu zero-DOM derrière Vecto — Scene, Entity, renderers, particules et a11y dans core, plus les moteurs autonomes @vectojs/text, @vectojs/layout, @vectojs/math et @vectojs/animation que core re-exporte."
 order: 1
 ---
 
@@ -37,15 +37,27 @@ pied de page « Associé » renvoyant vers les autres :
 
 ## Points d'entrée et carte des modules
 
-`@vectojs/core` fournit une entrée principale avec effets de bord et trois
-sous-chemins optimisables par tree-shaking :
+Les moteurs de mise en page, de mise en forme du texte, de mathématiques et
+d'animation sont publiés comme leurs propres paquets autonomes. `@vectojs/core`
+**dépend de tous et les re-exporte**, de sorte que chaque importation ci-dessous
+se résout toujours depuis `@vectojs/core` (et depuis les sous-chemins
+optimisables par tree-shaking). Importez directement depuis les paquets
+autonomes lorsque vous voulez une surface de dépendances plus réduite sans le
+runtime du graphe de scène.
 
-| Importation              | Contenus                                                                                                                                              | Effet de bord                                                                                                                           |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `@vectojs/core` (`.`)    | Tout : `Scene`, `Entity`, toutes les entités, renderers, mise en page, texte.                                                                         | À l'importation, enregistre automatiquement **les deux** backends enfichables (renderer WebGL points + gestionnaire WebGPU particules). |
-| `@vectojs/core/layout`   | `LayoutEngine`, `PreparedText`, `createCanvasMeasurer`, `LayoutResultBuffer`, `LayoutWorkerManager`, `computeLineSegments`, types de mise en page.    | Aucun.                                                                                                                                  |
-| `@vectojs/core/renderer` | `IRenderer`, `CanvasRenderer`, `SVGRenderer`, `PointRenderer`, `createWebGLPointRenderer`, `WebGPUParticleSystemManager`, `parseColorToRGBA`, `RGBA`. | Aucun.                                                                                                                                  |
-| `@vectojs/core/text`     | `MSDFFont`, `MSDFTextEntity`, `SVGEntity`, `ArabicShaper`, `BidiResolver`, `prepareContentGrid`, `PreparedContentGrid`, types MSDF.                   | Aucun.                                                                                                                                  |
+`@vectojs/core` fournit une entrée principale avec effets de bord plus trois
+sous-chemins optimisables par tree-shaking, aux côtés des quatre paquets autonomes :
+
+| Importation              | Contenus                                                                                                                                                                                                 | Effet de bord                                                                                                                           |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `@vectojs/core` (`.`)    | Tout : `Scene`, `Entity`, toutes les entités, renderers, plus les moteurs de mise en page, texte, mathématiques et animation re-exportés.                                                                | À l'importation, enregistre automatiquement **les deux** backends enfichables (renderer WebGL points + gestionnaire WebGPU particules). |
+| `@vectojs/core/layout`   | Re-exporte `@vectojs/layout` : `LayoutEngine`, `PreparedText`, `createCanvasMeasurer`, `LayoutResultBuffer`, `LayoutWorkerManager`, `computeLineSegments`, types de mise en page.                        | Aucun.                                                                                                                                  |
+| `@vectojs/core/renderer` | `IRenderer`, `CanvasRenderer`, `SVGRenderer`, `PointRenderer`, `createWebGLPointRenderer`, `WebGPUParticleSystemManager`, `parseColorToRGBA`, `RGBA`.                                                    | Aucun.                                                                                                                                  |
+| `@vectojs/core/text`     | Re-exporte `@vectojs/text` plus les `MSDFTextEntity`/`SVGEntity` résidant dans core : `MSDFFont`, `ArabicShaper`, `BidiResolver`, `Typography`, `prepareContentGrid`, `PreparedContentGrid`, types MSDF. | Aucun.                                                                                                                                  |
+| `@vectojs/text`          | Primitives autonomes de mise en forme du texte : `BidiResolver`, `ArabicShaper`, `Typography`, `MSDFFont`, `prepareContentGrid`, `PreparedContentGrid`. Paquet feuille (uniquement `bidi-js`).           | Aucun.                                                                                                                                  |
+| `@vectojs/layout`        | Moteur de mise en page autonome : `LayoutEngine`, `LayoutWorkerManager`, `createCanvasMeasurer`, assistants de mesure. Dépend de `@vectojs/text`.                                                        | Aucun.                                                                                                                                  |
+| `@vectojs/math`          | Mathématiques spatiales/physiques autonomes : `SpatialHashGrid`, `SpringPhysics`. Paquet feuille.                                                                                                        | Aucun.                                                                                                                                  |
+| `@vectojs/animation`     | Easing autonome + drivers : `Easing`, `TweenDriver`, `SpringDriver`. Dépend de `@vectojs/math`.                                                                                                          | Aucun.                                                                                                                                  |
 
 **Piège :** l'enregistrement automatique des backends ne vit que dans l'entrée `.`
 (`Scene.registerWebGLPointRendererCreator(createWebGLPointRenderer)` et

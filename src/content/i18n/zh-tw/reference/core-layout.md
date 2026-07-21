@@ -1,12 +1,12 @@
 ---
 title: 'Layout engine'
-description: '@vectojs/core/layout 子路徑：將昂貴的文字分段+測量與廉價的換行+定位運算分離的冷/熱分割、串流記憶化、豐富文字和排除形狀。'
+description: '獨立的 @vectojs/layout 套件（也是 @vectojs/core/layout 子路徑）：將昂貴的文字分段+測量與廉價的換行+定位運算分離的冷/熱分割、串流記憶化、豐富文字和排除形狀。'
 order: 4
 ---
 
-# Layout engine（冷/熱分割）— `@vectojs/core/layout`
+# Layout engine（冷/熱分割）— `@vectojs/layout`
 
-屬於 [`@vectojs/core`](/reference/core-api/) 的一部分。
+布局引擎是獨立的 **`@vectojs/layout`** 套件（它僅依賴 [`@vectojs/text`](/reference/core-text/) 以取得塑形基礎元件）。[`@vectojs/core`](/reference/core-api/) 依賴並重新匯出它，因此你可以從 `@vectojs/layout`、`@vectojs/core` 或 `@vectojs/core/layout` 子路徑交替匯入它。
 
 `LayoutEngine` 將昂貴的**冷**傳遞（透過 `Intl.Segmenter` 分段 + 測量）與廉價的**熱**傳遞（換行 + 定位運算）分離，因此調整大小/重排/動畫不會重新測量。
 

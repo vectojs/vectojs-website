@@ -27,7 +27,7 @@ VectoJS incluye un motor de texto construido en torno a dos ideas clave: **separ
 | Cuadrícula monoespaciada (terminal)                         | `GridTextEntity` |
 | Texto personalizado respaldado por atlas vectorial          | `TextEntity`     |
 
-`Text`, `RichText` y `Markdown` viven en `@vectojs/ui`. El resto están en `@vectojs/core`.
+`Text`, `RichText` y `Markdown` viven en `@vectojs/ui`. Los renderizadores de texto basados en `Entity` (`MSDFTextEntity`, `GridTextEntity`, `TextEntity`) viven en `@vectojs/core`. Las primitivas de shaping de más bajo nivel sobre las que se construyen — BiDi, shaping de árabe, métricas de tipografía, análisis de fuentes MSDF, cuadrículas de contenido preparadas — son el paquete independiente `@vectojs/text`, y el motor de salto de línea/disposición inline es `@vectojs/layout`. Ambos son reexportados por `@vectojs/core`, así que puedes importarlos desde cualquiera de los dos lugares.
 
 ### Texto seleccionable de cuadrícula fija
 
@@ -163,7 +163,7 @@ El motor calcula los intervalos horizontales libres por banda de línea (`comput
 Renderiza Markdown en un subárbol del VMT usando la biblioteca `marked` (variante GFM).
 
 ```typescript
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const md = new Markdown('# Hello\n\nThis is **rich** text.', {
   maxWidth: 700,

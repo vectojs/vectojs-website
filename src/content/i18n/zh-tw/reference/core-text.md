@@ -1,13 +1,12 @@
 ---
 title: 'Text & Bidi'
-description: '@vectojs/core/text 子路徑：MSDF 字型解析與 GPU 文字渲染、TextEntity/GridTextEntity，以及內建的阿拉伯文塑形 + bidi 解析器。'
+description: '獨立的 @vectojs/text 套件（也是 @vectojs/core/text 子路徑）：排版度量、MSDF 字型解析、阿拉伯文塑形與 bidi 解析器，加上 core 內建的 MSDFTextEntity/GridTextEntity GPU 文字渲染器。'
 order: 7
 ---
 
-# Text & Bidi — `@vectojs/core/text`
+# Text & Bidi — `@vectojs/text`
 
-屬於 [`@vectojs/core`](/reference/core-api/)。建構於
-[Layout engine](/reference/core-layout/) 的冷/熱分割之上。
+文字塑形基礎元件——`BidiResolver`、`ArabicShaper`、`Typography`、`MSDFFont`、`prepareContentGrid`/`PreparedContentGrid`——是獨立的 **`@vectojs/text`** 套件（一個僅依賴 `bidi-js` 的葉套件）。基於 `Entity` 的 GPU 文字渲染器（`MSDFTextEntity`、`SVGEntity`、`TextEntity`/`GridTextEntity`）留在 [`@vectojs/core`](/reference/core-api/) 中，因為它們擴展了 `Entity`。Core 重新匯出 `@vectojs/text` 的基礎元件，因此它們可以從 `@vectojs/text`、`@vectojs/core` 或 `@vectojs/core/text` 子路徑解析。建構於 [Layout engine](/reference/core-layout/) 的冷/熱分割之上。
 
 ## MSDFFont
 

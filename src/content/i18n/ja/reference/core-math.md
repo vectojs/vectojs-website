@@ -1,12 +1,12 @@
 ---
 title: '数学ユーティリティ'
-description: '平均O(1)のブロードフェーズ空間クエリのためのSpatialHashGridと、単一値の臨界調整可能スプリングのためのSpringPhysics — @vectojs/core からエクスポートされる汎用数学ヘルパー。'
+description: '平均O(1)のブロードフェーズ空間クエリのためのSpatialHashGridと、単一値の臨界調整可能スプリングのためのSpringPhysics — @vectojs/core が再エクスポートするスタンドアロンの @vectojs/math パッケージ。'
 order: 9
 ---
 
-# 数学ユーティリティ（`.` から）
+# 数学ユーティリティ — `@vectojs/math`
 
-[`@vectojs/core`](/reference/core-api/) の一部です。
+`SpatialHashGrid` と `SpringPhysics` はスタンドアロンの **`@vectojs/math`** パッケージ（依存のないリーフパッケージ）です。[`@vectojs/core`](/reference/core-api/) はそれに依存し再エクスポートするため、`@vectojs/math` と `@vectojs/core` のどちらからでも解決されます。ここのスプリング積分器は、[`@vectojs/animation`](/reference/core-api/#エントリポイントとモジュールマップ) の `SpringDriver` の土台にもなっています。
 
 ```ts
 new SpatialHashGrid(cellSize = ...)

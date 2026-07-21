@@ -54,7 +54,7 @@ input.on('change', () => {
 - `dirty` 標誌為 `false`，且
 - 沒有實體有待處理的 `animate()` 補間動畫。
 
-靜態場景被節流至約 **2 fps** 以節省電池和 GPU。在穩定版本中，`dirty` 標誌在每個渲染幀的*開始*被消耗，因此從 `update()` 內部發出的 `markDirty()` 會存活到下一幀的靜態檢查。
+靜態場景被節流至約 **2 fps** 以節省電池和 GPU。在穩定版本中，`dirty` 標誌在每個渲染幀的_開始_被消耗，因此從 `update()` 內部發出的 `markDirty()` 會存活到下一幀的靜態檢查。
 
 ```typescript
 // update() 內部的 markDirty() 會重新武裝下一幀
@@ -67,7 +67,7 @@ class Spinner extends Entity {
 }
 ```
 
-**在 core ≤ 0.2.5 上的陷阱：** 該標誌在*渲染後*被清除，因此在 `update()` 期間設定的 `markDirty()` 在下一次靜態檢查之前被清除——上述模式渲染了一個幀然後凍結在 2 fps。如果你的使用者需要支援較舊的核心，請使用下面的修復方法之一（在 0.2.6 上它們仍然是更有效的選擇，因為 `hasPendingAnimations()` 無需每幀寫入標誌就能表明意圖）。
+**在 core ≤ 0.2.5 上的陷阱：** 該標誌在_渲染後_被清除，因此在 `update()` 期間設定的 `markDirty()` 在下一次靜態檢查之前被清除——上述模式渲染了一個幀然後凍結在 2 fps。如果你的使用者需要支援較舊的核心，請使用下面的修復方法之一（在 0.2.6 上它們仍然是更有效的選擇，因為 `hasPendingAnimations()` 無需每幀寫入標誌就能表明意圖）。
 
 **修復 — 選項 A：** 使用 `animate()` 來進行運動，而不是手動變異。執行中的補間動畫會自動保持場景活躍：
 
@@ -248,6 +248,24 @@ function renderRow(text: string) {
 
 可重用的緩衝區避免了在每次熱布局中為每個字形分配一個 `LayoutNode` 物件。限制條件：固定容量，僅支援單欄（無 BiDi 視覺重排序，無排除矩形）。當你需要這些功能時使用 `layoutPrepared()`；在熱路徑上避免 `toLayoutResult()`，因為它會分配節點物件。
 
+### `TextRasterCache` — 直接位圖複製重複的文字，而非重新塑形
+
+_自 Core 1.12.0 起。_ 當一個視圖**每幀繪製相同的短字串數千次**（彈幕、聊天/日誌尾部、粒子標籤、重複的儲存格值）時，瓶頸不是布局——而是 `fillText` 本身。每次呼叫都會重新塑形字串、重新解析 CSS 顏色，並在 CPU 主執行緒上柵格化字形；在每幀數千次呼叫下，主執行緒卡在原生（`(program)`）程式碼中，而 GPU 則閒置飢餓並降頻。將 `fillText` 換成對預先柵格化文段的 `drawImage`，能將每次呼叫的 CPU 成本轉為廉價的點陣圖複製：
+
+```typescript
+import { TextRasterCache } from '@vectojs/core';
+
+const cache = new TextRasterCache(); // one per scene/renderer
+
+function drawLabel(text: string, x: number, baselineY: number) {
+  const r = cache.get('600 24px system-ui', '#38bdf8', text);
+  if (r) renderer.drawImage(r.canvas, x - r.offsetX, baselineY - r.offsetY, r.width, r.height);
+  else renderer.fillText(text, x, baselineY, '600 24px system-ui', '#38bdf8'); // headless fallback
+}
+```
+
+收益來自**重複使用**：當不同的 `(font, color, text)` 文段集合有界時（一個片語庫、一個小調色盤、少數幾個字型大小），穩態命中率會接近 100%。一個插入順序的逐出上限（`maxEntries`，預設 4096）針對無界的使用者輸入內容限制記憶體，而 `dpr > 1` 在 HiDPI 上保持文字清晰，同時複製尺寸維持在 CSS 像素。它**無助於**高度多變或僅繪製一次的文字——那純粹是額外開銷。請參閱[渲染器參考](/reference/core-renderer/#textrastercache)。
+
 ## CPU 計算 vs 渲染瓶頸
 
 在傳統的瀏覽器 DOM 框架中，效能瓶頸幾乎總是存在於瀏覽器的**渲染和重排布局管線**（DOM 操作、樣式重新計算和繪製）。然而，因為 VectoJS 完全繞過 DOM 並在記憶體中以數學方式處理布局、剔除和互動，效能瓶頸從 GPU/渲染層直接轉移到**JavaScript 單執行緒 CPU 計算**。
@@ -269,7 +287,7 @@ VectoJS 從基本原理出發，透過提供專用的**「逃脫艙口」**來�
 - 在執行時，資料保留在 GPU VRAM 中，允許 WebGPU 計算傳遞將模擬並行化到數千個 GPU 核心。
 - 當 WebGPU 不可用或裝置丟失時，渲染器會自動回退到等效的 CPU 迴圈（`updateCPU()`）。
 
-> [!IMPORTANT] > **這不是 $N$ 體模擬。** 每個粒子的力僅相對於三個*固定*點計算——其彈簧原點、滑鼠游標和可選的爆炸中心。沒有粒子對粒子的互動，也沒有涉及空間索引，這正是它令人尷尬地並行且對 GPU 友善的原因。如果你的模擬需要真正的鄰居互動（粒子對粒子碰撞或排斥、群聚、N 體重力），`ComputeParticleEntity` 無法涵蓋——你需要編寫自己的帶有內建鄰居查詢的 WGSL 計算傳遞，或在 CPU 上執行基於 `SpatialHashGrid` 的鄰居查詢（請參閱下面的 [`SpatialHashGrid`](#3-實體海洋互動on2-複雜度災難) 和[物理引擎指南](/learn/physics-engine/) 中的 CPU 範例）。目前引擎中沒有通用的「在 GPU 上執行任意計算，附 CPU 備援方案」抽象——`ComputeParticleEntity` 是一個特定的、狹義的實作，而非可重複使用的模式。
+> [!IMPORTANT] > **這不是 $N$ 體模擬。** 每個粒子的力僅相對於三個_固定_點計算——其彈簧原點、滑鼠游標和可選的爆炸中心。沒有粒子對粒子的互動，也沒有涉及空間索引，這正是它令人尷尬地並行且對 GPU 友善的原因。如果你的模擬需要真正的鄰居互動（粒子對粒子碰撞或排斥、群聚、N 體重力），`ComputeParticleEntity` 無法涵蓋——你需要編寫自己的帶有內建鄰居查詢的 WGSL 計算傳遞，或在 CPU 上執行基於 `SpatialHashGrid` 的鄰居查詢（請參閱下面的 [`SpatialHashGrid`](#3-實體海洋互動on2-複雜度災難) 和[物理引擎指南](/learn/physics-engine/) 中的 CPU 範例）。目前引擎中沒有通用的「在 GPU 上執行任意計算，附 CPU 備援方案」抽象——`ComputeParticleEntity` 是一個特定的、狹義的實作，而非可重複使用的模式。
 
 高階吞吐量在很大程度上取決於 GPU、瀏覽器、DPR、粒子模型和合成。此儲存庫沒有已簽入的高階 WebGPU 結果，因此請使用**匯出報告**按鈕（請參閱下面的[測量實際效能](#測量實際效能)）來測量你自己的場景。
 

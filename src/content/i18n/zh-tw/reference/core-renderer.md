@@ -152,6 +152,29 @@ new CanvasRenderer(canvas: HTMLCanvasElement)
 `fill()` 限制在 `MAX_BATCH = 64` 個子路徑（單一 Canvas2D `fill()` 在
 子路徑數量上為超線性）。透過 `scene.getRenderer()` 取得控制代碼。
 
+## TextRasterCache
+
+_自 Core 1.12.0 起。_
+
+```ts
+new TextRasterCache(options?: { maxEntries?: number; dpr?: number })
+cache.get(font: string, color: string, text: string): TextRaster | null
+cache.clear(): void
+cache.stats: { hits: number; misses: number; size: number }
+```
+
+一個預先柵格化文段的快取，適用於**每幀繪製相同的短字串數千次**的視圖（彈幕、聊天/日誌尾部、資料網格儲存格、粒子標籤）。`ctx.fillText()` 在規模化時出乎意料地昂貴：每次呼叫都會重新塑形字串、重新解析 CSS 顏色，並在 CPU 主執行緒上柵格化字形——效能剖析顯示主執行緒卡在原生（`(program)`）程式碼中，而 GPU 則飢餓閒置。
+
+`get()` 將每個不同的 `(font, color, text)` 文段柵格化到一個小型的離屏 canvas 一次；之後每一幀你都用 `drawImage` 複製它，而非重新塑形。透過減去返回的偏移量在 `fillText` 基線處複製：
+
+```ts
+const r = cache.get('600 24px system-ui', '#38bdf8', label);
+if (r) renderer.drawImage(r.canvas, x - r.offsetX, baselineY - r.offsetY, r.width, r.height);
+else renderer.fillText(label, x, baselineY, '600 24px system-ui', '#38bdf8'); // headless fallback
+```
+
+`TextRaster` 是 `{ canvas, width, height, offsetX, offsetY }`（尺寸以 CSS px 為單位）。實例是隔離的（無共享的全域狀態）；`dpr > 1` 在 HiDPI 上保持文字清晰，同時複製尺寸維持在 CSS px；一個插入順序的逐出上限（`maxEntries`，預設 4096）針對無界（使用者輸入）內容限制記憶體；`get()` 在無頭/非 DOM 環境中返回 `null`，因此你保留一個 `fillText` 回退。收益來自**重複使用**——僅繪製一次的文段純粹是額外開銷。
+
 ## SVGRenderer
 
 ```ts

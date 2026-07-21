@@ -41,12 +41,21 @@ Préférez le HTML/CSS classique lorsque vous construisez un site orienté docum
 
 ## Carte des paquets
 
-| Paquet                    | Objectif                                                                                                        |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `@vectojs/core`           | `Scene`, `Entity`, mise en page, texte, renderers, événements, projection a11y et utilitaires mathématiques     |
-| `@vectojs/ui`             | Composants de haut niveau : `Button`, `Input`, `Toggle`, `Markdown`, `ScrollView`, `Dropdown`, `Table`, et plus |
-| `@vectojs/three`          | Projeter une scène VectoJS sur une texture Three.js et router la saisie par raycast vers le 2D                  |
-| `@vectojs/video-exporter` | Export H.264 à pas fixe via Chromium + FFmpeg pour les scènes VectoJS                                           |
+| Paquet                    | Objectif                                                                                                                                                                                |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@vectojs/core`           | `Scene`, `Entity`, renderers, événements, hit-testing, projection a11y. Dépend des moteurs ci-dessous et les re-exporte, de sorte que vous pouvez tout importer depuis `@vectojs/core`. |
+| `@vectojs/text`           | Primitives autonomes de mise en forme du texte : résolution BiDi, mise en forme arabe, typographie à parité CSS, polices MSDF, grilles de contenu préparées                             |
+| `@vectojs/layout`         | Moteur de mise en page autonome : césure des lignes, mise en page inline sensible au BiDi, flux d'exclusion, worker de mise en page hors thread                                         |
+| `@vectojs/math`           | Mathématiques spatiales/physiques autonomes : broad-phase `SpatialHashGrid` et `SpringPhysics`                                                                                          |
+| `@vectojs/animation`      | Bibliothèque d'easing autonome plus les value drivers `TweenDriver` et `SpringDriver`                                                                                                   |
+| `@vectojs/ui`             | Composants de haut niveau : `Button`, `Input`, `Toggle`, `ScrollView`, `Dropdown`, `Table`, et plus. Zéro dépendance à l'exécution.                                                     |
+| `@vectojs/markdown`       | Entités `Markdown` + `CodeBlock` (analyse avec `marked`, rendu des maths TeX avec MathJax), construites sur `@vectojs/ui`                                                               |
+| `@vectojs/three`          | Projeter une scène VectoJS sur une texture Three.js et router la saisie par raycast vers le 2D                                                                                          |
+| `@vectojs/devtools`       | Inspecteur du Virtual Math Tree intégré à la page : arbre d'entités, clic pour sélectionner, lecture de géométrie en direct                                                             |
+| `@vectojs/graph3d`        | Visualisation de graphe 3D à forces dirigées (renderer Three.js instancié)                                                                                                              |
+| `@vectojs/video-exporter` | Export H.264 à pas fixe via Chromium + FFmpeg pour les scènes VectoJS                                                                                                                   |
+
+Les moteurs de mise en page, de texte, de mathématiques et d'animation sont publiés comme leurs propres paquets afin de pouvoir être consommés sans le runtime du graphe de scène. `@vectojs/core` dépend de tous et les re-exporte, de sorte que le code `import { … } from '@vectojs/core'` existant continue de fonctionner sans changement — n'utilisez les paquets autonomes que lorsque vous voulez une surface de dépendances plus réduite.
 
 ## Modèle mental
 

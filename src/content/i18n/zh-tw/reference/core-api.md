@@ -1,6 +1,6 @@
 ---
 title: '@vectojs/core API Reference'
-description: 'Vecto 背後 zero-DOM 渲染引擎的概覽與進入點地圖 — Scene、Entity、layout、renderer、粒子、文字和數學工具各自擁有專屬的聚焦參考頁面。'
+description: 'Vecto 背後 zero-DOM 渲染引擎的概覽與進入點地圖 — core 中的 Scene、Entity、renderer、粒子和 a11y，加上 core 重新匯出的獨立 @vectojs/text、@vectojs/layout、@vectojs/math 和 @vectojs/animation 引擎。'
 order: 1
 ---
 
@@ -31,14 +31,20 @@ Vecto 背後的 zero-DOM 渲染引擎。`Scene` 擁有一個 `Entity` 節點的�
 
 ## 進入點與模組地圖
 
-`@vectojs/core` 提供一個具副作用的主進入點，加上三個可搖樹的子路徑：
+布局、文字塑形、數學和動畫引擎都以各自的獨立套件發佈。`@vectojs/core` **依賴並重新匯出**所有這些引擎，因此下方每個匯入仍能從 `@vectojs/core`（以及可搖樹的子路徑）解析。當你想要更小的依賴表面而不引入場景圖執行環境時，請直接從獨立套件匯入。
 
-| 匯入                     | 內容                                                                                                                                                   | 副作用                                                                                 |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| `@vectojs/core` (`.`)    | 全部：`Scene`、`Entity`、所有 entity、renderer、layout、text。                                                                                         | 匯入時，自動註冊**兩個**可插拔後端（WebGL point renderer + WebGPU particle manager）。 |
-| `@vectojs/core/layout`   | `LayoutEngine`、`PreparedText`、`createCanvasMeasurer`、`LayoutResultBuffer`、`LayoutWorkerManager`、`computeLineSegments`、layout 類型。              | 無。                                                                                   |
-| `@vectojs/core/renderer` | `IRenderer`、`CanvasRenderer`、`SVGRenderer`、`PointRenderer`、`createWebGLPointRenderer`、`WebGPUParticleSystemManager`、`parseColorToRGBA`、`RGBA`。 | 無。                                                                                   |
-| `@vectojs/core/text`     | `MSDFFont`、`MSDFTextEntity`、`SVGEntity`、`ArabicShaper`、`BidiResolver`、`prepareContentGrid`、`PreparedContentGrid`、MSDF 類型。                    | 無。                                                                                   |
+`@vectojs/core` 提供一個具副作用的主進入點，加上三個可搖樹的子路徑，以及那四個獨立套件：
+
+| 匯入                     | 內容                                                                                                                                                                                       | 副作用                                                                                 |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| `@vectojs/core` (`.`)    | 全部：`Scene`、`Entity`、所有 entity、renderer，加上重新匯出的 layout、text、math 和 animation 引擎。                                                                                      | 匯入時，自動註冊**兩個**可插拔後端（WebGL point renderer + WebGPU particle manager）。 |
+| `@vectojs/core/layout`   | 重新匯出 `@vectojs/layout`：`LayoutEngine`、`PreparedText`、`createCanvasMeasurer`、`LayoutResultBuffer`、`LayoutWorkerManager`、`computeLineSegments`、layout 類型。                      | 無。                                                                                   |
+| `@vectojs/core/renderer` | `IRenderer`、`CanvasRenderer`、`SVGRenderer`、`PointRenderer`、`createWebGLPointRenderer`、`WebGPUParticleSystemManager`、`parseColorToRGBA`、`RGBA`。                                     | 無。                                                                                   |
+| `@vectojs/core/text`     | 重新匯出 `@vectojs/text` 加上 core 內建的 `MSDFTextEntity`/`SVGEntity`：`MSDFFont`、`ArabicShaper`、`BidiResolver`、`Typography`、`prepareContentGrid`、`PreparedContentGrid`、MSDF 類型。 | 無。                                                                                   |
+| `@vectojs/text`          | 獨立的文字塑形基礎元件：`BidiResolver`、`ArabicShaper`、`Typography`、`MSDFFont`、`prepareContentGrid`、`PreparedContentGrid`。葉套件（僅 `bidi-js`）。                                    | 無。                                                                                   |
+| `@vectojs/layout`        | 獨立的布局引擎：`LayoutEngine`、`LayoutWorkerManager`、`createCanvasMeasurer`、測量輔助函式。依賴 `@vectojs/text`。                                                                        | 無。                                                                                   |
+| `@vectojs/math`          | 獨立的空間/物理數學：`SpatialHashGrid`、`SpringPhysics`。葉套件。                                                                                                                          | 無。                                                                                   |
+| `@vectojs/animation`     | 獨立的緩動 + 驅動器：`Easing`、`TweenDriver`、`SpringDriver`。依賴 `@vectojs/math`。                                                                                                       | 無。                                                                                   |
 
 **注意事項：** 後端自動註冊只存在於 `.` 進入點中
 （`Scene.registerWebGLPointRendererCreator(createWebGLPointRenderer)` 和

@@ -158,6 +158,44 @@ Limite chaque `fill()` mis en lot à `MAX_BATCH = 64` sous-chemins (un seul `fil
 est superlinéaire par rapport au nombre de sous-chemins). Obtenez un handle via
 `scene.getRenderer()`.
 
+## TextRasterCache
+
+_Depuis Core 1.12.0._
+
+```ts
+new TextRasterCache(options?: { maxEntries?: number; dpr?: number })
+cache.get(font: string, color: string, text: string): TextRaster | null
+cache.clear(): void
+cache.stats: { hits: number; misses: number; size: number }
+```
+
+Un cache de runs de texte pré-rastérisés, pour les vues qui dessinent les **mêmes
+chaînes courtes des milliers de fois par image** (danmaku/barrage, fils de
+discussion/journaux, cellules de grille de données, libellés de particules).
+`ctx.fillText()` est trompeusement coûteux à grande échelle : chaque appel remet en
+forme la chaîne, ré-analyse la couleur CSS et rastérise les glyphes sur le thread
+principal du CPU — un profil montre le thread principal saturé dans du code natif
+(`(program)`) tandis que le GPU reste inactif, affamé.
+
+`get()` rastérise chaque run `(font, color, text)` distinct sur un petit canvas hors
+écran une seule fois ; à chaque image suivante vous le blittez avec `drawImage` au lieu
+de le remettre en forme. Blittez à la ligne de base de `fillText` en soustrayant les
+décalages renvoyés :
+
+```ts
+const r = cache.get('600 24px system-ui', '#38bdf8', label);
+if (r) renderer.drawImage(r.canvas, x - r.offsetX, baselineY - r.offsetY, r.width, r.height);
+else renderer.fillText(label, x, baselineY, '600 24px system-ui', '#38bdf8'); // headless fallback
+```
+
+`TextRaster` est `{ canvas, width, height, offsetX, offsetY }` (dimensions en pixels
+CSS). Les instances sont isolées (aucun état global partagé) ; `dpr > 1` garde le
+texte net sur HiDPI tandis que la taille du blit reste en pixels CSS ; un plafond
+d'éviction par ordre d'insertion (`maxEntries`, 4096 par défaut) borne la mémoire face
+à du contenu illimité (saisi par l'utilisateur) ; `get()` renvoie `null` dans un
+contexte headless/sans DOM afin que vous conserviez un repli `fillText`. Le gain vient
+de la **réutilisation** — un run dessiné une seule fois est un surcoût pur.
+
 ## SVGRenderer
 
 ```ts

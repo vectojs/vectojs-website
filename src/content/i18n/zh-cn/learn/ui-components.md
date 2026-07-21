@@ -423,7 +423,7 @@ feed.scrollToBottom();  // 例如用于聊天日志
 将Markdown字符串渲染为VMT子树 —— 标题、段落、带语法高亮的代码块、表格、块引用、链接和内联格式：
 
 ```typescript
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const doc = new Markdown('## 你好\n\n这是**粗体**和`代码`。', {
   maxWidth: 700,

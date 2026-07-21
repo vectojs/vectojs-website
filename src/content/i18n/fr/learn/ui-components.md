@@ -423,7 +423,7 @@ La molette, le glisser-tactile et le `scrollTo(y)` programmatique sont tous pris
 Rend une chaîne Markdown dans un sous-arbre du VMT — titres, paragraphes, blocs de code avec coloration syntaxique, tableaux, citations, liens et formatage en ligne :
 
 ```typescript
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const doc = new Markdown('## Hello\n\nThis is **bold** and `code`.', {
   maxWidth: 700,

@@ -248,6 +248,24 @@ function renderRow(text: string) {
 
 El búfer reutilizable evita asignar un objeto `LayoutNode` por glifo en cada disposición caliente. Restricciones: capacidad fija, solo una columna (sin reordenamiento visual BiDi, sin rects de exclusión). Usa `layoutPrepared()` cuando necesites esas características; evita `toLayoutResult()` en la ruta caliente porque asigna objetos de nodo.
 
+### `TextRasterCache` — blitea texto repetido en lugar de volver a conformarlo
+
+_Desde Core 1.12.0._ Cuando una vista dibuja las **mismas cadenas cortas miles de veces por frame** (danmaku/barrage, colas de chat/logs, etiquetas de partículas, valores de celda repetidos), el cuello de botella no es la disposición — es `fillText` en sí. Cada llamada vuelve a conformar la cadena, vuelve a analizar el color CSS y rasteriza los glifos en el hilo principal de la CPU; con miles de llamadas por frame el hilo principal se satura en código nativo (`(program)`) y la GPU se queda sin trabajo y con la frecuencia reducida. Cambiar `fillText` por `drawImage` de un run prerrasterizado convierte ese coste de CPU por llamada en un barato blit de bitmap:
+
+```typescript
+import { TextRasterCache } from '@vectojs/core';
+
+const cache = new TextRasterCache(); // one per scene/renderer
+
+function drawLabel(text: string, x: number, baselineY: number) {
+  const r = cache.get('600 24px system-ui', '#38bdf8', text);
+  if (r) renderer.drawImage(r.canvas, x - r.offsetX, baselineY - r.offsetY, r.width, r.height);
+  else renderer.fillText(text, x, baselineY, '600 24px system-ui', '#38bdf8'); // headless fallback
+}
+```
+
+La ganancia viene de la **reutilización**: cuando el conjunto de runs `(font, color, text)` distintos está acotado (una biblioteca de frases, una paleta pequeña, unos pocos tamaños de fuente) la tasa de aciertos en estado estable se acerca al 100%. Un tope de expulsión por orden de inserción (`maxEntries`, por defecto 4096) acota la memoria frente a contenido tecleado por el usuario sin límite, y `dpr > 1` mantiene el texto nítido en HiDPI mientras el tamaño del blit se mantiene en píxeles CSS. **No** ayuda con texto muy variado o de un solo dibujo — eso es puro sobrecoste. Consulta la [referencia del renderizador](/reference/core-renderer/#textrastercache).
+
 ## Cálculo de CPU vs. cuellos de botella de renderizado
 
 En un framework tradicional de DOM del navegador, los cuellos de botella de rendimiento casi siempre residen en el **pipeline de renderizado y reflow de disposición** del navegador (manipulaciones del DOM, recálculo de estilos y pintado). Sin embargo, como VectoJS evita el DOM por completo y procesa la disposición, el descarte y las interacciones matemáticamente en memoria, el cuello de botella de rendimiento se desplaza de la capa de GPU/renderizado directamente al **cómputo de CPU de un solo hilo de JavaScript**.

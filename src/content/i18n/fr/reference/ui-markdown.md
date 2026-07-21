@@ -1,10 +1,16 @@
 ---
 title: 'Markdown'
-description: 'Moteur de rendu Markdown natif sur canvas avec texte enrichi, blocs de code, tableaux, ajout en flux et callbacks de lien.'
+description: 'Moteur de rendu Markdown natif sur canvas avec texte enrichi, blocs de code, tableaux, ajout en flux et callbacks de lien — le paquet autonome @vectojs/markdown.'
 order: 14
 ---
 
-# `Markdown`
+# `Markdown` — `@vectojs/markdown`
+
+`Markdown` et `CodeBlock` vivent dans le paquet autonome **`@vectojs/markdown`**
+(depuis `@vectojs/ui@2.0.0` ils ne font plus partie de `@vectojs/ui`, de sorte que
+les dépendances `marked` + MathJax ne se chargent que lorsque vous rendez du
+Markdown). Il compose des composants `@vectojs/ui`, alors installez-le aux côtés de
+`@vectojs/ui` et `@vectojs/core` : `bun add @vectojs/markdown @vectojs/ui @vectojs/core`.
 
 `Markdown` analyse le Markdown avec `marked` et rend le résultat dans un sous-arbre dʼentités VectoJS.
 Les paragraphes et titres deviennent des `RichText`, le code délimité devient `CodeBlock`, et les tableaux GFM deviennent
@@ -21,7 +27,7 @@ Les paragraphes et titres deviennent des `RichText`, le code délimité devient 
 ## Exemple minimal
 
 ```ts
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const md = new Markdown(source, {
   maxWidth: 640,
@@ -94,6 +100,10 @@ Ce que coûte réellement chaque appel, afin que le code de streaming puisse êt
 - **`setContent()` ne réutilise rien.** Il supprime chaque enfant et réaffiche la liste complète des jetons. C'est l'appel correct pour _remplacer_ un document, et l'appel incorrect pour _agrandir_ un document.
 
 ## Point d'extension
+
+`renderToken(token)` est protégé, de sorte que des renderers personnalisés peuvent
+sous-classer `Markdown` pour des blocs spécifiques à l'application tout en déléguant
+les tokens normaux au renderer intégré.
 
 ## Liste de vérification pour les mainteneurs
 

@@ -423,7 +423,7 @@ feed.scrollToBottom();  // 예: 채팅 로그용
 Markdown 문자열을 VMT 서브트리로 렌더링합니다 — 제목, 문단, 구문 강조가 포함된 코드 블록, 표, 인용문, 링크, 인라인 서식:
 
 ```typescript
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const doc = new Markdown('## Hello\n\nThis is **bold** and `code`.', {
   maxWidth: 700,

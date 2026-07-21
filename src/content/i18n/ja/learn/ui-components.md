@@ -423,7 +423,7 @@ feed.scrollToBottom();  // e.g. for a chat log
 Markdown文字列をVMTサブツリーへとレンダリングします——見出し、段落、シンタックスハイライト付きのコードブロック、テーブル、ブロッククォート、リンク、インラインフォーマット：
 
 ```typescript
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const doc = new Markdown('## Hello\n\nThis is **bold** and `code`.', {
   maxWidth: 700,

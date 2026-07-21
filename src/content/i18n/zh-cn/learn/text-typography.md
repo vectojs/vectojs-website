@@ -27,7 +27,7 @@ VectoJS附带一个围绕两个关键思想构建的文本引擎：**将测量�
 | 等宽网格（终端）                   | `GridTextEntity` |
 | 由矢量图集支持的自定义文本         | `TextEntity`     |
 
-`Text`、`RichText`和`Markdown`位于`@vectojs/ui`中。其余在`@vectojs/core`中。
+`Text`、`RichText`和`Markdown`位于`@vectojs/ui`中。基于`Entity`的文本渲染器（`MSDFTextEntity`、`GridTextEntity`、`TextEntity`）位于`@vectojs/core`中。它们所构建于其上的更底层塑形基元 —— BiDi、阿拉伯语塑形、排版度量、MSDF字体解析、预备内容网格 —— 是独立的`@vectojs/text`包，而断行/内联布局引擎是`@vectojs/layout`。两者都由`@vectojs/core`重新导出，因此你可以从任一处导入它们。
 
 ### 可选择的固定网格文本
 
@@ -163,7 +163,7 @@ rich.setExclusions([{ x: 0, y: 60, width: 120, height: 120 }]);
 使用`marked`库（GFM风格）将Markdown渲染为VMT子树。
 
 ```typescript
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const md = new Markdown('# 你好\n\n这是**富**文本。', {
   maxWidth: 700,

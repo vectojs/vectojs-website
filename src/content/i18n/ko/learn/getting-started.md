@@ -14,7 +14,7 @@ order: 7
 bun add @vectojs/core @vectojs/ui
 ```
 
-VectoJS는 코어 수학 엔진과 고수준 컴포넌트 라이브러리로 분할되어 있습니다. 대부분의 앱은 두 패키지를 모두 임포트합니다.
+VectoJS는 코어 런타임과 고수준 컴포넌트 라이브러리로 분할되어 있습니다. 대부분의 앱은 두 패키지를 모두 임포트합니다. `@vectojs/core`는 그것이 기반으로 하는 독립형 엔진 — `@vectojs/text`, `@vectojs/layout`, `@vectojs/math`, `@vectojs/animation` — 을 번들하고 재-내보내기하므로 이 두 패키지 설치만으로 충분합니다. 더 작은 의존성 표면을 원할 때만 이들 패키지를 개별적으로 사용하세요.
 
 ## HTML 설정
 

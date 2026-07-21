@@ -1,10 +1,16 @@
 ---
 title: 'Markdown'
-description: '리치 텍스트, 코드 블록, 테이블, 스트리밍 추가 및 링크 콜백이 있는 캔버스 네이티브 Markdown 렌더러'
+description: '리치 텍스트, 코드 블록, 테이블, 스트리밍 추가 및 링크 콜백이 있는 캔버스 네이티브 Markdown 렌더러 — 독립형 @vectojs/markdown 패키지.'
 order: 14
 ---
 
-# `Markdown`
+# `Markdown` — `@vectojs/markdown`
+
+`Markdown`과 `CodeBlock`은 독립형 **`@vectojs/markdown`** 패키지에 있습니다
+(`@vectojs/ui@2.0.0`부터 더 이상 `@vectojs/ui`의 일부가 아니므로,
+`marked` + MathJax 의존성은 Markdown을 렌더링할 때만 로드됩니다). 이는
+`@vectojs/ui` 컴포넌트를 조합하므로 `@vectojs/ui` 및 `@vectojs/core`와 함께 설치하세요:
+`bun add @vectojs/markdown @vectojs/ui @vectojs/core`.
 
 `Markdown`은 `marked`로 Markdown을 파싱하고 결과를 VectoJS Entity 서브트리로 렌더링합니다.
 문단과 제목은 `RichText`가 되고, 펜스 코드는 `CodeBlock`이 되며, GFM 테이블은 `Table`이 됩니다.
@@ -20,7 +26,7 @@ order: 14
 ## 최소 예제
 
 ```ts
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const md = new Markdown(source, {
   maxWidth: 640,
@@ -87,6 +93,9 @@ for await (const token of llmStream) pushToken(token);
 - **`setContent()`는 아무것도 재사용하지 않습니다.** 모든 자식을 제거하고 전체 토큰 목록을 다시 렌더링합니다. 이는 문서를 _대체_하는 경우 올바른 호출이며, 문서를 _성장_시키는 경우 잘못된 호출입니다.
 
 ## 확장 지점
+
+`renderToken(token)`은 protected이므로 커스텀 렌더러는 `Markdown`을 서브클래싱하여
+앱별 블록을 처리하면서도 일반 토큰은 내장 렌더러에 계속 위임할 수 있습니다.
 
 ## 유지보수 체크리스트
 

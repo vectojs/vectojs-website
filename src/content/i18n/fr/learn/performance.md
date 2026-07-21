@@ -248,6 +248,24 @@ function renderRow(text: string) {
 
 Le tampon réutilisable évite d'allouer un objet `LayoutNode` par glyphe à chaque mise en page chaude. Contraintes : capacité fixe, colonne unique seulement (pas de réordonnancement visuel BiDi, pas de rects d'exclusion). Utilisez `layoutPrepared()` lorsque vous avez besoin de ces fonctionnalités ; évitez `toLayoutResult()` sur le chemin chaud car il alloue des objets nœuds.
 
+### `TextRasterCache` — blitter du texte répété au lieu de le remettre en forme
+
+_Depuis Core 1.12.0._ Lorsqu'une vue dessine les **mêmes chaînes courtes des milliers de fois par image** (danmaku/barrage, fils de discussion/journaux, libellés de particules, valeurs de cellules répétées), le goulot d'étranglement n'est pas la mise en page — c'est `fillText` lui-même. Chaque appel remet en forme la chaîne, ré-analyse la couleur CSS et rastérise les glyphes sur le thread principal du CPU ; à des milliers d'appels par image, le thread principal sature dans du code natif (`(program)`) et le GPU reste affamé et sous-cadencé. Remplacer `fillText` par `drawImage` d'un run pré-rastérisé transforme ce coût CPU par appel en un blit bitmap peu coûteux :
+
+```typescript
+import { TextRasterCache } from '@vectojs/core';
+
+const cache = new TextRasterCache(); // one per scene/renderer
+
+function drawLabel(text: string, x: number, baselineY: number) {
+  const r = cache.get('600 24px system-ui', '#38bdf8', text);
+  if (r) renderer.drawImage(r.canvas, x - r.offsetX, baselineY - r.offsetY, r.width, r.height);
+  else renderer.fillText(text, x, baselineY, '600 24px system-ui', '#38bdf8'); // headless fallback
+}
+```
+
+Le gain vient de la **réutilisation** : lorsque l'ensemble de runs `(font, color, text)` distincts est borné (une bibliothèque de phrases, une petite palette, quelques tailles de police), le taux de succès en régime permanent approche 100 %. Un plafond d'éviction par ordre d'insertion (`maxEntries`, 4096 par défaut) borne la mémoire face à du contenu illimité saisi par l'utilisateur, et `dpr > 1` garde le texte net sur HiDPI tandis que la taille du blit reste en pixels CSS. Il **n'aide pas** le texte très varié ou dessiné une seule fois — c'est là un surcoût pur. Voir la [référence du renderer](/reference/core-renderer/#textrastercache).
+
 ## Calcul CPU vs. goulots d'étranglement de rendu
 
 Dans un framework DOM de navigateur traditionnel, les goulots d'étranglement de performance se situent presque toujours dans le **pipeline de rendu et de reflow de la mise en page** du navigateur (manipulations DOM, recalcul de style et peinture). Cependant, comme VectoJS contourne entièrement le DOM et traite la mise en page, l'élimination et les interactions mathématiquement en mémoire, le goulot d'étranglement de performance se déplace de la couche GPU/rendu directement vers le **calcul CPU mono-thread de JavaScript**.

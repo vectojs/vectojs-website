@@ -1,13 +1,19 @@
 ---
 title: '텍스트 및 Bidi'
-description: '@vectojs/core/text 하위 경로: MSDF 폰트 파싱 및 GPU 텍스트 렌더링, TextEntity/GridTextEntity, 내장 아랍어 쉐이핑 및 bidi 리졸버.'
+description: '독립형 @vectojs/text 패키지(그리고 @vectojs/core/text 하위 경로): 타이포그래피 메트릭, MSDF 폰트 파싱, 아랍어 셰이핑 및 bidi 리졸버, 그리고 코어-상주 MSDFTextEntity/GridTextEntity GPU 텍스트 렌더러.'
 order: 7
 ---
 
-# 텍스트 및 Bidi — `@vectojs/core/text`
+# 텍스트 및 Bidi — `@vectojs/text`
 
-[`@vectojs/core`](/reference/core-api/)의 일부입니다. [레이아웃 엔진](/reference/core-layout/)의
-콜드/핫 분할을 기반으로 구축되었습니다.
+텍스트 셰이핑 프리미티브 — `BidiResolver`, `ArabicShaper`, `Typography`,
+`MSDFFont`, `prepareContentGrid`/`PreparedContentGrid` — 는 독립형
+**`@vectojs/text`** 패키지입니다(`bidi-js`에만 의존하는 리프 패키지). `Entity`
+기반 GPU 텍스트 렌더러(`MSDFTextEntity`, `SVGEntity`,
+`TextEntity`/`GridTextEntity`)는 `Entity`를 확장하므로
+[`@vectojs/core`](/reference/core-api/)에 남아 있습니다. 코어가 `@vectojs/text` 프리미티브를
+재-내보내기하므로 `@vectojs/text`, `@vectojs/core`, 또는 `@vectojs/core/text`
+하위 경로에서 해석됩니다. [레이아웃 엔진](/reference/core-layout/)의 콜드/핫 분할을 기반으로 구축되었습니다.
 
 ## MSDFFont
 

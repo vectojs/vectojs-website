@@ -27,7 +27,7 @@ VectoJSは、2つの重要なアイデアを中心に構築されたテキスト
 | 等幅グリッド（ターミナル）                   | `GridTextEntity` |
 | ベクターアトラスに支えられたカスタムテキスト | `TextEntity`     |
 
-`Text`、`RichText`、`Markdown`は`@vectojs/ui`にあります。その他は`@vectojs/core`にあります。
+`Text`、`RichText`、`Markdown`は`@vectojs/ui`にあります。`Entity`ベースのテキストレンダラー（`MSDFTextEntity`、`GridTextEntity`、`TextEntity`）は`@vectojs/core`にあります。それらが構築の土台とする低レベルのシェイピングプリミティブ——BiDi、アラビア語シェイピング、タイポグラフィのメトリクス、MSDFフォントのパース、prepared content grid——はスタンドアロンの`@vectojs/text`パッケージであり、行分割/インラインレイアウトエンジンは`@vectojs/layout`です。どちらも`@vectojs/core`によって再エクスポートされるため、どちらの場所からでもインポートできます。
 
 ### 選択可能な固定グリッドテキスト
 
@@ -163,7 +163,7 @@ rich.setExclusions([{ x: 0, y: 60, width: 120, height: 120 }]);
 `marked`ライブラリ（GFM風味）を使って、MarkdownをVMTサブツリーへとレンダリングします。
 
 ```typescript
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const md = new Markdown('# Hello\n\nThis is **rich** text.', {
   maxWidth: 700,

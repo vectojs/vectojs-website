@@ -1,12 +1,12 @@
 ---
 title: 'Math utilities'
-description: '用於 O(1) 平均寬相位空間查詢的 SpatialHashGrid，以及用於單一數值臨界可調彈簧的 SpringPhysics — 從 @vectojs/core 匯出的通用數學輔助工具。'
+description: '用於 O(1) 平均寬相位空間查詢的 SpatialHashGrid，以及用於單一數值臨界可調彈簧的 SpringPhysics — 獨立的 @vectojs/math 套件，由 @vectojs/core 重新匯出。'
 order: 9
 ---
 
-# Math utilities（來自 `.`）
+# Math utilities — `@vectojs/math`
 
-屬於 [`@vectojs/core`](/reference/core-api/) 的一部分。
+`SpatialHashGrid` 和 `SpringPhysics` 是獨立的 **`@vectojs/math`** 套件（一個沒有依賴的葉套件）。[`@vectojs/core`](/reference/core-api/) 依賴並重新匯出它，因此它可以從 `@vectojs/math` 或 `@vectojs/core` 解析。此處的彈簧積分器也支撐著 [`@vectojs/animation`](/reference/core-api/#進入點與模組地圖) 中的 `SpringDriver`。
 
 ```ts
 new SpatialHashGrid(cellSize = ...)

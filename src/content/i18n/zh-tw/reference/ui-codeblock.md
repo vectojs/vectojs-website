@@ -6,7 +6,7 @@ order: 40
 
 # `CodeBlock`
 
-`CodeBlock` 是 `Markdown` 使用的低階圍欄程式碼渲染器。它自行繪製背景和語法著色文字，避免每個 token 都產生一個子 entity。
+`CodeBlock` 是 `Markdown` 使用的低階圍欄程式碼渲染器。兩者都位於獨立的 **`@vectojs/markdown`** 套件中（於 `@vectojs/ui@2.0.0` 從 `@vectojs/ui` 移出）。它自行繪製背景和語法著色文字，避免每個 token 都產生一個子 entity。
 
 ## 試試看
 
@@ -19,7 +19,7 @@ order: 40
 ## 最小範例
 
 ````ts
-import { CodeBlock, Markdown } from '@vectojs/ui';
+import { CodeBlock, Markdown } from '@vectojs/markdown';
 
 // Most callers should let Markdown create CodeBlock instances:
 const md = new Markdown('```ts\nscene.markDirty();\n```', { maxWidth: 520 });

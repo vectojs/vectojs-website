@@ -41,12 +41,21 @@ order: 1
 
 ## パッケージマップ
 
-| パッケージ                | 目的                                                                                                       |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `@vectojs/core`           | `Scene`、`Entity`、レイアウト、テキスト、レンダラー、イベント、a11y投影、および数学ユーティリティ          |
-| `@vectojs/ui`             | 高レベルコンポーネント：`Button`、`Input`、`Toggle`、`Markdown`、`ScrollView`、`Dropdown`、`Table`、その他 |
-| `@vectojs/three`          | VectoJSシーンをThree.jsのテクスチャに投影し、レイキャスト入力を2Dへ戻してルーティングする                  |
-| `@vectojs/video-exporter` | VectoJSシーン向けの固定ステップChromium + FFmpeg H.264エクスポート                                         |
+| パッケージ                | 目的                                                                                                                                                          |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@vectojs/core`           | `Scene`、`Entity`、レンダラー、イベント、hit-testing、a11y投影。下記のエンジンに依存し再エクスポートするため、すべてを`@vectojs/core`からインポートできます。 |
+| `@vectojs/text`           | スタンドアロンのテキストシェイピングプリミティブ：BiDi解決、アラビア語シェイピング、CSS互換のタイポグラフィ、MSDFフォント、prepared content grid              |
+| `@vectojs/layout`         | スタンドアロンのレイアウトエンジン：行分割、BiDi対応のインラインレイアウト、除外フロー、オフスレッドのレイアウトワーカー                                      |
+| `@vectojs/math`           | スタンドアロンの空間/物理数学：`SpatialHashGrid`のブロードフェーズと`SpringPhysics`                                                                           |
+| `@vectojs/animation`      | スタンドアロンのイージングライブラリと`TweenDriver`・`SpringDriver`の値ドライバー                                                                             |
+| `@vectojs/ui`             | 高レベルコンポーネント：`Button`、`Input`、`Toggle`、`ScrollView`、`Dropdown`、`Table`、その他。ランタイム依存ゼロ。                                          |
+| `@vectojs/markdown`       | `Markdown` + `CodeBlock`エンティティ（`marked`でパースし、TeX数式をMathJaxでレンダリング）、`@vectojs/ui`の上に構築                                           |
+| `@vectojs/three`          | VectoJSシーンをThree.jsのテクスチャに投影し、レイキャスト入力を2Dへ戻してルーティングする                                                                     |
+| `@vectojs/devtools`       | ページ内のVirtual Math Treeインスペクター：エンティティツリー、クリックで選択、ジオメトリのライブ表示                                                         |
+| `@vectojs/graph3d`        | 3Dフォースディレクテッドグラフの可視化（インスタンス化されたThree.jsレンダラー）                                                                              |
+| `@vectojs/video-exporter` | VectoJSシーン向けの固定ステップChromium + FFmpeg H.264エクスポート                                                                                            |
+
+layout、text、math、animationの各エンジンは、シーングラフランタイムなしで利用できるよう、それぞれ独立したパッケージとして公開されています。`@vectojs/core`はそれらすべてに依存し再エクスポートするため、既存の`import { … } from '@vectojs/core'`のコードはそのまま動作し続けます——依存の範囲を小さく抑えたいときにのみ、スタンドアロンのパッケージに手を伸ばしてください。
 
 ## メンタルモデル
 

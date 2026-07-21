@@ -1,12 +1,16 @@
 ---
 title: '레이아웃 엔진'
-description: '@vectojs/core/layout 하위 경로: 값비싼 텍스트 분할+측정을 저렴한 줄바꿈+위치 산술과 분리하는 콜드/핫 분할, 스트리밍 메모이제이션, 리치 텍스트 및 배제(Exclusion) 셰이프.'
+description: '독립형 @vectojs/layout 패키지(그리고 @vectojs/core/layout 하위 경로): 값비싼 텍스트 분할+측정을 저렴한 줄바꿈+위치 산술과 분리하는 콜드/핫 분할, 스트리밍 메모이제이션, 리치 텍스트 및 배제(Exclusion) 셰이프.'
 order: 4
 ---
 
-# 레이아웃 엔진 (콜드/핫 분할) — `@vectojs/core/layout`
+# 레이아웃 엔진 (콜드/핫 분할) — `@vectojs/layout`
 
-[`@vectojs/core`](/reference/core-api/)의 일부입니다.
+레이아웃 엔진은 독립형 **`@vectojs/layout`** 패키지입니다(셰이핑 프리미티브를 위해
+[`@vectojs/text`](/reference/core-text/)에만 의존합니다).
+[`@vectojs/core`](/reference/core-api/)가 이에 의존하고 재-내보내기하므로
+`@vectojs/layout`, `@vectojs/core`, 또는 `@vectojs/core/layout` 하위 경로에서
+상호 교환적으로 임포트할 수 있습니다.
 
 `LayoutEngine`은 값비싼 **콜드** 패스(분할 + 측정, `Intl.Segmenter` 사용)를
 저렴한 **핫** 패스(줄바꿈 + 위치 산술)와 분리하여,

@@ -1,12 +1,16 @@
 ---
 title: '수학 유틸리티'
-description: 'O(1) 평균 광역 위상 공간 쿼리를 위한 SpatialHashGrid와 단일 값 임계-튜너블 스프링을 위한 SpringPhysics — @vectojs/core에서 내보내는 범용 수학 헬퍼.'
+description: 'O(1) 평균 광역 위상 공간 쿼리를 위한 SpatialHashGrid와 단일 값 임계-튜너블 스프링을 위한 SpringPhysics — @vectojs/core가 재-내보내기하는 독립형 @vectojs/math 패키지.'
 order: 9
 ---
 
-# 수학 유틸리티 (`.`에서)
+# 수학 유틸리티 — `@vectojs/math`
 
-[`@vectojs/core`](/reference/core-api/)의 일부입니다.
+`SpatialHashGrid`와 `SpringPhysics`는 독립형 **`@vectojs/math`**
+패키지입니다(의존성이 없는 리프 패키지). [`@vectojs/core`](/reference/core-api/)가
+이에 의존하고 재-내보내기하므로 `@vectojs/math` 또는 `@vectojs/core`
+어느 쪽에서든 해석됩니다. 여기의 스프링 적분기는
+[`@vectojs/animation`](/reference/core-api/#진입점-및-모듈-맵)의 `SpringDriver`도 뒷받침합니다.
 
 ```ts
 new SpatialHashGrid(cellSize = ...)

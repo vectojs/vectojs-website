@@ -6,7 +6,8 @@ order: 40
 
 # `CodeBlock`
 
-`CodeBlock` est le moteur de rendu de code délimité de bas niveau utilisé par `Markdown`. Il dessine lui-même lʼarrière-plan et le texte coloré syntaxiquement,
+`CodeBlock` est le moteur de rendu de code délimité de bas niveau utilisé par `Markdown`. Tous deux vivent dans le paquet autonome
+**`@vectojs/markdown`** (sortis de `@vectojs/ui` dans `@vectojs/ui@2.0.0`). Il dessine lui-même lʼarrière-plan et le texte coloré syntaxiquement,
 évitant ainsi une entité enfant par jeton.
 
 ## Try it
@@ -20,7 +21,7 @@ order: 40
 ## Exemple minimal
 
 ````ts
-import { CodeBlock, Markdown } from '@vectojs/ui';
+import { CodeBlock, Markdown } from '@vectojs/markdown';
 
 // La plupart des appelants devraient laisser Markdown créer les instances de CodeBlock :
 const md = new Markdown('```ts\\nscene.markDirty();\\n```', { maxWidth: 520 });

@@ -6,7 +6,8 @@ order: 40
 
 # `CodeBlock`
 
-`CodeBlock` es el renderizador de bajo nivel para bloques de código utilizado por `Markdown`. Dibuja el fondo y el
+`CodeBlock` es el renderizador de bajo nivel para bloques de código utilizado por `Markdown`. Ambos viven en el paquete
+independiente **`@vectojs/markdown`** (extraídos de `@vectojs/ui` en `@vectojs/ui@2.0.0`). Dibuja el fondo y el
 texto coloreado por sintaxis él mismo, evitando una entidad hija por token.
 
 ## Pruébalo
@@ -20,7 +21,7 @@ texto coloreado por sintaxis él mismo, evitando una entidad hija por token.
 ## Ejemplo mínimo
 
 ````ts
-import { CodeBlock, Markdown } from '@vectojs/ui';
+import { CodeBlock, Markdown } from '@vectojs/markdown';
 
 // La mayoría de los usuarios deberían dejar que Markdown cree instancias de CodeBlock:
 const md = new Markdown('```ts\\nscene.markDirty();\\n```', { maxWidth: 520 });

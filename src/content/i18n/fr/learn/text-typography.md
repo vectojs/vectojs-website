@@ -27,7 +27,7 @@ VectoJS embarque un moteur de texte construit autour de deux idées clés : **s�
 | Grille à chasse fixe (terminal)                        | `GridTextEntity` |
 | Texte personnalisé adossé à un atlas vectoriel         | `TextEntity`     |
 
-`Text`, `RichText` et `Markdown` vivent dans `@vectojs/ui`. Les autres sont dans `@vectojs/core`.
+`Text`, `RichText` et `Markdown` vivent dans `@vectojs/ui`. Les renderers de texte basés sur `Entity` (`MSDFTextEntity`, `GridTextEntity`, `TextEntity`) vivent dans `@vectojs/core`. Les primitives de mise en forme de plus bas niveau sur lesquelles ils reposent — BiDi, mise en forme arabe, métriques typographiques, analyse de polices MSDF, grilles de contenu préparées — constituent le paquet autonome `@vectojs/text`, et le moteur de césure/mise en page inline est `@vectojs/layout`. Les deux sont re-exportés par `@vectojs/core`, vous pouvez donc les importer depuis l'un ou l'autre endroit.
 
 ### Texte sélectionnable à grille fixe
 
@@ -163,7 +163,7 @@ Le moteur calcule les intervalles horizontaux libres par bande de ligne (`comput
 Rend du Markdown dans un sous-arbre du VMT à l'aide de la bibliothèque `marked` (saveur GFM).
 
 ```typescript
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const md = new Markdown('# Hello\n\nThis is **rich** text.', {
   maxWidth: 700,

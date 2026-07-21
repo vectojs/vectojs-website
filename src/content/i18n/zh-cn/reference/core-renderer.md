@@ -116,6 +116,29 @@ new CanvasRenderer(canvas: HTMLCanvasElement)
 
 默认 `IRenderer`。在构造时应用 `devicePixelRatio` 缩放。将每个批处理的 `fill()` 上限设为 `MAX_BATCH = 64` 个子路径（单个 Canvas2D `fill()` 在子路径数量上是超线性的）。通过 `scene.getRenderer()` 获取句柄。
 
+## TextRasterCache
+
+_自 Core 1.12.0 起。_
+
+```ts
+new TextRasterCache(options?: { maxEntries?: number; dpr?: number })
+cache.get(font: string, color: string, text: string): TextRaster | null
+cache.clear(): void
+cache.stats: { hits: number; misses: number; size: number }
+```
+
+一个预栅格化文本段的缓存，用于**每帧绘制相同的短字符串数千次**的视图（弹幕、聊天/日志尾部、数据网格单元格、粒子标签）。`ctx.fillText()` 在大规模下的开销出人意料地高：每次调用都会重新塑形字符串、重新解析 CSS 颜色，并在 CPU 主线程上栅格化字形 —— 性能分析显示主线程被钉在原生（`(program)`）代码上，而 GPU 却在饥饿中空闲。
+
+`get()` 将每个不同的 `(font, color, text)` 文本段一次性栅格化到一个小的离屏 canvas 上；此后每一帧你都用 `drawImage` 位块传输它，而不是重新塑形。通过减去返回的偏移量在 `fillText` 基线处进行位块传输：
+
+```ts
+const r = cache.get('600 24px system-ui', '#38bdf8', label);
+if (r) renderer.drawImage(r.canvas, x - r.offsetX, baselineY - r.offsetY, r.width, r.height);
+else renderer.fillText(label, x, baselineY, '600 24px system-ui', '#38bdf8'); // headless fallback
+```
+
+`TextRaster` 是 `{ canvas, width, height, offsetX, offsetY }`（尺寸以 CSS px 为单位）。实例是相互隔离的（没有共享的全局状态）；`dpr > 1` 在保持位块传输尺寸以 CSS px 为单位的同时让文本在 HiDPI 上保持清晰；一个按插入顺序的淘汰上限（`maxEntries`，默认 4096）针对无界的（用户输入的）内容限制内存；`get()` 在 headless/非 DOM 环境中返回 `null`，因此你要保留一个 `fillText` 回退。收益来自**重用** —— 只绘制一次的文本段纯粹是开销。
+
 ## SVGRenderer
 
 ```ts

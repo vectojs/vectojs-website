@@ -41,12 +41,21 @@ Prefiere HTML/CSS convencional cuando estés construyendo un sitio orientado a d
 
 ## Mapa de paquetes
 
-| Paquete                   | Propósito                                                                                                   |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `@vectojs/core`           | `Scene`, `Entity`, disposición, texto, renderers, eventos, proyección de a11y y utilidades matemáticas      |
-| `@vectojs/ui`             | Componentes de alto nivel: `Button`, `Input`, `Toggle`, `Markdown`, `ScrollView`, `Dropdown`, `Table` y más |
-| `@vectojs/three`          | Proyecta una escena de VectoJS sobre una textura de Three.js y enruta la entrada de raycast de vuelta a 2D  |
-| `@vectojs/video-exporter` | Exportación H.264 con Chromium + FFmpeg de paso fijo para escenas de VectoJS                                |
+| Paquete                   | Propósito                                                                                                                                                                |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `@vectojs/core`           | `Scene`, `Entity`, renderers, eventos, hit-testing, proyección de a11y. Depende de y reexporta los motores de abajo, así que puedes importar todo desde `@vectojs/core`. |
+| `@vectojs/text`           | Primitivas independientes de shaping de texto: resolución BiDi, shaping de árabe, tipografía con paridad CSS, fuentes MSDF, cuadrículas de contenido preparadas          |
+| `@vectojs/layout`         | Motor de disposición independiente: salto de línea, disposición inline consciente de BiDi, flujo de exclusión, worker de disposición fuera del hilo                      |
+| `@vectojs/math`           | Matemática espacial/física independiente: broad-phase con `SpatialHashGrid` y `SpringPhysics`                                                                            |
+| `@vectojs/animation`      | Biblioteca de easing independiente más los value drivers `TweenDriver` y `SpringDriver`                                                                                  |
+| `@vectojs/ui`             | Componentes de alto nivel: `Button`, `Input`, `Toggle`, `ScrollView`, `Dropdown`, `Table` y más. Cero dependencias en runtime.                                           |
+| `@vectojs/markdown`       | Entidades `Markdown` + `CodeBlock` (parsean con `marked`, renderizan matemática TeX con MathJax), construidas sobre `@vectojs/ui`                                        |
+| `@vectojs/three`          | Proyecta una escena de VectoJS sobre una textura de Three.js y enruta la entrada de raycast de vuelta a 2D                                                               |
+| `@vectojs/devtools`       | Inspector del Virtual Math Tree en la página: árbol de entidades, clic para seleccionar, lectura de geometría en vivo                                                    |
+| `@vectojs/graph3d`        | Visualización de grafos 3D dirigidos por fuerzas (renderer de Three.js con instanciación)                                                                                |
+| `@vectojs/video-exporter` | Exportación H.264 con Chromium + FFmpeg de paso fijo para escenas de VectoJS                                                                                             |
+
+Los motores de disposición, texto, matemática y animación se publican como sus propios paquetes para poder consumirse sin el runtime del grafo de escena. `@vectojs/core` depende de y reexporta todos ellos, así que el código existente `import { … } from '@vectojs/core'` sigue funcionando sin cambios — recurre a los paquetes independientes solo cuando quieras una superficie de dependencias más pequeña.
 
 ## Modelo mental
 

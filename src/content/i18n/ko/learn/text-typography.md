@@ -27,7 +27,7 @@ VectoJS는 두 가지 핵심 아이디어를 중심으로 구축된 텍스트 �
 | 고정폭 그리드 (터미널)                 | `GridTextEntity` |
 | 벡터 아틀라스 기반 커스텀 텍스트       | `TextEntity`     |
 
-`Text`, `RichText`, `Markdown`은 `@vectojs/ui`에 있습니다. 나머지는 `@vectojs/core`에 있습니다.
+`Text`, `RichText`, `Markdown`은 `@vectojs/ui`에 있습니다. `Entity` 기반 텍스트 렌더러(`MSDFTextEntity`, `GridTextEntity`, `TextEntity`)는 `@vectojs/core`에 있습니다. 이들이 기반으로 하는 하위 수준 셰이핑 프리미티브 — BiDi, 아랍어 셰이핑, 타이포그래피 메트릭, MSDF 폰트 파싱, 준비된 콘텐츠 그리드 — 는 독립형 `@vectojs/text` 패키지이며, 줄 나눔/인라인 레이아웃 엔진은 `@vectojs/layout`입니다. 둘 다 `@vectojs/core`가 재-내보내기하므로 어느 쪽에서든 임포트할 수 있습니다.
 
 ### 선택 가능한 고정-그리드 텍스트
 
@@ -163,7 +163,7 @@ rich.setExclusions([{ x: 0, y: 60, width: 120, height: 120 }]);
 `marked` 라이브러리(GFM 스타일)를 사용하여 Markdown을 VMT 서브트리로 렌더링합니다.
 
 ```typescript
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const md = new Markdown('# Hello\n\nThis is **rich** text.', {
   maxWidth: 700,

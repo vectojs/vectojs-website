@@ -1,12 +1,16 @@
 ---
 title: 'Utilidades matemáticas'
-description: 'SpatialHashGrid para consultas espaciales de fase amplia con promedio O(1) y SpringPhysics para un resorte sintonizable de un solo valor críticamente amortiguado — los helpers matemáticos de propósito general exportados desde @vectojs/core.'
+description: 'SpatialHashGrid para consultas espaciales de fase amplia con promedio O(1) y SpringPhysics para un resorte sintonizable de un solo valor — el paquete independiente @vectojs/math, reexportado por @vectojs/core.'
 order: 9
 ---
 
-# Utilidades matemáticas (desde `.`)
+# Utilidades matemáticas — `@vectojs/math`
 
-Parte de [`@vectojs/core`](/reference/core-api/).
+`SpatialHashGrid` y `SpringPhysics` son el paquete independiente **`@vectojs/math`**
+(un paquete hoja sin dependencias). [`@vectojs/core`](/reference/core-api/)
+depende de y lo reexporta, así que se resuelve tanto desde `@vectojs/math` como desde
+`@vectojs/core`. El integrador de resorte de aquí también respalda `SpringDriver` en
+[`@vectojs/animation`](/reference/core-api/#puntos-de-entrada-y-mapa-de-módulos).
 
 ```ts
 new SpatialHashGrid(cellSize = ...)

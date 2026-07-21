@@ -14,7 +14,7 @@ Esta guía te lleva paso a paso por la instalación de VectoJS y la construcció
 bun add @vectojs/core @vectojs/ui
 ```
 
-VectoJS se divide en un motor matemático core y una biblioteca de componentes de alto nivel. La mayoría de las apps importan de ambos.
+VectoJS se divide en un runtime core y una biblioteca de componentes de alto nivel. La mayoría de las apps importan de ambos. `@vectojs/core` empaqueta y reexporta los motores independientes sobre los que se construye — `@vectojs/text`, `@vectojs/layout`, `@vectojs/math` y `@vectojs/animation` — así que esta instalación de dos paquetes es todo lo que necesitas; recurre a esos paquetes individualmente solo cuando quieras una superficie de dependencias más pequeña.
 
 ## Configuración del HTML
 

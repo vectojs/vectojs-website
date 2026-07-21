@@ -151,6 +151,42 @@ new CanvasRenderer(canvas: HTMLCanvasElement)
 `fill()`을 `MAX_BATCH = 64` 서브-경로로 제한합니다(단일 Canvas2D `fill()`은
 서브-경로 수에 대해 초선형입니다). `scene.getRenderer()`를 통해 핸들을 얻으세요.
 
+## TextRasterCache
+
+_Core 1.12.0부터._
+
+```ts
+new TextRasterCache(options?: { maxEntries?: number; dpr?: number })
+cache.get(font: string, color: string, text: string): TextRaster | null
+cache.clear(): void
+cache.stats: { hits: number; misses: number; size: number }
+```
+
+**동일한 짧은 문자열을 프레임당 수천 번** 그리는 뷰(단막/탄막, 채팅/로그 꼬리,
+데이터-그리드 셀, 파티클 레이블)를 위한 미리-래스터화된 텍스트 실행의 캐시입니다.
+`ctx.fillText()`는 규모가 커지면 의외로 비용이 많이 듭니다: 각 호출은 문자열을
+다시 셰이핑하고, CSS 색상을 다시 파싱하며, CPU 메인 스레드에서 글리프를
+래스터화합니다 — 프로파일을 보면 GPU가 굶주려 유휴 상태인 동안 메인 스레드가
+네이티브(`(program)`) 코드에 고정되어 있습니다.
+
+`get()`은 서로 다른 각 `(font, color, text)` 실행을 작은 오프스크린 캔버스에
+한 번 래스터화합니다; 이후 모든 프레임에서는 다시 셰이핑하는 대신 `drawImage`로
+블리팅합니다. 반환된 오프셋을 빼서 `fillText` 기준선에 블리팅하세요:
+
+```ts
+const r = cache.get('600 24px system-ui', '#38bdf8', label);
+if (r) renderer.drawImage(r.canvas, x - r.offsetX, baselineY - r.offsetY, r.width, r.height);
+else renderer.fillText(label, x, baselineY, '600 24px system-ui', '#38bdf8'); // headless fallback
+```
+
+`TextRaster`는 `{ canvas, width, height, offsetX, offsetY }`입니다(치수는 CSS
+px 단위). 인스턴스는 격리되어 있습니다(공유 전역 상태 없음); `dpr > 1`은 블리트
+크기가 CSS px로 유지되는 동안 HiDPI에서 텍스트를 선명하게 유지하며;
+삽입-순서 제거 상한(`maxEntries`, 기본값 4096)은 무제한(사용자가 입력한)
+콘텐츠에 대해 메모리를 제한하고; `get()`은 헤드리스/비-DOM 컨텍스트에서 `null`을
+반환하므로 `fillText` 폴백을 유지할 수 있습니다. 이점은 **재사용**에서 나옵니다 —
+한 번만 그려지는 실행은 순수한 오버헤드입니다.
+
 ## SVGRenderer
 
 ```ts

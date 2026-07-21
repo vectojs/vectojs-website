@@ -1,10 +1,12 @@
 ---
 title: 'Markdown'
-description: 'リッチテキスト、コードブロック、テーブル、ストリーミング追加、リンクコールバックを備えたcanvas-nativeなMarkdownレンダラー。'
+description: 'リッチテキスト、コードブロック、テーブル、ストリーミング追加、リンクコールバックを備えたcanvas-nativeなMarkdownレンダラー — スタンドアロンの @vectojs/markdown パッケージ。'
 order: 14
 ---
 
-# `Markdown`
+# `Markdown` — `@vectojs/markdown`
+
+`Markdown` と `CodeBlock` はスタンドアロンの **`@vectojs/markdown`** パッケージにあります（`@vectojs/ui@2.0.0` 以降、これらはもはや `@vectojs/ui` の一部ではないため、`marked` + MathJax の依存はMarkdownをレンダリングするときにのみ読み込まれます）。これは `@vectojs/ui` のコンポーネントを組み合わせて構築されているため、`@vectojs/ui` と `@vectojs/core` とともにインストールしてください：`bun add @vectojs/markdown @vectojs/ui @vectojs/core`。
 
 `Markdown` は `marked` でMarkdownを解析し、結果をVectoJSのエンティティサブツリーにレンダリングします。段落と見出しは `RichText` になり、フェンス付きコードは `CodeBlock` になり、GFMテーブルは `Table` になります。
 
@@ -19,7 +21,7 @@ order: 14
 ## 最小限の例
 
 ```ts
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const md = new Markdown(source, {
   maxWidth: 640,
@@ -81,6 +83,8 @@ for await (const token of llmStream) pushToken(token);
 - **`setContent()` は何も再利用しません。** すべての子を削除し、トークンリスト全体を再レンダリングします。これはドキュメントを_置き換える_場合は正しい呼び出しであり、_成長させる_場合は誤った呼び出しです。
 
 ## 拡張ポイント
+
+`renderToken(token)` は protected なので、カスタムレンダラーは `Markdown` をサブクラス化してアプリ固有のブロックに対応しつつ、通常のトークンは組み込みレンダラーに委譲できます。
 
 ## メンテナー向けチェックリスト
 

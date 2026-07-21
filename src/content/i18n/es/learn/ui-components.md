@@ -423,7 +423,7 @@ Rueda, arrastre táctil y `scrollTo(y)` programático están todos soportados.
 Renderiza una cadena Markdown en un subárbol del VMT — encabezados, párrafos, bloques de código con resaltado de sintaxis, tablas, blockquotes, enlaces y formato en línea:
 
 ```typescript
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const doc = new Markdown('## Hello\n\nThis is **bold** and `code`.', {
   maxWidth: 700,

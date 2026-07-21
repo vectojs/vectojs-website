@@ -1,12 +1,16 @@
 ---
 title: 'Utilitaires mathématiques'
-description: 'SpatialHashGrid pour des requêtes spatiales de phase large en O(1) moyen et SpringPhysics pour un ressort à valeur unique critique réglable — les utilitaires mathématiques à usage général exportés par @vectojs/core.'
+description: 'SpatialHashGrid pour des requêtes spatiales de phase large en O(1) moyen et SpringPhysics pour un ressort à valeur unique critique réglable — le paquet autonome @vectojs/math, re-exporté par @vectojs/core.'
 order: 9
 ---
 
-# Utilitaires mathématiques (depuis `.`)
+# Utilitaires mathématiques — `@vectojs/math`
 
-Partie de [`@vectojs/core`](/reference/core-api/).
+`SpatialHashGrid` et `SpringPhysics` constituent le paquet autonome **`@vectojs/math`**
+(un paquet feuille sans dépendances). [`@vectojs/core`](/reference/core-api/) en dépend
+et le re-exporte, il se résout donc depuis `@vectojs/math` ou `@vectojs/core`.
+L'intégrateur de ressort présent ici sous-tend également `SpringDriver` dans
+[`@vectojs/animation`](/reference/core-api/#points-dentrée-et-carte-des-modules).
 
 ```ts
 new SpatialHashGrid(cellSize = ...)

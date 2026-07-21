@@ -1,12 +1,12 @@
 ---
 title: '布局引擎'
-description: '@vectojs/core/layout 子路径：将昂贵的文本分段+测量与廉价的换行+定位算术分离的冷/热分离、流式记忆化、富文本和排除形状。'
+description: '独立的 @vectojs/layout 包（也是 @vectojs/core/layout 子路径）：将昂贵的文本分段+测量与廉价的换行+定位算术分离的冷/热分离、流式记忆化、富文本和排除形状。'
 order: 4
 ---
 
-# 布局引擎（冷/热分离）—— `@vectojs/core/layout`
+# 布局引擎（冷/热分离）—— `@vectojs/layout`
 
-属于 [`@vectojs/core`](/reference/core-api/)。
+布局引擎是独立的 **`@vectojs/layout`** 包（它仅依赖 [`@vectojs/text`](/reference/core-text/) 来获取塑形基元）。[`@vectojs/core`](/reference/core-api/) 依赖并重新导出它，因此你可以从 `@vectojs/layout`、`@vectojs/core` 或 `@vectojs/core/layout` 子路径任意互换地导入它。
 
 `LayoutEngine` 将昂贵的**冷**过程（分段 + 测量，通过 `Intl.Segmenter`）与廉价的**热**过程（换行 + 定位算术）分离，因此调整大小/重排/动画不会重新测量。
 

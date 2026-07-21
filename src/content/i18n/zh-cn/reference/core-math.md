@@ -1,12 +1,12 @@
 ---
 title: '数学工具'
-description: '用于 O(1) 平均粗略阶段空间查询的 SpatialHashGrid，以及用于单值临界可调弹簧的 SpringPhysics —— 从 @vectojs/core 导出的通用数学助手。'
+description: '用于 O(1) 平均粗略阶段空间查询的 SpatialHashGrid，以及用于单值临界可调弹簧的 SpringPhysics —— 独立的 @vectojs/math 包，由 @vectojs/core 重新导出。'
 order: 9
 ---
 
-# 数学工具（来自 `.`）
+# 数学工具 —— `@vectojs/math`
 
-属于 [`@vectojs/core`](/reference/core-api/)。
+`SpatialHashGrid` 和 `SpringPhysics` 是独立的 **`@vectojs/math`** 包（一个没有依赖的叶子包）。[`@vectojs/core`](/reference/core-api/) 依赖并重新导出它，因此它可以从 `@vectojs/math` 或 `@vectojs/core` 解析。这里的弹簧积分器也是 [`@vectojs/animation`](/reference/core-api/#入口点与模块地图) 中 `SpringDriver` 的支撑。
 
 ```ts
 new SpatialHashGrid(cellSize = ...)

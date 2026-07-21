@@ -1,10 +1,12 @@
 ---
 title: 'Markdown'
-description: '具有豐富文字、程式碼區塊、表格、串流附加和連結回呼的 canvas-native Markdown 渲染器。'
+description: '具有豐富文字、程式碼區塊、表格、串流附加和連結回呼的 canvas-native Markdown 渲染器 — 獨立的 @vectojs/markdown 套件。'
 order: 14
 ---
 
-# `Markdown`
+# `Markdown` — `@vectojs/markdown`
+
+`Markdown` 和 `CodeBlock` 位於獨立的 **`@vectojs/markdown`** 套件中（自 `@vectojs/ui@2.0.0` 起，它們不再是 `@vectojs/ui` 的一部分，因此 `marked` + MathJax 依賴只在你渲染 Markdown 時才載入）。它組合了 `@vectojs/ui` 元件，因此請將它與 `@vectojs/ui` 和 `@vectojs/core` 一起安裝：`bun add @vectojs/markdown @vectojs/ui @vectojs/core`。
 
 `Markdown` 使用 `marked` 解析 Markdown，並將結果渲染為 VectoJS entity 子樹。段落和標題成為 `RichText`，圍欄程式碼成為 `CodeBlock`，而 GFM 表格成為 `Table`。
 
@@ -19,7 +21,7 @@ order: 14
 ## 最小範例
 
 ```ts
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const md = new Markdown(source, {
   maxWidth: 640,
@@ -81,6 +83,8 @@ for await (const token of llmStream) pushToken(token);
 - **`setContent()` 不重複使用任何內容。** 它移除所有子元素並重新渲染完整的 token 列表。它是_替換_文件的正確呼叫，而_增長_文件的錯誤呼叫。
 
 ## 擴充點
+
+`renderToken(token)` 是受保護的，因此自訂渲染器可以子類化 `Markdown` 以處理應用專屬的區塊，同時仍將一般 token 委派給內建渲染器。
 
 ## 維護者檢查清單
 

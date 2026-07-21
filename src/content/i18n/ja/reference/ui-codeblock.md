@@ -6,7 +6,7 @@ order: 40
 
 # `CodeBlock`
 
-`CodeBlock` は `Markdown` が使用する低レベルのフェンス付きコードレンダラーです。背景と構文色付きテキストを自身で描画し、トークンごとに1つの子エンティティを持つことを避けます。
+`CodeBlock` は `Markdown` が使用する低レベルのフェンス付きコードレンダラーです。どちらもスタンドアロンの **`@vectojs/markdown`** パッケージにあります（`@vectojs/ui@2.0.0` で `@vectojs/ui` から移動しました）。背景と構文色付きテキストを自身で描画し、トークンごとに1つの子エンティティを持つことを避けます。
 
 ## 試してみる
 
@@ -19,7 +19,7 @@ order: 40
 ## 最小限の例
 
 ````ts
-import { CodeBlock, Markdown } from '@vectojs/ui';
+import { CodeBlock, Markdown } from '@vectojs/markdown';
 
 // Most callers should let Markdown create CodeBlock instances:
 const md = new Markdown('```ts\nscene.markDirty();\n```', { maxWidth: 520 });

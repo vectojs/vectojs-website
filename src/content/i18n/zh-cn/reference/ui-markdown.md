@@ -1,10 +1,12 @@
 ---
 title: 'Markdown'
-description: '带富文本、代码块、表格、流式追加和链接回调的 canvas 原生 Markdown 渲染器。'
+description: '带富文本、代码块、表格、流式追加和链接回调的 canvas 原生 Markdown 渲染器 —— 独立的 @vectojs/markdown 包。'
 order: 14
 ---
 
-# `Markdown`
+# `Markdown` —— `@vectojs/markdown`
+
+`Markdown` 和 `CodeBlock` 位于独立的 **`@vectojs/markdown`** 包中（从 `@vectojs/ui@2.0.0` 起它们不再是 `@vectojs/ui` 的一部分，因此 `marked` + MathJax 依赖仅在你渲染 Markdown 时才加载）。它组合了 `@vectojs/ui` 组件，因此请将它与 `@vectojs/ui` 和 `@vectojs/core` 一起安装：`bun add @vectojs/markdown @vectojs/ui @vectojs/core`。
 
 `Markdown` 使用 `marked` 解析 Markdown，并将结果渲染成一个 VectoJS 实体子树。段落和标题变为 `RichText`，围栏代码变为 `CodeBlock`，而 GFM 表格变为 `Table`。
 
@@ -19,7 +21,7 @@ order: 14
 ## 最小示例
 
 ```ts
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const md = new Markdown(source, {
   maxWidth: 640,
@@ -81,6 +83,8 @@ for await (const token of llmStream) pushToken(token);
 - **`setContent()` 不重用任何内容。** 它移除所有子元素并重新渲染完整的 token 列表。它是_替换_文档的正确调用，而_增长_文档的错误调用。
 
 ## 扩展点
+
+`renderToken(token)` 是受保护的，因此自定义渲染器可以子类化 `Markdown` 以处理应用特定的块，同时仍将普通 token 委托给内置渲染器。
 
 ## 维护者检查清单
 

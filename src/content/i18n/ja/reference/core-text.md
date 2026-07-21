@@ -1,12 +1,12 @@
 ---
 title: 'テキスト & Bidi'
-description: '@vectojs/core/text サブパス：MSDFフォント解析とGPUテキストレンダリング、TextEntity/GridTextEntity、および組み込みのアラビア語整形 + bidiリゾルバー。'
+description: 'スタンドアロンの @vectojs/text パッケージ（@vectojs/core/text サブパスでもある）：タイポグラフィのメトリクス、MSDFフォント解析、アラビア語整形とbidiリゾルバー、加えてcore常駐の MSDFTextEntity/GridTextEntity GPUテキストレンダラー。'
 order: 7
 ---
 
-# テキスト & Bidi — `@vectojs/core/text`
+# テキスト & Bidi — `@vectojs/text`
 
-[`@vectojs/core`](/reference/core-api/) の一部です。[レイアウトエンジン](/reference/core-layout/)のコールド/ホット分割の上に構築されています。
+テキストシェイピングプリミティブ——`BidiResolver`、`ArabicShaper`、`Typography`、`MSDFFont`、`prepareContentGrid`/`PreparedContentGrid`——はスタンドアロンの **`@vectojs/text`** パッケージ（`bidi-js` のみに依存するリーフパッケージ）です。`Entity` ベースのGPUテキストレンダラー（`MSDFTextEntity`、`SVGEntity`、`TextEntity`/`GridTextEntity`）は `Entity` を拡張するため、[`@vectojs/core`](/reference/core-api/) に残ります。coreは `@vectojs/text` のプリミティブを再エクスポートするため、`@vectojs/text`、`@vectojs/core`、または `@vectojs/core/text` サブパスから解決されます。[レイアウトエンジン](/reference/core-layout/)のコールド/ホット分割の上に構築されています。
 
 ## MSDFFont
 
