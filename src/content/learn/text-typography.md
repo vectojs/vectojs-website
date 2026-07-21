@@ -172,7 +172,7 @@ The engine computes free horizontal intervals per line band (`computeLineSegment
 Renders Markdown into a VMT subtree using the `marked` library (GFM flavour).
 
 ```typescript
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const md = new Markdown('# Hello\n\nThis is **rich** text.', {
   maxWidth: 700,

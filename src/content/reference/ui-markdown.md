@@ -1,10 +1,16 @@
 ---
 title: 'Markdown'
-description: 'Canvas-native Markdown renderer with rich text, code blocks, tables, streaming append, and link callbacks.'
+description: 'Canvas-native Markdown renderer with rich text, code blocks, tables, streaming append, and link callbacks — the standalone @vectojs/markdown package.'
 order: 14
 ---
 
-# `Markdown`
+# `Markdown` — `@vectojs/markdown`
+
+`Markdown` and `CodeBlock` live in the standalone **`@vectojs/markdown`** package
+(as of `@vectojs/ui@2.0.0` they are no longer part of `@vectojs/ui`, so the
+`marked` + MathJax dependencies only load when you render Markdown). It composes
+`@vectojs/ui` components, so install it alongside `@vectojs/ui` and `@vectojs/core`:
+`bun add @vectojs/markdown @vectojs/ui @vectojs/core`.
 
 `Markdown` parses Markdown with `marked` and renders the result into a VectoJS entity subtree.
 Paragraphs and headings become `RichText`, fenced code becomes `CodeBlock`, and GFM tables become
@@ -21,7 +27,7 @@ Paragraphs and headings become `RichText`, fenced code becomes `CodeBlock`, and 
 ## Minimal example
 
 ```ts
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const md = new Markdown(source, {
   maxWidth: 640,

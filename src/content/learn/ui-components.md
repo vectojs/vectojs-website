@@ -423,7 +423,7 @@ Wheel, touch-drag, and programmatic `scrollTo(y)` all supported.
 Renders a Markdown string into a VMT subtree — headings, paragraphs, code blocks with syntax highlighting, tables, blockquotes, links, and inline formatting:
 
 ```typescript
-import { Markdown } from '@vectojs/ui';
+import { Markdown } from '@vectojs/markdown';
 
 const doc = new Markdown('## Hello\n\nThis is **bold** and `code`.', {
   maxWidth: 700,
