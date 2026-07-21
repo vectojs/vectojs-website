@@ -154,6 +154,32 @@ scene.getA11yElement(entityId: string): HTMLElement | undefined
 scene.getA11yTree(): A11yTreeNode[]          // nested snapshot of the projected shadow nodes (id/tag/role/label/value/...)
 ```
 
+## Frame telemetry (`frameStats`, 1.13.0)
+
+```ts
+scene.frameStats: FrameStats; // live render-loop telemetry (read-only)
+
+interface FrameStats {
+  fps: number; // rendered-frame cadence, clamped to maxFPS; 0 before the first pair of frames
+  frameTimeMs: number; // wall-clock of the last render() pass (excludes a11y/content sync)
+  frameIntervalMs: number; // smoothed interval between rendered frames (EMA)
+  dt: number; // dt handed to the last rendered frame
+  renderedFrames: number; // total frames rendered since start()
+  skippedFrames: number; // total rAF ticks skipped (idle/onDemand/capped) since start()
+  renderMode: 'always' | 'onDemand';
+  dirty: boolean; // whether a redraw is currently pending
+}
+```
+
+`fps` is derived from the interval between _actually-rendered_ frames, so idle
+`onDemand` scenes and frames dropped by the `maxFPS` cap or the static
+auto-throttle don't deflate it — it reports the cadence of real redraws, not the
+raw rAF rate. Timings are measured on the `requestAnimationFrame` loop; a scene
+driven only by `step()` (deterministic export) leaves them zeroed. The renderer
+always repaints the full canvas, so there is no partial dirty-rectangle to
+expose — `dirty` is the boolean redraw-pending flag. Powers the
+[`@vectojs/devtools`](/reference/devtools/) performance HUD.
+
 ## Pluggable backend registry (static)
 
 ```ts
