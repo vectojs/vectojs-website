@@ -153,6 +153,42 @@ Default `IRenderer`. Applies `devicePixelRatio` scaling on construction. Caps
 each batched `fill()` at `MAX_BATCH = 64` sub-paths (a single Canvas2D `fill()` is
 superlinear in sub-path count). Get a handle via `scene.getRenderer()`.
 
+## TextRasterCache
+
+_Since Core 1.12.0._
+
+```ts
+new TextRasterCache(options?: { maxEntries?: number; dpr?: number })
+cache.get(font: string, color: string, text: string): TextRaster | null
+cache.clear(): void
+cache.stats: { hits: number; misses: number; size: number }
+```
+
+A cache of pre-rasterized text runs, for views that draw the **same short
+strings thousands of times per frame** (danmaku/barrage, chat/log tails,
+data-grid cells, particle labels). `ctx.fillText()` is deceptively expensive at
+scale: each call re-shapes the string, re-parses the CSS color, and rasterizes
+glyphs on the CPU main thread — a profile shows the main thread pegged in native
+(`(program)`) code while the GPU idles, starved.
+
+`get()` rasterizes each distinct `(font, color, text)` run to a small offscreen
+canvas once; every subsequent frame you blit it with `drawImage` instead of
+re-shaping. Blit at the `fillText` baseline by subtracting the returned offsets:
+
+```ts
+const r = cache.get('600 24px system-ui', '#38bdf8', label);
+if (r) renderer.drawImage(r.canvas, x - r.offsetX, baselineY - r.offsetY, r.width, r.height);
+else renderer.fillText(label, x, baselineY, '600 24px system-ui', '#38bdf8'); // headless fallback
+```
+
+`TextRaster` is `{ canvas, width, height, offsetX, offsetY }` (dimensions in CSS
+px). Instances are isolated (no shared global state); `dpr > 1` keeps text crisp
+on HiDPI while the blit size stays in CSS px; an insertion-order eviction cap
+(`maxEntries`, default 4096) bounds memory against unbounded (user-typed)
+content; `get()` returns `null` in a headless/non-DOM context so you keep a
+`fillText` fallback. The win comes from **reuse** — a run drawn only once is
+pure overhead.
+
 ## SVGRenderer
 
 ```ts

@@ -6,9 +6,9 @@ order: 48
 
 # `@vectojs/devtools`
 
-Version documented: **0.4.3**
+Version documented: **0.5.0**
 
-`@vectojs/devtools` is the answer to "where's the Elements panel?" — an in-page inspector for the Virtual Math Tree, so debugging a VectoJS scene stays in state space instead of pixel space. The panel is itself a VectoJS `Scene` (dogfooding the framework it inspects), docked to the right edge of the page.
+`@vectojs/devtools` is the answer to "where's the Elements panel?" — an in-page inspector for the Virtual Math Tree, so debugging a VectoJS scene stays in state space instead of pixel space. The panel is itself a VectoJS `Scene` (dogfooding the framework it inspects), docked to an edge of the page. Since **0.5.0** it's a modern glass dock (rounded corners, shadow, `Card`-grouped sections) organized into tabs, with a filter, count badges, a live performance HUD, inline property editing, and a settings tab.
 
 ## Installation
 
@@ -38,16 +38,17 @@ if (import.meta.env.DEV) {
 
 ## What it shows
 
-- **Live tree view** of `scene.rootEntity` and `scene.overlayRootEntity`, refreshed on an interval (default 500ms). Each row shows the entity's constructor name, position, size, and two badges: **⚡** (`interactive`) and **▶** (`hasPendingAnimations()`).
-- **Pick mode**: click **Pick**, then click anywhere on the page. The inspector resolves the click to the deepest entity under that point using the same walk order the Scene uses for pointer input (with an AABB fallback for decorative, non-interactive entities).
-- **Selection highlight**: the selected entity's world-space bounding box is drawn as an outline on the _host_ scene's overlay layer, so you see exactly what's selected relative to the live render.
-- **State readout**: geometry, scale/rotation/opacity, the full world transform matrix, and animation state as plain text — the numbers a screenshot can't give you directly.
-- **Keyboard nudge editing**: with an entity selected, arrow keys move it by 1px (Shift: 10px); `+`/`-` step opacity by 0.1. Useful for confirming _which_ entity a layout bug belongs to before touching code.
+The panel header carries three ghost text-glyph icon buttons — **⌖** (pick), **⟳** (refresh), **⚠** (audit) — and three count badges: total entities, interactive (**⚡**), and audit findings (**⚠**). Below them a `Tabs` bar splits the tools into **Tree · Info · Audit · Log · ⚙**, and a perf strip is pinned at the bottom.
 
-Since 0.4.3, the fixed right-edge dock and its canvas use
-`pointer-events: none`; only their projected interactive controls opt back in.
-The inspector therefore no longer steals input from host controls underneath
-empty dock pixels, while its VMT rows and buttons remain clickable.
+- **Live tree view** (`Tree` tab) of `scene.rootEntity` and `scene.overlayRootEntity`, refreshed on an interval (default 500ms). Each row shows the entity's constructor name, position, size, and two badges: **⚡** (`interactive`) and **▶** (`hasPendingAnimations()`). A **filter** field (0.5.0) narrows rows by type/id substring; it's view-only, so the id→entity index still resolves everything. Programmatic: `panel.setFilter(text)`.
+- **Pick mode**: click **⌖**, then click anywhere on the page. The inspector resolves the click to the deepest entity under that point using the same walk order the Scene uses for pointer input (with an AABB fallback for decorative, non-interactive entities).
+- **Selection highlight**: the selected entity's world-space bounding box is drawn as an outline on the _host_ scene's overlay layer, so you see exactly what's selected relative to the live render. Toggle it in the Settings tab or via `panel.setHighlightEnabled(bool)`.
+- **State readout + inline editing** (`Info` tab): geometry, scale/rotation/opacity, the full world transform matrix, and animation state as plain text. Since 0.5.0 the tab adds inline `x`/`y`/`opacity` editors and **Copy path** / **Copy JSON** buttons.
+- **Keyboard nudge editing**: with an entity selected, arrow keys move it by 1px (Shift: 10px); `+`/`-` step opacity by 0.1. Useful for confirming _which_ entity a layout bug belongs to before touching code.
+- **Performance HUD** (0.5.0): a bottom strip reads [`Scene.frameStats`](/reference/core-scene) — fps, ms/frame, entity count, render mode, and rendered/skipped frame counts. The fps is the real _rendered-frame_ cadence, so an idle `onDemand` or auto-throttled scene honestly reads ~2fps rather than a fake 60. Disable with `showPerf: false`.
+- **Settings** (`⚙` tab, 0.5.0): toggle the selection highlight, and switch the refresh interval and dock side (left/right) live.
+
+The panel reflows on window resize, so the bottom perf strip stays on-screen at any viewport height or zoom level. The dock and its canvas use `pointer-events: none`; only their projected interactive controls opt back in — so the inspector never steals input from host controls underneath empty dock pixels, while its own rows, tabs, inputs, and buttons remain clickable.
 
 ## API
 
@@ -58,10 +59,13 @@ function attachDevtools(
 ): DevtoolsPanel & { detach(): void };
 
 interface DevtoolsOptions {
-  width?: number; // panel width in px, default 320
+  width?: number; // panel width in px, default 360
   refreshInterval?: number; // ms; 0 disables auto-refresh
   traceEvents?: boolean; // show bounded pointer/wheel/keyboard routing records
   traceCapacity?: number;
+  dockSide?: 'right' | 'left'; // 0.5.0; default 'right'
+  showPerf?: boolean; // 0.5.0; live perf HUD strip, default true
+  defaultTab?: string; // 0.5.0; 'tree' | 'inspect' | 'audit' | 'events' | 'settings'
 }
 
 class DevtoolsPanel {
@@ -69,6 +73,12 @@ class DevtoolsPanel {
   armPick(): void; // one-shot: the next page click selects the entity under it
   select(entity: Entity): void; // select programmatically
   get selection(): Entity | null;
+  setFilter(text: string): void; // 0.5.0; filter the tree by type/id substring
+  setHighlightEnabled(on: boolean): void; // 0.5.0
+  setRefreshInterval(ms: number): void; // 0.5.0
+  setDockSide(side: 'right' | 'left'): void; // 0.5.0
+  audit(): AuditFinding[]; // run the layout audit; also fills the Audit tab
+  selectFinding(i: number): void; // select + highlight the entity behind finding i
   destroy(): void; // tears down listeners, timers, host highlight, and the panel scene
 }
 ```
