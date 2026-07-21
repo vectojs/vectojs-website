@@ -8,8 +8,9 @@
     <script type="importmap">
       {
         "imports": {
-          "@vectojs/core": "https://esm.sh/@vectojs/core@1.11.1",
-          "@vectojs/ui": "https://esm.sh/@vectojs/ui@1.11.3?bundle"
+          "@vectojs/core": "https://esm.sh/@vectojs/core@1.15.0",
+          "@vectojs/ui": "https://esm.sh/@vectojs/ui@2.0.0?bundle",
+          "@vectojs/markdown": "https://esm.sh/@vectojs/markdown@0.1.0?bundle"
         }
       }
     </script>
@@ -19,7 +20,8 @@
     <div id="app"><canvas id="canvas"></canvas></div>
     <pre id="error"></pre>
     <script type="module">
-      import { Card, Markdown, Text } from '@vectojs/ui';
+      import { Card, Text } from '@vectojs/ui';
+      import { Markdown } from '@vectojs/markdown';
       import { commonCardWidth, createSandbox } from '/sandbox/ui/shared.js';
 
       let card;
