@@ -6,8 +6,9 @@ order: 40
 
 # `CodeBlock`
 
-`CodeBlock` is the low-level fenced-code renderer used by `Markdown`. It draws the background and
-syntax-colored text itself, avoiding one child entity per token.
+`CodeBlock` is the low-level fenced-code renderer used by `Markdown`. Both live in the standalone
+**`@vectojs/markdown`** package (moved out of `@vectojs/ui` in `@vectojs/ui@2.0.0`). It draws the
+background and syntax-colored text itself, avoiding one child entity per token.
 
 ## Try it
 
@@ -20,7 +21,7 @@ syntax-colored text itself, avoiding one child entity per token.
 ## Minimal example
 
 ````ts
-import { CodeBlock, Markdown } from '@vectojs/ui';
+import { CodeBlock, Markdown } from '@vectojs/markdown';
 
 // Most callers should let Markdown create CodeBlock instances:
 const md = new Markdown('```ts\nscene.markDirty();\n```', { maxWidth: 520 });

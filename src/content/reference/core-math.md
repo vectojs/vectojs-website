@@ -1,12 +1,16 @@
 ---
 title: 'Math utilities'
-description: 'SpatialHashGrid for O(1)-average broad-phase spatial queries and SpringPhysics for a single-value critically-tunable spring — the general-purpose math helpers exported from @vectojs/core.'
+description: 'SpatialHashGrid for O(1)-average broad-phase spatial queries and SpringPhysics for a single-value critically-tunable spring — the standalone @vectojs/math package, re-exported by @vectojs/core.'
 order: 9
 ---
 
-# Math utilities (from `.`)
+# Math utilities — `@vectojs/math`
 
-Part of [`@vectojs/core`](/reference/core-api/).
+`SpatialHashGrid` and `SpringPhysics` are the standalone **`@vectojs/math`**
+package (a leaf package with no dependencies). [`@vectojs/core`](/reference/core-api/)
+depends on and re-exports it, so it resolves from either `@vectojs/math` or
+`@vectojs/core`. The spring integrator here also backs `SpringDriver` in
+[`@vectojs/animation`](/reference/core-api/#entry-points--module-map).
 
 ```ts
 new SpatialHashGrid(cellSize = ...)
