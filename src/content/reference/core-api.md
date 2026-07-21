@@ -1,6 +1,6 @@
 ---
 title: '@vectojs/core API Reference'
-description: 'Overview and entry-point map for the zero-DOM rendering engine behind Vecto — Scene, Entity, layout, renderers, particles, text, and math utilities each have their own focused reference page.'
+description: 'Overview and entry-point map for the zero-DOM rendering engine behind Vecto — Scene, Entity, renderers, particles, and a11y in core, plus the standalone @vectojs/text, @vectojs/layout, @vectojs/math, and @vectojs/animation engines that core re-exports.'
 order: 1
 ---
 
@@ -37,15 +37,25 @@ Each concern below has its own focused page — signatures, gotchas, and a
 
 ## Entry points & module map
 
-`@vectojs/core` ships one side-effecting main entry plus three tree-shakeable
-subpaths:
+The layout, text-shaping, math, and animation engines are published as their
+own standalone packages. `@vectojs/core` **depends on and re-exports** all of
+them, so every import below still resolves from `@vectojs/core` (and from the
+tree-shakeable subpaths). Import from the standalone packages directly when you
+want a smaller dependency surface without the scene-graph runtime.
 
-| Import                   | Contents                                                                                                                                              | Side effect                                                                                             |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `@vectojs/core` (`.`)    | Everything: `Scene`, `Entity`, all entities, renderers, layout, text.                                                                                 | On import, auto-registers **both** pluggable backends (WebGL point renderer + WebGPU particle manager). |
-| `@vectojs/core/layout`   | `LayoutEngine`, `PreparedText`, `createCanvasMeasurer`, `LayoutResultBuffer`, `LayoutWorkerManager`, `computeLineSegments`, layout types.             | None.                                                                                                   |
-| `@vectojs/core/renderer` | `IRenderer`, `CanvasRenderer`, `SVGRenderer`, `PointRenderer`, `createWebGLPointRenderer`, `WebGPUParticleSystemManager`, `parseColorToRGBA`, `RGBA`. | None.                                                                                                   |
-| `@vectojs/core/text`     | `MSDFFont`, `MSDFTextEntity`, `SVGEntity`, `ArabicShaper`, `BidiResolver`, `prepareContentGrid`, `PreparedContentGrid`, MSDF types.                   | None.                                                                                                   |
+`@vectojs/core` ships one side-effecting main entry plus three tree-shakeable
+subpaths, alongside the four standalone packages:
+
+| Import                   | Contents                                                                                                                                                                                           | Side effect                                                                                             |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `@vectojs/core` (`.`)    | Everything: `Scene`, `Entity`, all entities, renderers, plus the re-exported layout, text, math, and animation engines.                                                                            | On import, auto-registers **both** pluggable backends (WebGL point renderer + WebGPU particle manager). |
+| `@vectojs/core/layout`   | Re-exports `@vectojs/layout`: `LayoutEngine`, `PreparedText`, `createCanvasMeasurer`, `LayoutResultBuffer`, `LayoutWorkerManager`, `computeLineSegments`, layout types.                            | None.                                                                                                   |
+| `@vectojs/core/renderer` | `IRenderer`, `CanvasRenderer`, `SVGRenderer`, `PointRenderer`, `createWebGLPointRenderer`, `WebGPUParticleSystemManager`, `parseColorToRGBA`, `RGBA`.                                              | None.                                                                                                   |
+| `@vectojs/core/text`     | Re-exports `@vectojs/text` plus the core-resident `MSDFTextEntity`/`SVGEntity`: `MSDFFont`, `ArabicShaper`, `BidiResolver`, `Typography`, `prepareContentGrid`, `PreparedContentGrid`, MSDF types. | None.                                                                                                   |
+| `@vectojs/text`          | Standalone text-shaping primitives: `BidiResolver`, `ArabicShaper`, `Typography`, `MSDFFont`, `prepareContentGrid`, `PreparedContentGrid`. Leaf package (only `bidi-js`).                          | None.                                                                                                   |
+| `@vectojs/layout`        | Standalone layout engine: `LayoutEngine`, `LayoutWorkerManager`, `createCanvasMeasurer`, measurement helpers. Depends on `@vectojs/text`.                                                          | None.                                                                                                   |
+| `@vectojs/math`          | Standalone spatial/physics math: `SpatialHashGrid`, `SpringPhysics`. Leaf package.                                                                                                                 | None.                                                                                                   |
+| `@vectojs/animation`     | Standalone easing + drivers: `Easing`, `TweenDriver`, `SpringDriver`. Depends on `@vectojs/math`.                                                                                                  | None.                                                                                                   |
 
 **Gotcha:** the backend auto-registration lives only in the `.` entry
 (`Scene.registerWebGLPointRendererCreator(createWebGLPointRenderer)` and

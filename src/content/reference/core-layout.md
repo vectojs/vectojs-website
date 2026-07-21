@@ -1,12 +1,16 @@
 ---
 title: 'Layout engine'
-description: 'The @vectojs/core/layout subpath: the cold/hot split that separates expensive text segmentation+measurement from cheap wrap+position arithmetic, streaming memoization, rich text, and exclusion shapes.'
+description: 'The standalone @vectojs/layout package (also the @vectojs/core/layout subpath): the cold/hot split that separates expensive text segmentation+measurement from cheap wrap+position arithmetic, streaming memoization, rich text, and exclusion shapes.'
 order: 4
 ---
 
-# Layout engine (cold/hot split) — `@vectojs/core/layout`
+# Layout engine (cold/hot split) — `@vectojs/layout`
 
-Part of [`@vectojs/core`](/reference/core-api/).
+The layout engine is the standalone **`@vectojs/layout`** package (it depends
+only on [`@vectojs/text`](/reference/core-text/) for shaping primitives).
+[`@vectojs/core`](/reference/core-api/) depends on and re-exports it, so you can
+import it from `@vectojs/layout`, `@vectojs/core`, or the `@vectojs/core/layout`
+subpath interchangeably.
 
 `LayoutEngine` separates the expensive **cold** pass (segment + measure, via
 `Intl.Segmenter`) from the cheap **hot** pass (wrap + position arithmetic), so

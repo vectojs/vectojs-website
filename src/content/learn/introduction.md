@@ -41,12 +41,20 @@ Prefer regular HTML/CSS when you are building a document-first site, SEO-heavy p
 
 ## Package map
 
-| Package                   | Purpose                                                                                                     |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `@vectojs/core`           | `Scene`, `Entity`, layout, text, renderers, events, a11y projection, and math utilities                     |
-| `@vectojs/ui`             | High-level components: `Button`, `Input`, `Toggle`, `Markdown`, `ScrollView`, `Dropdown`, `Table`, and more |
-| `@vectojs/three`          | Project a VectoJS scene onto a Three.js texture and route raycast input back to 2D                          |
-| `@vectojs/video-exporter` | Fixed-step Chromium + FFmpeg H.264 export for VectoJS scenes                                                |
+| Package                   | Purpose                                                                                                                                                             |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@vectojs/core`           | `Scene`, `Entity`, renderers, events, hit-testing, a11y projection. Depends on and re-exports the engines below, so you can import everything from `@vectojs/core`. |
+| `@vectojs/text`           | Standalone text-shaping primitives: BiDi resolution, Arabic shaping, CSS-parity typography, MSDF fonts, prepared content grids                                      |
+| `@vectojs/layout`         | Standalone layout engine: line breaking, BiDi-aware inline layout, exclusion flow, off-thread layout worker                                                         |
+| `@vectojs/math`           | Standalone spatial/physics math: `SpatialHashGrid` broad-phase and `SpringPhysics`                                                                                  |
+| `@vectojs/animation`      | Standalone easing library plus `TweenDriver` and `SpringDriver` value drivers                                                                                       |
+| `@vectojs/ui`             | High-level components: `Button`, `Input`, `Toggle`, `Markdown`, `ScrollView`, `Dropdown`, `Table`, and more                                                         |
+| `@vectojs/three`          | Project a VectoJS scene onto a Three.js texture and route raycast input back to 2D                                                                                  |
+| `@vectojs/devtools`       | In-page Virtual Math Tree inspector: entity tree, click-to-pick, live geometry readout                                                                              |
+| `@vectojs/graph3d`        | 3D force-directed graph visualization (instanced Three.js renderer)                                                                                                 |
+| `@vectojs/video-exporter` | Fixed-step Chromium + FFmpeg H.264 export for VectoJS scenes                                                                                                        |
+
+The layout, text, math, and animation engines are published as their own packages so they can be consumed without the scene-graph runtime. `@vectojs/core` depends on and re-exports all of them, so existing `import { … } from '@vectojs/core'` code keeps working unchanged — reach for the standalone packages only when you want a smaller dependency surface.
 
 ## Mental model
 

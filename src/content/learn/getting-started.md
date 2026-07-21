@@ -14,7 +14,7 @@ This guide walks you through installing VectoJS and building a complete interact
 bun add @vectojs/core @vectojs/ui
 ```
 
-VectoJS is split into a core math engine and a high-level component library. Most apps import from both.
+VectoJS is split into a core runtime and a high-level component library. Most apps import from both. `@vectojs/core` bundles and re-exports the standalone engines it builds on — `@vectojs/text`, `@vectojs/layout`, `@vectojs/math`, and `@vectojs/animation` — so this two-package install is all you need; reach for those packages individually only when you want a smaller dependency surface.
 
 ## HTML setup
 

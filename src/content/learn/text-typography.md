@@ -27,7 +27,7 @@ VectoJS ships a text engine built around two key ideas: **separating measurement
 | Monospace grid (terminal)                     | `GridTextEntity` |
 | Custom text backed by vector atlas            | `TextEntity`     |
 
-`Text`, `RichText`, and `Markdown` live in `@vectojs/ui`. The rest are in `@vectojs/core`.
+`Text`, `RichText`, and `Markdown` live in `@vectojs/ui`. The `Entity`-based text renderers (`MSDFTextEntity`, `GridTextEntity`, `TextEntity`) live in `@vectojs/core`. The lower-level shaping primitives they build on — BiDi, Arabic shaping, typography metrics, MSDF font parsing, prepared content grids — are the standalone `@vectojs/text` package, and the line-breaking/inline-layout engine is `@vectojs/layout`. Both are re-exported by `@vectojs/core`, so you can import them from either place.
 
 ### Selectable fixed-grid text
 

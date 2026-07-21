@@ -1,13 +1,19 @@
 ---
 title: 'Text & Bidi'
-description: 'The @vectojs/core/text subpath: MSDF font parsing and GPU text rendering, TextEntity/GridTextEntity, and the built-in Arabic shaping + bidi resolver.'
+description: 'The standalone @vectojs/text package (also the @vectojs/core/text subpath): typography metrics, MSDF font parsing, Arabic shaping and the bidi resolver, plus the core-resident MSDFTextEntity/GridTextEntity GPU text renderers.'
 order: 7
 ---
 
-# Text & Bidi — `@vectojs/core/text`
+# Text & Bidi — `@vectojs/text`
 
-Part of [`@vectojs/core`](/reference/core-api/). Built on the
-[Layout engine](/reference/core-layout/)'s cold/hot split.
+The text-shaping primitives — `BidiResolver`, `ArabicShaper`, `Typography`,
+`MSDFFont`, `prepareContentGrid`/`PreparedContentGrid` — are the standalone
+**`@vectojs/text`** package (a leaf package depending only on `bidi-js`). The
+`Entity`-based GPU text renderers (`MSDFTextEntity`, `SVGEntity`,
+`TextEntity`/`GridTextEntity`) stay in [`@vectojs/core`](/reference/core-api/)
+because they extend `Entity`. Core re-exports the `@vectojs/text` primitives, so
+they resolve from `@vectojs/text`, `@vectojs/core`, or the `@vectojs/core/text`
+subpath. Built on the [Layout engine](/reference/core-layout/)'s cold/hot split.
 
 ## MSDFFont
 
