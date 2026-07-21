@@ -248,6 +248,24 @@ function renderRow(text: string) {
 
 The reusable buffer avoids allocating one `LayoutNode` object per glyph on each hot layout. Constraints: fixed capacity, single-column only (no BiDi visual reordering, no exclusion rects). Use `layoutPrepared()` when you need those features; avoid `toLayoutResult()` on the hot path because it allocates node objects.
 
+### `TextRasterCache` — blit repeated text instead of re-shaping it
+
+_Since Core 1.12.0._ When a view draws the **same short strings thousands of times per frame** (danmaku/barrage, chat/log tails, particle labels, repeated cell values), the bottleneck isn't layout — it's `fillText` itself. Each call re-shapes the string, re-parses the CSS color, and rasterizes glyphs on the CPU main thread; at thousands of calls per frame the main thread pegs in native (`(program)`) code and the GPU sits starved and downclocked. Swapping `fillText` for `drawImage` of a pre-rasterized run turns that per-call CPU cost into a cheap bitmap blit:
+
+```typescript
+import { TextRasterCache } from '@vectojs/core';
+
+const cache = new TextRasterCache(); // one per scene/renderer
+
+function drawLabel(text: string, x: number, baselineY: number) {
+  const r = cache.get('600 24px system-ui', '#38bdf8', text);
+  if (r) renderer.drawImage(r.canvas, x - r.offsetX, baselineY - r.offsetY, r.width, r.height);
+  else renderer.fillText(text, x, baselineY, '600 24px system-ui', '#38bdf8'); // headless fallback
+}
+```
+
+The win comes from **reuse**: when the set of distinct `(font, color, text)` runs is bounded (a phrase library, a small palette, a few font sizes) the steady-state hit rate approaches 100%. An insertion-order eviction cap (`maxEntries`, default 4096) bounds memory against unbounded user-typed content, and `dpr > 1` keeps text crisp on HiDPI while the blit size stays in CSS pixels. It does **not** help highly-varied or draw-once text — that's pure overhead. See the [renderer reference](/reference/core-renderer/#textrastercache).
+
 ## CPU Calculation vs. Rendering Bottlenecks
 
 In a traditional browser DOM framework, performance bottlenecks almost always lie in the browser’s **rendering and reflow layout pipeline** (DOM manipulations, style recalculation, and painting). However, because VectoJS bypasses the DOM entirely and processes layout, culling, and interactions mathematically in memory, the performance bottleneck shifts from the GPU/rendering layer directly to **JavaScript single-threaded CPU computation**.
