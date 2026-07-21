@@ -12,7 +12,7 @@ order: 27
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Dropdown</span></div>
-  <iframe src="/sandbox/ui/component.html?name=dropdown&v=core-1.11.1-ui-1.11.3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Dropdown 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=dropdown&v=core-1.15.0-ui-2.0.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Dropdown 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>포인터나 키보드로 열 수 있습니다. 메뉴는 씬 오버레이 경로를 통해 마운트됩니다.</figcaption>
 </figure>
 

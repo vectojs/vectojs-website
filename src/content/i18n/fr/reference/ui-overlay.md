@@ -14,7 +14,7 @@ le même système dʼanimation.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Overlay</span></div>
-  <iframe src="/sandbox/ui/overlay.html?v=core-1.11.1-ui-1.11.3" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Démonstration live dʼOverlay" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/overlay.html?v=core-1.15.0-ui-2.0.0" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Démonstration live dʼOverlay" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Survolez ou cliquez sur les lanceurs. Popover et ContextMenu sont positionnés pour éviter le défaut de débordement difficile à détecter dans une grande galerie.</figcaption>
 </figure>
 

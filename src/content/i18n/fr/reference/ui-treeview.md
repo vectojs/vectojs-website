@@ -12,7 +12,7 @@ order: 34
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · TreeView</span></div>
-  <iframe src="/sandbox/ui/component.html?name=treeview&v=core-1.11.1-ui-1.11.3" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de TreeView" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=treeview&v=core-1.15.0-ui-2.0.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de TreeView" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Cliquez sur les lignes parentes pour les développer ou les réduire.</figcaption>
 </figure>
 
