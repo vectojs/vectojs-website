@@ -51,11 +51,19 @@ export function openModal(
   const backdrop = new ModalBackdrop(VW, VH);
   backdrop.opacity = 0;
 
-  const modal = new Card({ width: MW, height: MH, radius: 16, label: opts.title });
+  const modal = new Card({
+    width: MW,
+    height: MH,
+    radius: 16,
+    label: opts.title,
+  });
   modal.setPosition((VW - MW) / 2, (VH - MH) / 2 + 32);
   modal.opacity = 0;
 
-  const titleText = new Text(opts.title, { font: '700 20px Inter', color: '#f8fafc' });
+  const titleText = new Text(opts.title, {
+    font: '700 20px Inter',
+    color: '#f8fafc',
+  });
   titleText.setPosition(24, 24);
   modal.add(titleText);
 
@@ -286,7 +294,10 @@ class DraggableCard extends Entity {
       if (hit) {
         const hp = hit.getGlobalPosition();
         this.animate(
-          { x: hp.x + (hit.width - this.width) / 2, y: hp.y + (hit.height - this.height) / 2 },
+          {
+            x: hp.x + (hit.width - this.width) / 2,
+            y: hp.y + (hit.height - this.height) / 2,
+          },
           200,
         );
       }
@@ -718,7 +729,10 @@ export function buildForm(scene: Scene): void {
   });
 
   // ── Volume slider ─────────────────────────────────────────────────────────
-  const volumeDisplay = new Text('Volume: 50', { font: '14px Inter', color: '#94a3b8' });
+  const volumeDisplay = new Text('Volume: 50', {
+    font: '14px Inter',
+    color: '#94a3b8',
+  });
   const volumeSlider = new Slider({ min: 0, max: 100, value: 50, width: 300 });
   const volumeError = new Text('', { font: '13px Inter', color: '#f87171' });
 
@@ -792,7 +806,12 @@ export function buildForm(scene: Scene): void {
 
   const CARD_W = 360;
   const CARD_H = 460;
-  const card = new Card({ width: CARD_W, height: CARD_H, radius: 16, label: 'Account settings' });
+  const card = new Card({
+    width: CARD_W,
+    height: CARD_H,
+    radius: 16,
+    label: 'Account settings',
+  });
   stack.setPosition(28, 28);
   card.add(stack);
   card.setPosition((window.innerWidth - CARD_W) / 2, (window.innerHeight - CARD_H) / 2);
@@ -812,3 +831,61 @@ window.addEventListener('resize', () => {
 
 > [!NOTE]
 > Error `Text` entities are always in the layout tree — they just display an empty string when there is no error. This keeps the `Stack` layout stable: no shifting when errors appear. If you prefer to hide the space entirely, swap to `entity.opacity = 0` and `entity.height = 0` when there is no error, then restore both when an error is set.
+
+---
+
+## Crisp Printing via SVG Export
+
+Printing a `<canvas>` directly rasterizes it: the browser scales the bitmap to the printer's DPI, so text and vector shapes come out fuzzy. `scene.toSVG()` snapshots the current scene state through the `SVGRenderer` into a resolution-independent `<svg>` document instead — the print pipeline then renders it as true vectors, sharp at any DPI. No extra dependency; the SVG exporter already ships in `@vectojs/core`.
+
+```typescript
+import { Scene } from '@vectojs/core';
+
+/**
+ * Print the current scene as vector SVG (sharp at any DPI) rather than a
+ * rasterized canvas bitmap. Opens the print dialog and cleans up afterward.
+ */
+function printScene(scene: Scene): void {
+  // toSVG() returns a complete, self-contained <svg> string with a viewBox
+  // matching the scene's width/height — a read-only snapshot of current state.
+  const svg = scene.toSVG();
+
+  // Isolate the print job in a hidden same-origin iframe so it neither
+  // disturbs the live canvas nor inherits the page's screen stylesheet.
+  const frame = document.createElement('iframe');
+  frame.setAttribute('aria-hidden', 'true');
+  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+  document.body.appendChild(frame);
+
+  const doc = frame.contentDocument!;
+  doc.open();
+  // @page removes the default browser margins; width:100% lets the vector scale
+  // to the sheet. The SVG carries its own viewBox, so aspect ratio is preserved.
+  doc.write(
+    `<!doctype html><html><head><style>` +
+      `@page { margin: 0; } ` +
+      `html, body { margin: 0; } ` +
+      `svg { width: 100%; height: auto; display: block; }` +
+      `</style></head><body>${svg}</body></html>`,
+  );
+  doc.close();
+
+  const win = frame.contentWindow!;
+  // Print once the iframe document has settled, then remove the frame whether
+  // the user prints or cancels (afterprint fires on both).
+  win.addEventListener('afterprint', () => frame.remove(), { once: true });
+  win.focus();
+  win.print();
+}
+
+// ── Usage ────────────────────────────────────────────────────────────────────
+// const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
+// const scene = new Scene(canvas, { maxFPS: 60 });
+// buildYourScene(scene);
+// scene.start();
+//
+// printButton.addEventListener('click', () => printScene(scene));
+```
+
+> [!NOTE]
+> `toSVG()` is a snapshot of the scene's _current_ state, so call it at the moment you want to print (e.g. inside the click handler), not once at startup. It covers vector geometry, text, and images drawn through the standard renderer path; GPU-only layers (`WebGLPointRenderer` particles, `WebGPUParticleSystemManager`) are not part of the SVG serialization — for those, composite a rasterized fallback. Because the output is plain SVG XML, the same string also works for saving to a `.svg` file (`new Blob([svg], { type: 'image/svg+xml' })`) or server-side rendering.
