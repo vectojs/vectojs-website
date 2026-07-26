@@ -329,13 +329,45 @@ Para consultas de colisión/proximidad gestionadas por la aplicación, VectoJS e
 > [!WARNING]
 > Chrome headless a menudo usa rasterización por software y una planificación de frames diferente. Trata su FPS como una señal de regresión del mismo entorno, no como un límite inferior o una predicción de producción.
 
-Para cifras de rendimiento precisas:
+### No uses FPS como métrica
 
-1. Ejecuta la demo en un navegador real en hardware de GPU real.
-2. Usa el botón **Export report** en la demo Nexus para emitir un registro de FPS legible por máquina con tu combinación actual de GPU/navegador.
-3. Al citar cifras de rendimiento en PRs o documentación, usa mediciones en el navegador — no la salida headless.
+El FPS está limitado por la sincronización vertical, por lo que se **satura** — los números saturados ocultan tanto regresiones como mejoras. Un ejemplo real de nuestras propias mediciones: una escena reportaba 59 FPS, pero solo hacía 3.4ms de trabajo en un frame de 17ms, aproximadamente el 80% del tiempo de cada frame estaba inactivo. Simplemente había negociado un vsync de 60Hz. Ese 59 no dice nada sobre el código.
 
-Para benchmarks personalizados, recopila los tiempos de frame en el bucle `update()`:
+El corolario es importante para el diagnóstico: **«cambié X y el FPS no se movió» no prueba nada cuando el FPS está limitado.** Tanto antes como después del cambio, ambos pueden estar cómodamente dentro del presupuesto del frame.
+
+En su lugar, mide:
+
+- **Percentiles del tiempo de frame** (p50/p99), no el promedio. En pantallas de alta tasa de refresco, los tiempos de frame están cuantizados por el vsync en intervalos 1×/2×/3× sin nada intermedio, por lo que el promedio describe un valor que nunca ocurre.
+- **Proporción de frames dentro del presupuesto** — el número que determina si el movimiento se siente estable. A 240 Hz el presupuesto es 4,17 ms; a 60 Hz es 16,67 ms.
+- **Mide el costo de cada fase por separado** (layout, lote JS, envío GPU), así sabes a qué atacar.
+
+### Atribuir tiempo de GPU requiere `gl.finish()`
+
+Las llamadas WebGL son asíncronas. Envolver un draw o `flush()` con `performance.now()` mide el tiempo de **inserción en la cola**, no el trabajo de GPU — en nuestras mediciones la diferencia llega a ser de hasta 5×. Para atribuir honestamente el costo de envío, haz el trabajo y luego fuerza el vaciado de la tubería:
+
+```typescript
+const t0 = performance.now();
+drawEverything();
+gl.finish(); // serializa el frame; sin esto los números no tienen sentido
+const submitMs = performance.now() - t0;
+```
+
+`EXT_disjoint_timer_query_webgl2` parece una herramienta mejor, pero en la práctica no es fiable: Firefox normalmente no lo expone, y en Chrome a menudo existe pero no devuelve muestras utilizables (cada ensayo reporta no disponible o no unido). No construyas una estrategia de medición sobre esto.
+
+### Compara en un navegador, no en Node ni Bun
+
+Los runtime de servidor son la herramienta equivocada para cualquier cosa orientada al usuario: sin GPU, sin compositor, sin DPR, diferente calentamiento JIT y resolución de temporizador. Son útiles para **aislar causas** — una de nuestras optimizaciones se descubrió con una sonda de Node — pero no para producir números que cites. Un cambio que **medía 12,4× en Bun/JSC resultó ser solo 3,2–4,7× en navegadores reales**, aproximadamente 3 veces más optimista.
+
+Cita ambos motores. V8 y SpiderMonkey difieren significativamente; los números de un solo motor han sido repetidamente engañosos.
+
+### Lista de verificación práctica
+
+1. Ejecuta en un navegador real sobre hardware de GPU real.
+2. Reporta la mediana de N ejecuciones (7 es un valor predeterminado razonable), nombrando el escenario con precisión.
+3. Registra el navegador+versión, CPU/GPU, tamaño CSS del viewport **y DPR**, conteo de entidades y visibles, selección de backend y la tasa de refresco de la pantalla.
+4. Cita mediciones dentro del navegador en PRs y documentación, nunca la salida headless.
+
+Para benchmarks personalizados, recopila los tiempos de frame en el bucle `update()` y reporta percentiles:
 
 ```typescript
 const samples: number[] = [];
@@ -345,14 +377,21 @@ class BenchEntity extends Entity {
     super.update(dt, time);
     if (samples.length < 300) samples.push(dt);
     if (samples.length === 300) {
-      const avg = samples.reduce((a, b) => a + b) / samples.length;
-      console.log(`avg frame: ${avg.toFixed(2)} ms  (${(1000 / avg).toFixed(1)} fps)`);
+      const sorted = [...samples].sort((a, b) => a - b);
+      const pct = (q: number) => sorted[Math.floor(sorted.length * q)]!;
+      const budget = 1000 / 60; // en paneles de alta tasa de refresco usa 1000 / 240
+      const inBudget =
+        samples.filter((s) => s <= budget).length / samples.length;
+      console.log(
+        `p50 ${pct(0.5).toFixed(2)}ms  p99 ${pct(0.99).toFixed(2)}ms  ` +
+          `inside budget ${(inBudget * 100).toFixed(1)}%`,
+      );
     }
   }
 }
 ```
 
-`dt` está en milisegundos; `1000 / dt` da el FPS instantáneo.
+`dt` está en milisegundos. Ten en cuenta que reporta el _intervalo_ entre frames, que bajo vsync está cuantizado — te dice si cumples el presupuesto, no cuánto margen te queda. Para medir el margen, cronometra las fases que controlas.
 
 ## Referencia rápida: qué control para qué problema
 

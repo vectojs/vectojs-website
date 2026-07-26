@@ -329,13 +329,45 @@ Pour les requêtes de collision/proximité gérées par l'application, VectoJS e
 > [!WARNING]
 > Chrome headless utilise souvent la rastérisation logicielle et une planification d'images différente. Traitez son FPS comme un signal de régression dans le même environnement, et non comme une borne inférieure ou une prédiction de production.
 
-Pour des chiffres de débit précis :
+### N'utilisez pas le FPS comme métrique
 
-1. Exécutez la démo dans un vrai navigateur sur du vrai matériel GPU.
-2. Utilisez le bouton **Export report** dans la démo Nexus pour émettre un enregistrement FPS lisible par machine avec votre combinaison GPU/navigateur actuelle.
-3. Lorsque vous citez des chiffres de performance dans des PR ou de la documentation, utilisez des mesures en navigateur — pas la sortie headless.
+Le FPS est limité par la synchronisation verticale, donc il **sature** — des nombres saturés cachent à la fois les régressions et les améliorations. Un exemple réel de nos propres mesures : une scène rapportait 59 FPS, mais ne faisait que 3,4 ms de travail dans une image de 17 ms, soit environ 80 % de chaque image passée à ne rien faire. Elle avait simplement négocié un vsync à 60 Hz. Ce 59 ne dit rien sur le code.
 
-Pour des benchmarks personnalisés, collectez les temps d'image dans la boucle `update()` :
+Le corollaire est important pour le diagnostic : **« j'ai changé X et le FPS n'a pas bougé » ne prouve rien quand le FPS est limité.** Avant et après le changement, les deux peuvent être confortablement dans le budget de l'image.
+
+Mesurez plutôt :
+
+- **Les centiles du temps d'image** (p50/p99), pas la moyenne. Sur les écrans à haute fréquence de rafraîchissement, les temps d'image sont quantifiés par le vsync en intervalles 1×/2×/3× sans rien entre les deux, donc la moyenne décrit une valeur qui ne se produit jamais.
+- **La proportion d'images dans le budget** — le nombre qui détermine si le mouvement semble stable. À 240 Hz, le budget est de 4,17 ms ; à 60 Hz, il est de 16,67 ms.
+- **Mesurez le coût de chaque phase séparément** (layout, lot JS, soumission GPU), ainsi vous savez sur quoi agir.
+
+### Attribuer le temps GPU nécessite `gl.finish()`
+
+Les appels WebGL sont asynchrones. Envelopper un draw ou `flush()` avec `performance.now()` mesure le temps d'**insertion dans la file d'attente**, pas le travail GPU — dans nos mesures, la différence atteint jusqu'à 5×. Pour attribuer honnêtement le coût de soumission, effectuez le travail puis videz forcément le pipeline :
+
+```typescript
+const t0 = performance.now();
+drawEverything();
+gl.finish(); // sérialise l'image ; sans cela les chiffres n'ont pas de sens
+const submitMs = performance.now() - t0;
+```
+
+`EXT_disjoint_timer_query_webgl2` semble un meilleur outil, mais en pratique il n'est pas fiable : Firefox ne l'expose généralement pas, et sous Chrome il existe souvent mais ne renvoie pas d'échantillons utilisables (chaque essai rapporte indisponible ou désolidarisé). Ne construisez pas une stratégie de mesure là-dessus.
+
+### Benchmark dans un navigateur, pas dans Node ni Bun
+
+Les exécutants serveur sont le mauvais outil pour tout ce qui est orienté utilisateur : pas de GPU, pas de compositeur, pas de DPR, échauffement JIT et résolution de temporisateur différents. Ils sont utiles pour **isoler les causes** — l'une de nos optimisations a été découverte avec une sonde Node — mais pas pour produire des chiffres que vous citez. Un changement **mesuré à 12,4× sous Bun/JSC n'était que de 3,2–4,7× dans de vrais navigateurs**, soit environ 3 fois trop optimiste.
+
+Citez les deux moteurs. V8 et SpiderMonkey diffèrent considérablement ; les chiffres d'un seul moteur ont été à plusieurs reprises trompeurs.
+
+### Liste de vérification pratique
+
+1. Exécutez dans un vrai navigateur sur du vrai matériel GPU.
+2. Rapportez la médiane de N exécutions (7 est une valeur par défaut raisonnable), en nommant précisément le scénario.
+3. Enregistrez le navigateur+version, CPU/GPU, taille CSS du viewport **et DPR**, nombre d'entités et de visibles, sélection du backend et la fréquence de rafraîchissement de l'écran.
+4. Citez les mesures dans le navigateur dans les PR et la documentation, jamais la sortie headless.
+
+Pour des benchmarks personnalisés, collectez les temps d'image dans la boucle `update()` et rapportez les centiles :
 
 ```typescript
 const samples: number[] = [];
@@ -345,14 +377,21 @@ class BenchEntity extends Entity {
     super.update(dt, time);
     if (samples.length < 300) samples.push(dt);
     if (samples.length === 300) {
-      const avg = samples.reduce((a, b) => a + b) / samples.length;
-      console.log(`avg frame: ${avg.toFixed(2)} ms  (${(1000 / avg).toFixed(1)} fps)`);
+      const sorted = [...samples].sort((a, b) => a - b);
+      const pct = (q: number) => sorted[Math.floor(sorted.length * q)]!;
+      const budget = 1000 / 60; // sur les panneaux à haute fréquence, utilisez 1000 / 240
+      const inBudget =
+        samples.filter((s) => s <= budget).length / samples.length;
+      console.log(
+        `p50 ${pct(0.5).toFixed(2)}ms  p99 ${pct(0.99).toFixed(2)}ms  ` +
+          `inside budget ${(inBudget * 100).toFixed(1)}%`,
+      );
     }
   }
 }
 ```
 
-`dt` est en millisecondes ; `1000 / dt` donne le FPS instantané.
+`dt` est en millisecondes. Notez qu'il rapporte l'_intervalle_ entre les images, qui sous vsync est quantifié — il vous indique si vous respectez le budget, pas la marge restante. Pour mesurer la marge, chronométrez les phases que vous contrôlez.
 
 ## Référence rapide : quel levier pour quel problème
 
