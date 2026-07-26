@@ -14,7 +14,7 @@ UI 1.11.1–1.11.3 ではネストされたチェーンのライフサイクル�
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ContextMenu</span></div>
-  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.17.0-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>ランチャーをクリックして、制限されたビューポート内でメニューを開きます。</figcaption>
 </figure>
 

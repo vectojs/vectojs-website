@@ -380,8 +380,7 @@ class BenchEntity extends Entity {
       const sorted = [...samples].sort((a, b) => a - b);
       const pct = (q: number) => sorted[Math.floor(sorted.length * q)]!;
       const budget = 1000 / 60; // sur les panneaux à haute fréquence, utilisez 1000 / 240
-      const inBudget =
-        samples.filter((s) => s <= budget).length / samples.length;
+      const inBudget = samples.filter((s) => s <= budget).length / samples.length;
       console.log(
         `p50 ${pct(0.5).toFixed(2)}ms  p99 ${pct(0.99).toFixed(2)}ms  ` +
           `inside budget ${(inBudget * 100).toFixed(1)}%`,

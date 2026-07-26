@@ -12,7 +12,7 @@ order: 21
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Stack</span></div>
-  <iframe src="/sandbox/ui/component.html?name=stack&v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Stack live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=stack&v=core-1.17.0-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Stack live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>子元素保持自己的尺寸；`Stack` 只写入它们的局部 `x` 和 `y`。</figcaption>
 </figure>
 
