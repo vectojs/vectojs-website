@@ -81,18 +81,18 @@ getContentProjection(): ContentProjection | null // default null
 // }
 ```
 
-Opt-in hook for entities that render static text: the Scene mirrors the
-returned string as a transparent, position-synced DOM node (viewport-lazy,
-dirty-checked, `aria-hidden` when the entity is interactive), making canvas
-text findable, screen-reader/crawler-visible, translatable, and — with
-`selectable: true` — natively selectable. `TextEntity`/`MSDFTextEntity`
-(see [Text & Bidi](/reference/core-text/)) implement it. Scene-wide off switch:
-`new Scene(canvas, { contentProjection: false })`.
+Opt-in hook for entities that render static text: the Scene mirrors the returned
+string as a transparent, position-synced DOM node (viewport-lazy, dirty-checked,
+`aria-hidden` when the entity is interactive), making canvas text findable,
+screen-reader/crawler-visible, translatable, and — with `selectable: true` —
+natively selectable. `TextEntity`/`MSDFTextEntity` (see [Text &
+Bidi](/reference/core-text/)) implement it. Scene-wide off switch: `new
+Scene(canvas, { contentProjection: false })`.
 
-The Scene preserves VMT order when projection nodes appear or disappear,
-removes descendant projections with their entity subtree, and hides a
-projection when it is fully outside the viewport or a `clipChildren` ancestor.
-Tooling can inspect a currently materialized mirror without querying the DOM:
+The Scene preserves VMT order when projection nodes appear or disappear, removes
+descendant projections with their entity subtree, and hides a projection when it
+is fully outside the viewport or a `clipChildren` ancestor. Tooling can inspect
+a currently materialized mirror without querying the DOM:
 
 ```ts
 scene.getContentElement(entityId): HTMLElement | undefined;
@@ -125,8 +125,8 @@ getContentProjection() {
 }
 ```
 
-Use `cssLineBoxBaseline(font, lineHeight)` in custom Canvas-native editors
-when the same text must align with a native control or content projection.
+Use `cssLineBoxBaseline(font, lineHeight)` in custom Canvas-native editors when
+the same text must align with a native control or content projection.
 
 > Core 1.8 adds `prepareContentGrid(source, metrics)` for code-like renderers.
 > Return its immutable result as `ContentProjection.grid` and use the same
@@ -154,15 +154,15 @@ rotation, mirror transforms, and non-uniform scaling therefore use one geometry
 plan. Calibration probes inherit the projection's zoom context and account for
 Firefox missing-glyph fallback metrics; custom resize/zoom owners must call
 `scene.resize()` to invalidate the retained calibration. Ordinary `lines`
-projections and line-less custom projections use
-transformed two-dimensional grapheme caret geometry as well.
+projections and line-less custom projections use transformed two-dimensional
+grapheme caret geometry as well.
 
-`present()` is called by the Scene exactly **once** at
-the end of each render pass. Retained backends that submit a whole frame at a
-time (e.g. `ThreeRenderer` from [`@vectojs/three`](/reference/three-renderer/))
-should do their single expensive commit here and keep `flush()` cheap — the
-Scene calls `flush()` around every non-batched node, so an expensive `flush()`
-makes frame cost quadratic in entity count.
+`present()` is called by the Scene exactly **once** at the end of each render
+pass. Retained backends that submit a whole frame at a time (e.g.
+`ThreeRenderer` from [`@vectojs/three`](/reference/three-renderer/)) should do
+their single expensive commit here and keep `flush()` cheap — the Scene calls
+`flush()` around every non-batched node, so an expensive `flush()` makes frame
+cost quadratic in entity count.
 
 ## CanvasRenderer
 
@@ -171,8 +171,8 @@ new CanvasRenderer(canvas: HTMLCanvasElement)
 ```
 
 Default `IRenderer`. Applies `devicePixelRatio` scaling on construction. Caps
-each batched `fill()` at `MAX_BATCH = 64` sub-paths (a single Canvas2D `fill()` is
-superlinear in sub-path count). Get a handle via `scene.getRenderer()`.
+each batched `fill()` at `MAX_BATCH = 64` sub-paths (a single Canvas2D `fill()`
+is superlinear in sub-path count). Get a handle via `scene.getRenderer()`.
 
 ## TextRasterCache
 
@@ -217,11 +217,11 @@ new SVGRenderer(width: number, height: number)
 toXMLString(): string
 ```
 
-Software `IRenderer` that records draws into a flat SVG string (matrix/alpha/clip
-stacks, gradient dedup). Text and attribute values are XML-escaped, and external
-image URLs reject executable/data/file/custom schemes (Canvas-generated raster
-data URLs remain supported). Backs `scene.toSVG()`. `SVGLinearGradient` is the
-gradient descriptor type.
+Software `IRenderer` that records draws into a flat SVG string
+(matrix/alpha/clip stacks, gradient dedup). Text and attribute values are
+XML-escaped, and external image URLs reject executable/data/file/custom schemes
+(Canvas-generated raster data URLs remain supported). Backs `scene.toSVG()`.
+`SVGLinearGradient` is the gradient descriptor type.
 
 ## WebGL point layer
 
@@ -242,14 +242,38 @@ interface PointRenderer {
 }
 ```
 
-One WebGL2 canvas, four batched programs: points (round, AA'd via `gl_PointSize`),
-rects (expanded triangles), textured sprites, and MSDF glyphs (median-of-3
-distance reconstruction, crisp at any zoom). `color` tints; white texels pass
-through unchanged. Sprite/glyph adds are no-ops until their texture is set. The
-Scene routes `getBatchCircle`/`getBatchRect` (and CPU particles, MSDF text) here
-when `pointBackend: 'webgl'`. Leaves under transforms the GPU primitive cannot
+One WebGL2 canvas, four batched programs: points (round, AA'd via
+`gl_PointSize`), rects, textured sprites, and MSDF glyphs (median-of-3 distance
+reconstruction, crisp at any zoom). `color` tints; white texels pass through
+unchanged. Sprite/glyph adds are no-ops until their texture is set. The Scene
+routes `getBatchCircle`/`getBatchRect` (and CPU particles, MSDF text) here when
+`pointBackend: 'webgl'`. Leaves under transforms the GPU primitive cannot
 represent exactly (for example non-uniform scale or shear) fall back to the
 normal renderer.
+
+`flush()` issues **at most one draw call per primitive type**, so draw-call
+count is not the scaling limit — uploaded bytes are. Since core 1.16.2 every
+quad batch (rect, sprite, glyph, carved circle) uploads **4 vertices** and draws
+with `drawElements` against one shared static 32-bit index buffer, rather than
+expanding to 6 vertices for `drawArrays`. That removes the two duplicated
+corners per quad, cutting upload volume by a third; the index buffer is built
+once and regrown geometrically, never re-sent per frame. Indices are 32-bit
+because a `Uint16Array` would cap a batch at 16,383 quads, which real scenes
+exceed.
+
+Measured on real hardware (RTX 4060 Laptop, work plus `gl.finish()`, median of 12) against the previous 6-vertex path:
+
+| quads/frame | Chrome         | Firefox         |
+| ----------- | -------------- | --------------- |
+| 12,000      | 0.61 → 0.09ms  | 2.66 → 1.47ms   |
+| 50,000      | 2.22 → 0.87ms  | 9.02 → 6.24ms   |
+| 100,000     | 12.62 → 3.12ms | 16.81 → 10.88ms |
+
+Below roughly **35,000–50,000 quads/frame** the JS that fills the vertex buffer
+costs more than the GPU submit; above it the submit dominates and the useful
+levers become drawing less (culling, virtualization) rather than tuning the
+fill. Firefox holds near ~1 GB/s effective upload bandwidth regardless of vertex
+layout, so on that engine reducing bytes is the only reliable lever.
 
 > Entity hooks `getBatchCircle()` → `{ radius, color }` and `getBatchRect()` →
 > `{ width, height, color }` (see [`Entity`](/reference/core-entity/#a11y--batching-hooks-override-to-opt-in))
@@ -266,10 +290,18 @@ forms (named, `hsl()`, …) resolve via a cached 1×1 canvas when a DOM exists.
 Results are **cached and shared by identity — treat the returned array as
 read-only.** No-DOM unparseable input → opaque black `[0,0,0,1]`.
 
+The cache holds 1,000 entries and evicts in **insertion order (FIFO)**. A cache
+hit deliberately does _not_ promote its entry: this function is called once per
+quad, and at ~25,000 quads/frame the `Map.delete` + re-`set` pair that true LRU
+needs cost more than everything else in the function combined. The practical
+consequence is that if a scene's distinct-color working set exceeds 1,000, an
+early-inserted hot color can be evicted and re-parsed; for typical scenes the
+working set is small and stable, so FIFO and LRU evict the same entries.
+
 ## Related
 
 [`Entity`](/reference/core-entity/) (batching hooks, content projection) ·
 [`ComputeParticleEntity`](/reference/core-particles/) (WebGL/WebGPU consumer) ·
-[Text & Bidi](/reference/core-text/) (MSDF glyph consumer) ·
-[`@vectojs/three`'s `ThreeRenderer`](/reference/three-renderer/) (an alternate `IRenderer`) ·
+[Text & Bidi](/reference/core-text/) (MSDF glyph consumer) · [`@vectojs/three`'s
+`ThreeRenderer`](/reference/three-renderer/) (an alternate `IRenderer`) ·
 [`@vectojs/core` overview](/reference/core-api/)

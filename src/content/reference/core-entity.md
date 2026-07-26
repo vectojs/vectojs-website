@@ -68,12 +68,11 @@ use `getWorldTransform()`, `localToWorld()`, `worldToLocal()`, or
 Since 1.9.0, `add()` is **variadic** — `parent.add(a, b, c)` attaches each child
 in argument order (the single-child path stays O(1)). `set(props)` is a
 construction-time ergonomic that assigns several own properties in one call,
-each through its normal setter (so a property with a configured
-`setTransition` still animates, and `interactive` still flags the a11y reorder):
-`rect.set({ x: 40, y: 40, width: 120, fill: '#38bdf8' })`. It is a plain
-`for…in` over the given object and touches no per-frame path. Both pair
-naturally with the [`Rect`/`Circle`/`Group`](/reference/core-entities/)
-primitives.
+each through its normal setter (so a property with a configured `setTransition`
+still animates, and `interactive` still flags the a11y reorder): `rect.set({ x:
+40, y: 40, width: 120, fill: '#38bdf8' })`. It is a plain `for…in` over the
+given object and touches no per-frame path. Both pair naturally with the
+[`Rect`/`Circle`/`Group`](/reference/core-entities/) primitives.
 
 ## Animation
 
@@ -95,11 +94,11 @@ properties interpolate; easing is a fixed ease-out (`p * (2 - p)`). A running
 and freezes a11y sync until it settles.
 
 `hasPendingAnimations()` is **overridable** and is the Scene's only window into
-custom motion: if a subclass integrates its own movement inside `update()`
-(a hand-rolled spring or velocity), override it to return `true` while that
-motion is in flight — `markDirty()` from inside `update()` is cleared again at
-the end of the same tick, so without the override the idle throttle drops the
-animation to 2 fps and `onDemand` mode freezes it.
+custom motion: if a subclass integrates its own movement inside `update()` (a
+hand-rolled spring or velocity), override it to return `true` while that motion
+is in flight — `markDirty()` from inside `update()` is cleared again at the end
+of the same tick, so without the override the idle throttle drops the animation
+to 2 fps and `onDemand` mode freezes it.
 
 **0.2.0 animation system** — spring-first, unifying tweens and springs:
 
@@ -138,14 +137,13 @@ dispatchEvent(event: VectoJSEvent): void             // DOM-style capture (root�
   `bubbles`, `stopPropagation()`, `stopImmediatePropagation()`,
   `preventDefault()`, viewport `clientX/Y`, logical `sceneX/Y`, current-target
   `localX/Y`, modifier keys, and pass-throughs (`deltaX/Y`, `key`,
-  `defaultPrevented`). Local coordinates invert the complete nested affine transform.
-  A non-bubbling event still runs the capture phase but only
-  fires its target in the bubble phase.
-- `'change'` from a form-control shadow `<input>` carries
-  `{ value, checked, selectionStart, selectionEnd, composition }` where
-  `composition` is `{ start, length } | null` for the active IME pre-edit.
-  `'wheel'` carries the native `WheelEvent` (call `preventDefault()` to stop page
-  scroll).
+  `defaultPrevented`). Local coordinates invert the complete nested affine
+  transform. A non-bubbling event still runs the capture phase but only fires
+  its target in the bubble phase.
+- `'change'` from a form-control shadow `<input>` carries `{ value, checked,
+selectionStart, selectionEnd, composition }` where `composition` is `{ start,
+length } | null` for the active IME pre-edit. `'wheel'` carries the native
+  `WheelEvent` (call `preventDefault()` to stop page scroll).
 
 See [Events & Hit-Testing](/learn/events/) for usage.
 
@@ -154,7 +152,7 @@ See [Events & Hit-Testing](/learn/events/) for usage.
 ```ts
 getA11yAttributes(): A11yAttributes          // default {} → a plain transparent <div>
 getBatchCircle(): BatchCircle | null         // { radius, color } → renderer fillCircle fast-path (uniform-scale leaves)
-getBatchRect(): BatchRect | null             // { width, height, color } → GPU instanced rect (WebGL pointBackend only)
+getBatchRect(): BatchRect | null             // { width, height, color } → GPU indexed-quad batch (WebGL pointBackend only)
 update(dt: number, time: number): void       // optional override; dt is MILLISECONDS, time is performance.now(); default advances queued tweens
 ```
 
@@ -170,5 +168,5 @@ See [a11yRoot & the agent contract](/reference/core-a11y/) for the full
 
 [`Scene`](/reference/core-scene/) (owns the tree) ·
 [Renderers](/reference/core-renderer/) (`Entity.getContentProjection()`) ·
-[a11yRoot & the agent contract](/reference/core-a11y/) ·
-[`@vectojs/core` overview](/reference/core-api/)
+[a11yRoot & the agent contract](/reference/core-a11y/) · [`@vectojs/core`
+overview](/reference/core-api/)
