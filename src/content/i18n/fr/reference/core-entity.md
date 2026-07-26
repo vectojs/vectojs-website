@@ -157,7 +157,7 @@ Voir [Événements et hit-testing](/learn/events/) pour l'utilisation.
 ```ts
 getA11yAttributes(): A11yAttributes          // défaut {} → un <div> transparent simple
 getBatchCircle(): BatchCircle | null         // { radius, color } → voie rapide fillCircle du renderer (feuilles à échelle uniforme)
-getBatchRect(): BatchRect | null             // { width, height, color } → rect instancié GPU (pointBackend WebGL uniquement)
+getBatchRect(): BatchRect | null             // { width, height, color } → GPU indexed-quad batch (pointBackend WebGL uniquement)
 update(dt: number, time: number): void       // redéfinition facultative ; dt en MILLISECONDES, time est performance.now(); le défaut avance les tweens en file d'attente
 ```
 

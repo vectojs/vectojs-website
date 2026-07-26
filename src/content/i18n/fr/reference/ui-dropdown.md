@@ -22,10 +22,13 @@ order: 27
 import { Dropdown } from '@vectojs/ui';
 
 const backend = new Dropdown(['Canvas', 'WebGL', 'WebGPU'], {
+  label: 'Renderer backend',
   width: 220,
   onChange: (value) => setBackend(value),
 });
 ```
+
+> **Définissez `label`.** Un `role=\"combobox\"` sans nom accessible est annoncé comme simple "combobox" (WCAG 4.1.2); la valeur sélectionnée seule ne dit pas à quoi sert le contrôle. Toute étiquette visuelle dessinée sur le canvas n'atteint pas la couche sémantique, alors passez-la ici aussi. Disponible depuis `@vectojs/ui@2.2.0`.
 
 ## Liste de vérification pour les mainteneurs
 

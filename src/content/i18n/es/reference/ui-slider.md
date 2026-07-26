@@ -39,6 +39,7 @@ const slider = new Slider({
 
 ```ts
 new Slider({
+  label?: string;            // accessible name — set this
   min?: number;              // default 0
   max?: number;              // default 100
   value?: number;            // default min
@@ -50,6 +51,8 @@ new Slider({
   onChange?: (value: number) => void;
 })
 ```
+
+> **Establece `label`.** Un `role=\"slider\"` sin nombre accesible se anuncia como simple "slider", sin decirle al usuario del lector de pantalla nada sobre lo que controla (WCAG 4.1.2). Cualquier etiqueta visual que dibujes en el canvas no llega a la capa semántica, así que pásala aquí también. Omitir `label` deja `aria-label` sin establecer en lugar de derivar un nombre del valor — un nombre incorrecto es peor que uno ausente. Disponible desde `@vectojs/ui@2.2.0`.
 
 ## Eventos
 

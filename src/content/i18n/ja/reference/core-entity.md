@@ -110,7 +110,7 @@ dispatchEvent(event: VectoJSEvent): void             // DOMスタイルのキャ
 ```ts
 getA11yAttributes(): A11yAttributes          // デフォルト {} → プレーンな透過 <div>
 getBatchCircle(): BatchCircle | null         // { radius, color } → レンダラーの fillCircle 高速パス（均一スケールのリーフ）
-getBatchRect(): BatchRect | null             // { width, height, color } → GPUインスタンス矩形（WebGL pointBackend のみ）
+getBatchRect(): BatchRect | null             // { width, height, color } → GPU indexed-quad batch（WebGL pointBackend のみ）
 update(dt: number, time: number): void       // オプションのオーバーライド；dt はミリ秒、time は performance.now()；デフォルトはキューに入ったトゥイーンを進行
 ```
 

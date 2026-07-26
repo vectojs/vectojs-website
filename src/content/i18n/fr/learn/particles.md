@@ -126,6 +126,18 @@ scene.add(particles);
 
 Le rayon et la force de répulsion sont fixés dans le shader. Lorsque le curseur quitte le canvas, le point de répulsion est réglé à `(-99999, -99999)` afin qu'aucune répulsion ne soit appliquée.
 
+## Accessibilité et test de hit d'un champ de particules
+
+Un champ de particules est décoratif : individuellement, les particules ne portent aucune sémantique digne d'être annoncée, et personne n'en inspecte une dans les outils de développement ou ne la sélectionne comme texte. Traitez le champ comme un objet unique.
+
+**Ne définissez pas `interactive = true` par particule.** Cela projette un élément DOM réel par entité dans la couche sémantique, et le coût par entité s'aggrave à mesure que le nombre augmente — mesuré sur un ordinateur portable RTX 4060, 20 000 entités mobiles individuellement interactives ont coûté 715 ms/image sur Chrome et 2 737 ms/image sur Firefox. Voir [le tableau des coûts](/learn/accessibility/#le-coût-augmente-de-manière-superlinéaire-avec-le-nombre-dentités-interactives).
+
+À la place :
+
+- **Étiquetez le champ une fois.** Donnez au `ComputeParticleEntity` (ou à un wrapper) un seul `getA11yAttributes()` renvoyant un `role` et un `aria-label` décrivant l'effet entier. Un nœud, coût constant.
+- **Testez le hit sans projeter.** `scene.findEntityAt(x, y)` résout les entités indépendamment de `interactive`, donc l'interaction par pointeur ne nécessite jamais d'élément projeté. `pointerEvents: true` alimente les coordonnées du curseur dans la simulation et est indépendant de la couche sémantique.
+- **Si l'effet est purement décoratif, dites-le.** Le laisser non projeté est la bonne réponse, équivalent à `aria-hidden` sur un élément DOM décoratif — mais assurez-vous que toute _information_ que l'effet transmet est également disponible en texte.
+
 ## Déclencher des explosions
 
 `triggerExplosion(x, y, force)` met en file d'attente une impulsion pour l'étape de simulation suivante. Toutes les particules situées à moins de **150 px** de `(x, y)` reçoivent un coup de vélocité vers l'extérieur mis à l'échelle par `force` :

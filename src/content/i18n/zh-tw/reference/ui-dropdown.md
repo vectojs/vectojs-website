@@ -22,10 +22,13 @@ order: 27
 import { Dropdown } from '@vectojs/ui';
 
 const backend = new Dropdown(['Canvas', 'WebGL', 'WebGPU'], {
+  label: 'Renderer backend',
   width: 220,
   onChange: (value) => setBackend(value),
 });
 ```
+
+> **設定 `label`。** 沒有可存取名稱的 `role=\"combobox\"` 會被讀為單純的「組合方塊」（WCAG 4.1.2）；僅憑選取的值無法說明控制項的用途。任何繪製在 canvas 上的可見標籤都不會送達語意層，因此也要在此傳入。自 `@vectojs/ui@2.2.0` 起可用。
 
 ## 維護者檢查清單
 

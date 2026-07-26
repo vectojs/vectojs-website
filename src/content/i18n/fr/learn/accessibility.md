@@ -259,6 +259,30 @@ const scene = new Scene(canvas, { a11ySyncInterval: 100 });
 
 L'intervalle reste actif tant que l'animation s'exécute, et la Scene planifie une dernière mise à jour de rattrapage une fois le mouvement en attente stabilisé. Cela ne fige pas la couche sémantique pendant toute la durée de l'animation.
 
+La limitation échange l'obsolescence contre le coût, et elle ne réduit pas le travail par synchronisation. Si votre problème est le _nombre_ d'entités plutôt que la fréquence de synchronisation, reportez-vous à la section suivante.
+
+## Le coût augmente de manière superlinéaire avec le nombre d'entités interactives
+
+La projection est bon marché pour une UI et coûteuse pour une foule. Mesuré sur du matériel réel (ordinateur portable RTX 4060, entités se déplaçant à chaque image, un élément projeté chacune) :
+
+| entités interactives | Chrome par image | Firefox par image |
+| -------------------- | ---------------- | ----------------- |
+| 1 000                | 6,4 ms           | 7,4 ms            |
+| 5 000                | 59,5 ms          | 114 ms            |
+| 20 000               | 715 ms           | 2 737 ms          |
+
+Par entité, cela passe de 6,4 à 35,7 µs sur Chrome et de 7,4 à 136,9 µs sur Firefox en allant de 1 000 à 20 000 — le coût par entité **s'aggrave** à mesure que le nombre augmente, car la dépense provient des écritures DOM par élément plus du tri par ordre de lecture plus de la reconstruction par le navigateur de son propre arbre d'accessibilité, qui se dégradent tous avec le nombre d'éléments. Le parcours de l'arbre lui-même est négligeable (~0,005 µs/entité).
+
+La règle pratique : `interactive = true` est pour les choses sur lesquelles un utilisateur agit. Ce n'est pas un moyen de rendre des milliers d'objets décoratifs ou éphémères testables au pointage.
+
+Pour un champ de particules, une couche danmaku ou un essaim de sprites, préférez l'une des solutions suivantes :
+
+- **Projetez le conteneur, pas les membres.** Une seule entité interactive pour toute la couche, avec un `aria-label` la décrivant collectivement (« 5 000 particules »), et gérez vous-même l'entrée du pointeur via `scene.findEntityAt(x, y)` — qui résout les entités indépendamment du fait qu'elles soient `interactive`, donc le test de hit ne nécessite pas de projection.
+- **Projetez seulement ce qui est accessible.** Le modèle de pooling utilisé par `TreeView`/`Table` virtualisés dimensionne un pool de zones réactives aux lignes visibles plutôt qu'à l'ensemble des données, donc la projection reste en O(viewport). Voir [widgets composites](#Widgets composites : un arrêt de tabulation, touches fléchées à l'intérieur).
+- **Appelez `scene.detachA11y(entity)`** lorsqu'une entité cesse d'être actionnable. Documenté ailleurs comme une prévention de fuite, c'est également un levier de coût : la synchronisation par image crée et met à jour mais ne taille jamais.
+
+> Un mode `a11yProjection` par entité (`'eager' | 'onDemand' | 'never'`) qui matérialise un nœud uniquement au survol/au focus est conçu mais **pas encore implémenté**. Notez qu'il ne peut pas se baser sur « un lecteur d'écran est-il présent » — c'est délibérément indétectable par conception (principe de conception 2.7 du W3C TAG), et les nœuds d'accessibilité virtuels AOM sont bloqués dans tous les moteurs pour des raisons de confidentialité.
+
 ## Inspecter l'arbre fantôme par programmation
 
 ```typescript

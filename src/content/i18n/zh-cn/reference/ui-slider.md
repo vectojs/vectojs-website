@@ -38,6 +38,7 @@ const slider = new Slider({
 
 ```ts
 new Slider({
+  label?: string;            // accessible name — set this
   min?: number;              // default 0
   max?: number;              // default 100
   value?: number;            // default min
@@ -49,6 +50,8 @@ new Slider({
   onChange?: (value: number) => void;
 })
 ```
+
+> **设置 `label`。** 没有可访问名称的 `role=\"slider\"` 会被读作单纯的"slider"，让屏幕阅读器用户完全不知道它控制什么（WCAG 4.1.2）。你在 canvas 上绘制的任何可视标签都不会传递到语义层，所以也要在此传入。省略 `label` 会使 `aria-label` 保持未设置，而不是从值推导名称 —— 错误的名称比没有更糟。自 `@vectojs/ui@2.2.0` 起可用。
 
 ## 事件
 

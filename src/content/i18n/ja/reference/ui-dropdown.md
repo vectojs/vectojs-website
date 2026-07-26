@@ -22,10 +22,13 @@ order: 27
 import { Dropdown } from '@vectojs/ui';
 
 const backend = new Dropdown(['Canvas', 'WebGL', 'WebGPU'], {
+  label: 'Renderer backend',
   width: 220,
   onChange: (value) => setBackend(value),
 });
 ```
+
+> **`label` を設定してください。** アクセシブルな名前のない `role=\"combobox\"` は単なる「コンボボックス」として読み上げられます（WCAG 4.1.2）。選択された値だけでは、そのコントロールの目的は伝わりません。キャンバス上に描画された視覚的なラベルはセマンティックレイヤーに到達しないため、ここでもラベルを渡してください。`@vectojs/ui@2.2.0` 以降で利用可能です。
 
 ## メンテナー向けチェックリスト
 

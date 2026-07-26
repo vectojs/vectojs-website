@@ -338,13 +338,45 @@ VectoJS提供三个级别的文本优化：
 > [!WARNING]
 > 无头Chrome通常使用软件栅格化和不同的帧调度。将其FPS视为相同环境下的回归信号，而不是下限或生产预测。
 
-对于准确的吞吐量数据：
+### 不要将FPS作为你的指标
 
-1. 在真实浏览器上、在真实GPU硬件上运行演示。
-2. 使用Nexus演示中的**导出报告**按钮，发射带有你当前GPU/浏览器组合的机器可读FPS记录。
-3. 在PR或文档中引用性能数据时，使用浏览器内测量 —— 而不是无头输出。
+FPS受垂直同步限制，因此它会**饱和** —— 饱和的数字既隐藏了回归也隐藏了改进。我们自己的测量中有一个真实例子：一个场景报告59 FPS，但每17ms帧中只做了3.4ms的工作，大约空闲了80%的每帧时间。它只是协商了一个60Hz的垂直同步。这个59对代码没有任何说明。
 
-对于自定义基准测试，在`update()`循环中收集帧时间：
+推论对诊断很重要：**"我改变了X，FPS没有变化"在FPS被限制时什么都证明不了。** 变化前后都可以舒适地处于帧预算之内。
+
+改为测量：
+
+- **帧时间百分位数**（p50/p99），而非平均值。在高刷新率显示器上，帧时间被垂直同步量化为1x/2x/3x间隔的桶，中间没有任何值，因此平均值描述了一个从不出现的值。
+- **在预算内的帧比例** —— 决定运动是否感觉稳定的数字。在240Hz下预算为4.17ms；在60Hz下为16.67ms。
+- **分别测量各阶段成本**（布局、JS批处理、GPU提交），这样你就知道该攻击哪个。
+
+### 归因GPU时间需要`gl.finish()`
+
+WebGL调用是异步的。将draw或`flush()`包裹在`performance.now()`中测量的是**队列插入**时间，而非GPU工作 —— 在我们的测量中两者相差高达5倍。要诚实地归因提交成本，先完成工作然后强制管道排空：
+
+```typescript
+const t0 = performance.now();
+drawEverything();
+gl.finish(); // 序列化帧；没有这个数字就没有意义
+const submitMs = performance.now() - t0;
+```
+
+`EXT_disjoint_timer_query_webgl2`看起来是更好的工具，但实际上并不可靠：Firefox通常不暴露它，而在Chrome上它常常存在但返回不了可用的样本（每次试验都报告不可用或分离）。不要在其上构建测量策略。
+
+### 在浏览器中基准测试，而不是在Node或Bun中
+
+服务器运行时对任何面向用户的事情都是错误的工具：没有GPU、没有合成器、没有DPR、不同的JIT预热和计时器分辨率。它们对于**隔离原因**很有用 —— 我们的一项优化是通过Node探针发现的 —— 但不适用于产生引用的数字。一个在**Bun/JSC下测得12.4x的变化在真实浏览器中仅为3.2–4.7x**，大约乐观了3倍。
+
+同时引用两个引擎。V8和SpiderMonkey差异很大，单一引擎的数字一再具有误导性。
+
+### 实用检查清单
+
+1. 在真实浏览器上的真实GPU硬件上运行。
+2. 报告N的中位数（7是合理的默认值），精确命名场景。
+3. 记录浏览器+版本、CPU/GPU、视口CSS大小**和DPR**、实体和可见计数、后端选择以及显示器的刷新率。
+4. 在PR和文档中引用浏览器内测量，绝不引用无头输出。
+
+对于自定义基准测试，在`update()`循环中收集帧时间并报告百分位数：
 
 ```typescript
 const samples: number[] = [];
@@ -354,14 +386,21 @@ class BenchEntity extends Entity {
     super.update(dt, time);
     if (samples.length < 300) samples.push(dt);
     if (samples.length === 300) {
-      const avg = samples.reduce((a, b) => a + b) / samples.length;
-      console.log(`平均帧：${avg.toFixed(2)} ms  (${(1000 / avg).toFixed(1)} fps)`);
+      const sorted = [...samples].sort((a, b) => a - b);
+      const pct = (q: number) => sorted[Math.floor(sorted.length * q)]!;
+      const budget = 1000 / 60; // 在高刷新率面板上使用1000 / 240
+      const inBudget =
+        samples.filter((s) => s <= budget).length / samples.length;
+      console.log(
+        `p50 ${pct(0.5).toFixed(2)}ms  p99 ${pct(0.99).toFixed(2)}ms  ` +
+          `inside budget ${(inBudget * 100).toFixed(1)}%`,
+      );
     }
   }
 }
 ```
 
-`dt`以毫秒为单位；`1000 / dt`给出瞬时FPS。
+`dt`以毫秒为单位。注意它报告的是帧_间隔_，在垂直同步下是量化的 —— 它告诉你是否满足预算，而不是还剩多少余量。要测量余量，请计时你控制的阶段。
 
 ## 快速参考：哪种旋钮用于哪种问题
 

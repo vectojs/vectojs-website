@@ -110,7 +110,7 @@ dispatchEvent(event: VectoJSEvent): void             // DOM-style capture (root�
 ```ts
 getA11yAttributes(): A11yAttributes          // default {} → a plain transparent <div>
 getBatchCircle(): BatchCircle | null         // { radius, color } → renderer fillCircle fast-path (uniform-scale leaves)
-getBatchRect(): BatchRect | null             // { width, height, color } → GPU instanced rect (WebGL pointBackend only)
+getBatchRect(): BatchRect | null             // { width, height, color } → GPU indexed-quad batch (WebGL pointBackend only)
 update(dt: number, time: number): void       // optional override; dt is MILLISECONDS, time is performance.now(); default advances queued tweens
 ```
 

@@ -153,7 +153,7 @@ Ver [Eventos y Hit-Testing](/learn/events/) para uso.
 ```ts
 getA11yAttributes(): A11yAttributes          // default {} → un <div> transparente simple
 getBatchCircle(): BatchCircle | null         // { radius, color } → camino rápido fillCircle del renderizador (hojas de escala uniforme)
-getBatchRect(): BatchRect | null             // { width, height, color } → rect instanciado por GPU (solo pointBackend WebGL)
+getBatchRect(): BatchRect | null             // { width, height, color } → GPU indexed-quad batch (solo pointBackend WebGL)
 update(dt: number, time: number): void       // sobrescritura opcional; dt en MILISEGUNDOS, time es performance.now(); el default avanza los tweens encolados
 ```
 

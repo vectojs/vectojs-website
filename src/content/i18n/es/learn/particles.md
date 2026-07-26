@@ -126,6 +126,18 @@ scene.add(particles);
 
 El radio de repulsión y la fuerza son fijos en el shader. Cuando el cursor sale del canvas, el punto de repulsión se establece en `(-99999, -99999)` de modo que no se aplica ninguna repulsión.
 
+## Accesibilidad y prueba de impacto de campos de partículas
+
+Un campo de partículas es decorativo: individualmente, las partículas no tienen semántica que valga la pena anunciar, y nadie inspecciona una en las herramientas de desarrollo o la selecciona como texto. Trate el campo como un solo objeto.
+
+**No establezca `interactive = true` por partícula.** Esto proyecta un elemento DOM real por entidad en la capa semántica, y el costo por entidad empeora a medida que crece el recuento — medido en una laptop RTX 4060, 20,000 entidades móviles individualmente interactivas costaron 715ms/fotograma en Chrome y 2,737ms/fotograma en Firefox. Véase [la tabla de costes](/learn/accessibility/#el-costo-escala-de-forma-superlineal-con-la-cantidad-de-entidades-interactivas).
+
+En su lugar:
+
+- **Etiquete el campo una vez.** Dé al `ComputeParticleEntity` (o un envoltorio) un único `getA11yAttributes()` que devuelva un `role` y un `aria-label` describiendo todo el efecto. Un nodo, coste constante.
+- **Pruebe el impacto sin proyectar.** `scene.findEntityAt(x, y)` resuelve entidades independientemente de `interactive`, por lo que la interacción del puntero nunca requiere un elemento proyectado. `pointerEvents: true` alimenta las coordenadas del cursor a la simulación y es independiente de la capa semántica.
+- **Si el efecto es puramente decorativo, dígalo.** Dejarlo sin proyectar es la respuesta correcta, equivalente a `aria-hidden` en un elemento DOM decorativo — pero asegúrese de que cualquier _información_ que transmita el efecto también esté disponible en texto.
+
 ## Disparar explosiones
 
 `triggerExplosion(x, y, force)` encola un impulso para el siguiente paso de la simulación. Todas las partículas dentro de **150 px** de `(x, y)` reciben un empujón de velocidad hacia afuera escalado por `force`:

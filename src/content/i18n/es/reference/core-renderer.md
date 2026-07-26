@@ -235,6 +235,18 @@ renderizador normal.
 > `{ width, height, color }` (ver [`Entity`](/reference/core-entity/#hooks-de-a11y--agrupación-sobrescribir-para-optar))
 > son las opciones por entidad que alimentan esta capa.
 
+`flush()` emite **como máximo una llamada de dibujo por tipo de primitiva**, por lo que el recuento de llamadas de dibujo no es el límite de escalado — los bytes subidos lo son. Desde core 1.16.2, cada lote de cuadriláteros (rect, sprite, glifo, círculo tallado) sube **4 vértices** y dibuja con `drawElements` contra un búfer de índices estático compartido de 32 bits, en lugar de expandirse a 6 vértices para `drawArrays`. Esto elimina las dos esquinas duplicadas por cuadrilátero, reduciendo el volumen de subida en un tercio; el búfer de índices se construye una vez y se recrece geométricamente, nunca se reenvía por fotograma. Los índices son de 32 bits porque un `Uint16Array` limitaría un lote a 16,383 cuadriláteros, que las escenas reales superan.
+
+Medido en hardware real (RTX 4060 Laptop, trabajo más `gl.finish()`, mediana de 12) contra la ruta anterior de 6 vértices:
+
+| quads/frame | Chrome         | Firefox         |
+| ----------- | -------------- | --------------- |
+| 12,000      | 0.61 → 0.09ms  | 2.66 → 1.47ms   |
+| 50,000      | 2.22 → 0.87ms  | 9.02 → 6.24ms   |
+| 100,000     | 12.62 → 3.12ms | 16.81 → 10.88ms |
+
+Por debajo de aproximadamente **35,000–50,000 quads/frame** el JS que llena el búfer de vértices cuesta más que el envío de la GPU; por encima el envío domina y las palancas útiles se convierten en dibujar menos (culling, virtualización) en lugar de ajustar el llenado. Firefox mantiene cerca de ~1 GB/s de ancho de banda de subida efectivo independientemente de la disposición de vértices, por lo que en ese motor reducir bytes es la única palanca fiable.
+
 ## parseColorToRGBA
 
 ```ts
@@ -245,6 +257,8 @@ Rutas rápidas para `#rgb`/`#rgba`/`#rrggbb`/`#rrggbbaa` y `rgb()`/`rgba()`; otr
 formas (nombradas, `hsl()`, …) se resuelven a través de un canvas 1×1 en caché cuando existe un DOM.
 Los resultados están **almacenados en caché y compartidos por identidad — trata el array devuelto como
 de solo lectura.** Entrada no analizable sin DOM → negro opaco `[0,0,0,1]`.
+
+La caché contiene 1.000 entradas y las expulsa en **orden de inserción (FIFO)**. Un acierto de caché deliberadamente **no** promociona su entrada: esta función se llama una vez por cuadrilátero, y a ~25.000 quads/frame el par `Map.delete` + re-`set` que necesita un LRU verdadero cuesta más que todo lo demás en la función combinado. La consecuencia práctica es que si el conjunto de trabajo de colores distintos de una escena supera 1.000, un color popular insertado tempranamente puede ser expulsado y re-analizado; para escenas típicas el conjunto de trabajo es pequeño y estable, por lo que FIFO y LRU expulsan las mismas entradas.
 
 ## Relacionados
 

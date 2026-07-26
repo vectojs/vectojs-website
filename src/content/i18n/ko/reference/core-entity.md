@@ -150,7 +150,7 @@ dispatchEvent(event: VectoJSEvent): void             // DOM-스타일 캡처 (�
 ```ts
 getA11yAttributes(): A11yAttributes          // 기본값 {} → 일반 투명 <div>
 getBatchCircle(): BatchCircle | null         // { radius, color } → 렌더러 fillCircle 고속 경로 (균일-스케일 잎)
-getBatchRect(): BatchRect | null             // { width, height, color } → GPU 인스턴스드 렉트 (WebGL pointBackend 전용)
+getBatchRect(): BatchRect | null             // { width, height, color } → GPU indexed-quad batch (WebGL pointBackend 전용)
 update(dt: number, time: number): void       // 선택적 오버라이드; dt는 밀리초, time은 performance.now(); 기본값은 큐에 추가된 트윈 진행
 ```
 

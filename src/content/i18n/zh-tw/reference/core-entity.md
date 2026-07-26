@@ -154,7 +154,7 @@ dispatchEvent(event: VectoJSEvent): void             // DOM 風格捕獲（根�
 ```ts
 getA11yAttributes(): A11yAttributes          // 預設 {} → 純透明 <div>
 getBatchCircle(): BatchCircle | null         // { radius, color } → renderer fillCircle 快速路徑（均勻縮放葉節點）
-getBatchRect(): BatchRect | null             // { width, height, color } → GPU 實例化矩形（僅 WebGL pointBackend）
+getBatchRect(): BatchRect | null             // { width, height, color } → GPU indexed-quad batch（僅 WebGL pointBackend）
 update(dt: number, time: number): void       // 可選覆寫；dt 為毫秒，time 為 performance.now()；預設推進排隊中的補間
 ```
 

@@ -242,6 +242,18 @@ l'échelle non uniforme ou le cisaillement) tombent en repli sur le renderer nor
 > `{ width, height, color }` (voir [`Entity`](/reference/core-entity/#hooks-a11y--lot-redéfinir-pour-adhérer))
 > sont les adhésions par entité qui alimentent cette couche.
 
+`flush()` émet **au plus un appel de dessin par type de primitive**, donc le nombre d'appels de dessin n'est pas la limite de passage à l'échelle — ce sont les octets téléchargés qui le sont. Depuis core 1.16.2, chaque lot de quadrilatères (rect, sprite, glyphe, cercle découpé) télécharge **4 sommets** et dessine avec `drawElements` contre un tampon d'index statique partagé de 32 bits, plutôt que de se développer en 6 sommets pour `drawArrays`. Cela supprime les deux coins dupliqués par quadrilatère, réduisant le volume de téléchargement d'un tiers ; le tampon d'index est construit une fois et recréé géométriquement, jamais renvoyé par image. Les index sont en 32 bits car un `Uint16Array` limiterait un lot à 16 383 quadrilatères, ce que les scènes réelles dépassent.
+
+Mesuré sur du matériel réel (RTX 4060 Laptop, travail plus `gl.finish()`, médiane de 12) contre le chemin précédent à 6 sommets :
+
+| quads/frame | Chrome         | Firefox         |
+| ----------- | -------------- | --------------- |
+| 12,000      | 0.61 → 0.09ms  | 2.66 → 1.47ms   |
+| 50,000      | 2.22 → 0.87ms  | 9.02 → 6.24ms   |
+| 100,000     | 12.62 → 3.12ms | 16.81 → 10.88ms |
+
+En dessous d'environ **35 000–50 000 quads/frame**, le JS qui remplit le tampon de sommets coûte plus cher que la soumission GPU ; au-dessus, la soumission domine et les leviers utiles deviennent dessiner moins (culling, virtualisation) plutôt que régler le remplissage. Firefox maintient près de ~1 Go/s de bande passante de téléchargement effective quelle que soit la disposition des sommets, donc sur ce moteur, réduire les octets est le seul levier fiable.
+
 ## parseColorToRGBA
 
 ```ts
@@ -251,8 +263,9 @@ parseColorToRGBA(css: string): RGBA           // RGBA = [number, number, number,
 Chemins rapides pour `#rgb`/`#rgba`/`#rrggbb`/`#rrggbbaa` et `rgb()`/`rgba()` ; autres
 formes (nommées, `hsl()`, …) se résolvent via un canvas 1×1 mis en cache quand un DOM
 existe. Les résultats sont **mis en cache et partagés par identité — traitez le
-tableau retourné comme en lecture seule.** Entrée non analysable sans DOM → noir
-opaque `[0,0,0,1]`.
+tableau retourné comme en lecture seule.** Entrée non analysable sans DOM → noir opaque `[0,0,0,1]`.
+
+Le cache contient 1 000 entrées et les évince en **ordre d'insertion (FIFO)**. Un succès de cache ne promeut délibérément **pas** son entrée : cette fonction est appelée une fois par quadrilatère, et à ~25 000 quads/image, la paire `Map.delete` + re-`set` dont un vrai LRU a besoin coûte plus que tout le reste de la fonction combiné. La conséquence pratique est que si l'ensemble de travail de couleurs distinctes d'une scène dépasse 1 000, une couleur populaire insérée tôt peut être évincée et re-analysée ; pour les scènes typiques, l'ensemble de travail est petit et stable, donc FIFO et LRU évincement les mêmes entrées.
 
 ## Associé
 

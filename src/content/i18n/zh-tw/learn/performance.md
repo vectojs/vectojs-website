@@ -338,13 +338,45 @@ VectoJS 提供了三個級別的文字最佳化：
 > [!WARNING]
 > 無頭 Chrome 通常使用軟體柵格化和不同的幀排程。將其 FPS 視為相同環境的回歸訊號，而非下限或生產預測。
 
-為了獲得準確的吞吐量數據：
+### 不要將 FPS 作為你的指標
 
-1. 在真實瀏覽器和真實 GPU 硬體上執行演示。
-2. 使用 Nexus 演示中的**匯出報告**按鈕，輸出帶有當前 GPU/瀏覽器組合的機器可讀 FPS 記錄。
-3. 在 PR 或文件中引用效能數據時，使用瀏覽器內測量——而不是無頭輸出。
+FPS 受垂直同步限制，因此它會**飽和** —— 飽和的數字既隱藏了回歸也隱藏了改進。我們自己的測量中有一個真實例子：一個場景報告 59 FPS，但每 17ms 幀中只做了 3.4ms 的工作，大約空閒了 80% 的每幀時間。它只是協商了一個 60Hz 的垂直同步。這個 59 對程式碼沒有任何說明。
 
-對於自訂基準測試，在 `update()` 迴圈中收集幀時間：
+推論對診斷很重要：**「我改變了 X，FPS 沒有變化」在 FPS 被限制時什麼都證明不了。** 變化前後都可以舒適地處於幀預算之內。
+
+改為測量：
+
+- **幀時間百分位數**（p50/p99），而非平均值。在高刷新率顯示器上，幀時間被垂直同步量化為 1x/2x/3x 間隔的桶，中間沒有任何值，因此平均值描述了一個從不出現的值。
+- **在預算內的幀比例** —— 決定運動是否感覺穩定的數字。在 240Hz 下預算為 4.17ms；在 60Hz 下為 16.67ms。
+- **分別測量各階段成本**（佈局、JS 批次處理、GPU 提交），這樣你就知道該攻擊哪個。
+
+### 歸因 GPU 時間需要 `gl.finish()`
+
+WebGL 呼叫是非同步的。將 draw 或 `flush()` 包裹在 `performance.now()` 中測量的是**佇列插入**時間，而非 GPU 工作 —— 在我們的測量中兩者相差高達 5 倍。要誠實地歸因提交成本，先完成工作然後強制管線排空：
+
+```typescript
+const t0 = performance.now();
+drawEverything();
+gl.finish(); // 序列化幀；沒有這個數字就沒有意義
+const submitMs = performance.now() - t0;
+```
+
+`EXT_disjoint_timer_query_webgl2` 看起來是更好的工具，但實際上並不可靠：Firefox 通常不公開它，而在 Chrome 上它常常存在但返回不了可用的樣本（每次試驗都報告不可用或分離）。不要在其上建立測量策略。
+
+### 在瀏覽器中基準測試，而不是在 Node 或 Bun 中
+
+伺服器執行時期對任何面向使用者的事情都是錯誤的工具：沒有 GPU、沒有合成器、沒有 DPR、不同的 JIT 預熱和計時器解析度。它們對於**隔離原因**很有用 —— 我們的一項最佳化是透過 Node 探針發現的 —— 但不適用於產生引用的數字。一個在 **Bun/JSC 下測得 12.4x 的變化在真實瀏覽器中僅為 3.2–4.7x**，大約樂觀了 3 倍。
+
+同時引用兩個引擎。V8 和 SpiderMonkey 差異很大，單一引擎的數字一再具有誤導性。
+
+### 實用檢查清單
+
+1. 在真實瀏覽器上的真實 GPU 硬體上執行。
+2. 報告 N 的中位數（7 是合理的預設值），精確命名場景。
+3. 記錄瀏覽器+版本、CPU/GPU、視埠 CSS 大小**和 DPR**、實體和可見計數、後端選擇以及顯示器的重新整理率。
+4. 在 PR 和文件中引用瀏覽器內測量，絕不引用無頭輸出。
+
+對於自訂基準測試，在 `update()` 迴圈中收集幀時間並報告百分位數：
 
 ```typescript
 const samples: number[] = [];
@@ -354,14 +386,21 @@ class BenchEntity extends Entity {
     super.update(dt, time);
     if (samples.length < 300) samples.push(dt);
     if (samples.length === 300) {
-      const avg = samples.reduce((a, b) => a + b) / samples.length;
-      console.log(`平均幀: ${avg.toFixed(2)} ms  (${(1000 / avg).toFixed(1)} fps)`);
+      const sorted = [...samples].sort((a, b) => a - b);
+      const pct = (q: number) => sorted[Math.floor(sorted.length * q)]!;
+      const budget = 1000 / 60; // 在高刷新率面板上使用 1000 / 240
+      const inBudget =
+        samples.filter((s) => s <= budget).length / samples.length;
+      console.log(
+        `p50 ${pct(0.5).toFixed(2)}ms  p99 ${pct(0.99).toFixed(2)}ms  ` +
+          `inside budget ${(inBudget * 100).toFixed(1)}%`,
+      );
     }
   }
 }
 ```
 
-`dt` 單位為毫秒；`1000 / dt` 給出即時 FPS。
+`dt` 以毫秒為單位。注意它報告的是幀_間隔_，在垂直同步下是量化的 —— 它告訴你是否滿足預算，而不是還剩多少餘量。要測量餘量，請計時你控制的階段。
 
 ## 快速參考：哪個旋鈕解決哪個問題
 

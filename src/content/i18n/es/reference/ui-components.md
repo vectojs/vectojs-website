@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Referencia de Componentes
 
 > Componentes reutilizables de alto nivel para el motor Canvas zero-DOM de VectoJS.
-> Versión documentada: **2.0.0**. Fuente de verdad: `dist/index.d.ts` (superficie pública) y `packages/ui/src/*` (comportamiento).
+> Versión documentada: **2.2.0**. Fuente de verdad: `dist/index.d.ts` (superficie pública) y `packages/ui/src/*` (comportamiento).
 
 Cada componente es una hoja o contenedor en el Virtual Math Tree (VMT). Nada aquí es DOM real — los componentes se dibujan a sí mismos en un Canvas mediante un `IRenderer`. La accesibilidad, la automatización de agentes y la capacidad de rastreo provienen de un **A11y Shadow DOM** paralelo: cuando un componente es `interactive`, la `Scene` proyecta un único nodo DOM real oculto y transparente posicionado sobre la caja del componente, construido a partir de `getA11yAttributes()`. Es por eso que `page.getByRole('button', { name })` / `fill()` / los lectores de pantalla funcionan contra una UI de Canvas puro.
 

@@ -38,6 +38,7 @@ const slider = new Slider({
 
 ```ts
 new Slider({
+  label?: string;            // accessible name — set this
   min?: number;              // default 0
   max?: number;              // default 100
   value?: number;            // default min
@@ -49,6 +50,8 @@ new Slider({
   onChange?: (value: number) => void;
 })
 ```
+
+> **`label`을 설정하세요.** 접근 가능한 이름이 없는 `role=\"slider\"`는 단순히 "슬라이더"로 읽히며, 스크린 리더 사용자에게 무엇을 제어하는지 전혀 알려주지 않습니다(WCAG 4.1.2). 캔버스에 그린 시각적 레이블은 의미론적 계층에 도달하지 않으므로 여기에도 전달하세요. `label`을 생략하면 값에서 이름을 파생하지 않고 `aria-label`이 설정되지 않은 상태로 남습니다 — 잘못된 이름은 없는 것보다 나쁩니다. `@vectojs/ui@2.2.0`부터 사용 가능합니다.
 
 ## 이벤트
 

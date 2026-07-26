@@ -259,6 +259,30 @@ const scene = new Scene(canvas, { a11ySyncInterval: 100 });
 
 El intervalo permanece activo mientras la animación se ejecuta, y el Scene programa una puesta al día final tras el asentamiento del movimiento pendiente. No congela la capa semántica durante toda la animación.
 
+La limitación intercambia desactualización por costo, y no reduce el trabajo por sincronización. Si tu problema es la _cantidad_ de entidades y no la frecuencia de sincronización, consulta la siguiente sección.
+
+## El costo escala de forma superlineal con la cantidad de entidades interactivas
+
+La proyección es barata para una UI y cara para una multitud. Medido en hardware real (laptop RTX 4060, entidades moviéndose en cada frame, un elemento proyectado cada una):
+
+| entidades interactivas | Chrome por frame | Firefox por frame |
+| ---------------------- | ---------------- | ----------------- |
+| 1,000                  | 6.4ms            | 7.4ms             |
+| 5,000                  | 59.5ms           | 114ms             |
+| 20,000                 | 715ms            | 2737ms            |
+
+Por entidad, eso es de 6,4 → 35,7 µs en Chrome y de 7,4 → 136,9 µs en Firefox al pasar de 1,000 a 20,000 — el costo por entidad **empeora** a medida que la cantidad crece, porque el gasto son las escrituras DOM por elemento más la ordenación por orden de lectura más la reconstrucción del propio árbol de accesibilidad del navegador, todo lo cual se degrada con el número de elementos. El recorrido del árbol en sí es insignificante (~0,005 µs/entidad).
+
+La regla práctica: `interactive = true` es para cosas con las que un usuario actúa. No es una forma de hacer que miles de objetos decorativos o efímeros sean detectables.
+
+Para un campo de partículas, una capa de danmaku o un enjambre de sprites, prefiere una de estas opciones:
+
+- **Proyecta el contenedor, no los miembros.** Una entidad interactiva para toda la capa, con un `aria-label` que la describa colectivamente (\"5000 partículas\"), y maneja la entrada del puntero tú mismo mediante `scene.findEntityAt(x, y)` — que resuelve entidades independientemente de si son `interactive`, por lo que la detección de impacto no requiere proyección.
+- **Proyecta solo lo que es alcanzable.** El patrón de pooling usado por `TreeView`/`Table` virtualizados ajusta un pool de hotspots a las filas visibles en lugar de al conjunto de datos, por lo que la proyección se mantiene en O(viewport). Consulta [widgets compuestos](#Widgets compuestos: una parada de tabulación, teclas de flecha en el interior).
+- **Llama a `scene.detachA11y(entity)`** cuando una entidad deje de ser accionable. Documentado en otra parte como prevención de fugas, es igualmente una palanca de costo: la sincronización por frame crea y actualiza pero nunca poda.
+
+> Un modo `a11yProjection` por entidad (`'eager' | 'onDemand' | 'never'`) que materializa un nodo solo al pasar el ratón o al enfocar está diseñado pero **aún no implementado**. Ten en cuenta que no puede basarse en \"si hay un lector de pantalla presente\" — eso es deliberadamente indetectable por diseño (principio de diseño 2.7 del W3C TAG), y los nodos virtuales de accesibilidad AOM están bloqueados en todos los motores por razones de privacidad.
+
 ## Inspeccionar el árbol shadow programáticamente
 
 ```typescript
