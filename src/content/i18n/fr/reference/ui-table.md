@@ -6,15 +6,13 @@ order: 31
 
 # `Table`
 
-`Table` expose `role="grid"`, peint son chrome sur le canvas et possède chaque cellule
-comme une entité enfant. Les cellules chaîne sont normalisées en `Text` ; les cellules dʼentité fournies
-peuvent participer via les capacités publiques `setMaxWidth()` et `setSelectable()`.
+`Table` projette un arbre complet `grid` › `row` › `gridcell`/`columnheader`, peint son chrome sur le canvas et possède chaque cellule comme une entité enfant. Les cellules chaîne sont normalisées en `Text` ; les cellules dʼentité fournies peuvent participer via les capacités publiques `setMaxWidth()` et `setSelectable()`.
 
 ## Try it
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Table</span></div>
-  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.15.0-ui-2.0.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de Table" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de Table" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Utilisez des démos ciblées pour le dimensionnement des colonnes au lieu de déboguer la sortie du tableau dans une grande galerie.</figcaption>
 </figure>
 
@@ -48,6 +46,24 @@ Lʼombre structurelle `role="grid"` ne capture pas les événements de pointeur 
 de cellules. Cette propriété de feuille est ce qui maintient la sélection par glissement entre cellules,
 Ctrl/Commande+C et la recherche dans la page alignés avec le texte VMT exactement une fois.
 
+## Accessibilité et clavier
+
+Lʼarbre projeté est une vraie grille ARIA : une rangée épinglée de `columnheader`s plus un `row` pour chaque rangée **visible** du corps (conscient de la virtualisation), chaque cellule un hotspot `gridcell` recevant le focus. Exactement une cellule détient le **tabindex tournant**, donc la grille entière est un seul arrêt de tabulation.
+
+| Touche               | Action                                                                 |
+| -------------------- | ---------------------------------------------------------------------- |
+| Flèches              | Déplacer la cellule focalisée dʼun pas en 2D (lʼen-tête est rangée -1) |
+| Home / End           | Première / dernière colonne de la rangée courante                      |
+| Ctrl+Home / Ctrl+End | Première cellule dʼen-tête / dernière cellule du corps                 |
+
+La cellule cible est défilée en vue avant que le focus ne se déplace vers elle. Voir [Widgets composites](/reference/core-a11y/#composite-widgets-roving-tabindex).
+
+## Pointeur et toucher
+
+- **Glisser entre les cellules** sélectionne leur texte nativement (la projection de la cellule possède le pointeur — voir ci-dessus).
+- **Glisser verticalement** un corps virtualisé le défile 1:1 avec le doigt, donc le tableau est utilisable sur un écran tactile et pas seulement avec une molette.
+- **Molette** défile un corps virtualisé.
+
 ## Liste de vérification pour les mainteneurs
 
 - Maintenez la longueur de `colWidths` alignée avec les en-têtes ; les largeurs valides sont normalisées à la largeur du Table.
@@ -56,3 +72,4 @@ Ctrl/Commande+C et la recherche dans la page alignés avec le texte VMT exacteme
 - Utilisez la virtualisation pour les grands ensembles de données ; `Table` est destiné aux grilles compactes.
 - Gardez le libellé de la grille descriptif.
 - Vérifiez la sélection par glissement à travers les en-têtes/cellules du corps après avoir changé les largeurs ou le zoom de lʼapplication.
+- Vérifiez que la navigation au clavier atteint chaque cellule après avoir changé la virtualisation ou le nombre de colonnes.

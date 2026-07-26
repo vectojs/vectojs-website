@@ -83,8 +83,33 @@ interface A11yAttributes {
   activedescendant?: string; // aria-activedescendant (for composite widgets)
   valuemin?: string; // aria-valuemin (for sliders, meters)
   valuemax?: string; // aria-valuemax
+
+  // 다른 노드의 관계 및 명명
+  labelledby?: string; // aria-labelledby
+  describedby?: string; // aria-describedby — 힌트/오류 텍스트
+
+  // 유효성 검사 상태 (캔버스 폼이 공지 가능하게 하는 유일한 방법)
+  required?: boolean; // aria-required
+  invalid?: boolean; // aria-invalid — false는 "명시적으로 유효"을 의미
+
+  // 구조 및 대화 상자
+  level?: number; // aria-level (제목, 트리 항목)
+  ariaModal?: 'true' | 'false'; // role="dialog"의 aria-modal
+
+  // 라이브 영역 — 포커스 이동 없이 스트리밍 업데이트 공지
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean; // aria-atomic — 차이가 아닌 전체 영역을 읽음
+  relevant?: string; // aria-relevant — 예: 'additions text'
+
+  // 포인터 표면
+  pointerEvents?: 'auto' | 'none'; // 구조/오버레이 전용 노드의 'none'
+
+  target?: string; // tag='a'용
+  textInputStyle?: TextInputStyle; // 네이티브 에디터 타이포그래피
 }
 ```
+
+필드에 `undefined`를 반환하면 속성이 **제거**되어 적용되지 않는 상태가 사라집니다.
 
 버튼이나 폼 컨트롤이 아니지만 키보드 단축키를 소유해야 하는 캔버스 작업 공간에는 명시적 `tabIndex: 0`을 사용하세요:
 
@@ -98,20 +123,49 @@ getA11yAttributes(): A11yAttributes {
 
 ### 내장 컴포넌트가 프로젝션하는 것
 
-| 컴포넌트             | 섀도 요소                   | 주요 ARIA 속성                                                  |
-| -------------------- | --------------------------- | --------------------------------------------------------------- |
-| `Button`             | `<button>`                  | `role=\"button\"`, `aria-label`                                 |
-| `Link`               | `<a href>`                  | 네이티브 링크, `aria-label`                                     |
-| `Image`              | `<img>`                     | `src`, `alt`                                                    |
-| `Input`              | `<input type=\"text\">`     | `placeholder`, `value` (실시간)                                 |
-| `TextArea`           | `<textarea>`                | `placeholder`, `value` (실시간)                                 |
-| `Checkbox`           | `<input type=\"checkbox\">` | `checked` (실시간), `aria-label`                                |
-| `Toggle`             | `<div role=\"switch\">`     | `aria-checked` (실시간), `aria-label`                           |
-| `Slider`             | `<div role=\"slider\">`     | `aria-valuenow/min/max` (실시간)                                |
-| `Dropdown`           | `<div role=\"combobox\">`   | `aria-expanded`, `aria-controls`, 메뉴 항목은 `role=\"option\"` |
-| `Card` (레이블 있음) | `<div role=\"group\">`      | `aria-label`                                                    |
-| `Table`              | `<div role=\"grid\">`       | 열/행 개수가 포함된 `aria-label`                                |
-| `Text`               | `<div>`                     | `aria-label` = 텍스트 콘텐츠                                    |
+| 컴포넌트             | 섀도 요소                                  | 주요 ARIA 속성                                                |
+| -------------------- | ------------------------------------------ | ------------------------------------------------------------- |
+| `Button`             | `<button>`                                 | `role="button"`, `aria-label`                                 |
+| `Link`               | `<a href>`                                 | 네이티브 링크, `aria-label`                                   |
+| `Image`              | `<img>`                                    | `src`, `alt`                                                  |
+| `Input`              | `<input type="text">`                      | `placeholder`, `value` (실시간)                               |
+| `TextArea`           | `<textarea>`                               | `placeholder`, `value` (실시간)                               |
+| `Checkbox`           | `<input type="checkbox">`                  | `checked` (실시간), `aria-label`                              |
+| `Toggle`             | `<div role="switch">`                      | `aria-checked` (실시간), `aria-label`                         |
+| `Slider`             | `<div role="slider">`                      | `aria-valuenow/min/max` (실시간)                              |
+| `Dropdown`           | `<div role="combobox">`                    | `aria-expanded`, `aria-controls`, 메뉴 항목은 `role="option"` |
+| `Card` (레이블 있음) | `<div role="group">`                       | `aria-label`                                                  |
+| `Table`              | `grid` › `row` › `gridcell`/`columnheader` | 루빙 tabindex, 2D 화살표 키, Ctrl+Home/End                    |
+| `TreeView`           | `treeitem` (보이는 행별)                   | `aria-level`/`expanded`/`selected`, 화살표로 확장/축소        |
+| `ContextMenu`        | `menuitem` (항목별)                        | `aria-haspopup`/`expanded`, 화살표 래핑, Escape로 닫기        |
+| `RadioGroup`         | `radio` (옵션별)                           | `aria-checked`, 화살표로 이동+선택                            |
+| `Tabs`               | `tab` (탭별)                               | `aria-selected`, 화살표로 이동, Home/End                      |
+| `Text`               | `<div>`                                    | `aria-label` = 텍스트 콘텐츠                                  |
+
+## 복합 위젯: 하나의 탭 정지, 내부 화살표 키
+
+트리, 그리드, 메뉴, 라디오 그룹 또는 탭 목록은 모든 자식을 탭 순서에 넣어서는 안 됩니다. VectoJS는 각 **보이는** 자식 위에 투명한 포커스 가능 핫스팟을 풀링하여 해당 자식의 역할과 상태를 유지하고, 정확히 하나에 `tabIndex: 0` —— **루빙 tabindex** —— 를 부여합니다. 상위가 화살표 키 핸들러를 소유하고 정지를 이동합니다. 위의 표에서 각 구성 요소의 키를 확인하고, 직접 구축하는 경우 [복합 위젯](/reference/core-a11y/#composite-widgets-roving-tabindex)을 참조하세요.
+
+그 패턴을 재사용하고 독자적으로 발명하지 마세요: 중요한 미묘한 점은 핫스팟이 아래쪽이 마우스를 소유하는 경우 (선택 가능한 셀 텍스트, 드래그로 스크롤, 캔버스 히트 처리) `pointerEvents: 'none'`을 설정해야 한다는 것입니다. 키보드 포커스와 AT 합성 `click`은 여전히 통과합니다.
+
+탭 순서는 엔티티를 추가한 순서가 아니라 **시각적** 읽기 순서를 따릅니다. RTL UI의 경우 Scene에 `readingDirection: 'rtl'`을 설정하면 각 행의 인라인 순서도 반전됩니다.
+
+## 강제 색상 (고대비 모드)
+
+`<canvas>`는 불투명한 픽셀이므로 브라우저의 `forced-colors` 리매핑이 그린 것에 도달하지 못합니다 — 테마가 적용된 컨트롤은 저대비로 읽을 수 없게 됩니다. `scene.forcedColors`를 읽고 CSS 시스템 색상으로 그립니다. 씬은 OS 설정이 토글될 때 자동으로 다시 그립니다:
+
+```typescript
+render(r: IRenderer) {
+  const forced = this.scene?.forcedColors ?? false;
+  r.beginPath();
+  r.roundRect(0, 0, this.width, this.height, 8);
+  r.fill(forced ? 'ButtonFace' : this.bg);
+  if (forced) r.stroke('ButtonText', 1);       // give the shape an edge
+  r.fillText(this.label, x, y, this.font, forced ? 'ButtonText' : this.color);
+}
+```
+
+`Button`은 이미 이것을 수행합니다. 선택/포커스에는 `Highlight`를, 서페이스와 본문 텍스트에는 `Canvas`/`CanvasText`를 사용하세요.
 
 ## IME-인식 입력 필드
 

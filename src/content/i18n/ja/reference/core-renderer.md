@@ -41,8 +41,22 @@ interface IRenderer {
   present?(): void; // オプションのフレームエンドコミット
   createLinearGradient(x0, y0, x1, y1, colorStops: { stop; color }[]): any;
   dispose?(): void; // 冪等なバックエンドクリーンアップ。Scene.destroy() が呼び出します
+
+  // GPU context loss (optional; implement for a GPU-backed renderer)
+  isContextLost?(): boolean; // Scene skips the render pass while true
+  onContextRestored?(cb: () => void): void; // Scene repaints the cleared surface
 }
 ```
+
+### GPUコンテキスト消失への対応
+
+GPUリセットまたはメモリ圧力による追放によって描画コンテキストが奪われます。対処しなければ、サーフェスは永久に空白のままになります。GPUコンテキストを持つレンダラーは以下を行うべきです：
+
+1. その消失イベントをリッスンし `preventDefault()` します——否则ブラウザは対応する復元イベントを決して発火させません；
+2. `isContextLost() === true` を報告し、`Scene.render` が死んだコンテキストに対して描画コールを発行する代わりにパスをスキップするようにします；
+3. 復元時にコンテキストを再取得し、DPR変換/サイズを再適用し、`onContextRestored` コールバックを発火させてSceneが新しくクリアされたサーフェスを再描画するようにします。
+
+`CanvasRenderer` はCanvas2Dに対してこれを実行し、`ThreeRenderer` はWebGLに対してこれを実行します——[`@vectojs/three`](/reference/three-renderer/#gpu-context-loss--runtime-dpr) を参照。
 
 `fillCircle` は連続する同じ `color`/`alpha` の呼び出しを1つのパスに統合し、`flush()` 時（またはスタイル変更時）にコミットされます。Sceneは各兄弟グループの終了時と各フレームの終了時にフラッシュし、ペインターズオーダーを保持します。
 

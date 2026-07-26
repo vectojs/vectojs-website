@@ -55,8 +55,12 @@ exclusions: ExclusionRect[]): LineSegment[]` es el núcleo puro y testeable: los
 - `LayoutResult` — `{ nodes: LayoutNode[], totalWidth, totalHeight,
 fallbackToCanvas? }`; `LayoutNode` es un glifo posicionado.
 - `LayoutResultBuffer` — resultado plano de array tipado (`xs/ys/ws/hs`, `chars`,
-  `count`, `CAPACITY = 16384`); `reset()` antes de reutilizar, `toLayoutResult()` para
-  materializar.
+  `levels`, `count`, `CAPACITY = 16384`); `reset()` antes de reutilizar, `toLayoutResult()` para
+  materializar. `levels` es el nivel de incrustación BiDi resuelto por glifo (par =
+  LTR, impar = RTL), por lo que un consumidor puede determinar la dirección de un glifo;
+  la ruta del búfer la usa para reordenar cada línea en orden visual. Los glifos salen en
+  orden **visual** con una línea base compartida, coincidiendo con la ruta asignadora
+  glifo por glifo.
 - `LayoutWorkerManager.getInstance()` — singleton para disposición fuera del hilo principal;
   `queueLayout(entityId, text, { fontId, fontSize, maxWidth, maxHeight, callback,
 ... })` / `cancelLayout(entityId)`. Usado por [`MSDFTextEntity`](/reference/core-text/#msdftextentity).

@@ -74,11 +74,15 @@ ArabicShaper.shapeArabic(text: string): ShapedResult   // { shapedText, indexMap
 BidiResolver.getBaseLevel(text: string): number
 BidiResolver.resolveLevels(text: string): Uint8Array
 BidiResolver.reorderVisual(nodes: any[], baseLevel: number): void
+BidiResolver.reorderSegments(str: string, levels: Uint8Array, baseLevel: number):
+  Array<[number, number]>
 ```
 
 輕量級內建 bidi：基於範圍的方向類別（希伯來文/阿拉伯文 R/AL、
 EN/AN 數字）和阿拉伯文上下文呈現形式選擇。`indexMap` 將
 塑形後的索引映射回原始字串，用於點擊測試 / 游標映射。
+
+`reorderVisual` 就地重排節點物件陣列。`reorderSegments` 暴露相同的 UAX #9 **L2** 反轉範圍（運行自身位置上的包含性 `[start, end]` 索引對），而不需要節點物件，因此持有**並行 typed-array** 的呼叫者可以就地套用相同的置換 — 這就是零 GC 緩衝路徑所使用的。`reorderVisual` 現在委託給它，因此兩者不會產生偏差。
 
 用法請參閱 [Text & Typography](/learn/text-typography/)。
 

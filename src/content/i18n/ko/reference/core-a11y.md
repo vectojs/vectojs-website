@@ -24,24 +24,81 @@ role/label/state를 전달합니다.
 
 ```ts
 {
+  // Element + identity
   tag?: 'div' | 'a' | 'button' | 'img' | 'input' | 'textarea';   // 기본값 'div'
-  role?, label?, tabIndex?, href?, src?, alt?, inputType?, placeholder?, value?,
-  checked?, disabled?, expanded?, controls?, haspopup?, selected?,
-  activedescendant?, valuemin?, valuemax?
+  role?: string;
+  label?: string;                      // aria-label
+  labelledby?: string;                 // aria-labelledby
+  describedby?: string;                // aria-describedby
+
+  // Focus & pointer
+  tabIndex?: number;
+  pointerEvents?: 'auto' | 'none';     // default 'auto'
+
+  // Native element attributes (only for the matching `tag`)
+  href?: string; target?: string;      // tag: 'a'
+  src?: string; alt?: string;          // tag: 'img'
+  inputType?: string; placeholder?: string; value?: string;
+  textInputStyle?: TextInputStyle;     // native editor typography
+
+  // State
+  checked?: boolean; disabled?: boolean; selected?: boolean;
+  expanded?: boolean; required?: boolean; invalid?: boolean;
+  valuemin?: string; valuemax?: string;
+  level?: number;                      // aria-level (headings, tree items)
+
+  // Relationships & popups
+  controls?: string; haspopup?: string; activedescendant?: string;
+  ariaModal?: 'true' | 'false';        // aria-modal on a role="dialog"
+
+  // Live regions
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean;                    // aria-atomic
+  relevant?: string;                   // aria-relevant
 }
 ```
 
+모든 필드는 매 프레임 더티 검사를 통해 실제 속성으로 투영됩니다. 필드에 `undefined`를 반환하면 속성이 **제거**되므로, 더 이상 적용되지 않는 상태는 오래되지 않고 사라집니다—`false`와 `undefined`는 여기서 구별된다는 점에 유의하세요(`aria-invalid="false"`는 "명시적으로 유효"하며 유지됩니다).
+
 동기화는 이를 실제 엘리먼트(실제 `<button>`, `<a href>`, `<img>`,
-`<input>`/`<textarea>` — IME 인식 `change`/`focus`/`blur` 등)에 적용하며,
-더티 검사를 통해 DOM 쓰기를 최소화합니다. 기본적으로 포커스가 불가능한 대화형 역할
-(`button`, `switch`, `checkbox`, `link`, `slider`, …)은 `tabindex="0"`과
-Enter/Space → `click`을 받습니다. 이것이 "**캔버스 성능 및 DOM 수준
+`<input>`/`<textarea>` — IME 인식 `change`/`focus`/`blur` 등)에 적용합니다. 이것이 "**캔버스 성능 및 DOM 수준
 접근성**" 스토리입니다: 시각적 요소는 100% GPU/캔버스이면서, Playwright/에이전트
 `getByRole('button', { name })`은 섀도우 노드를 찾아 클릭할 수 있습니다.
+
+## 포커스 순서
+
+기본적으로 포커스가 불가능한 대화형 역할
+(`button`, `switch`, `checkbox`, `link`, `slider`, …)은 `tabindex="0"`과
+Enter/Space → `click`을 받습니다.
+
+**복합 위젯은 다릅니다.** `tree`, `grid`, `menu`, `radiogroup` 또는
+`tablist`는 자식당 하나의 탭 정지가 아니라 하나뿐입니다—따라서 자식은 **로빙 tabindex**를 사용합니다: 정확히 하나의 자식이 `tabIndex: 0`을 가지고 나머지는 `-1`이며, 화살표 키가 해당 정지를 이동합니다. [복합 위젯](#복합-위젯-로빙-tabindex)을 참조하세요.
+
+탭 순서는 씬 그래프 삽입 순서가 아닌 **시각적** 읽기 순서를 따릅니다—RTL의 경우 [`Scene.readingDirection`](/reference/core-scene/#accessibility--appearance)을 참조하세요.
 
 디자인 캔버스와 같은 비-컨트롤 영역이 순차적 포커스 순서에 진입하고
 VMT `keydown` 이벤트를 수신해야 하는 경우 `tabIndex: 0`을 명시적으로 설정하세요. 프로그래매틱 포커스만
 필요한 경우 `-1`을 사용하고, `undefined`를 반환하면 명시적 값을 제거합니다.
+
+## 복합 위젯 (로빙 tabindex)
+
+트리, 그리드, 메뉴, 라디오 그룹 또는 탭 목록은 컨테이너 역할뿐만 아니라 각 자식에 **하나의 역할**을 노출해야 합니다—그렇지 않으면 AT는 불투명한 상자만 보게 됩니다. VectoJS는 각 보이는 자식 위에 투명하고 포커스 가능한 자식 엔터티("핫스팟")를 풀링하여 이를 수행합니다: 자식의 `role` + 상태 + 로빙 `tabIndex`를 전달하고 아무것도 렌더링하지 않으며, 부모가 키보드 핸들러를 소유합니다.
+
+중요한 것은 이 핫스팟들이 `pointerEvents: 'none'`을 설정한다는 점입니다. 하위 컴포넌트가 이미 마우스를 소유하고 있으므로(탭으로 전환, 드래그로 스크롤, 선택 가능한 셀 텍스트), 핫스팟이 이를 가로채서는 안 됩니다—키보드 포커스와 AT 합성 `click`은 `pointer-events:none` 요소를 통해 여전히 작동합니다.
+
+| 컴포넌트      | 자식 역할                                                     | 키보드 조작                                                                                                                          |
+| ------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `TreeView`    | `treeitem` (+ `aria-level`, `aria-expanded`, `aria-selected`) | Up/Down 이동 · Right 확장 후 진입 · Left 접은 후 부모로 이동 · Home/End · Enter/Space 활성화                                         |
+| `Table`       | `row` › `gridcell` / `columnheader`                           | 화살표로 2D 이동 (헤더는 row −1) · Home/End 행 끝 · Ctrl+Home/Ctrl+End 그리드 모서리                                                 |
+| `ContextMenu` | `menuitem` (+ `aria-haspopup`, `aria-expanded`)               | Up/Down 랩 및 구분자 + 비활성 건너뜀 · Home/End · Right 서브메뉴 열기 · Left 부모 메뉴로 돌아가기 · Enter/Space 활성화 · Escape 닫기 |
+| `RadioGroup`  | `radio` (+ `aria-checked`)                                    | 화살표로 이동 및 선택 · Home/End · Space 선택                                                                                        |
+| `Tabs`        | `tab` (+ `aria-selected`)                                     | 화살표로 이동 · Home/End · Space/Enter 활성화                                                                                        |
+
+보이는 자식만 풀링되므로, 가상화된 `TreeView` 또는 `Table`은 데이터 세트의 각 행이 아닌 O(viewport)개의 핫스팟을 투영합니다. 포커스된 행/셀은 포커스가 이동하기 전에 뷰로 스크롤됩니다.
+
+## 강제 색상 (고대비)
+
+캔버스는 불투명한 픽셀이므로 브라우저의 `forced-colors` 리매핑은 VectoJS가 그리는 것에 절대 닿지 않습니다—Windows 고대비에서 컴포넌트가 자체를 다시 그리지 않는 한 테마가 적용된 컨트롤은 읽을 수 없게 됩니다. [`Scene.forcedColors`](/reference/core-scene/#accessibility--appearance)를 참조하고 CSS 시스템 색상(`ButtonFace`, `ButtonText`, `Highlight`, `Canvas`, `CanvasText`)으로 그리세요. 설정이 전환되면 씬이 자동으로 다시 그려집니다. `Button`은 이미 이를 수행하고 있습니다.
 
 ## 컨트롤 및 주의사항
 

@@ -83,8 +83,33 @@ interface A11yAttributes {
   activedescendant?: string; // aria-activedescendant（用於複合小工具）
   valuemin?: string; // aria-valuemin（用於滑桿、儀表）
   valuemax?: string; // aria-valuemax
+
+  // 與其他節點的關係和命名
+  labelledby?: string; // aria-labelledby
+  describedby?: string; // aria-describedby — 提示/錯誤文字
+
+  // 驗證狀態（canvas 表單可被朗讀的唯一方式）
+  required?: boolean; // aria-required
+  invalid?: boolean; // aria-invalid — 注意 false 表示「明確有效」
+
+  // 結構與對話框
+  level?: number; // aria-level（標題、樹項目）
+  ariaModal?: 'true' | 'false'; // role="dialog" 上的 aria-modal
+
+  // 即時區域 — 在不移動焦點的情況下朗讀串流更新
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean; // aria-atomic — 讀取整個區域，而非差異
+  relevant?: string; // aria-relevant — 例如 'additions text'
+
+  // 指標表面
+  pointerEvents?: 'auto' | 'none'; // 'none' 用於結構性/僅覆蓋節點
+
+  target?: string; // 用於 tag='a'
+  textInputStyle?: TextInputStyle; // 原生編輯器排版
 }
 ```
+
+將欄位返回 `undefined` 會**移除**該屬性，因此停止套用的狀態會消失而不是變為過時。
 
 對於不是按鈕或表單控制項但必須擁有鍵盤快捷鍵的畫布工作區，使用明確的 `tabIndex: 0`：
 
@@ -98,20 +123,49 @@ getA11yAttributes(): A11yAttributes {
 
 ### 內建元件投射的內容
 
-| 元件               | 陰影元素                  | 關鍵 ARIA 屬性                                               |
-| ------------------ | ------------------------- | ------------------------------------------------------------ |
-| `Button`           | `<button>`                | `role="button"`, `aria-label`                                |
-| `Link`             | `<a href>`                | 原生連結, `aria-label`                                       |
-| `Image`            | `<img>`                   | `src`, `alt`                                                 |
-| `Input`            | `<input type="text">`     | `placeholder`, `value`（即時）                               |
-| `TextArea`         | `<textarea>`              | `placeholder`, `value`（即時）                               |
-| `Checkbox`         | `<input type="checkbox">` | `checked`（即時）, `aria-label`                              |
-| `Toggle`           | `<div role="switch">`     | `aria-checked`（即時）, `aria-label`                         |
-| `Slider`           | `<div role="slider">`     | `aria-valuenow/min/max`（即時）                              |
-| `Dropdown`         | `<div role="combobox">`   | `aria-expanded`, `aria-controls`, 選單項目為 `role="option"` |
-| `Card`（含 label） | `<div role="group">`      | `aria-label`                                                 |
-| `Table`            | `<div role="grid">`       | `aria-label`，含列/欄數                                      |
-| `Text`             | `<div>`                   | `aria-label` = 文字內容                                      |
+| 元件               | 陰影元素                                   | 關鍵 ARIA 屬性                                               |
+| ------------------ | ------------------------------------------ | ------------------------------------------------------------ |
+| `Button`           | `<button>`                                 | `role="button"`, `aria-label`                                |
+| `Link`             | `<a href>`                                 | 原生連結, `aria-label`                                       |
+| `Image`            | `<img>`                                    | `src`, `alt`                                                 |
+| `Input`            | `<input type="text">`                      | `placeholder`, `value`（即時）                               |
+| `TextArea`         | `<textarea>`                               | `placeholder`, `value`（即時）                               |
+| `Checkbox`         | `<input type="checkbox">`                  | `checked`（即時）, `aria-label`                              |
+| `Toggle`           | `<div role="switch">`                      | `aria-checked`（即時）, `aria-label`                         |
+| `Slider`           | `<div role="slider">`                      | `aria-valuenow/min/max`（即時）                              |
+| `Dropdown`         | `<div role="combobox">`                    | `aria-expanded`, `aria-controls`, 選單項目為 `role="option"` |
+| `Card`（含 label） | `<div role="group">`                       | `aria-label`                                                 |
+| `Table`            | `grid` › `row` › `gridcell`/`columnheader` | 浮動 tab 索引，2D 方向鍵，Ctrl+Home/End                      |
+| `TreeView`         | 每行一個 `treeitem`                        | `aria-level`/`expanded`/`selected`，方向鍵展開/摺疊          |
+| `ContextMenu`      | 每項一個 `menuitem`                        | `aria-haspopup`/`expanded`，方向鍵迴圈，Escape 關閉          |
+| `RadioGroup`       | 每選項一個 `radio`                         | `aria-checked`，方向鍵移動+選取                              |
+| `Tabs`             | 每個分頁一個 `tab`                         | `aria-selected`，方向鍵移動，Home/End                        |
+| `Text`             | `<div>`                                    | `aria-label` = 文字內容                                      |
+
+## 複合小工具——一個 Tab 停駐點，方向鍵在內部操作
+
+樹、網格、選單、單選群組或分頁列表不應將每個子元素放入 Tab 順序中。VectoJS 在每個**可見**子元素上方池化一個透明的可聚焦熱點，攜帶該子元素的角色和狀態，並恰好為其中一個赋予 `tabIndex: 0`——一個**浮動 Tab 索引**。父元素擁有方向鍵處理器並移動停駐點。請參閱上表了解每個元件的按鍵，以及[複合小工具](/reference/core-a11y/#composite-widgets-roving-tabindex)了解你自己建構時的模式。
+
+重用該模式而不是自行發明：重要的微妙之處是當底層的某些東西擁有滑鼠時（可選取儲存格文字、拖曳捲動、畫布命中處理），熱點必須設定 `pointerEvents: 'none'`。鍵盤焦點和 AT 合成的 `click` 仍然可以穿透它運作。
+
+Tab 順序遵循**視覺**閱讀順序，而非你加入實體的順序。對於 RTL UI，在 Scene 上設定 `readingDirection: 'rtl'`，以便每行內的內聯順序也會反轉。
+
+## 強制色彩（Windows 高對比度）
+
+`<canvas>` 是不透明像素，因此瀏覽器的 `forced-colors` 重新對應永遠不會到達你繪製的任何內容——主題化控制項保持低對比且難以閱讀，除非它自行重繪。讀取 `scene.forcedColors` 並使用 CSS 系統色彩繪製；當作業系統設定切換時，場景會自動重繪：
+
+```typescript
+render(r: IRenderer) {
+  const forced = this.scene?.forcedColors ?? false;
+  r.beginPath();
+  r.roundRect(0, 0, this.width, this.height, 8);
+  r.fill(forced ? 'ButtonFace' : this.bg);
+  if (forced) r.stroke('ButtonText', 1);       // 給形狀一個邊緣
+  r.fillText(this.label, x, y, this.font, forced ? 'ButtonText' : this.color);
+}
+```
+
+`Button` 已經這樣做了。使用 `Highlight` 表示選取/焦點，`Canvas`/`CanvasText` 表示表面和內文文字。
 
 ## 支援 IME 的輸入欄位
 

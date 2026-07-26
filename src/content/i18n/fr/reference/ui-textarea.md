@@ -12,7 +12,7 @@ order: 24
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · TextArea</span></div>
-  <iframe src="/sandbox/ui/component.html?name=textarea&v=core-1.15.0-ui-2.0.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de TextArea" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=textarea&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de TextArea" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Lʼédition multiligne est native ; le canvas peint le miroir visuel.</figcaption>
 </figure>
 
@@ -28,6 +28,10 @@ const notes = new TextArea({
   onChange: (value) => saveDraft(value),
 });
 ```
+
+## Composition IME
+
+Lorsquʼune composition IME est active, le composant dessine un soulignement sous la plage de composition. La **surbrillance de sélection est supprimée** pendant la durée : composer par-dessus du texte sélectionné remplace logiquement cette plage, mais lʼélément natif continue de rapporter le `selectionStart`/`selectionEnd` pré-composition jusquʼà ce que la composition soit validée — le dessiner afficherait une surbrillance obsolète derrière (et plus large que) le soulignement de composition. Une composition de longueur zéro (le `compositionstart` initial) affiche toujours la sélection, puisque rien ne lʼa encore remplacée.
 
 ## Liste de vérification pour les mainteneurs
 

@@ -83,8 +83,33 @@ interface A11yAttributes {
   activedescendant?: string; // aria-activedescendant (for composite widgets)
   valuemin?: string; // aria-valuemin (for sliders, meters)
   valuemax?: string; // aria-valuemax
+
+  // Relaciones y denominación desde otros nodos
+  labelledby?: string; // aria-labelledby
+  describedby?: string; // aria-describedby — texto de pista / error
+
+  // Estado de validación (la única manera de que un formulario canvas sea anunciable)
+  required?: boolean; // aria-required
+  invalid?: boolean; // aria-invalid — nota: false significa "explícitamente válido"
+
+  // Estructura y diálogos
+  level?: number; // aria-level (encabezados, elementos de árbol)
+  ariaModal?: 'true' | 'false'; // aria-modal en un role="dialog"
+
+  // Regiones activas — anunciar actualizaciones en streaming sin mover el foco
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean; // aria-atomic — leer la región completa, no la diferencia
+  relevant?: string; // aria-relevant — ej. 'additions text'
+
+  // Superficie del puntero
+  pointerEvents?: 'auto' | 'none'; // 'none' para nodos estructurales/solo superposición
+
+  target?: string; // para tag='a'
+  textInputStyle?: TextInputStyle; // tipografía del editor nativo
 }
 ```
+
+Devolver `undefined` para un campo **elimina** el atributo, por lo que el estado que deja de aplicar desaparece en lugar de quedar obsoleto.
 
 Usa un `tabIndex: 0` explícito para un espacio de trabajo de canvas que no es un botón ni un control de formulario pero debe poseer atajos de teclado:
 
@@ -98,20 +123,49 @@ Mantén las entradas nativas, las áreas de texto y el contenido editable a carg
 
 ### Qué proyectan los componentes integrados
 
-| Componente         | Elemento shadow           | Atributos ARIA clave                                                     |
-| ------------------ | ------------------------- | ------------------------------------------------------------------------ |
-| `Button`           | `<button>`                | `role="button"`, `aria-label`                                            |
-| `Link`             | `<a href>`                | enlace nativo, `aria-label`                                              |
-| `Image`            | `<img>`                   | `src`, `alt`                                                             |
-| `Input`            | `<input type="text">`     | `placeholder`, `value` (en vivo)                                         |
-| `TextArea`         | `<textarea>`              | `placeholder`, `value` (en vivo)                                         |
-| `Checkbox`         | `<input type="checkbox">` | `checked` (en vivo), `aria-label`                                        |
-| `Toggle`           | `<div role="switch">`     | `aria-checked` (en vivo), `aria-label`                                   |
-| `Slider`           | `<div role="slider">`     | `aria-valuenow/min/max` (en vivo)                                        |
-| `Dropdown`         | `<div role="combobox">`   | `aria-expanded`, `aria-controls`, elementos de menú como `role="option"` |
-| `Card` (con label) | `<div role="group">`      | `aria-label`                                                             |
-| `Table`            | `<div role="grid">`       | `aria-label` con recuento de filas/columnas                              |
-| `Text`             | `<div>`                   | `aria-label` = contenido de texto                                        |
+| Componente         | Elemento shadow                            | Atributos ARIA clave                                                     |
+| ------------------ | ------------------------------------------ | ------------------------------------------------------------------------ |
+| `Button`           | `<button>`                                 | `role="button"`, `aria-label`                                            |
+| `Link`             | `<a href>`                                 | enlace nativo, `aria-label`                                              |
+| `Image`            | `<img>`                                    | `src`, `alt`                                                             |
+| `Input`            | `<input type="text">`                      | `placeholder`, `value` (en vivo)                                         |
+| `TextArea`         | `<textarea>`                               | `placeholder`, `value` (en vivo)                                         |
+| `Checkbox`         | `<input type="checkbox">`                  | `checked` (en vivo), `aria-label`                                        |
+| `Toggle`           | `<div role="switch">`                      | `aria-checked` (en vivo), `aria-label`                                   |
+| `Slider`           | `<div role="slider">`                      | `aria-valuenow/min/max` (en vivo)                                        |
+| `Dropdown`         | `<div role="combobox">`                    | `aria-expanded`, `aria-controls`, elementos de menú como `role="option"` |
+| `Card` (con label) | `<div role="group">`                       | `aria-label`                                                             |
+| `Table`            | `grid` › `row` › `gridcell`/`columnheader` | tabindex flotante, teclas de flecha 2D, Ctrl+Home/End                    |
+| `TreeView`         | `treeitem` por fila visible                | `aria-level`/`expanded`/`selected`, flechas expandir/colapsar            |
+| `ContextMenu`      | `menuitem` por elemento                    | `aria-haspopup`/`expanded`, flechas envuelven, Escape cierra             |
+| `RadioGroup`       | `radio` por opción                         | `aria-checked`, flechas mueven+seleccionan                               |
+| `Tabs`             | `tab` por pestaña                          | `aria-selected`, flechas mueven, Home/End                                |
+| `Text`             | `<div>`                                    | `aria-label` = contenido de texto                                        |
+
+## Widgets compuestos: una parada de tabulación, teclas de flecha dentro
+
+Un árbol, cuadrícula, menú, grupo de radio o lista de pestañas no debe poner cada hijo en el orden de tabulación. VectoJS agrupa un hotspot transparente y enfocable sobre cada hijo **visible** que lleva el rol y estado de ese hijo, y le da exactamente a uno `tabIndex: 0` — un **tabindex flotante**. El padre posee el manejador de teclas de flecha y mueve la parada. Consulte la tabla anterior para las teclas de cada componente, y [Widgets compuestos](/reference/core-a11y/#composite-widgets-roving-tabindex) si está construyendo el suyo.
+
+Reutilice ese patrón en lugar de inventar uno: lo importante es que el hotspot debe establecer `pointerEvents: 'none'` siempre que algo debajo posea el ratón (texto de celda seleccionable, arrastrar para desplazar, manejo de impactos del canvas). El foco del teclado y el `click` sintetizado por AT aún pasan a través de él.
+
+El orden de tabulación sigue el orden de lectura **visual**, no el orden en que agregó las entidades. Para una interfaz RTL establezca `readingDirection: 'rtl'` en la Scene para que el orden en línea dentro de cada fila también se invierta.
+
+## Colores forzados (Alto contraste de Windows)
+
+Un `<canvas>` son píxeles opacos, por lo que el remapeo `forced-colors` del navegador nunca llega a lo que dibujas — un control con tema permanece de bajo contraste y ilegible a menos que se repinte a sí mismo. Lea `scene.forcedColors` y dibuje con colores CSS del sistema; la escena se repinta automáticamente cuando la configuración del sistema cambia:
+
+```typescript
+render(r: IRenderer) {
+  const forced = this.scene?.forcedColors ?? false;
+  r.beginPath();
+  r.roundRect(0, 0, this.width, this.height, 8);
+  r.fill(forced ? 'ButtonFace' : this.bg);
+  if (forced) r.stroke('ButtonText', 1);       // give the shape an edge
+  r.fillText(this.label, x, y, this.font, forced ? 'ButtonText' : this.color);
+}
+```
+
+`Button` ya hace esto. Use `Highlight` para selección/foco, `Canvas`/`CanvasText` para superficies y texto del cuerpo.
 
 ## Campos de entrada compatibles con IME
 

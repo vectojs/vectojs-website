@@ -28,17 +28,28 @@ new ThreeRenderer(canvas: HTMLCanvasElement)
 
 - `{ canvas, alpha: true, antialias: true }` 옵션의 `THREE.WebGLRenderer`
 - Y축이 아래를 가리키는(상단 = 0, 하단 = height) `THREE.OrthographicCamera`로 VectoJS 좌표계와 일치
-- 픽셀 비율이 `window.devicePixelRatio`로 자동 설정
+- 픽셀 비율이 `window.devicePixelRatio`로 자동 설정되며, 런타임에서 변경될 때 **동기화된 상태로 유지됩니다** (아래 참조)
 
-`ThreeRenderer`는 이 WebGLRenderer를 생성하고 소유합니다; 기존 렌더러/컨텍스트를 받거나 재사용하지 않습니다. `dispose()`는 활성 객체를 제거하고, geometry/material/texture 리소스를 해제하며, 스택을 초기화하고, 소유한 WebGLRenderer를 정확히 한 번 폐기합니다.
+`ThreeRenderer`는 이 WebGLRenderer를 생성하고 소유합니다; 기존 렌더러/컨텍스트를 받거나 재사용하지 않습니다. `dispose()`는 활성 객체를 제거하고, geometry/material/texture 리소스를 해제하며, 스택을 초기화하고, 소유한 WebGLRenderer를 정확히 한 번 폐기합니다. 또한 아래에 설명된 컨텍스트 손실 및 DPR 리스너를 분리하므로, 폐기된 렌더러는 늦은 이벤트에 의해 부활할 수 없습니다.
+
+## GPU 컨텍스트 손실 및 런타임 DPR
+
+GPU 리셋이나 메모리 압력 제거가 없으면 Three로 구동되는 씬이 영구적으로 빈 상태로 남고, 모니터 이동이나 브라우저 확대/축소가 오래된 픽셀 비율로 렌더링되게 됩니다(흐릿하거나 계단 현상). `ThreeRenderer`는 둘 다 처리합니다:
+
+- **`webglcontextlost`**는 `preventDefault()`됩니다 — 필수이며, 그렇지 않으면 브라우저가 복원 이벤트를 결코 발생시키지 않습니다 — 그리고 `isContextLost()`를 토글합니다. 손실 중에는 `present()`가 no-op이 됩니다. 죽은 컨텍스트에 대해 그리는 것이 무의미하기 때문입니다.
+- **`webglcontextrestored`**는 픽셀 비율과 크기를 재적용합니다(복원이 다른 디스플레이에 올 수 있음), 플래그를 지우고 새로 지워진 프레임버퍼의 다시 그리기를 강제합니다. Three의 `WebGLRenderer`는 다음 렌더링 시 GL 상태를 지연적으로 재구축합니다.
+- **DPR 변경**은 `(resolution: Ndppx)` 미디어 쿼리로 추적되며, `setPixelRatio` + `setSize`를 재적용하고 자체를 재무장합니다(쿼리는 일회성).
+
+모두 SSR / `OffscreenCanvas`를 위해 보호됩니다(`addEventListener` 또는 `matchMedia` 없음). `isContextLost()`는 선택적 [`IRenderer`](/reference/core-renderer/#gpu-컨텍스트-손실-처리) 훅도 충족하므로, `Scene.render`는 컨텍스트가 없는 동안 해당 패스를 건너뜁니다.
 
 ## Public 속성
 
-| 속성       | 유형                       |
-| ---------- | -------------------------- |
-| `scene`    | `THREE.Scene`              |
-| `camera`   | `THREE.OrthographicCamera` |
-| `renderer` | `THREE.WebGLRenderer`      |
+| 속성              | 유형                       |
+| ----------------- | -------------------------- |
+| `scene`           | `THREE.Scene`              |
+| `camera`          | `THREE.OrthographicCamera` |
+| `renderer`        | `THREE.WebGLRenderer`      |
+| `isContextLost()` | `() => boolean`            |
 
 ## 사용법
 

@@ -34,7 +34,8 @@ no-op para que la disposición sin interfaz gráfica / `toSVG()` sigan funcionan
 | `pointBackend`         | `'canvas' \| 'webgl'`         | `'canvas'`       | Backend para hojas `getBatchCircle()`/`getBatchRect()` representables. `'webgl'` apila un canvas WebGL2 (`z-index:5`) y agrupa esas primitivas; si WebGL2 no está disponible, recurre a Canvas. La capa GL compone sobre el contenido 2D, por lo que el orden de pintura entre capas no se intercala.                                |
 | `particleBackend`      | `'auto' \| 'webgpu' \| 'cpu'` | `'auto'`         | Backend de [`ComputeParticleEntity`](/reference/core-particles/). `'auto'` intenta WebGPU y advierte antes de recurrir a CPU. `'webgpu'` solicita explícitamente WebGPU pero actualmente registra un error y aún recurre si la inicialización falla. `'cpu'` fuerza la simulación CPU (establece `webgpuDisabled`).                  |
 | `maxFPS`               | `number`                      | `60`             | Límite de fotogramas por segundo. `0` = sin límite (refresco nativo). Las animaciones continuas siguen ejecutándose, solo que con menos frecuencia. (Internamente `0` bajo `NODE_ENV=test`/`VITEST`.) También se puede establecer en vivo mediante `scene.maxFPS`.                                                                   |
-| `respectReducedMotion` | `boolean`                     | `true`           | Cuando el SO solicita `prefers-reduced-motion`, limitar a `REDUCED*MOTION*FPS` (30) — o el menor entre ese y `maxFPS`. `false` ignora la configuración del SO.                                                                                                                                                                       |
+| `respectReducedMotion` | `boolean`                     | `true`           | Cuando el SO solicita `prefers-reduced-motion`, limitar a `REDUCED_MOTION_FPS` (30) — o el menor entre ese y `maxFPS`. `false` ignora la configuración del SO.                                                                                                                                                                       |
+| `readingDirection`     | `'ltr' \ \| 'rtl'`            | `'ltr'`          |                                                                                                                                                                                                                                                                                                                                      |
 | `a11ySyncInterval`     | `number`                      | `0`              | Limita la sincronización del DOM sombra a11y a como máximo una vez cada N ms. `0` = sincronizar cada fotograma renderizado. Un valor pequeño (ej. `100`) mantiene la capa a11y eventualmente consistente durante animaciones pesadas mientras evita escrituras DOM por fotograma. También en vivo mediante `scene.a11ySyncInterval`. |
 | `debugA11y`            | `boolean`                     | `false`          | Renderiza nodos sombra con un contorno punteado azul (ayuda de desarrollo) en lugar de `opacity:0`. Siguen siendo cliqueables por automatización de cualquier forma.                                                                                                                                                                 |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | Renderizador personalizado (ej. `ThreeRenderer` de [`@vectojs/three`](/reference/three-renderer/)).                                                                                                                                                                                                                                  |
@@ -80,6 +81,8 @@ scene.a11ySyncInterval: number
 scene.particleBackend: 'auto' | 'webgpu' | 'cpu'
 scene.webgpuDisabled: boolean      // getter true cuando _disabled O particleBackend === 'cpu'
 scene.a11yNeedsReorder: boolean
+scene.readingDirection: 'ltr' | 'rtl'   // tab/traversal order; setting it re-flows
+scene.forcedColors: boolean             // getter — OS is in a forced-colors mode
 ```
 
 ## renderMode, maxFPS y el acelerador automático por inactividad
@@ -105,9 +108,41 @@ de cada fotograma renderizado (post-renderizado), por lo tanto:
 > **entre** fotogramas (desde un manejador de eventos, un `rAF` separado o un temporizador) para que la
 > bandera sobreviva hasta la siguiente iteración del bucle.
 
-`effectiveMaxFPS` = `maxFPS`, reducido aún más a 30 (`REDUCED*MOTION*FPS`) cuando
-el SO solicita movimiento reducido y `respectReducedMotion` está activo. `0` significa
-sin límite.
+### Pausa fuera de pantalla y el límite de dt
+
+Dos comportamientos del bucle que son fáciles de pasar por alto:
+
+- **Las escenas fuera de pantalla dejan de renderizar.** Un `IntersectionObserver` en el canvas
+  pausa el bucle rAF cuando el canvas se desplaza completamente fuera de la vista (una pestaña de panel,
+  un gráfico debajo del pliegue) y se reanuda al reingresar — en lugar de ejecutar la
+  actualización/renderizado completo para una escena que nadie puede ver. Donde `IntersectionObserver` no está
+  disponible (SSR/jsdom) la escena se trata como siempre en pantalla, por lo que el comportamiento es
+  allí invariable.
+- **`dt` se limita a 100ms** (`MAX_FRAME_DT`). Después de una pestaña en segundo plano, un
+  punto de interrupción, o una pausa larga de GC el tiempo real transcurrido puede ser de segundos; introducir
+  ese valor crudo en la integración física/tween hace que todo se teletransporte. Si
+  integras `dt` tú mismo en `update(dt)`, ten en cuenta que nunca superará los 100ms.
+
+## Accesibilidad y apariencia
+
+| Miembro                | Tipo               | Notas                                                                                                                                                                                                                                                    |
+| ---------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `readingDirection`     | `'ltr' \ \| 'rtl'` | Ordena el árbol sombra a11y para que el **orden de tabulación** coincida con el orden de lectura visual (filas de arriba a abajo, luego en línea). Establecerlo activa una reordenación en la próxima sincronización. También es opción del constructor. |
+| `forcedColors`         | `boolean` (getter) | `true` cuando el SO está en modo de colores forzados (Alto contraste de Windows). Detectado por `(forced-colors: active)`; la escena **se repinta automáticamente** cuando se alterna.                                                                   |
+| `prefersReducedMotion` | `boolean` (getter) | `true` cuando el SO solicita movimiento reducido y `respectReducedMotion` está activo. Leído por los controladores de animación, que hacen snap de propiedades que no son opacity en lugar de hacerles tween.                                            |
+
+Un `<canvas>` son píxeles opacos, por lo que el remapeo de colores forzados del navegador nunca
+tocca lo que dibujas. Los componentes deben reaccionar por sí mismos:
+
+```ts
+render(r: IRenderer) {
+  const forced = this.scene?.forcedColors ?? false;
+  r.fill(forced ? 'ButtonFace' : this.bg);
+  r.fillText(this.label, x, y, this.font, forced ? 'ButtonText' : this.color);
+}
+```
+
+Ver [a11yRoot y el contrato del agente](/reference/core-a11y/#colores-forzados-alto-contraste).
 
 ## Métodos del ciclo de vida
 
@@ -166,6 +201,25 @@ Llamado automáticamente por el punto de entrada `.`. Las interfaces relevantes
 `WebGLPointRendererCreator`) se exportan para backends personalizados. La pérdida de dispositivo WebGPU
 se recupera automáticamente con retroceso exponencial (3 reintentos) antes de deshabilitar
 permanentemente WebGPU.
+
+## Telemetría de fotogramas (`frameStats`, 1.13.0)
+
+```ts
+scene.frameStats: FrameStats; // telemetría de bucle de renderizado en vivo (solo lectura)
+
+interface FrameStats {
+  fps: number; // cadencia de fotogramas renderizados, limitada por maxFPS; 0 antes del primer par de fotogramas
+  frameTimeMs: number; // reloj de pared del último pase render() (excluye sincronización a11y/contenido)
+  frameIntervalMs: number; // intervalo suavizado entre fotogramas renderizados (EMA)
+  dt: number; // dt entregado al último fotograma renderizado
+  renderedFrames: number; // total de fotogramas renderizados desde start()
+  skippedFrames: number; // total de ticks rAF omitidos (idle/onDemand/capped) desde start()
+  renderMode: 'always' | 'onDemand';
+  dirty: boolean; // si hay un redibujado pendiente actualmente
+}
+```
+
+`fps` se deriva del intervalo entre fotogramas _realmente renderizados_, por lo que los fotogramas en escenas `onDemand` inactivas y los fotogramas descartados por el límite `maxFPS` o el auto-throttle estático no lo reducen — reporta la cadencia de los redibujados reales, no la tasa rAF bruta. Los tiempos se miden en el bucle `requestAnimationFrame`; una escena impulsada solo por `step()` (exportación determinista) los deja en cero. El renderizador siempre repinta todo el lienzo, por lo que no hay rectángulo parcial sucio — `dirty` es la bandera booleana de redibujado pendiente. Impulsa el HUD de rendimiento [`@vectojs/devtools`](/reference/devtools/).
 
 ## Relacionados
 

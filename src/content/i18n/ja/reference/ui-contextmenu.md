@@ -8,17 +8,17 @@ order: 39
 
 `ContextMenu` はコマンドサーフェス用のオーバーレイメニューです。
 
-UI 1.11.1–1.11.3 では、ネストしたメニューチェーンのライフサイクルが安全になりました。ルートメニューが所有する単一の backdrop がチェーン全体を閉じるか破棄し、非表示メニューはセマンティック面やポインターのヒット面を残さず、各ルートメニューは安定した backdrop ID を持ちます。外側の `pointerdown` は即座に閉じますが、キーボードと支援技術向けのセマンティックな `click` 操作は維持されます。
+UI 1.11.1–1.11.3 ではネストされたチェーンのライフサイクルが安全になりました：ルートメニューが所有する単一のバックドップがチェーン全体を閉じたり破棄したりし、非表示のメニューはセマンティックまたはポインタのヒットサーフェスを残さず、各ルートメニューは安定したバックドップアイデンティティを持ちます。外部の `pointerdown` は即座に閉じますが、セマンティックな `click` アクティブ化はキーボードと支援技術で引き続き利用可能です。
 
-## 試してみる
+## Try it
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ContextMenu</span></div>
-  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.15.0-ui-2.0.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
-  <figcaption>ランチャーをクリックして、制約されたビューポート内でメニューを開きます。</figcaption>
+  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <figcaption>ランチャーをクリックして、制限されたビューポート内でメニューを開きます。</figcaption>
 </figure>
 
-## 最小限の例
+## 最小の例
 
 ```ts
 import { ContextMenu } from '@vectojs/ui';
@@ -42,8 +42,26 @@ target.on('pointerdown', (event) => {
 });
 ```
 
+## アクセシビリティとキーボード
+
+各非セパレータ項目は `role="menuitem"` ホットスポットを投影し、**ルービング tabindex**（メニューは1つのタブストップ）、該当する場合の `disabled`、およびサブメニューペアrentの `aria-haspopup="menu"` + `aria-expanded` を持っています。
+
+| キー          | アクション                                                                              |
+| ------------- | --------------------------------------------------------------------------------------- |
+| Down / Up     | 次の/前の**有効な**項目、ラップアラウンド；セパレータと無効な項目はスキップ             |
+| Home / End    | 最初の/最後の有効な項目                                                                 |
+| Right         | サブメニューペアrentを開き、その最初の項目にフォーカス                                  |
+| Left          | このサブメニューを閉じ、親メニューにフォーカスを戻す                                    |
+| Enter / Space | アクティブにする（サブメニューを開く、または `onClick` を発火してメニュー全体を閉じる） |
+| Escape        | メニュー全体のツリーを閉じる                                                            |
+
+ホットスポットは `pointerEvents: 'none'` を設定するため、メニューは自身のポインターダウンによる位置ベースのヒット処理を維持します。[コンポジットウィジェット](/reference/core-a11y/#composite-widgets-roving-tabindex)を参照。
+
+> **メニューの表示はシーン全体のバックドップをインストールします。** ルートメニューは、閉じるための外部クリックをキャッチするシーンサイズの不可視インタラクティブエンティティを追加します。そのバックドップはメニューが開いている間、シーン全体のポインターイベントを傍受します——したがって、ドラッグや選択が必要なフィクスチャやテストでメニューを開いたままにしないでください。
+
 ## メンテナー向けチェックリスト
 
 - メニューテキストをパネルからあふれさせないでください。
 - 無効化された行は非インタラクティブに保ちます。
 - ネストされたサブメニューはオーバーレイルートを通じて再配置します。
+- ルートメニューを共有バックドップの唯一の所有者として保持し、コマンド、外部のポインターダウン、または破棄時にサブメニューの完全なチェーンを閉じてください。

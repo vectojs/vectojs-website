@@ -13,7 +13,7 @@ IME, 클립보드, 선택 및 자동화는 네이티브로 유지됩니다.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Input</span></div>
-  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.15.0-ui-2.0.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>키보드 입력 또는 역할 기반 자동화를 통해 텍스트 상자를 채워보세요.</figcaption>
 </figure>
 
@@ -29,8 +29,12 @@ const name = new Input({
 });
 ```
 
+## IME 합성
+
+IME 합성이 활성 상태인 동안 컴포넌트는 합성 범위 아래에 밑줄을 그립니다. 이 기간 동안 **선택 하이라이트가 억제됩니다**: 선택된 텍스트 위에서 합성하면 논리적으로 해당 범위를 대체하지만, 네이티브 요소는 합성이 커밋될 때까지 합성 전 `selectionStart`/`selectionEnd`를 계속 보고합니다—이를 그리면 합성 밑줄 뒤에 (그리고 더 넓은) 오래된 하이라이트가 표시됩니다. 길이가 0인 합성(처음 `compositionstart`)은 아직 아무것도 대체하지 않았으므로 선택을 계속 표시합니다.
+
 ## 유지보수 체크리스트
 
-- 커스텀 텍스트 입력 Entity 대신 `Input`을 사용하세요.
-- 플레이스홀더를 의미 있게 유지하세요. 이는 기본 접근 가능 레이블이기도 합니다.
-- 제어된 업데이트를 구현할 때 선택(selection)을 의도적으로 유지하세요.
+- 사용자 정의 텍스트 입력 엔티티 대신 `Input`을 사용하세요.
+- 플레이스홀더를 의미 있게 유지하세요. 이것도 기본 접근 가능한 이름입니다.
+- 제어된 업데이트를 구현할 때 선택을 의도적으로 보존하세요.

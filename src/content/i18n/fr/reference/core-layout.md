@@ -57,8 +57,12 @@ exclusions: ExclusionRect[]): LineSegment[]` est le cœur pur et testable : les
 - `LayoutResult` — `{ nodes: LayoutNode[], totalWidth, totalHeight,
 fallbackToCanvas? }` ; `LayoutNode` est un glyphe positionné.
 - `LayoutResultBuffer` — résultat en tableau typé plat (`xs/ys/ws/hs`, `chars`,
-  `count`, `CAPACITY = 16384`) ; `reset()` avant réutilisation, `toLayoutResult()`
-  pour matérialiser.
+  `levels`, `count`, `CAPACITY = 16384`) ; `reset()` avant réutilisation, `toLayoutResult()`
+  pour matérialiser. `levels` est le niveau d'imbrication BiDi résolu par glyphe (pair =
+  LTR, impair = RTL), donc un consommateur peut déterminer la direction d'un glyphe ;
+  le chemin du tampon l'utilise pour réordonner chaque ligne en ordre visuel. Les glyphes
+  sortent en ordre **visuel** avec une ligne de base partagée, correspondant au chemin
+  d'allocation glyphe par glyphe.
 - `LayoutWorkerManager.getInstance()` — singleton pour la mise en page hors-thread ;
   `queueLayout(entityId, text, { fontId, fontSize, maxWidth, maxHeight, callback,
 ... })` / `cancelLayout(entityId)`. Utilisé par [`MSDFTextEntity`](/reference/core-text/#msdftextentity).

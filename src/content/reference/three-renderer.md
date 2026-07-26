@@ -28,17 +28,42 @@ Creates:
 
 - `THREE.WebGLRenderer` with `{ canvas, alpha: true, antialias: true }`
 - `THREE.OrthographicCamera` with Y pointing down (top = 0, bottom = height) to match VectoJS's coordinate system
-- Pixel ratio set to `window.devicePixelRatio` automatically
+- Pixel ratio set to `window.devicePixelRatio` automatically, and **kept in sync**
+  as it changes at runtime (see below)
 
-`ThreeRenderer` creates and owns this WebGLRenderer; it does not accept or reuse an existing renderer/context. `dispose()` removes active objects, releases their geometry/material/texture resources, resets stacks, and disposes the owned WebGLRenderer exactly once.
+`ThreeRenderer` creates and owns this WebGLRenderer; it does not accept or reuse an existing renderer/context. `dispose()` removes active objects, releases their geometry/material/texture resources, resets stacks, and disposes the owned WebGLRenderer exactly once. It also detaches the context-loss and DPR listeners described below, so a disposed renderer can't be resurrected by a late event.
+
+## GPU context loss & runtime DPR
+
+A GPU reset or memory-pressure eviction would otherwise leave a Three-backed
+scene permanently blank, and a monitor move or browser zoom would leave it
+rendering at a stale pixel ratio (blurry or aliased). `ThreeRenderer` handles
+both:
+
+- **`webglcontextlost`** is `preventDefault()`-ed — required, or the browser never
+  fires the restore event — and flips `isContextLost()`. `present()` becomes a
+  no-op while lost, since drawing against a dead context is pointless.
+- **`webglcontextrestored`** re-applies pixel ratio and size (a restore can land
+  on a different display), clears the flag, and forces a repaint of the freshly
+  cleared framebuffer. Three's `WebGLRenderer` rebuilds its GL state lazily on the
+  next render.
+- **DPR changes** are tracked with a `(resolution: Ndppx)` media query that
+  re-applies `setPixelRatio` + `setSize` and re-arms itself (the query is
+  one-shot).
+
+All of it is guarded for SSR / `OffscreenCanvas` (no `addEventListener` or
+`matchMedia`). `isContextLost()` also satisfies the optional
+[`IRenderer`](/reference/core-renderer/#surviving-gpu-context-loss) hook, so
+`Scene.render` skips the pass while the context is gone.
 
 ## Public properties
 
-| Property   | Type                       |
-| ---------- | -------------------------- |
-| `scene`    | `THREE.Scene`              |
-| `camera`   | `THREE.OrthographicCamera` |
-| `renderer` | `THREE.WebGLRenderer`      |
+| Property          | Type                       |
+| ----------------- | -------------------------- |
+| `scene`           | `THREE.Scene`              |
+| `camera`          | `THREE.OrthographicCamera` |
+| `renderer`        | `THREE.WebGLRenderer`      |
+| `isContextLost()` | `() => boolean`            |
 
 ## Usage
 

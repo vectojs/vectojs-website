@@ -28,17 +28,38 @@ Crée :
 
 - `THREE.WebGLRenderer` avec `{ canvas, alpha: true, antialias: true }`
 - `THREE.OrthographicCamera` avec Y pointant vers le bas (top = 0, bottom = height) pour correspondre au système de coordonnées de VectoJS
-- Le ratio de pixels défini automatiquement à `window.devicePixelRatio`
+- Le ratio de pixels défini automatiquement à `window.devicePixelRatio` et **maintenu synchronisé** lorsqu'il change à l'exécution (voir ci-dessous)
 
-`ThreeRenderer` crée et possède ce WebGLRenderer ; il n'accepte ni ne réutilise un renderer/context existant. `dispose()` supprime les objets actifs, libère leurs ressources de géométrie/matériau/texture, réinitialise les piles et dispose le WebGLRenderer possédé exactement une fois.
+`ThreeRenderer` crée et possède ce WebGLRenderer ; il n'accepte ni ne réutilise un renderer/context existant. `dispose()` supprime les objets actifs, libère leurs ressources de géométrie/matériau/texture, réinitialise les piles et dispose le WebGLRenderer possédé exactement une fois. Il détache également les écouteurs de perte de contexte et DPR décrits ci-dessous, donc un renderer disposé ne peut pas être ressuscité par un événement tardif.
+
+## Perte de contexte GPU et DPR à l'exécution
+
+Un réinitialisation GPU ou une éjection par pression mémoire laisserait une scène Three permanentement vide, et un déplacement de moniteur ou un zoom navigateur la laisserait avec un ratio de pixels périmé (flou ou avec aliasing). `ThreeRenderer` gère les deux :
+
+- **`webglcontextlost`** est `preventDefault()` — obligatoire, sinon le navigateur ne
+  déclenche jamais l'événement de restauration — et bascule `isContextLost()`. `present()` devient un
+  no-op tant que perdu, dessiner sur un contexte mort étant inutile.
+- **`webglcontextrestored`** réapplique le ratio de pixels et la taille (une restauration peut atterrir
+  sur un moniteur différent), efface le drapeau, et force un redessin du framebuffer
+  fraîchement vidé. Le `WebGLRenderer` de Three reconstruit son état GL paresseusement lors du
+  prochain rendu.
+- **Les changements de DPR** sont suivis par une requête média `(resolution: Ndppx)` qui
+  réapplique `setPixelRatio` + `setSize` et se réarme (la requête est
+  à un seul tir).
+
+Tout est protégé pour SSR / `OffscreenCanvas` (pas de `addEventListener` ni
+`matchMedia`). `isContextLost()` satisfait aussi le hook optionnel
+[`IRenderer`](/reference/core-renderer/#survie-à-la-perte-de-contexte-gpu), donc
+`Scene.render` saute le passage tant que le contexte est absent.
 
 ## Propriétés publiques
 
-| Propriété  | Type                       |
-| ---------- | -------------------------- |
-| `scene`    | `THREE.Scene`              |
-| `camera`   | `THREE.OrthographicCamera` |
-| `renderer` | `THREE.WebGLRenderer`      |
+| Propriété         | Type                       |
+| ----------------- | -------------------------- |
+| `scene`           | `THREE.Scene`              |
+| `camera`          | `THREE.OrthographicCamera` |
+| `renderer`        | `THREE.WebGLRenderer`      |
+| `isContextLost()` | `() => boolean`            |
 
 ## Usage
 

@@ -81,11 +81,15 @@ ArabicShaper.shapeArabic(text: string): ShapedResult   // { shapedText, indexMap
 BidiResolver.getBaseLevel(text: string): number
 BidiResolver.resolveLevels(text: string): Uint8Array
 BidiResolver.reorderVisual(nodes: any[], baseLevel: number): void
+BidiResolver.reorderSegments(str: string, levels: Uint8Array, baseLevel: number):
+  Array<[number, number]>
 ```
 
 가벼운 내장 bidi: 범위 기반 방향 클래스(히브리어/아랍어 R/AL,
 EN/AN 숫자) 및 아랍어 문맥별 프레젠테이션-폼 선택. `indexMap`은
 쉐이핑된 인덱스를 히트-테스팅 / 캐럿 매핑을 위해 소스 문자열로 매핑합니다.
+
+`reorderVisual`은 노드 객체 배열을 제자리에서 재정렬합니다. `reorderSegments`는 노드 객체 없이도 동일한 UAX #9 **L2** 범위(런의 자체 위치에 대한 포함적 `[start, end]` 인덱스 쌍)를 노출하므로, **병렬 타입 배열**을 보유한 호출자는 동일한 순서 변경을 제자리에서 적용할 수 있습니다 — 이것이 제로-GC 버퍼 레이아웃 경로가 사용하는 것입니다. `reorderVisual`은 현재 이것에 위임하므로 둘 사이에 이탈이 발생하지 않습니다.
 
 사용법은 [Text & Typography](/learn/text-typography/)를 참조하세요.
 

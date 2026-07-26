@@ -18,7 +18,7 @@ activation remains available to keyboards and assistive technology.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ContextMenu</span></div>
-  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.15.0-ui-2.0.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Click the launcher to open the menu inside a constrained viewport.</figcaption>
 </figure>
 
@@ -45,6 +45,31 @@ target.on('pointerdown', (event) => {
   menu.showAtPoint(event.sceneX, event.sceneY, target);
 });
 ```
+
+## Accessibility & keyboard
+
+Each non-separator item projects a `role="menuitem"` hotspot with a **roving
+tabindex** (the menu is one tab stop), `disabled` where applicable, and
+`aria-haspopup="menu"` + `aria-expanded` on a submenu parent.
+
+| Key           | Action                                                                                |
+| ------------- | ------------------------------------------------------------------------------------- |
+| Down / Up     | Next / previous **enabled** item, wrapping; separators and disabled items are skipped |
+| Home / End    | First / last enabled item                                                             |
+| Right         | Open a submenu parent and focus its first item                                        |
+| Left          | Close this submenu and return focus to its parent menu                                |
+| Enter / Space | Activate (open a submenu, or fire `onClick` and close the tree)                       |
+| Escape        | Close the whole menu tree                                                             |
+
+The hotspots set `pointerEvents: 'none'` so the menu keeps its own
+`pointerdown`-by-position hit handling. See
+[Composite widgets](/reference/core-a11y/#composite-widgets-roving-tabindex).
+
+> **Showing a menu installs a full-scene backdrop.** A root menu adds an
+> invisible, scene-sized interactive entity to catch the outside click that
+> dismisses it. That backdrop intercepts pointer events across the whole scene
+> while the menu is open — so don't leave a menu open in a fixture or test that
+> also needs to drag/select elsewhere.
 
 ## Maintainer checklist
 

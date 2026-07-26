@@ -812,3 +812,62 @@ window.addEventListener('resize', () => {
 
 > [!NOTE]
 > 오류 `Text` 엔티티는 항상 레이아웃 트리에 있습니다 — 오류가 없을 때는 빈 문자열만 표시합니다. 이렇게 하면 `Stack` 레이아웃이 안정적으로 유지됩니다: 오류가 나타나도 위치가 이동하지 않습니다. 공간을 완전히 숨기려면 오류가 없을 때 `entity.opacity = 0` 및 `entity.height = 0`으로 전환하고, 오류가 설정되면 둘 다 복원하세요.
+
+---
+
+## Crisp Printing via SVG Export
+
+`<canvas>`를 직접 인쇄하면 래스터화됩니다 — 브라우저가 비트맵을 프린터의 DPI로 스케일링하므로 텍스트와 벡터 모양이 뿌옇게 나옵니다. `scene.toSVG()`는 현재 씬 상태를 `SVGRenderer`를 통해 해상도 독립적인 `<svg>` 문서로 스냅숏합니다 — 인쇄 파이프라인이 이를 진짜 벡터로 렌더링하므로 모든 DPI에서 선명합니다. 추가 의존성이 필요 없습니다. SVG 내보내기는 `@vectojs/core`에 이미 포함되어 있습니다.
+
+```typescript
+import { Scene } from '@vectojs/core';
+
+/**
+ * 현재 씬을 벡터 SVG(모든 DPI에서 선명)로 인쇄한다.
+ * 래스터화된 캔버스 비트맵 대신 SVG로 인쇄 대화 상자를 열고
+ * 작업이 끝나면 정리한다.
+ */
+function printScene(scene: Scene): void {
+  // toSVG()는 씬의 너비/높이에 맞는 viewBox를 가진 완전한 자체 포함 <svg> 문자열을 반환한다.
+  // 현재 상태의 읽기 전용 스냅숏이다.
+  const svg = scene.toSVG();
+
+  // 숨김 same-origin iframe에 인쇄 작업을 격리한다. 이렇게 하면
+  // 라이브 캔버스를 방해하지 않고 페이지의 화면 스타일시트를 상속하지 않는다.
+  const frame = document.createElement('iframe');
+  frame.setAttribute('aria-hidden', 'true');
+  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+  document.body.appendChild(frame);
+
+  const doc = frame.contentDocument!;
+  doc.open();
+  // @page로 브라우저 기본 마진을 제거한다. width:100%로 벡터를
+  // 용지에 맞게 스케일링한다. SVG 자체가 viewBox를 가지므로 종횡비가 유지된다.
+  doc.write(
+    `<!doctype html><html><head><style>` +
+      `@page { margin: 0; } ` +
+      `html, body { margin: 0; } ` +
+      `svg { width: 100%; height: auto; display: block; }` +
+      `</style></head><body>${svg}</body></html>`,
+  );
+  doc.close();
+
+  const win = frame.contentWindow!;
+  // iframe 문서가 안정되면 인쇄하고, 사용자가 인쇄하거나 취소해도
+  // 프레임을 제거한다 (afterprint는 둘 다에서 발생).
+  win.addEventListener('afterprint', () => frame.remove(), { once: true });
+  win.focus();
+  win.print();
+}
+
+// ── 사용법 ────────────────────────────────────────────────────────────────────
+// const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
+// const scene = new Scene(canvas, { maxFPS: 60 });
+// buildYourScene(scene);
+// scene.start();
+//
+// printButton.addEventListener('click', () => printScene(scene));
+```
+
+> [!NOTE]
+> `toSVG()`는 씬의 _현재_ 상태의 스냅숏이므로, 인쇄하려는 시점(예: 클릭 핸들러 내부)에 호출하세요. 시작 시 한 번 호출하는 것이 아닙니다. 표준 렌더러 경로를 통해 그려진 벡터 지오메트리, 텍스트, 이미지를 포함합니다. GPU 전용 레이어(`WebGLPointRenderer` 파티클, `WebGPUParticleSystemManager`)는 SVG 직렬화에 포함되지 않습니다. 해당 항목에 대해서는 래스터화된 폴백을 합성하세요. 출력이 일반 SVG XML이므로, 동일한 문자열은 `.svg` 파일로 저장(`new Blob([svg], { type: 'image/svg+xml' })`)하거나 서버사이드 렌더링에도 사용할 수 있습니다.

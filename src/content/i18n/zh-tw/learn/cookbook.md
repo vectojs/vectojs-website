@@ -812,3 +812,61 @@ window.addEventListener('resize', () => {
 
 > [!NOTE]
 > 錯誤 `Text` 實體始終存在於布局樹中——它們只是在不報錯時顯示空字串。這使得 `Stack` 布局保持穩定：錯誤出現時不會發生偏移。如果你希望完全隱藏空間，在無錯誤時切換為 `entity.opacity = 0` 和 `entity.height = 0`，然後在設定錯誤時恢復兩者。
+
+---
+
+## 透過 SVG 匯出實現清晰列印
+
+直接列印 `<canvas>` 會將其點陣化：瀏覽器會依印表機的 DPI 縮放點陣圖，因此文字和向量圖形會變得模糊。`scene.toSVG()` 透過 `SVGRenderer` 將目前場景狀態快照為與解析度無關的 `<svg>` 文件——列印管線隨後將其作為真正的向量圖形渲染，在任何 DPI 下都清晰銳利。無需額外依賴；SVG 匯出器已內含於 `@vectojs/core` 中。
+
+```typescript
+import { Scene } from '@vectojs/core';
+
+/**
+ * 將目前場景列印為向量 SVG（在任何 DPI 下都清晰），而非點陣化的
+ * 畫布點陣圖。開啟列印對話框並在完成後清理。
+ */
+function printScene(scene: Scene): void {
+  // toSVG() 回傳一個完整的、自包含的 <svg> 字串，其 viewBox
+  // 與場景的寬高相符——目前狀態的唯讀快照。
+  const svg = scene.toSVG();
+
+  // 將列印工作隔離在隱藏的同源 iframe 中，使其既不會干擾
+  // 活動畫布，也不會繼承頁面的螢幕樣式表。
+  const frame = document.createElement('iframe');
+  frame.setAttribute('aria-hidden', 'true');
+  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+  document.body.appendChild(frame);
+
+  const doc = frame.contentDocument!;
+  doc.open();
+  // @page 移除預設的瀏覽器邊距；width:100% 讓向量圖形縮放
+  // 以適應紙張。SVG 自帶 viewBox，因此縱橫比得以保留。
+  doc.write(
+    `<!doctype html><html><head><style>` +
+      `@page { margin: 0; } ` +
+      `html, body { margin: 0; } ` +
+      `svg { width: 100%; height: auto; display: block; }` +
+      `</style></head><body>${svg}</body></html>`,
+  );
+  doc.close();
+
+  const win = frame.contentWindow!;
+  // 在 iframe 文件穩定後列印，然後無論使用者列印或取消
+  // 都移除該框架（afterprint 在兩種情況下都會觸發）。
+  win.addEventListener('afterprint', () => frame.remove(), { once: true });
+  win.focus();
+  win.print();
+}
+
+// ── 使用方式 ────────────────────────────────────────────────────────────────────
+// const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
+// const scene = new Scene(canvas, { maxFPS: 60 });
+// buildYourScene(scene);
+// scene.start();
+//
+// printButton.addEventListener('click', () => printScene(scene));
+```
+
+> [!NOTE]
+> `toSVG()` 是場景_目前_狀態的快照，因此應在你想列印的時刻呼叫它（例如在點擊處理函式內部），而不是在啟動時呼叫一次。它涵蓋了透過標準渲染器路徑繪製的向量幾何、文字和影像；僅限 GPU 的圖層（`WebGLPointRenderer` 粒子、`WebGPUParticleSystemManager`）不在 SVG 序列化範圍內——對於這些內容，需要合成一個點陣化的回退。由於輸出是純 SVG XML，同一字串也可用於儲存為 `.svg` 檔案（`new Blob([svg], { type: 'image/svg+xml' })`）或伺服器端渲染。

@@ -12,7 +12,7 @@ order: 12
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Button</span></div>
-  <iframe src="/sandbox/ui/button.html?v=core-1.15.0-ui-2.0.0" class="sandbox-frame component-demo-frame" loading="eager" title="Button 라이브 데모" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/button.html?v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame" loading="eager" title="Button 라이브 데모" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>호버(Hover)하면 그려진 상태가 변경됩니다. 클릭은 Playwright가 찾을 수 있는 동일한 button 역할(role)을 통해 전달됩니다.</figcaption>
 </figure>
 
@@ -58,10 +58,15 @@ interface ButtonOptions {
 await page.getByRole('button', { name: 'Save changes' }).click();
 ```
 
+## 강제 색상(고대비)
+
+`Button`은 [`Scene.forcedColors`](/reference/core-scene/#accessibility--appearance)를 읽고, OS가 강제 색상 모드일 때 테마 팔레트 대신 CSS 시스템 색상으로 다시 칠합니다: `ButtonFace` 채우기, `ButtonText` 레이블과 1px `ButtonText` 테두리(시스템 배경에서 모양이 보이도록),그리고 `Highlight` 포커스 링. Canvas 픽셀은 브라우저의 강제 색상 리매핑에서 면제되므로, 이 처리를 건너뛴 컴포넌트는 고대비 모드에서 읽을 수 없습니다. 설정이 전환되면 씬이 자동으로 다시 칠해집니다.
+
 ## 유지보수 체크리스트
 
-- Hover 및 pointer leave는 `onDemand` 씬에서 `scene.markDirty()`를 호출해야 합니다.
-- 시각적 버튼 레이블과 접근 가능한 레이블은 향후 옵션에서 명시적 접근 가능 이름을 추가하지 않는 한 동일하게 유지되어야 합니다.
-- 문서 예제에서는 사용자 정의 클릭 가능 사각형보다 `Button`을 선호하세요.
+- `onDemand` 씬에서 호버와 포인터 이동 시 `scene.markDirty()`를 호출해야 합니다.
+- 시각적 버튼 레이블과 접근 가능한 레이블은 향후 옵션이 명시적 접근 가능한 이름을 추가하지 않는 한 동일하게 유지해야 합니다.
+- 문서 예제에서는 사용자 정의 클릭 가능한 사각형 대신 `Button`을 우선 사용하세요.
+- 사용자 정의 버튼 컴포넌트는 위의 강제 색상 분기를 미러링해야 합니다.
 
 관련 문서: [`Toggle`](/reference/ui-components/#toggle), [`Checkbox`](/reference/ui-components/#checkbox), [`Overlay`](/reference/ui-overlay/).

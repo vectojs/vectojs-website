@@ -812,3 +812,63 @@ window.addEventListener('resize', () => {
 
 > [!NOTE]
 > Les entités `Text` d'erreur sont toujours dans l'arbre de mise en page — elles affichent simplement une chaîne vide lorsqu'il n'y a aucune erreur. Cela garde la mise en page du `Stack` stable : aucun décalage lorsque les erreurs apparaissent. Si vous préférez masquer entièrement l'espace, passez à `entity.opacity = 0` et `entity.height = 0` lorsqu'il n'y a aucune erreur, puis restaurez les deux lorsqu'une erreur est définie.
+
+---
+
+## Impression nette via l'export SVG
+
+Imprimer un `<canvas>` directement le rasterise : le navigateur met à l'échelle le bitmap au DPI de l'imprimante, donc le texte et les formes vectorielles sortent flous. `scene.toSVG()` capture l'état actuel de la scène via le `SVGRenderer` dans un document `<svg>` indépendant de la résolution — le moteur d'impression le rend ensuite en tant que vecteurs réels, nets à n'importe quel DPI. Aucune dépendance supplémentaire ; l'exporteur SVG est déjà inclus dans `@vectojs/core`.
+
+```typescript
+import { Scene } from '@vectojs/core';
+
+/**
+ * Imprime la scène actuelle en SVG vectoriel (net à n'importe quel DPI) plutôt
+ * qu'en bitmap rasterisé du canvas. Ouvre le dialogue d'impression et nettoie
+ * après.
+ */
+function printScene(scene: Scene): void {
+  // toSVG() renvoie une chaîne <svg> complète et autonome avec un viewBox
+  // correspondant à la largeur/hauteur de la scène — un instantané en lecture seule de l'état actuel.
+  const svg = scene.toSVG();
+
+  // Isole le job d'impression dans un iframe caché de même origine afin qu'il ne
+  // perturbe pas le canvas actif et n'hérite pas de la feuille de style de l'écran.
+  const frame = document.createElement('iframe');
+  frame.setAttribute('aria-hidden', 'true');
+  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+  document.body.appendChild(frame);
+
+  const doc = frame.contentDocument!;
+  doc.open();
+  // @page supprime les marges par défaut du navigateur ; width:100% permet au
+  // vecteur de s'adapter à la feuille. Le SVG porte son propre viewBox, donc le
+  // rapport d'aspect est préservé.
+  doc.write(
+    `<!doctype html><html><head><style>` +
+      `@page { margin: 0; } ` +
+      `html, body { margin: 0; } ` +
+      `svg { width: 100%; height: auto; display: block; }` +
+      `</style></head><body>${svg}</body></html>`,
+  );
+  doc.close();
+
+  const win = frame.contentWindow!;
+  // Imprime une fois que le document de l'iframe s'est stabilisé, puis supprime
+  // l'iframe que l'utilisateur imprime ou annule (afterprint se déclenche dans les deux cas).
+  win.addEventListener('afterprint', () => frame.remove(), { once: true });
+  win.focus();
+  win.print();
+}
+
+// ── Utilisation ──────────────────────────────────────────────────────────────
+// const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
+// const scene = new Scene(canvas, { maxFPS: 60 });
+// buildYourScene(scene);
+// scene.start();
+//
+// printButton.addEventListener('click', () => printScene(scene));
+```
+
+> [!NOTE]
+> `toSVG()` est un instantané de l'état _actuel_ de la scène, donc appelez-le au moment où vous souhaitez imprimer (par exemple, dans le gestionnaire de clic), et non une seule fois au démarrage. Il couvre la géométrie vectorielle, le texte et les images dessinés via le chemin du renderer standard ; les couches GPU uniquement (`WebGLPointRenderer` particules, `WebGPUParticleSystemManager`) ne font pas partie de la sérialisation SVG — pour celles-là, composez un rasterisé de secours. Étant donné que la sortie est du XML SVG brut, la même chaîne fonctionne également pour sauvegarder dans un fichier `.svg` (`new Blob([svg], { type: 'image/svg+xml' })`) ou pour le rendu côté serveur.

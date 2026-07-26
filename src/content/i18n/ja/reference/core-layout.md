@@ -36,7 +36,7 @@ layoutTextIntoBuffer(text, fontAtlas, fontSize, buffer, exclusionMask?): void
 - `GlyphMeasurer` — `{ measure(char, fontSize): number }`；独自のものを提供するか、`createCanvasMeasurer(fontFamily?, baseSize?)` を使用します（オフスクリーン `measureText`、線形スケール + キャッシュ；DOMなし環境では `null` を返す → エンジンは `0.5em` フォールバックを維持）。
 - `PreparedText` → `PreparedParagraph[]` → `PreparedWord[]` → `PreparedGlyph[]`。
 - `LayoutResult` — `{ nodes: LayoutNode[], totalWidth, totalHeight, fallbackToCanvas? }`；`LayoutNode` は1つの配置されたグリフです。
-- `LayoutResultBuffer` — フラットな型付き配列結果（`xs/ys/ws/hs`、`chars`、`count`、`CAPACITY = 16384`）；再利用前に `reset()`、`toLayoutResult()` で具体化。
+- `LayoutResultBuffer` — フラットな型付き配列結果（`xs/ys/ws/hs`、`chars`、`levels`、`count`、`CAPACITY = 16384`）；再利用前に `reset()`、`toLayoutResult()` で具体化。`levels` は各グリフの解決された BiDi 埋め込みレベル（偶数 = LTR、奇数 = RTL）であり、コンシューマはグリフの方向を判断できます。バッファパスは各行を視覚順に並べ替えるためにこれを使用します。グリフは**視覚**順に、共通ベースライン付きで出力され、割り当てパスとグリフごとに一致します。
 - `LayoutWorkerManager.getInstance()` — オフスレッドレイアウト用シングルトン；`queueLayout(entityId, text, { fontId, fontSize, maxWidth, maxHeight, callback, ... })` / `cancelLayout(entityId)`。[`MSDFTextEntity`](/reference/core-text/#msdftextentity) によって使用されます。
 
 使用法については [テキスト & タイポグラフィ](/learn/text-typography/) を、このエンジンの出力を消費するフォント/グリフレンダリングレイヤーについては [テキスト & Bidi](/reference/core-text/) を参照してください。

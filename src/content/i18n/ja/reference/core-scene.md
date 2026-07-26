@@ -29,8 +29,9 @@ Sceneは2つの透過的な兄弟 `<div>` をキャンバスの**親**要素に�
 | `pointBackend`         | `'canvas' \| 'webgl'`         | `'canvas'`       | 表現可能な `getBatchCircle()`/`getBatchRect()` リーフのバックエンド。`'webgl'` はWebGL2キャンバス（`z-index:5`）をスタックし、それらのプリミティブをバッチします；WebGL2が利用不可の場合はCanvasにフォールバックします。GLレイヤーは2Dコンテンツの上に合成されるため、レイヤー間のペインターズオーダーはインターリーブされません。      |
 | `particleBackend`      | `'auto' \| 'webgpu' \| 'cpu'` | `'auto'`         | [`ComputeParticleEntity`](/reference/core-particles/) のバックエンド。`'auto'` はWebGPUを試行し、CPUにフォールバックする前に警告を出力します。`'webgpu'` は明示的にWebGPUを要求しますが、現在はエラーをログに出力し、初期化に失敗した場合もフォールバックします。`'cpu'` はCPUシミュレーションを強制します（`webgpuDisabled` を設定）。 |
 | `maxFPS`               | `number`                      | `60`             | フレームレート上限。`0` = 上限なし（ネイティブリフレッシュレート）。連続アニメーションは引き続き実行されますが、頻度が低くなります。（内部的に `NODE_ENV=test`/`VITEST` では `0`。）`scene.maxFPS` でライブ設定も可能。                                                                                                                 |
-| `respectReducedMotion` | `boolean`                     | `true`           | OSが `prefers-reduced-motion` を要求する場合、`REDUCED*MOTION*FPS`（30）に制限 — またはそれと `maxFPS` の低い方。`false` はOS設定を無視します。                                                                                                                                                                                         |
-| `a11ySyncInterval`     | `number`                      | `0`              | a11yシャドウDOM同期をNミリ秒あたり最大1回にスロットル。`0` = レンダリングされたフレームごとに同期。小さい値（例：`100`）は、激しいアニメーション中もa11yレイヤーを結果的に一貫性を保ちつつ、フレームごとのDOM書き込みを節約します。`scene.a11ySyncInterval` でライブ設定も可能。                                                        |
+| `respectReducedMotion` | `boolean`                     | `true`           | OSが `prefers-reduced-motion` を要求する場合、`REDUCED_MOTION_FPS`（30）に制限 — またはそれと `maxFPS` の低い方。`false` はOS設定を無視します。                                                                                                                                                                                         |
+| `readingDirection`     | `'ltr' \ \| 'rtl'`            | `'ltr'`          |                                                                                                                                                                                                                                                                                                                                         |
+| `a11ySyncInterval`     | `number`                      | `0`              | a11yシャドウDOM同期をNミリ秒あたり最大1回にスロットル。                                                                                                                                                                                                                                                                                 |
 | `debugA11y`            | `boolean`                     | `false`          | シャドウノードを `opacity:0` の代わりに青い破線のアウトラインでレンダリングします（開発支援）。どちらにせよ自動化からはクリック可能です。                                                                                                                                                                                               |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | カスタムレンダラー（例：[`@vectojs/three`](/reference/three-renderer/) の `ThreeRenderer`）。                                                                                                                                                                                                                                           |
 | `disableWindowResize`  | `boolean`                     | `false`          | 自動 `window` リサイズリスナーをスキップします。カスタムレイアウトコンテナ/オフスクリーンキャンバス内で使用し、`resize(w, h)` でサイズを駆動します。                                                                                                                                                                                    |
@@ -62,6 +63,8 @@ scene.a11ySyncInterval: number
 scene.particleBackend: 'auto' | 'webgpu' | 'cpu'
 scene.webgpuDisabled: boolean      // _disabled または particleBackend === 'cpu' の場合に true を返すゲッター
 scene.a11yNeedsReorder: boolean
+scene.readingDirection: 'ltr' | 'rtl'   // tab/traversal order; setting it re-flows
+scene.forcedColors: boolean             // getter — OS is in a forced-colors mode
 ```
 
 ## renderMode、maxFPS、およびアイドル自動スロットル
@@ -73,7 +76,34 @@ scene.a11yNeedsReorder: boolean
 
 > カスタム `update()` 内で `entity.x` などを変更して手動アニメーションを行う場合、`update()` **内**で `markDirty()` を呼び出しても効果はありません — ポストレンダリングのリセットがそれを消去し、次のフレームの静的チェックは `dirty === false` を認識して2fpsにスロットルします。モーションを [`entity.animate()`](/reference/core-entity/#アニメーション) で駆動するか（トゥイーン実行中はシーンを非静的状態に保つ）、またはフレーム**間**（イベントハンドラー、別個の `rAF`、またはタイマーから）`scene.markDirty()` を呼び出して、フラグが次のループ反復まで生存するようにしてください。
 
-`effectiveMaxFPS` = `maxFPS`。OSが動きの低減を要求し、`respectReducedMotion` がオンの場合、さらに30（`REDUCED*MOTION*FPS`）に引き下げられます。`0` は上限なしを意味します。
+`effectiveMaxFPS` = `maxFPS`。OSが動きの低減を要求し、`respectReducedMotion` がオンの場合、さらに30（`REDUCED_MOTION_FPS`）に引き下げられます。`0` は上限なしを意味します。
+
+### オフスクリーンの一時停止とdtクランプ
+
+2つの見落としやすいループ動作：
+
+- **オフスクリーンのシーンはレンダリングを停止します。** キャンバス上の `IntersectionObserver` がキャンバスが完全にスクロールアウトした場合（ダッシュボードタブ、折り返し線以下のチャートなど）にrAFループを一時停止し、再入時に再開します — 誰も見ていないシーンのために完全な更新/レンダリングを実行する代わりに。`IntersectionObserver` が利用できない場所（SSR/jsdom）では、シーンは常にスクリーン上にあると見なされるため、動作はそのままです。
+- **`dt` は100msにクランプされます**（`MAX_FRAME_DT`）。バックグラウンドタブ、ブレークポイント、または長いGC一時停止の後、実際の経過時間は数秒になる可能性があります。その生の値を物理/トゥイーン積分に投入すると、すべてがテレポートします。`update(dt)` で `dt` を自分で積分する場合、それが100msを超えないことに注意してください。
+
+## アクセシビリティと外観
+
+| メンバー               | 型                 | 備考                                                                                                                                                                                                                 |
+| ---------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `readingDirection`     | `'ltr' \ \| 'rtl'` | a11yシャドウツリーを並べ替え、**タブ順序**が視覚的な読み取り順序と一致するようにします（行は上から下へ、次にインライン）。設定すると次の同期時にリオーダーがトリガーされます。コンストラクタオプションでもあります。 |
+| `forcedColors`         | `boolean` (getter) | OSが強制カラーモード（Windowsハイコントラスト）の場合に `true`。`(forced-colors: active)` で検出；シーンはトグル時に**自動で再描画**されます。                                                                       |
+| `prefersReducedMotion` | `boolean` (getter) | OSが動きの低減を要求し `respectReducedMotion` がオンの場合に `true`。アニメーションドライバーによって読み取られ、トゥイーンする代わりに非opacityプロパティをスナップします。                                         |
+
+`<canvas>` は不透明ピクセルであるため、ブラウザの強制カラーリマッピングは描画内容に影響しません。コンポーネントは自分で対応する必要があります：
+
+```ts
+render(r: IRenderer) {
+  const forced = this.scene?.forcedColors ?? false;
+  r.fill(forced ? 'ButtonFace' : this.bg);
+  r.fillText(this.label, x, y, this.font, forced ? 'ButtonText' : this.color);
+}
+```
+
+[a11yRoot & エージェント契約](/reference/core-a11y/#強制カラー高コントラスト) を参照してください。
 
 ## ライフサイクルメソッド
 
@@ -117,6 +147,25 @@ Scene.registerWebGPUParticleSystemManager(managerClass: any): void
 ```
 
 `.` エントリによって自動的に呼び出されます。関連インターフェース（`IWebGLPointRenderer`、`IWebGPUParticleSystemManager`、`WebGLPointRendererCreator`）はカスタムバックエンド用にエクスポートされています。WebGPUデバイス喪失は、WebGPUを永久的に無効にする前に指数バックオフ（3回再試行）で自動復旧されます。
+
+## フレームテレメトリ（`frameStats`、1.13.0）
+
+```ts
+scene.frameStats: FrameStats; // ライブレンダーループテレメトリ（読み取り専用）
+
+interface FrameStats {
+  fps: number; // レンダリングフレームのリズム、maxFPSでクランプ; 最初のフレームペアまで0
+  frameTimeMs: number; // 最後のrender()パスの壁時計時間（a11y/コンテンツ同期を除く）
+  frameIntervalMs: number; // レンダリングフレーム間の平滑化された間隔（EMA）
+  dt: number; // 最後にレンダリングされたフレームに渡されたdt
+  renderedFrames: number; // start()以降のレンダリングされたフレーム合計
+  skippedFrames: number; // start()以降のスキップされたrAFティック合計（idle/onDemand/capped）
+  renderMode: 'always' | 'onDemand';
+  dirty: boolean; // 再描画が保留中かどうか
+}
+```
+
+`fps`は_実際にレンダリングされた_フレーム間の間隔から算出されるため、アイドルの`onDemand`シーンや`maxFPS`キャップ/静的自動スロットリングによってドロップされたフレームはそれを下げません — これはraw rAFレートではなく、実際の再描画のリズムを報告します。タイミングは`requestAnimationFrame`ループで測定されます。`step Deterministic export`のみで駆動されるシーンはゼロのままにします。レンダラーは常にフルキャンバスを再描画するため、部分的なダーティ矩形はありません — `dirty`はブール再描画保留フラグです。[`@vectojs/devtools`](/reference/devtools/)パフォーマンスHUDを駆動します。
 
 ## 関連情報
 

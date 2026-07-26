@@ -6,15 +6,13 @@ order: 31
 
 # `Table`
 
-`Table` expone `role="grid"`, pinta su decoración en el canvas y posee cada celda
-como una Entity hija. Las celdas de texto se normalizan a `Text`; las celdas Entity proporcionadas
-pueden participar a través de las capacidades públicas `setMaxWidth()` y `setSelectable()`.
+`Table` proyecta un árbol completo `grid` › `row` › `gridcell`/`columnheader`, pinta su decoración en el canvas y posee cada celda como una Entity hija. Las celdas de texto se normalizan a `Text`; las celdas Entity proporcionadas pueden participar a través de las capacidades públicas `setMaxWidth()` y `setSelectable()`.
 
 ## Pruébalo
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Table</span></div>
-  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.15.0-ui-2.0.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Table" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Table" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Usa demostraciones enfocadas para el tamaño de columnas en lugar de depurar la salida de la tabla dentro de una galería gigante.</figcaption>
 </figure>
 
@@ -48,6 +46,24 @@ La sombra estructural `role="grid"` no captura eventos de puntero de las proyecc
 de celda. Esta propiedad de hoja es lo que mantiene la selección por arrastre entre celdas,
 Ctrl/Comando+C y búsqueda en página alineados con el texto VMT exactamente una vez.
 
+## Accesibilidad y teclado
+
+El árbol proyectado es una cuadrícula ARIA real: una fila fija de `columnheader`s más un `row` por cada fila **visible** del cuerpo (consciente de la virtualización), cada celda un `gridcell`热点 enfocable. Exactamente una celda posee el **tabindex flotante**, por lo que toda la cuadrícula es una parada de tabulación.
+
+| Tecla                | Acción                                                           |
+| -------------------- | ---------------------------------------------------------------- |
+| Flechas              | Mover la celda enfocada un paso en 2D (el encabezado es fila -1) |
+| Home / End           | Primera / última columna de la fila actual                       |
+| Ctrl+Home / Ctrl+End | Primera celda de encabezado / última celda del cuerpo            |
+
+La celda objetivo se desplaza a la vista antes de que el foco se mueva a ella. Ver [Widgets compuestos](/reference/core-a11y/#composite-widgets-roving-tabindex).
+
+## Puntero y toque
+
+- **Arrastrar entre celdas** selecciona su texto de forma nativa (la proyección de la celda posee el puntero — ver arriba).
+- **Arrastrar verticalmente** un cuerpo virtualizado lo desplaza 1:1 con el dedo, por lo que la tabla es usable en una pantalla táctil y no solo con una rueda.
+- **Rueda** desplaza un cuerpo virtualizado.
+
 ## Lista de verificación para mantenedores
 
 - Mantén la longitud de `colWidths` alineada con los encabezados; los anchos válidos se normalizan al ancho de la Table.
@@ -56,3 +72,4 @@ Ctrl/Comando+C y búsqueda en página alineados con el texto VMT exactamente una
 - Usa virtualización para conjuntos de datos grandes; `Table` es para cuadrículas compactas.
 - Mantén la etiqueta de la cuadrícula descriptiva.
 - Verifica la selección por arrastre entre celdas de encabezado/cuerpo después de cambiar anchos o el zoom de la aplicación.
+- Verifica que la navegación por teclado llegue a cada celda después de cambiar la virtualización o el número de columnas.

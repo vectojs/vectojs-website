@@ -85,8 +85,34 @@ interface A11yAttributes {
   activedescendant?: string; // aria-activedescendant (for composite widgets)
   valuemin?: string; // aria-valuemin (for sliders, meters)
   valuemax?: string; // aria-valuemax
+
+  // Relationships & naming from other nodes
+  labelledby?: string; // aria-labelledby
+  describedby?: string; // aria-describedby — hint / error text
+
+  // Validation state (the only way a canvas form is announceable)
+  required?: boolean; // aria-required
+  invalid?: boolean; // aria-invalid — note false means "explicitly valid"
+
+  // Structure & dialogs
+  level?: number; // aria-level (headings, tree items)
+  ariaModal?: 'true' | 'false'; // aria-modal on a role="dialog"
+
+  // Live regions — announce streaming updates without moving focus
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean; // aria-atomic — read the whole region, not the diff
+  relevant?: string; // aria-relevant — e.g. 'additions text'
+
+  // Pointer surface
+  pointerEvents?: 'auto' | 'none'; // 'none' for structural/overlay-only nodes
+
+  target?: string; // for tag='a'
+  textInputStyle?: TextInputStyle; // native editor typography
 }
 ```
+
+Returning `undefined` for a field **removes** the attribute, so state that stops
+applying disappears instead of going stale.
 
 Use an explicit `tabIndex: 0` for a canvas workspace that is not a button or
 form control but must own keyboard shortcuts:
@@ -102,20 +128,64 @@ shortcuts. The Scene refreshes an explicit tab index when attributes change.
 
 ### What built-in components project
 
-| Component           | Shadow element            | Key ARIA attributes                                             |
-| ------------------- | ------------------------- | --------------------------------------------------------------- |
-| `Button`            | `<button>`                | `role="button"`, `aria-label`                                   |
-| `Link`              | `<a href>`                | native link, `aria-label`                                       |
-| `Image`             | `<img>`                   | `src`, `alt`                                                    |
-| `Input`             | `<input type="text">`     | `placeholder`, `value` (live)                                   |
-| `TextArea`          | `<textarea>`              | `placeholder`, `value` (live)                                   |
-| `Checkbox`          | `<input type="checkbox">` | `checked` (live), `aria-label`                                  |
-| `Toggle`            | `<div role="switch">`     | `aria-checked` (live), `aria-label`                             |
-| `Slider`            | `<div role="slider">`     | `aria-valuenow/min/max` (live)                                  |
-| `Dropdown`          | `<div role="combobox">`   | `aria-expanded`, `aria-controls`, menu items as `role="option"` |
-| `Card` (with label) | `<div role="group">`      | `aria-label`                                                    |
-| `Table`             | `<div role="grid">`       | `aria-label` with row/col count                                 |
-| `Text`              | `<div>`                   | `aria-label` = text content                                     |
+| Component           | Shadow element                             | Key ARIA attributes                                             |
+| ------------------- | ------------------------------------------ | --------------------------------------------------------------- |
+| `Button`            | `<button>`                                 | `role="button"`, `aria-label`                                   |
+| `Link`              | `<a href>`                                 | native link, `aria-label`                                       |
+| `Image`             | `<img>`                                    | `src`, `alt`                                                    |
+| `Input`             | `<input type="text">`                      | `placeholder`, `value` (live)                                   |
+| `TextArea`          | `<textarea>`                               | `placeholder`, `value` (live)                                   |
+| `Checkbox`          | `<input type="checkbox">`                  | `checked` (live), `aria-label`                                  |
+| `Toggle`            | `<div role="switch">`                      | `aria-checked` (live), `aria-label`                             |
+| `Slider`            | `<div role="slider">`                      | `aria-valuenow/min/max` (live)                                  |
+| `Dropdown`          | `<div role="combobox">`                    | `aria-expanded`, `aria-controls`, menu items as `role="option"` |
+| `Card` (with label) | `<div role="group">`                       | `aria-label`                                                    |
+| `Table`             | `grid` › `row` › `gridcell`/`columnheader` | roving tabindex, 2D arrow keys, Ctrl+Home/End                   |
+| `TreeView`          | `treeitem` per visible row                 | `aria-level`/`expanded`/`selected`, arrows expand/collapse      |
+| `ContextMenu`       | `menuitem` per item                        | `aria-haspopup`/`expanded`, arrows wrap, Escape closes          |
+| `RadioGroup`        | `radio` per option                         | `aria-checked`, arrows move+select                              |
+| `Tabs`              | `tab` per tab                              | `aria-selected`, arrows move, Home/End                          |
+| `Text`              | `<div>`                                    | `aria-label` = text content                                     |
+
+## Composite widgets: one tab stop, arrow keys inside
+
+A tree, grid, menu, radio group or tab list must not put every child in the tab
+order. VectoJS pools a transparent focusable hotspot over each **visible** child
+carrying that child's role and state, and gives exactly one of them
+`tabIndex: 0` — a **roving tabindex**. The parent owns the arrow-key handler and
+moves the stop. See the table above for each component's keys, and
+[Composite widgets](/reference/core-a11y/#composite-widgets-roving-tabindex) for
+the pattern if you're building your own.
+
+Reuse that pattern rather than inventing one: the important subtlety is the
+hotspot must set `pointerEvents: 'none'` whenever something underneath owns the
+mouse (selectable cell text, drag-to-scroll, canvas hit handling). Keyboard focus
+and AT-synthesized `click` still work through it.
+
+Tab order follows the **visual** reading order, not the order you added entities.
+For an RTL UI set `readingDirection: 'rtl'` on the Scene so the inline order
+within each row reverses too.
+
+## Forced colors (Windows High Contrast)
+
+A `<canvas>` is opaque pixels, so the browser's `forced-colors` remapping never
+reaches anything you draw — a themed control stays low-contrast and unreadable
+unless it repaints itself. Read `scene.forcedColors` and draw with CSS system
+colors; the scene repaints automatically when the OS setting toggles:
+
+```typescript
+render(r: IRenderer) {
+  const forced = this.scene?.forcedColors ?? false;
+  r.beginPath();
+  r.roundRect(0, 0, this.width, this.height, 8);
+  r.fill(forced ? 'ButtonFace' : this.bg);
+  if (forced) r.stroke('ButtonText', 1);       // give the shape an edge
+  r.fillText(this.label, x, y, this.font, forced ? 'ButtonText' : this.color);
+}
+```
+
+`Button` already does this. Use `Highlight` for selection/focus, `Canvas` /
+`CanvasText` for surfaces and body text.
 
 ## IME-aware input fields
 

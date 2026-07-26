@@ -28,17 +28,28 @@ new ThreeRenderer(canvas: HTMLCanvasElement)
 
 - `{ canvas, alpha: true, antialias: true }` オプションの `THREE.WebGLRenderer`
 - Y 軸が下向き（top = 0、bottom = height）で VectoJS の座標系に一致する `THREE.OrthographicCamera`
-- ピクセル比は `window.devicePixelRatio` に自動設定
+- ピクセル比は `window.devicePixelRatio` に自動設定され、ランタイムで変化する際に**同期されたまま**になります（下記参照）
 
-`ThreeRenderer` はこの WebGLRenderer を作成して所有します。既存のレンダラー/コンテキストを受け入れたり再利用したりしません。`dispose()` はアクティブなオブジェクトを削除し、そのジオメトリ/マテリアル/テクスチャリソースを解放し、スタックをリセットし、所有する WebGLRenderer を正確に 1 回破棄します。
+`ThreeRenderer` はこの WebGLRenderer を作成して所有します。既存のレンダラー/コンテキストを受け入れたり再利用したりしません。`dispose()` はアクティブなオブジェクトを削除し、そのジオメトリ/マテリアル/テクスチャリソースを解放し、スタックをリセットし、所有する WebGLRenderer を正確に 1 回破棄します。また、以下で説明するコンテキスト損失とDPRリスナーをデタッチするため、破棄されたレンダラーは遅いイベントによって復活させられません。
+
+## GPUコンテキストの損失とランタイムDPR
+
+GPUリセットまたはメモリ圧迫による除去がなければ、Threeでバックされたシーンは永久に空白のままになり、モニターの移動やブラウザのズームは古いピクセル比でレンダリングしたままになります（ぼやけたりエイリアシングが発生）。`ThreeRenderer` は両方を処理します：
+
+- **`webglcontextlost`** は `preventDefault()` されます — 必須です。そうでなければブラウザは復元イベントを永遠に発火しません — そして `isContextLost()` を反転します。損失中は `present()` がno-opになります。死んだコンテキストに対して描画することは無意味だからです。
+- **`webglcontextrestored`** はピクセル比とサイズを再適用し（復元が異なるディスプレイに来ることもあります）、フラグをクリアし、新しくクリアされたフレームバッファの再描画を強制します。Threeの `WebGLRenderer` は次のレンダリング時にGL状態を遅延的に再構築します。
+- **DPRの変更**は `(resolution: Ndppx)` メディアクエリで追跡され、`setPixelRatio` + `setSize` を再適用し、自身を再アームします（クエリはワンショットです）。
+
+これらすべてはSSR / `OffscreenCanvas`向けにガードされています（`addEventListener` や `matchMedia` なし）。`isContextLost()` はオプションの [`IRenderer`](/reference/core-renderer/#gpu-コンテキストの損失への対応) フックも満たすため、`Scene.render` はコンテキストが消失している間そのパスをスキップします。
 
 ## パブリックプロパティ
 
-| プロパティ | 型                         |
-| ---------- | -------------------------- |
-| `scene`    | `THREE.Scene`              |
-| `camera`   | `THREE.OrthographicCamera` |
-| `renderer` | `THREE.WebGLRenderer`      |
+| プロパティ        | 型                         |
+| ----------------- | -------------------------- |
+| `scene`           | `THREE.Scene`              |
+| `camera`          | `THREE.OrthographicCamera` |
+| `renderer`        | `THREE.WebGLRenderer`      |
+| `isContextLost()` | `() => boolean`            |
 
 ## 使用方法
 

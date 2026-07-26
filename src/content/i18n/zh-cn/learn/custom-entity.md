@@ -256,7 +256,7 @@ class Chip extends Entity {
 }
 ```
 
-现在Playwright的`page.getByRole('button', { name: 'OK' })`可以找到你的chip，屏幕阅读器会播报它，键盘用户可以Tab到它并按Enter。完整的字段集：
+现在Playwright的`page.getByRole('button', { name: 'OK' })`可以找到你的chip，屏幕阅读器会播报它，键盘用户可以Tab到它并按Enter。常用字段（参见[a11y参考](/reference/core-a11y/)获取完整列表，包括实时区域、验证状态和`aria-labelledby`/`describedby`）：
 
 ```typescript
 interface A11yAttributes {

@@ -41,8 +41,29 @@ interface IRenderer {
   present?(): void; // optional end-of-frame commit
   createLinearGradient(x0, y0, x1, y1, colorStops: { stop; color }[]): any;
   dispose?(): void; // idempotent backend cleanup; Scene.destroy() calls it
+
+  // GPU context loss (optional; implement for a GPU-backed renderer)
+  isContextLost?(): boolean; // Scene skips the render pass while true
+  onContextRestored?(cb: () => void): void; // Scene repaints the cleared surface
 }
 ```
+
+### Surviving GPU context loss
+
+A GPU reset or memory-pressure eviction takes the drawing context away; without
+handling it the surface stays permanently blank. A renderer that owns a GPU
+context should:
+
+1. listen for its loss event and `preventDefault()` it — otherwise the browser
+   never fires the corresponding restore event;
+2. report `isContextLost() === true` so `Scene.render` skips the pass instead of
+   issuing draw calls against a dead context;
+3. on restore, re-acquire the context, re-apply the DPR transform/size, and fire
+   the `onContextRestored` callback so the Scene repaints the freshly cleared
+   surface.
+
+`CanvasRenderer` does this for Canvas2D, and `ThreeRenderer` for WebGL — see
+[`@vectojs/three`](/reference/three-renderer/#gpu-context-loss--runtime-dpr).
 
 `fillCircle` coalesces consecutive same-`color`/`alpha` calls into one path,
 committed on `flush()` (or when style changes). The Scene flushes at the end of

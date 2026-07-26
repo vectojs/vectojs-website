@@ -30,6 +30,7 @@ Scene 會將兩個透明的兄弟 `<div>` 附加到 canvas 的**父**元素中�
 | `particleBackend`      | `'auto' \| 'webgpu' \| 'cpu'` | `'auto'`         | [`ComputeParticleEntity`](/reference/core-particles/) 後端。`'auto'` 嘗試 WebGPU 並在回退到 CPU 前警告。`'webgpu'` 明確請求 WebGPU，但目前會記錄錯誤，且若初始化失敗仍會回退。`'cpu'` 強制 CPU 模擬（設定 `webgpuDisabled`）。 |
 | `maxFPS`               | `number`                      | `60`             | 幀率上限。`0` = 無上限（原生更新率）。連續動畫仍會執行，只是頻率較低。（在 `NODE_ENV=test`/`VITEST` 下內部為 `0`。）也可透過 `scene.maxFPS` 即時設定。                                                                         |
 | `respectReducedMotion` | `boolean`                     | `true`           | 當 OS 請求 `prefers-reduced-motion` 時，上限為 `REDUCED*MOTION*FPS`（30）— 或該值與 `maxFPS` 中較低者。`false` 會忽略 OS 設定。                                                                                                |
+| `readingDirection`     | `'ltr' \ \| 'rtl'`            | `'ltr'`          |                                                                                                                                                                                                                                |
 | `a11ySyncInterval`     | `number`                      | `0`              | 將 a11y 陰影 DOM 同步節流到每 N 毫秒最多一次。`0` = 每個渲染的幀都同步。較小的值（例如 `100`）在繁重動畫期間讓 a11y 層最終一致，同時節省每幀 DOM 寫入。也可透過 `scene.a11ySyncInterval` 即時設定。                            |
 | `debugA11y`            | `boolean`                     | `false`          | 以藍色虛線外框（開發輔助）渲染陰影節點，而非 `opacity:0`。無論哪種方式，它們對自動化都保持可點擊。                                                                                                                             |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | 自訂 renderer（例如來自 [`@vectojs/three`](/reference/three-renderer/) 的 `ThreeRenderer`）。                                                                                                                                  |
@@ -62,6 +63,8 @@ scene.a11ySyncInterval: number
 scene.particleBackend: 'auto' | 'webgpu' | 'cpu'
 scene.webgpuDisabled: boolean      // getter true when _disabled OR particleBackend === 'cpu'
 scene.a11yNeedsReorder: boolean
+scene.readingDirection: 'ltr' | 'rtl'   // tab/traversal order; setting it re-flows
+scene.forcedColors: boolean             // getter — OS is in a forced-colors mode
 ```
 
 ## renderMode、maxFPS 和閒置自動節流
@@ -79,6 +82,33 @@ scene.a11yNeedsReorder: boolean
 > （從事件處理常式、獨立的 `rAF` 或計時器），讓旗標存活到下一個迴圈迭代。
 
 `effectiveMaxFPS` = `maxFPS`，當 OS 請求減少動態效果且 `respectReducedMotion` 開啟時，進一步降低到 30（`REDUCED*MOTION*FPS`）。`0` 表示無上限。
+
+### 離屏暫停與 dt 鉗制
+
+兩個容易忽略的迴圈行為：
+
+- **離屏場景停止渲染。** canvas 上的 `IntersectionObserver` 在 canvas 完全滾動出視野時暫停 rAF 迴圈（儀表板標籤頁、折疊線以下的圖表），並在重新進入時恢復 — 而不是為一個沒人看到的場景執行完整的更新/渲染。在 `IntersectionObserver` 不可用的地方（SSR/jsdom），場景被視為始終在螢幕上，因此那裡的行為不變。
+- **`dt` 被鉗制到 100ms**（`MAX_FRAME_DT`）。在標籤頁切換到背景後、中斷點或長時間 GC 暫停後，實際經過的時間可能是秒級的；將該原始值輸入物理/補間積分會使一切瞬移。如果你在 `update(dt)` 中自己積分 `dt`，請注意它永遠不會超過 100ms。
+
+## 無障礙與外觀
+
+| 成員                   | 類型               | 說明                                                                                                                               |
+| ---------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `readingDirection`     | `'ltr' \ \| 'rtl'` | 對 a11y 陰影樹排序，使**標籤順序**匹配視覺閱讀順序（行從上到下，然後行內）。設定它會在下一次同步時觸發重排。同時也是建構函式選項。 |
+| `forcedColors`         | `boolean` (getter) | 當作業系統處於強制色彩模式時為 `true`（Windows 高對比度）。由 `(forced-colors: active)` 支援；當其切換時，場景**自動重繪**。       |
+| `prefersReducedMotion` | `boolean` (getter) | 當作業系統要求減少動態效果且 `respectReducedMotion` 開啟時為 `true`。由動畫驅動器讀取，它們會快速定位而非補間非 opacity 屬性。     |
+
+`<canvas>` 是不透明像素，因此瀏覽器的強制色彩重新對應永遠不會觸及你繪製的內容。元件必須自行回應：
+
+```ts
+render(r: IRenderer) {
+  const forced = this.scene?.forcedColors ?? false;
+  r.fill(forced ? 'ButtonFace' : this.bg);
+  r.fillText(this.label, x, y, this.font, forced ? 'ButtonText' : this.color);
+}
+```
+
+請參閱 [a11yRoot 與 agent 契約](/reference/core-a11y/#強制色彩高對比度)。
 
 ## 生命週期方法
 
@@ -129,6 +159,25 @@ Scene.registerWebGPUParticleSystemManager(managerClass: any): void
 ```
 
 由 `.` 進入點自動呼叫。相關介面（`IWebGLPointRenderer`、`IWebGPUParticleSystemManager`、`WebGLPointRendererCreator`）已匯出供自訂後端使用。WebGPU 裝置遺失會以指數退避（3 次重試）自動恢復，之後才永久停用 WebGPU。
+
+## 幀遙測（`frameStats`，1.13.0）
+
+```ts
+scene.frameStats: FrameStats; // 即時渲染迴圈遙測（唯讀）
+
+interface FrameStats {
+  fps: number; // 實際渲染幀的幀率，受 maxFPS 限制；在首幀渲染之前為 0
+  frameTimeMs: number; // 最後一次 render() 呼叫的掛鐘耗時（不含 a11y/內容同步）
+  frameIntervalMs: number; // 已渲染幀之間的平滑間隔（EMA）
+  dt: number; // 傳遞給最後一幀渲染的 dt
+  renderedFrames: number; // 自 start() 以來渲染的總幀數
+  skippedFrames: number; // 自 start() 以來跳過的 rAF 切片總數（idle/onDemand/capped）
+  renderMode: 'always' | 'onDemand';
+  dirty: boolean; // 是否有待處理的重繪
+}
+```
+
+`fps` 基於_實際渲染幀_之間的間隔計算，因此閒置的 `onDemand` 場景、被 `maxFPS` 上限或靜態自動節流捨棄的幀不會壓低該值——它報告的是真實重繪的節奏，而非原始 rAF 頻率。計時在 `requestAnimationFrame` 迴圈上測量；僅由 `step()` 驅動的場景（確定性匯出）其值為零。繪製器始終重繪完整畫布，不存在局部髒矩形機制——`dirty` 是布林型重繪待處理標誌。為 [`@vectojs/devtools`](/reference/devtools/) 效能 HUD 提供資料支撐。
 
 ## 相關
 

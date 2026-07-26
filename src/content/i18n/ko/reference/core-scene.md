@@ -34,7 +34,8 @@ no-op으로 저하되어 헤드리스 레이아웃 / `toSVG()`가 여전히 작�
 | `pointBackend`         | `'canvas' \| 'webgl'`         | `'canvas'`       | 표현 가능한 `getBatchCircle()`/`getBatchRect()` 잎의 백엔드. `'webgl'`은 WebGL2 캔버스(`z-index:5`)를 쌓고 해당 기본 요소를 배치; WebGL2를 사용할 수 없으면 Canvas로 폴백. GL 레이어는 2D 콘텐츠 위에 합성되므로, 교차-레이어 페인터 순서는 인터리브되지 않습니다.      |
 | `particleBackend`      | `'auto' \| 'webgpu' \| 'cpu'` | `'auto'`         | [`ComputeParticleEntity`](/reference/core-particles/) 백엔드. `'auto'`는 WebGPU를 시도하고 CPU로 폴백하기 전에 경고. `'webgpu'`는 명시적으로 WebGPU를 요청하지만 현재 오류를 기록하고 초기화 실패 시 여전히 폴백. `'cpu'`는 CPU 시뮬레이션 강제(`webgpuDisabled` 설정). |
 | `maxFPS`               | `number`                      | `60`             | 프레임률 캡. `0` = 무제한(네이티브 리프레시). 연속 애니메이션은 여전히 실행되지만 덜 자주. (내부적으로 `NODE_ENV=test`/`VITEST`에서 `0`). 라이브로도 설정 가능(`scene.maxFPS`).                                                                                         |
-| `respectReducedMotion` | `boolean`                     | `true`           | OS가 `prefers-reduced-motion`을 요청하면 `REDUCED*MOTION*FPS`(30)로 제한 — 또는 그 값과 `maxFPS` 중 낮은 값. `false`는 OS 설정을 무시.                                                                                                                                  |
+| `respectReducedMotion` | `boolean`                     | `true`           | OS가 `prefers-reduced-motion`을 요청하면 `REDUCED_MOTION_FPS`(30)로 제한 — 또는 그 값과 `maxFPS` 중 낮은 값. `false`는 OS 설정을 무시.                                                                                                                                  |
+| `readingDirection`     | `'ltr' \ \| 'rtl'`            | `'ltr'`          |                                                                                                                                                                                                                                                                         |
 | `a11ySyncInterval`     | `number`                      | `0`              | a11y 섀도우-DOM 동기화를 최대 N ms당 한 번으로 스로틀. `0` = 렌더링된 모든 프레임 동기화. 작은 값(예: `100`)은 무거운 애니메이션 중 a11y 레이어를 최종적으로 일관되게 유지하면서 프레임별 DOM 쓰기를 절약. `scene.a11ySyncInterval`로 라이브 설정 가능.                 |
 | `debugA11y`            | `boolean`                     | `false`          | 섀도우 노드를 `opacity:0` 대신 파란색 점선 외곽선(개발 보조)으로 렌더링. 어느 쪽이든 자동화로 클릭 가능한 상태 유지.                                                                                                                                                    |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | 커스텀 렌더러(예: [`@vectojs/three`](/reference/three-renderer/)의 `ThreeRenderer`).                                                                                                                                                                                    |
@@ -68,6 +69,8 @@ scene.a11ySyncInterval: number
 scene.particleBackend: 'auto' | 'webgpu' | 'cpu'
 scene.webgpuDisabled: boolean      // getter — _disabled이거나 particleBackend === 'cpu'이면 true
 scene.a11yNeedsReorder: boolean
+scene.readingDirection: 'ltr' | 'rtl'   // tab/traversal order; setting it re-flows
+scene.forcedColors: boolean             // getter — OS is in a forced-colors mode
 ```
 
 ## renderMode, maxFPS 및 유휴 자동 스로틀
@@ -92,9 +95,32 @@ scene.a11yNeedsReorder: boolean
 > (이벤트 핸들러, 별도의 `rAF` 또는 타이머에서) `scene.markDirty()`를 호출하여
 > 플래그가 다음 루프 반복까지 살아남도록 하세요.
 
-`effectiveMaxFPS` = `maxFPS`, OS가 reduced motion을 요청하고
-`respectReducedMotion`이 켜져 있으면 30(`REDUCED*MOTION*FPS`)으로 더 낮춰집니다.
-`0`은 무제한을 의미합니다.
+### 오프스크린 일시정지 및 dt 클램프
+
+놓치기 쉬운 두 가지 루프 동작:
+
+- **오프스크린 Scene은 렌더링을 중지합니다.** 캔버스의 `IntersectionObserver`가 캔버스가 완전히 뷰포트 밖으로 스크롤되면 rAF 루프를 일시정지하고 다시 진입할 때 재개합니다 — 아무도 보지 않는 Scene에 대한 완전한 업데이트/렌더링을 실행하는 대신. `IntersectionObserver`를 사용할 수 없는 곳(SSR/jsdom)에서는 Scene이 항상 화면에 있는 것으로 간주되므로 동작이 변경되지 않습니다.
+- **`dt`는 100ms로 클램프됩니다** (`MAX_FRAME_DT`). 백그라운드 탭, 중단점 또는 긴 GC 일시정지 후 실제 경과 시간은 초 단위가 될 수 있습니다. 해당 원시 값을 물리/트윈 적분에 전달하면 모든 것이 순간이동합니다. `update(dt)`에서 `dt`를 직접 적분하는 경우 100ms를 초과하지 않는다는 점에 유의하세요.
+
+## 접근성 및 외관
+
+| 멤버                   | 타입               | 설명                                                                                                                                                                                         |
+| ---------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `readingDirection`     | `'ltr' \ \| 'rtl'` | a11y 섀도우 트리를 정렬하여 **탭 순서**가 시각적 읽기 순서와 일치하도록 합니다(행은 위에서 아래로, 그 다음 인라인). 설정하면 다음 동기화 시 재정렬이 트리거됩니다. 생성자 옵션이기도 합니다. |
+| `forcedColors`         | `boolean` (getter) | OS가 강제 색상 모드(Windows 고대비)일 때 `true`. `(forced-colors: active)`로 감지; 토글 시 Scene이 **자동으로 다시 그려집니다**.                                                             |
+| `prefersReducedMotion` | `boolean` (getter) | OS가 감소된 모션을 요청하고 `respectReducedMotion`이 켜져 있을 때 `true`. 애니메이션 드라이버가 읽으며, 트윈하는 대신 opacity가 아닌 속성을 스냅합니다.                                      |
+
+`<canvas>`는 불투명 픽셀이므로 브라우저의 강제 색상 리매핑이 그리는 내용에 영향을 미치지 않습니다. 컴포넌트가 직접 반응해야 합니다:
+
+```ts
+render(r: IRenderer) {
+  const forced = this.scene?.forcedColors ?? false;
+  r.fill(forced ? 'ButtonFace' : this.bg);
+  r.fillText(this.label, x, y, this.font, forced ? 'ButtonText' : this.color);
+}
+```
+
+[a11yRoot & 에이전트 계약](/reference/core-a11y/#강제-색상-고대비)를 참조하세요.
 
 ## 생명주기 메서드
 
@@ -151,6 +177,25 @@ Scene.registerWebGPUParticleSystemManager(managerClass: any): void
 (`IWebGLPointRenderer`, `IWebGPUParticleSystemManager`,
 `WebGLPointRendererCreator`)는 커스텀 백엔드를 위해 내보내집니다. WebGPU 디바이스 손실은
 영구적으로 WebGPU를 비활성화하기 전에 지수 백오프(3회 재시도)로 자동 복구됩니다.
+
+## 프레임 텔레메트리 (`frameStats`, 1.13.0)
+
+```ts
+scene.frameStats: FrameStats; // 라이브 루프 텔레메트리 (읽기 전용)
+
+interface FrameStats {
+  fps: number; // 렌더링된 프레임 리듬, maxFPS로 클램프; 첫 프레임 쌍까지 0
+  frameTimeMs: number; // 마지막 render() 패스의 벽시계 시간 (a11y/콘텐츠 동기화 제외)
+  frameIntervalMs: number; // 렌더링된 프레임 간의 평활화된 간격 (EMA)
+  dt: number; // 마지막 렌더링된 프레임에 전달된 dt
+  renderedFrames: number; // start() 이후 렌더링된 총 프레임
+  skippedFrames: number; // start() 이후 건너뛴 rAF 틱 총합 (idle/onDemand/capped)
+  renderMode: 'always' | 'onDemand';
+  dirty: boolean; // 다시 그리기가 현재 대기 중인지 여부
+}
+```
+
+`fps`는 _실제로 렌더링된_ 프레임 간의 간격에서 파생되므로, 유휴 `onDemand` 씬과 `maxFPS` 캡 또는 정적 자동 스로틀링에 의해 드롭된 프레임은 그것을 낮추지 않습니다 — 원시 rAF 속도가 아닌 실제 다시 그리기의 리듬을 보고합니다. 타이밍은 `requestAnimationFrame` 루프에서 측정됩니다. `step()`(결정적 내보내기)에 의해서만 구동되는 씬은 제로로 둡니다. 렌더러는 항상 전체 캔버스를 다시 그리므로 부분 더티 사각형은 없습니다 — `dirty`는 불리언 다시 그리기 대기 플래그입니다. [`@vectojs/devtools`](/reference/devtools/) 성능 HUD를 구동합니다.
 
 ## 관련 항목
 

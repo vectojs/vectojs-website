@@ -81,11 +81,15 @@ ArabicShaper.shapeArabic(text: string): ShapedResult   // { shapedText, indexMap
 BidiResolver.getBaseLevel(text: string): number
 BidiResolver.resolveLevels(text: string): Uint8Array
 BidiResolver.reorderVisual(nodes: any[], baseLevel: number): void
+BidiResolver.reorderSegments(str: string, levels: Uint8Array, baseLevel: number):
+  Array<[number, number]>
 ```
 
 Bidi integrado ligero: clases de dirección basadas en rangos (R/AL hebreo/árabe,
 dígitos EN/AN) y selección de formas de presentación contextual árabe. `indexMap` mapea
 índices conformados de vuelta a la cadena fuente para hit-testing / mapeo de cursor.
+
+`reorderVisual` reordena un arreglo de objetos de nodo en su lugar. `reorderSegments` expone los mismos rangos de inversión UAX #9 **L2** (pares de índices inclusivos `[start, end]` sobre las propias posiciones de la carrera) sin requerir objetos de nodo, de modo que un llamador que mantenga **arreglos tipados paralelos** puede aplicar la misma permutación en su lugar — eso es lo que usa la ruta de diseño de búfer de GC cero. `reorderVisual` ahora delega en él, por lo que los dos no pueden divergir.
 
 Ver [Texto y Tipografía](/learn/text-typography/) para uso.
 

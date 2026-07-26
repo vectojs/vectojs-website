@@ -225,6 +225,8 @@ for await (const token of llmStream) {
 
 `LayoutEngine`支持`textAlign = 'justify'`（将换行后的行拉伸到`maxWidth`，最后一行不规则）和换行时连字符（软连字符`­`开箱即用；插入一个`hyphenate: (word) => string[]`函数用于自动断词 —— 例如`hyphen` npm包的Knuth–Liang模式）。
 
+对齐的**RTL**行在*两个*边缘都是平齐的：行的逻辑末尾空白被BiDi规则L1重置为基础方向并落在视觉左侧，因此被折叠而不是在测量中保持一行空格宽度。段落最后一行仍然不规则（仍然是右对齐）。
+
 `TextEntity`直接暴露两者：`text.setTextAlign('justify')`、`text.setHyphenator(fn)` —— 参见[核心API参考](/reference/core-api/#textentity--gridtextentity-from-)了解详情。这些能正确渲染，因为`TextEntity`在每个字形的计算位置绘制每个字形。`@vectojs/ui`的`Text`/`RichText`组件将每行换行文本折叠为单个原生`fillText()`调用以提高性能，因此它们尚不支持逐字形对齐 —— 当你需要对齐正文时使用`TextEntity`。
 
 ---
@@ -310,6 +312,8 @@ const hebrew = new RichText([{ text: 'שלום ' }, { text: 'VectoJS', style: { 
 
 > [!NOTE]
 > 换行符（`\n`）总是重置阿拉伯语成形上下文和BiDi状态。同一段落内的软换行行共享一次成形传递，因此多行阿拉伯语段落跨行成形正确。
+>
+> **所有行尾形式都被处理。** `\r\n`（CRLF）、`\n`和单独的`\r`都结束段落，永远不会被塑形或作为字形布局 —— 一个多余的`\r`否则会渲染为可见的豆腐块，增加行宽并偏移选择偏移。源偏移仍然索引**原始**字符串，因此CRLF换行在命中测试和光标映射中正确计算为两个字符。
 
 ---
 
@@ -320,7 +324,9 @@ const hebrew = new RichText([{ text: 'שלום ' }, { text: 'VectoJS', style: { 
 ```typescript
 import { measureText, wrapLines, fontSizePx } from '@vectojs/ui';
 
-// 渲染像素宽度，LRU缓存（上限1000）
+// 渲染像素宽度，LRU缓存（上限1000）—— 以原始文本为键，因此缓存命中
+// 只需一次map查找，不会重新运行阿拉伯语塑形
+//（未命中时阿拉伯语仍以其上下文塑形形式测量）
 const w = measureText('Hello world', '600 16px Inter');
 
 // 贪心单词换行 —— 返回string[]

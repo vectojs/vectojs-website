@@ -83,8 +83,33 @@ interface A11yAttributes {
   activedescendant?: string; // aria-activedescendant (for composite widgets)
   valuemin?: string; // aria-valuemin (for sliders, meters)
   valuemax?: string; // aria-valuemax
+
+  // Relations et dénomination depuis d'autres nœuds
+  labelledby?: string; // aria-labelledby
+  describedby?: string; // aria-describedby — texte d'indication / erreur
+
+  // État de validation (le seul moyen qu'un formulaire canvas soit annonçable)
+  required?: boolean; // aria-required
+  invalid?: boolean; // aria-invalid — note false signifie « explicitement valide »
+
+  // Structure et dialogues
+  level?: number; // aria-level (titres, éléments d'arborescence)
+  ariaModal?: 'true' | 'false'; // aria-modal sur un role="dialog"
+
+  // Régions actives — annoncer les mises à jour en continu sans déplacer le focus
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean; // aria-atomic — lire la région entière, pas la diff
+  relevant?: string; // aria-relevant — ex. 'additions text'
+
+  // Surface du pointeur
+  pointerEvents?: 'auto' | 'none'; // 'none' pour les nœuds structurels/overlay uniquement
+
+  target?: string; // pour tag='a'
+  textInputStyle?: TextInputStyle; // typographie de l'éditeur natif
 }
 ```
+
+Retourner `undefined` pour un champ **supprime** l'attribut — l'état qui ne s'applique plus disparaît au lieu de devenir obsolète.
 
 Utilisez un `tabIndex: 0` explicite pour un espace de travail canvas qui n'est pas un bouton ni un contrôle de formulaire, mais qui doit détenir des raccourcis clavier :
 
@@ -98,20 +123,49 @@ Laissez les entrées natives, les zones de texte et le contenu éditable gérer 
 
 ### Ce que projettent les composants intégrés
 
-| Composant             | Élément fantôme           | Attributs ARIA clés                                                   |
-| --------------------- | ------------------------- | --------------------------------------------------------------------- |
-| `Button`              | `<button>`                | `role="button"`, `aria-label`                                         |
-| `Link`                | `<a href>`                | lien natif, `aria-label`                                              |
-| `Image`               | `<img>`                   | `src`, `alt`                                                          |
-| `Input`               | `<input type="text">`     | `placeholder`, `value` (en direct)                                    |
-| `TextArea`            | `<textarea>`              | `placeholder`, `value` (en direct)                                    |
-| `Checkbox`            | `<input type="checkbox">` | `checked` (en direct), `aria-label`                                   |
-| `Toggle`              | `<div role="switch">`     | `aria-checked` (en direct), `aria-label`                              |
-| `Slider`              | `<div role="slider">`     | `aria-valuenow/min/max` (en direct)                                   |
-| `Dropdown`            | `<div role="combobox">`   | `aria-expanded`, `aria-controls`, éléments de menu en `role="option"` |
-| `Card` (avec libellé) | `<div role="group">`      | `aria-label`                                                          |
-| `Table`               | `<div role="grid">`       | `aria-label` avec nombre de lignes/colonnes                           |
-| `Text`                | `<div>`                   | `aria-label` = contenu textuel                                        |
+| Composant             | Élément fantôme                            | Attributs ARIA clés                                                   |
+| --------------------- | ------------------------------------------ | --------------------------------------------------------------------- |
+| `Button`              | `<button>`                                 | `role="button"`, `aria-label`                                         |
+| `Link`                | `<a href>`                                 | lien natif, `aria-label`                                              |
+| `Image`               | `<img>`                                    | `src`, `alt`                                                          |
+| `Input`               | `<input type="text">`                      | `placeholder`, `value` (en direct)                                    |
+| `TextArea`            | `<textarea>`                               | `placeholder`, `value` (en direct)                                    |
+| `Checkbox`            | `<input type="checkbox">`                  | `checked` (en direct), `aria-label`                                   |
+| `Toggle`              | `<div role="switch">`                      | `aria-checked` (en direct), `aria-label`                              |
+| `Slider`              | `<div role="slider">`                      | `aria-valuenow/min/max` (en direct)                                   |
+| `Dropdown`            | `<div role="combobox">`                    | `aria-expanded`, `aria-controls`, éléments de menu en `role="option"` |
+| `Card` (avec libellé) | `<div role="group">`                       | `aria-label`                                                          |
+| `Table`               | `grid` › `row` › `gridcell`/`columnheader` | tabindex baladeur, touches fléchées 2D, Ctrl+Home/End                 |
+| `TreeView`            | `treeitem` par ligne visible               | `aria-level`/`expanded`/`selected`, flèches développer/réduire        |
+| `ContextMenu`         | `menuitem` par élément                     | `aria-haspopup`/`expanded`, flèches bouclent, Escape ferme            |
+| `RadioGroup`          | `radio` par option                         | `aria-checked`, flèches déplacent+sélectionnent                       |
+| `Tabs`                | `tab` par onglet                           | `aria-selected`, flèches déplacent, Home/End                          |
+| `Text`                | `<div>`                                    | `aria-label` = contenu textuel                                        |
+
+## Widgets composites : un seul arrêt tabulation, touches fléchées à l'intérieur
+
+Un arbre, grille, menu, groupe radio ou liste d'onglets ne doit pas mettre chaque enfant dans l'ordre de tabulation. VectoJS pool un hotspot transparent et focalisable sur chaque enfant **visible** portant le rôle et l'état de cet enfant, et donne exactement à l'un d'eux `tabIndex: 0` — un **tabindex baladeur**. Le parent gère le gestionnaire de touches fléchées et déplace l'arrêt. Voir le tableau ci-dessus pour les touches de chaque composant, et [Widgets composites](/reference/core-a11y/#composite-widgets-roving-tabindex) pour le motif si vous construisez le vôtre.
+
+Réutilisez ce motif plutôt que d'en inventer un : le point important est que le hotspot doit définir `pointerEvents: 'none'` whenever quelque chose en dessous possède la souris (texte de cellule sélectionnable, glisser pour défiler, gestion des impacts canvas). Le focus clavier et le `click` synthétisé par AT passent toujours à travers.
+
+L'ordre de tabulation suit l'ordre de lecture **visuel**, pas l'ordre dans lequel vous avez ajouté les entités. Pour une interface RTL, réglez `readingDirection: 'rtl'` sur la Scene afin que l'ordre en ligne dans chaque ligne soit également inversé.
+
+## Couleurs forcées (Contraste élevé Windows)
+
+Un `<canvas>` est des pixels opaques, donc le remappage `forced-colors` du navigateur n'atteint jamais ce que vous dessinez — un contrôle thématisé reste à faible contraste et illisible à moins qu'il ne se redessine lui-même. Lisez `scene.forcedColors` et dessinez avec les couleurs système CSS ; la scène se redessine automatiquement lorsque le paramètre système bascule :
+
+```typescript
+render(r: IRenderer) {
+  const forced = this.scene?.forcedColors ?? false;
+  r.beginPath();
+  r.roundRect(0, 0, this.width, this.height, 8);
+  r.fill(forced ? 'ButtonFace' : this.bg);
+  if (forced) r.stroke('ButtonText', 1);       // give the shape an edge
+  r.fillText(this.label, x, y, this.font, forced ? 'ButtonText' : this.color);
+}
+```
+
+`Button` le fait déjà. Utilisez `Highlight` pour la sélection/le focus, `Canvas`/`CanvasText` pour les surfaces et le texte du corps.
 
 ## Champs de saisie compatibles IME
 

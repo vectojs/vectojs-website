@@ -24,24 +24,96 @@ no forma parte de este mapeo.
 
 ```ts
 {
+  // Element + identity
   tag?: 'div' | 'a' | 'button' | 'img' | 'input' | 'textarea';   // default 'div'
-  role?, label?, tabIndex?, href?, src?, alt?, inputType?, placeholder?, value?,
-  checked?, disabled?, expanded?, controls?, haspopup?, selected?,
-  activedescendant?, valuemin?, valuemax?
+  role?: string;
+  label?: string;                      // aria-label
+  labelledby?: string;                 // aria-labelledby
+  describedby?: string;                // aria-describedby
+
+  // Focus & pointer
+  tabIndex?: number;
+  pointerEvents?: 'auto' | 'none';     // default 'auto'
+
+  // Native element attributes (only for the matching `tag`)
+  href?: string; target?: string;      // tag: 'a'
+  src?: string; alt?: string;          // tag: 'img'
+  inputType?: string; placeholder?: string; value?: string;
+  textInputStyle?: TextInputStyle;     // native editor typography
+
+  // State
+  checked?: boolean; disabled?: boolean; selected?: boolean;
+  expanded?: boolean; required?: boolean; invalid?: boolean;
+  valuemin?: string; valuemax?: string;
+  level?: number;                      // aria-level (headings, tree items)
+
+  // Relationships & popups
+  controls?: string; haspopup?: string; activedescendant?: string;
+  ariaModal?: 'true' | 'false';        // aria-modal on a role="dialog"
+
+  // Live regions
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean;                    // aria-atomic
+  relevant?: string;                   // aria-relevant
 }
 ```
 
+Cada campo se proyecta a un atributo real cada fotograma con verificación de estado sucio. Devolver `undefined` para un campo **elimina** el atributo, por lo que el estado que deja de aplicarse desaparece en lugar de quedar obsoleto — nota que `false` es distinto de `undefined` aquí (`aria-invalid="false"` significa "explícitamente válido" y se preserva).
+
 La sincronización aplica estos atributos a un elemento real (un verdadero `<button>`, `<a href>`, `<img>`,
-`<input>`/`<textarea>` con eventos `change`/`focus`/`blur` compatibles con IME, etc.), con verificación
-de estado sucio para minimizar escrituras en el DOM. Los roles interactivos no enfocables nativamente
-(`button`, `switch`, `checkbox`, `link`, `slider`, …) reciben `tabindex="0"` y
-Enter/Espacio → `click`. Esta es la historia de "**rendimiento de canvas Y accesibilidad
+`<input>`/`<textarea>` con eventos `change`/`focus`/`blur` compatibles con IME, etc.). Esta es la historia de "**rendimiento de canvas Y accesibilidad
 de grado DOM**": los visuales son 100% GPU/canvas, pero un agente Playwright
 `getByRole('button', { name })` resuelve el nodo sombra y hace clic en él.
+
+## Orden de enfoque
+
+Los roles interactivos no enfocables nativamente
+(`button`, `switch`, `checkbox`, `link`, `slider`, …) reciben `tabindex="0"` y
+Enter/Espacio → `click`.
+
+**Los widgets compuestos son diferentes.** Un `tree`, `grid`, `menu`, `radiogroup` o
+`tablist` es una parada de tabulación, no una por hijo — por lo tanto sus hijos usan un **tabindex flotante**: exactamente un hijo lleva `tabIndex: 0` y el resto `-1`, y las teclas de flecha mueven esa parada. Ver [Widgets compuestos](#widgets-compuestos-tabindex-flotante).
+
+El orden de tabulación sigue el orden de lectura **visual**, no el orden de inserción del grafo de escena — ver [`Scene.readingDirection`](/reference/core-scene/#accessibility--appearance) para RTL.
 
 Establece `tabIndex: 0` explícitamente cuando una región que no es un control, como un lienzo de diseño,
 debe entrar en el orden de enfoque secuencial y recibir eventos `keydown` del VMT. Usa `-1`
 solo para enfoque programático; devolver `undefined` elimina el valor explícito.
+
+## Widgets compuestos (tabindex flotante)
+
+Un árbol, cuadrícula, menú, grupo de radio o lista de pestañas debe exponer **un rol por hijo**,
+no solo un rol de contenedor — de lo contrario AT ve una caja opaca. VectoJS hace esto
+reuniendo una entidad hijo transparente y enfocable ("punto caliente") sobre cada hijo visible:
+lleva el `role` del hijo + estado + `tabindex` flotante, no renderiza nada, y el padre posee
+el manejador de teclado.
+
+Crucialmente, estos puntos calientes establecen `pointerEvents: 'none'`. El componente
+debajo ya posee el ratón (clic para alternar, arrastrar para desplazar, texto de celda
+seleccionable), por lo que el punto caliente no debe interceptarlo — el enfoque de teclado
+y el `click` sintetizado por AT aún funcionan a través de un elemento con `pointer-events:none`.
+
+| Componente    | Rol hijo                                                      | Teclado                                                                                                                                                                  |
+| ------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `TreeView`    | `treeitem` (+ `aria-level`, `aria-expanded`, `aria-selected`) | Arriba/Abajo mueven · Derecha expande luego entra · Izquierda colapsa luego va al padre · Home/End · Enter/Espacio activan                                               |
+| `Table`       | `row` › `gridcell` / `columnheader`                           | Flechas mueven en 2D (encabezado es row −1) · Home/End extremos de fila · Ctrl+Home/Ctrl+End esquinas de cuadrícula                                                      |
+| `ContextMenu` | `menuitem` (+ `aria-haspopup`, `aria-expanded`)               | Arriba/Abajo envuelven y saltan separadores + deshabilitados · Home/End · Derecha abre submenú · Izquierda retorna al menú padre · Enter/Espacio activan · Escape cierra |
+| `RadioGroup`  | `radio` (+ `aria-checked`)                                    | Flechas mueven y seleccionan · Home/End · Espacio selecciona                                                                                                             |
+| `Tabs`        | `tab` (+ `aria-selected`)                                     | Flechas mueven · Home/End · Espacio/Enter activan                                                                                                                        |
+
+Solo los hijos visibles se reúnen, por lo que un `TreeView` o `Table` virtualizado
+proyecta O(viewport) puntos calientes en lugar de uno por fila en el conjunto de datos.
+La fila/celda enfocada se desplaza a la vista antes de que el enfoque se mueva a ella.
+
+## Colores forzados (Alto contraste)
+
+Un canvas es píxeles opacos, por lo que el remapeo `forced-colors` del navegador nunca
+toca lo que VectoJS dibuja — bajo Alto contraste de Windows un control con tema permanece
+ilegible a menos que el componente se repinte. Lee
+[`Scene.forcedColors`](/reference/core-scene/#accessibility--appearance) y dibuja
+con colores del sistema CSS (`ButtonFace`, `ButtonText`, `Highlight`, `Canvas`,
+`CanvasText`); la escena se repinta automáticamente cuando la configuración cambia.
+`Button` ya hace esto.
 
 ## Controles y problemas
 

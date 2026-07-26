@@ -81,11 +81,20 @@ ArabicShaper.shapeArabic(text: string): ShapedResult   // { shapedText, indexMap
 BidiResolver.getBaseLevel(text: string): number
 BidiResolver.resolveLevels(text: string): Uint8Array
 BidiResolver.reorderVisual(nodes: any[], baseLevel: number): void
+BidiResolver.reorderSegments(str: string, levels: Uint8Array, baseLevel: number):
+  Array<[number, number]>
 ```
 
 Lightweight built-in bidi: range-based direction classes (Hebrew/Arabic R/AL,
 EN/AN digits) and Arabic contextual presentation-form selection. `indexMap` maps
 shaped indices back to the source string for hit-testing / caret mapping.
+
+`reorderVisual` reorders an array of node objects in place. `reorderSegments`
+exposes the same UAX #9 **L2** reversal ranges (inclusive `[start, end]` index
+pairs over the run's own positions) without requiring node objects, so a caller
+holding **parallel typed arrays** can apply the identical permutation in place —
+that is what the zero-GC buffer layout path uses. `reorderVisual` now delegates to
+it, so the two can't drift.
 
 See [Text & Typography](/learn/text-typography/) for usage.
 

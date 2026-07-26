@@ -48,8 +48,8 @@ exclusions: ExclusionRect[]): LineSegment[]` 是純粹、可測試的核心：
 - `LayoutResult` — `{ nodes: LayoutNode[], totalWidth, totalHeight,
 fallbackToCanvas? }`；`LayoutNode` 是一個已定位的字形。
 - `LayoutResultBuffer` — 平坦的 typed-array 結果（`xs/ys/ws/hs`、`chars`、
-  `count`、`CAPACITY = 16384`）；重複使用前 `reset()`，`toLayoutResult()` 以
-  具現化。
+  `levels`、`count`、`CAPACITY = 16384`）；重複使用前 `reset()`，`toLayoutResult()` 以
+  具現化。`levels` 是每個字形解析後的 BiDi 嵌入等級（偶數 = LTR，奇數 = RTL），因此消費者可以判斷字形的方向；緩衝路徑使用它來將每行重排為視覺順序。字形以**視覺**順序輸出，共享基線，與分配路徑逐字形匹配。
 - `LayoutWorkerManager.getInstance()` — 用於離執行緒 layout 的單例；
   `queueLayout(entityId, text, { fontId, fontSize, maxWidth, maxHeight, callback,
 ... })` / `cancelLayout(entityId)`。由 [`MSDFTextEntity`](/reference/core-text/#msdftextentity) 使用。

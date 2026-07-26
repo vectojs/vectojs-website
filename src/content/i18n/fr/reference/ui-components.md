@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Référence des composants
 
 > Composants réutilisables de haut niveau pour le moteur Canvas zero-DOM VectoJS.
-> Version documentée : **1.11.3**. Source de vérité : `dist/index.d.ts` (surface publique) et `packages/ui/src/*` (comportement).
+> Version documentée : **2.0.0**. Source de vérité : `dist/index.d.ts` (surface publique) et `packages/ui/src/*` (comportement).
 
 Chaque composant est une feuille ou un conteneur dans l'Arbre Mathématique Virtuel (VMT). Rien ici n'est du vrai DOM — les composants se dessinent eux-mêmes sur un Canvas via un `IRenderer`. L'accessibilité, l'automatisation par agent et la crawlabilité proviennent d'un **A11y Shadow DOM** parallèle : lorsqu'un composant est `interactive`, la `Scene` projette un seul nœud DOM réel caché et transparent positionné au-dessus de la boîte du composant, construit à partir de `getA11yAttributes()`. C'est pourquoi `page.getByRole('button', { name })` / `fill()` / les lecteurs d'écran fonctionnent sur une UI pure-Canvas.
 
@@ -26,7 +26,7 @@ La galerie ci-dessous est maintenant un test de smoke au niveau du paquet. Pour 
 | Superpositions & UI transitoire | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class=\"sandbox component-gallery\">
-  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.11.3 · scroll inside</span></div>
+  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 2.0.0 · scroll inside</span></div>
   <iframe src=\"/sandbox/ui-components.html\" class=\"sandbox-frame component-gallery-frame\" loading=\"eager\" title=\"Galerie interactive de tous les composants UI VectoJS\" sandbox=\"allow-scripts allow-same-origin allow-popups\"></iframe>
   <figcaption>Galerie de smoke au niveau du paquet : couverture large d'abord, pages de composants ciblées lors du débogage d'un comportement spécifique.</figcaption>
 </figure>
@@ -95,8 +95,24 @@ interface A11yAttributes {
   activedescendant?: string;
   valuemin?: string;
   valuemax?: string;
+  tabIndex?: number; // tabindex tournant pour les enfants de widget composite
+  pointerEvents?: 'auto' | 'none'; // 'none' quand quelque chose en dessous possède la souris
+  labelledby?: string;
+  describedby?: string; // aria-describedby — texte dʼindice/erreur
+  required?: boolean;
+  invalid?: boolean; // état de validation
+  level?: number; // aria-level (éléments dʼarbre, titres)
+  ariaModal?: 'true' | 'false';
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean;
+  relevant?: string; // contrôles de région en direct
+  // (voir aussi `target`, `textInputStyle` — référence complète)
 }
 ```
+
+Chaque champ est projeté vers un vrai attribut chaque trame avec une vérification dirty ;
+retourner `undefined` le **supprime**. La liste complète et les patrons de clavier des widgets composites se trouvent dans
+[a11yRoot et le contrat agent](/reference/core-a11y/).
 
 ---
 

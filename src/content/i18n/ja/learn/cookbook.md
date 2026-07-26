@@ -812,3 +812,62 @@ window.addEventListener('resize', () => {
 
 > [!NOTE]
 > エラー`Text`エンティティは常にレイアウトツリー内に存在します — エラーがないときは単に空文字列を表示します。これにより`Stack`レイアウトが安定し、エラー出現時のシフトが発生しません。スペースを完全に非表示にする場合は、エラーがないときに`entity.opacity = 0`と`entity.height = 0`に切り替え、エラー設定時に両方を復元します。
+
+---
+
+## Crisp Printing via SVG Export
+
+`<canvas>`を直接印刷するとラスタライズされます — ブラウザがビットマップをプリンターのDPIにスケーリングするため、テキストやベクトル形状がぼやけます。`scene.toSVG()`は現在のシーン状態を`SVGRenderer`を通じて解像度に依存しない`<svg>`ドキュメントにスナップショットします — 印刷パイプラインがそれを真のベクトルとしてレンダリングするため、任意のDPIでシャープです。追加の依存関係は不要です。SVGエクスポーターは`@vectojs/core`に同梱されています。
+
+```typescript
+import { Scene } from '@vectojs/core';
+
+/**
+ * 現在のシーンをベクトルSVG（任意のDPIでシャープ）として印刷する。
+ * ラスタライズされたキャンバスビットマップではなく、SVGとして印刷ダイアログを開き、
+ * 後片付けを行う。
+ */
+function printScene(scene: Scene): void {
+  // toSVG()はシーンの幅/高さに一致するviewBoxを持つ完全な自己完結型の<svg>文字列を返す。
+  // 現在の状態の読み取り専用スナップショット。
+  const svg = scene.toSVG();
+
+  // 非表示の同一オリジンiframeに印刷ジョブを隔離する。これにより、
+  // ライブキャンバスを乱さず、ページの画面スタイルシートを継承しない。
+  const frame = document.createElement('iframe');
+  frame.setAttribute('aria-hidden', 'true');
+  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+  document.body.appendChild(frame);
+
+  const doc = frame.contentDocument!;
+  doc.open();
+  // @pageでブラウザのデフォルトマージンを削除。width:100%でベクトルを
+  // 用紙にスケーリング。SVG自体がviewBoxを持つため、アスペクト比が保持される。
+  doc.write(
+    `<!doctype html><html><head><style>` +
+      `@page { margin: 0; } ` +
+      `html, body { margin: 0; } ` +
+      `svg { width: 100%; height: auto; display: block; }` +
+      `</style></head><body>${svg}</body></html>`,
+  );
+  doc.close();
+
+  const win = frame.contentWindow!;
+  // iframeドキュメントが安定したら印刷し、ユーザーが印刷またはキャンセル
+  // してもフレームを削除する（afterprintは両方で発火する）。
+  win.addEventListener('afterprint', () => frame.remove(), { once: true });
+  win.focus();
+  win.print();
+}
+
+// ── 使用例 ────────────────────────────────────────────────────────────────────
+// const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
+// const scene = new Scene(canvas, { maxFPS: 60 });
+// buildYourScene(scene);
+// scene.start();
+//
+// printButton.addEventListener('click', () => printScene(scene));
+```
+
+> [!NOTE]
+> `toSVG()`はシーンの_現在の_状態のスナップショットなので、印刷したいタイミング（例：クリックハンドラ内）で呼び出してください。起動時に1回呼び出すのではありません。標準レンダラーパスで描画されたベクトルジオメトリ、テキスト、画像をカバーします。GPU専用レイヤー（`WebGLPointRenderer`パーティクル、`WebGPUParticleSystemManager`）はSVGシリアライズには含まれません。それらについては、ラスタライズされたフォールバックを合成してください。出力はプレーンSVG XMLであるため、同じ文字列は`.svg`ファイルへの保存（`new Blob([svg], { type: 'image/svg+xml' })`）やサーバーサイドレンダリングにも使用できます。

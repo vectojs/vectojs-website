@@ -83,8 +83,33 @@ interface A11yAttributes {
   activedescendant?: string; // aria-activedescendant（用于复合微件）
   valuemin?: string; // aria-valuemin（用于滑块、仪表）
   valuemax?: string; // aria-valuemax
+
+  // 与其他节点的关系和命名
+  labelledby?: string; // aria-labelledby
+  describedby?: string; // aria-describedby —— 提示/错误文本
+
+  // 验证状态（canvas表单可被播报的唯一方式）
+  required?: boolean; // aria-required
+  invalid?: boolean; // aria-invalid —— 注意false表示"显式有效"
+
+  // 结构与对话框
+  level?: number; // aria-level（标题、树项目）
+  ariaModal?: 'true' | 'false'; // role="dialog"上的aria-modal
+
+  // 实时区域 —— 在不移动焦点的情况下播报流式更新
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean; // aria-atomic —— 读取整个区域，而非差异
+  relevant?: string; // aria-relevant —— 例如'additions text'
+
+  // 指针表面
+  pointerEvents?: 'auto' | 'none'; // 'none'用于结构性/仅覆盖节点
+
+  target?: string; // 用于tag='a'
+  textInputStyle?: TextInputStyle; // 原生编辑器排版
 }
 ```
+
+将字段返回`undefined`会**移除**该属性，因此停止应用的状态会消失而不是变为陈旧。
 
 对于不是按钮或表单控件但必须拥有键盘快捷键的canvas工作区，使用显式的`tabIndex: 0`：
 
@@ -98,20 +123,49 @@ getA11yAttributes(): A11yAttributes {
 
 ### 内置组件的投影
 
-| 组件              | 影子元素                  | 关键ARIA属性                                              |
-| ----------------- | ------------------------- | --------------------------------------------------------- |
-| `Button`          | `<button>`                | `role="button"`、`aria-label`                             |
-| `Link`            | `<a href>`                | 原生链接、`aria-label`                                    |
-| `Image`           | `<img>`                   | `src`、`alt`                                              |
-| `Input`           | `<input type="text">`     | `placeholder`、`value`（实时）                            |
-| `TextArea`        | `<textarea>`              | `placeholder`、`value`（实时）                            |
-| `Checkbox`        | `<input type="checkbox">` | `checked`（实时）、`aria-label`                           |
-| `Toggle`          | `<div role="switch">`     | `aria-checked`（实时）、`aria-label`                      |
-| `Slider`          | `<div role="slider">`     | `aria-valuenow/min/max`（实时）                           |
-| `Dropdown`        | `<div role="combobox">`   | `aria-expanded`、`aria-controls`、菜单项为`role="option"` |
-| `Card`（带label） | `<div role="group">`      | `aria-label`                                              |
-| `Table`           | `<div role="grid">`       | `aria-label`，附带行列数                                  |
-| `Text`            | `<div>`                   | `aria-label` = 文本内容                                   |
+| 组件              | 影子元素                                   | 关键ARIA属性                                              |
+| ----------------- | ------------------------------------------ | --------------------------------------------------------- |
+| `Button`          | `<button>`                                 | `role="button"`、`aria-label`                             |
+| `Link`            | `<a href>`                                 | 原生链接、`aria-label`                                    |
+| `Image`           | `<img>`                                    | `src`、`alt`                                              |
+| `Input`           | `<input type="text">`                      | `placeholder`、`value`（实时）                            |
+| `TextArea`        | `<textarea>`                               | `placeholder`、`value`（实时）                            |
+| `Checkbox`        | `<input type="checkbox">`                  | `checked`（实时）、`aria-label`                           |
+| `Toggle`          | `<div role="switch">`                      | `aria-checked`（实时）、`aria-label`                      |
+| `Slider`          | `<div role="slider">`                      | `aria-valuenow/min/max`（实时）                           |
+| `Dropdown`        | `<div role="combobox">`                    | `aria-expanded`、`aria-controls`、菜单项为`role="option"` |
+| `Card`（带label） | `<div role="group">`                       | `aria-label`                                              |
+| `Table`           | `grid` › `row` › `gridcell`/`columnheader` | 浮动tab索引，2D方向键，Ctrl+Home/End                      |
+| `TreeView`        | 每行一个`treeitem`                         | `aria-level`/`expanded`/`selected`，方向键展开/折叠       |
+| `ContextMenu`     | 每项一个`menuitem`                         | `aria-haspopup`/`expanded`，方向键循环，Escape关闭        |
+| `RadioGroup`      | 每选项一个`radio`                          | `aria-checked`，方向键移动+选择                           |
+| `Tabs`            | 每标签页一个`tab`                          | `aria-selected`，方向键移动，Home/End                     |
+| `Text`            | `<div>`                                    | `aria-label` = 文本内容                                   |
+
+## 复合微件：一个标签页停止，方向键在内部操作
+
+树、网格、菜单、单选组或标签列表不得将每个子元素放入标签页顺序中。VectoJS在每个**可见**子元素上方池化一个透明的可聚焦热点，携带该子元素的角色和状态，并恰好为其中一个赋予`tabIndex: 0` —— **浮动tab索引**。父元素拥有方向键处理器并移动停止点。参见上表了解每个组件的按键，以及[复合微件](/reference/core-a11y/#composite-widgets-roving-tabindex)了解你自己构建时的模式。
+
+重用该模式而不是发明一个：重要的细微之处是当某些底层元素拥有鼠标时（可选单元格文本、拖动滚动、canvas命中处理），热点必须设置`pointerEvents: 'none'`。键盘焦点和AT合成的`click`仍然可以通过它工作。
+
+标签页顺序遵循**视觉**阅读顺序，而不是你添加实体的顺序。对于RTL UI，在Scene上设置`readingDirection: 'rtl'`，以便每行内的内联顺序也会反转。
+
+## 强制颜色（Windows高对比度）
+
+`<canvas>`是不透明像素，因此浏览器的`forced-colors`重映射永远不会到达你绘制的任何内容 —— 主题控件保持低对比度且不可读，除非它自行重绘。读取`scene.forcedColors`并使用CSS系统颜色绘制；当操作系统设置切换时，场景会自动重绘：
+
+```typescript
+render(r: IRenderer) {
+  const forced = this.scene?.forcedColors ?? false;
+  r.beginPath();
+  r.roundRect(0, 0, this.width, this.height, 8);
+  r.fill(forced ? 'ButtonFace' : this.bg);
+  if (forced) r.stroke('ButtonText', 1);       // 给形状一个边缘
+  r.fillText(this.label, x, y, this.font, forced ? 'ButtonText' : this.color);
+}
+```
+
+`Button`已经这样做了。使用`Highlight`表示选择/焦点，`Canvas`/`CanvasText`表示表面和正文文本。
 
 ## 支持IME的输入字段
 

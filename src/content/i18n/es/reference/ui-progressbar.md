@@ -12,7 +12,7 @@ order: 30
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ProgressBar</span></div>
-  <iframe src="/sandbox/ui/component.html?name=progressbar&v=core-1.15.0-ui-2.0.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de ProgressBar" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=progressbar&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de ProgressBar" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Usa `setValue()` para fijar y repintar los cambios de progreso.</figcaption>
 </figure>
 

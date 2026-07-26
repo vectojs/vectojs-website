@@ -812,3 +812,61 @@ window.addEventListener('resize', () => {
 
 > [!NOTE]
 > 错误`Text`实体始终在布局树中 —— 它们只是在没有错误时显示空字符串。这保持了`Stack`布局稳定：错误出现时不会发生位移。如果你希望完全隐藏空间，在没有错误时切换到`entity.opacity = 0`和`entity.height = 0`，然后在设置错误时恢复两者。
+
+---
+
+## 通过 SVG 导出实现清晰打印
+
+直接打印 `<canvas>` 会将其栅格化：浏览器会按打印机的 DPI 缩放位图，因此文本和矢量图形会变得模糊。`scene.toSVG()` 通过 `SVGRenderer` 将当前场景状态快照为与分辨率无关的 `<svg>` 文档——打印管线随后将其作为真正的矢量图形渲染，在任何 DPI 下都清晰锐利。无需额外依赖；SVG 导出器已包含在 `@vectojs/core` 中。
+
+```typescript
+import { Scene } from '@vectojs/core';
+
+/**
+ * 将当前场景打印为矢量 SVG（在任何 DPI 下都清晰），而非栅格化的
+ * 画布位图。打开打印对话框并在完成后清理。
+ */
+function printScene(scene: Scene): void {
+  // toSVG() 返回一个完整的、自包含的 <svg> 字符串，其 viewBox
+  // 与场景的宽高匹配——当前状态的只读快照。
+  const svg = scene.toSVG();
+
+  // 将打印任务隔离在隐藏的同源 iframe 中，使其既不会干扰
+  // 活动画布，也不会继承页面的屏幕样式表。
+  const frame = document.createElement('iframe');
+  frame.setAttribute('aria-hidden', 'true');
+  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+  document.body.appendChild(frame);
+
+  const doc = frame.contentDocument!;
+  doc.open();
+  // @page 移除默认的浏览器边距；width:100% 让矢量图形缩放
+  // 以适应纸张。SVG 自带 viewBox，因此纵横比得以保留。
+  doc.write(
+    `<!doctype html><html><head><style>` +
+      `@page { margin: 0; } ` +
+      `html, body { margin: 0; } ` +
+      `svg { width: 100%; height: auto; display: block; }` +
+      `</style></head><body>${svg}</body></html>`,
+  );
+  doc.close();
+
+  const win = frame.contentWindow!;
+  // 在 iframe 文档稳定后打印，然后无论用户打印还是取消
+  // 都移除该框架（afterprint 在两种情况下都会触发）。
+  win.addEventListener('afterprint', () => frame.remove(), { once: true });
+  win.focus();
+  win.print();
+}
+
+// ── 使用 ────────────────────────────────────────────────────────────────────
+// const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
+// const scene = new Scene(canvas, { maxFPS: 60 });
+// buildYourScene(scene);
+// scene.start();
+//
+// printButton.addEventListener('click', () => printScene(scene));
+```
+
+> [!NOTE]
+> `toSVG()` 是场景_当前_状态的快照，因此应在你想打印的时刻调用它（例如在点击处理函数内部），而不是在启动时调用一次。它涵盖了通过标准渲染器路径绘制的矢量几何、文本和图像；仅限 GPU 的图层（`WebGLPointRenderer` 粒子、`WebGPUParticleSystemManager`）不在 SVG 序列化范围内——对于这些内容，需要合成一个栅格化的回退。由于输出是纯 SVG XML，同一字符串也可用于保存为 `.svg` 文件（`new Blob([svg], { type: 'image/svg+xml' })`）或服务端渲染。

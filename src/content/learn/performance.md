@@ -189,6 +189,22 @@ getBounds() {
 
 For example, if 90% of 5,000 bounded leaf entities are offscreen, only about 500 `render()` calls remain, but the Scene still visits and updates all 5,000 nodes.
 
+### The whole scene pauses when off-screen
+
+Per-entity culling still costs a walk. When the **canvas itself** scrolls fully out
+of view — a dashboard tab, a chart below the fold — an `IntersectionObserver`
+pauses the rAF loop entirely and resumes it on re-entry, so a scene nobody can see
+costs nothing instead of a full update/render per frame. Nothing to opt into.
+(Where `IntersectionObserver` is unavailable, e.g. SSR/jsdom, the scene is treated
+as always on-screen.)
+
+### `dt` is clamped to 100ms
+
+After a backgrounded tab, a debugger pause, or a long GC the real elapsed time can
+be seconds. Feeding that raw into integration makes physics and tweens teleport, so
+the frame delta is capped at `MAX_FRAME_DT` (100ms). If you integrate `dt` yourself
+in `update(dt)`, it will never exceed that.
+
 ## A11y sync throttling
 
 On every rendered frame, the `Scene` syncs all interactive entities' positions and states to their shadow DOM nodes. With hundreds of interactive entities animating simultaneously, this DOM write overhead can dominate frame time.

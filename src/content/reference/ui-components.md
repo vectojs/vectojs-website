@@ -98,8 +98,25 @@ interface A11yAttributes {
   activedescendant?: string;
   valuemin?: string;
   valuemax?: string;
+  tabIndex?: number; // roving tabindex for composite-widget children
+  pointerEvents?: 'auto' | 'none'; // 'none' when something underneath owns the mouse
+  labelledby?: string;
+  describedby?: string; // aria-describedby — hint / error text
+  required?: boolean;
+  invalid?: boolean; // validation state
+  level?: number; // aria-level (tree items, headings)
+  ariaModal?: 'true' | 'false';
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean;
+  relevant?: string; // live-region controls
+  // (plus `target`, `textInputStyle` — see the full reference)
 }
 ```
+
+Every field is projected to a real attribute each frame with dirty checking;
+returning `undefined` **removes** it. The complete list and the composite-widget
+keyboard patterns live in
+[a11yRoot & the agent contract](/reference/core-a11y/).
 
 ---
 

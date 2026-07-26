@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — 元件參考
 
 > 適用於 VectoJS zero-DOM Canvas 引擎的可重複使用高層級元件。
-> 文件版本：**1.11.3**。事實來源：`dist/index.d.ts`（公開表面）和 `packages/ui/src/*`（行為）。
+> 文件版本：**2.0.0**。事實來源：`dist/index.d.ts`（公開表面）和 `packages/ui/src/*`（行為）。
 
 每個元件都是 Virtual Math Tree (VMT) 中的葉節點或容器。這裡沒有任何東西是真實的 DOM — 元件會透過 `IRenderer` 將自己繪製到 Canvas 上。無障礙、agent 自動化和可爬取性來自一個平行的 **A11y Shadow DOM**：當元件為 `interactive` 時，`Scene` 會投射一個單一隱藏、透明的真實 DOM 節點，定位在元件的方塊上方，根據 `getA11yAttributes()` 構建。這就是為什麼 `page.getByRole('button', { name })` / `fill()` / 螢幕閱讀器可以在純 Canvas UI 上運作的原因。
 
@@ -26,7 +26,7 @@ order: 11
 | 疊層與暫態 UI | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class="sandbox component-gallery">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/ui 1.11.3 · 內部可捲動</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · @vectojs/ui 2.0.0 · 內部可捲動</span></div>
   <iframe src="/sandbox/ui-components.html" class="sandbox-frame component-gallery-frame" loading="eager" title="所有 VectoJS UI 元件的互動式展示" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>套件層級冒煙展示：先進行廣泛覆蓋，在除錯特定行為時使用專門的元件頁面。</figcaption>
 </figure>
@@ -95,8 +95,23 @@ interface A11yAttributes {
   activedescendant?: string;
   valuemin?: string;
   valuemax?: string;
+  tabIndex?: number; // 複合元件子項的循環 tabindex
+  pointerEvents?: 'auto' | 'none'; // 當底層擁有滑鼠時為 'none'
+  labelledby?: string;
+  describedby?: string; // aria-describedby — 提示/錯誤文字
+  required?: boolean;
+  invalid?: boolean; // 驗證狀態
+  level?: number; // aria-level（樹項目、標題）
+  ariaModal?: 'true' | 'false';
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean;
+  relevant?: string; // 即時區域控制
+  // （另見 `target`、`textInputStyle` — 參見完整參考）
 }
 ```
+
+每個欄位都會透過髒檢查每影格投射到真實屬性；傳回 `undefined` 會**移除**它。完整清單和複合元件鍵盤模式位於
+[a11yRoot 與代理合約](/reference/core-a11y/)。
 
 ---
 

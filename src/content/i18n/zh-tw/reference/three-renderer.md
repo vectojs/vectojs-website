@@ -30,15 +30,26 @@ new ThreeRenderer(canvas: HTMLCanvasElement)
 - Y 軸朝下的 `THREE.OrthographicCamera`（top = 0, bottom = height）以匹配 VectoJS 的座標系統
 - 自動將像素比設為 `window.devicePixelRatio`
 
-`ThreeRenderer` 建立並擁有此 WebGLRenderer；它不接受或重複使用現有的渲染器/上下文。`dispose()` 會移除活躍物件、釋放其幾何/材質/紋理資源、重置堆疊，並恰好一次釋放所擁有的 WebGLRenderer。
+`ThreeRenderer` 建立並擁有此 WebGLRenderer；它不接受或重複使用現有的渲染器/上下文。`dispose()` 會移除活躍物件、釋放其幾何/材質/紋理資源、重置堆疊，並恰好一次釋放所擁有的 WebGLRenderer。它還會分離下面描述的上下文遺失和 DPR 監聽器，因此已銷毀的渲染器不會被延遲的事件重新喚醒。
+
+## GPU 上下文遺失與運行時 DPR
+
+GPU 重設或記憶體壓力驅逐會使基於 Three 的場景永久空白，而螢幕移動或瀏覽器縮放會使它以過時的像素比渲染（模糊或鋸齒）。`ThreeRenderer` 處理這兩種情況：
+
+- **`webglcontextlost`** 會被 `preventDefault()` — 必要的，否則瀏覽器永遠不會觸發恢復事件 — 並翻轉 `isContextLost()`。遺失時 `present()` 變為無操作，因為對著失效的上下文繪圖毫無意義。
+- **`webglcontextrestored`** 重新套用像素比和尺寸（恢復可能落在不同的顯示器上），清除標誌，並強制重繪新清空的影格緩衝區。Three 的 `WebGLRenderer` 在下一次渲染時延遲重建其 GL 狀態。
+- **DPR 變化** 透過 `(resolution: Ndppx)` 媒體查詢追蹤，該查詢重新套用 `setPixelRatio` + `setSize` 並重新啟動自身（該查詢是一次性的）。
+
+所有這些都為 SSR / `OffscreenCanvas` 進行了防護（沒有 `addEventListener` 或 `matchMedia`）。`isContextLost()` 也滿足可選的 [`IRenderer`](/reference/core-renderer/#因應-gpu-上下文遺失) 掛鉤，因此 `Scene.render` 在上下文遺失時跳過渲染傳遞。
 
 ## 公開屬性
 
-| 屬性       | 類型                       |
-| ---------- | -------------------------- |
-| `scene`    | `THREE.Scene`              |
-| `camera`   | `THREE.OrthographicCamera` |
-| `renderer` | `THREE.WebGLRenderer`      |
+| 屬性              | 類型                       |
+| ----------------- | -------------------------- |
+| `scene`           | `THREE.Scene`              |
+| `camera`          | `THREE.OrthographicCamera` |
+| `renderer`        | `THREE.WebGLRenderer`      |
+| `isContextLost()` | `() => boolean`            |
 
 ## 使用方式
 

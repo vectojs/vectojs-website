@@ -36,7 +36,7 @@ layoutTextIntoBuffer(text, fontAtlas, fontSize, buffer, exclusionMask?): void
 - `GlyphMeasurer` —— `{ measure(char, fontSize): number }`；提供你自己的，或使用 `createCanvasMeasurer(fontFamily?, baseSize?)`（离屏 `measureText`，线性缩放 + 缓存；在无 DOM 环境中返回 `null` → 引擎保留 `0.5em` 回退）。
 - `PreparedText` → `PreparedParagraph[]` → `PreparedWord[]` → `PreparedGlyph[]`。
 - `LayoutResult` —— `{ nodes: LayoutNode[], totalWidth, totalHeight, fallbackToCanvas? }`；`LayoutNode` 是一个定位的字形。
-- `LayoutResultBuffer` —— 扁平的类型化数组结果（`xs/ys/ws/hs`、`chars`、`count`、`CAPACITY = 16384`）；重用前 `reset()`，用 `toLayoutResult()` 实体化。
+- `LayoutResultBuffer` —— 扁平的类型化数组结果（`xs/ys/ws/hs`、`chars`、`levels`、`count`、`CAPACITY = 16384`）；重用前 `reset()`，用 `toLayoutResult()` 实体化。`levels` 是每个字形解析后的 BiDi 嵌入级别（偶数 = LTR，奇数 = RTL），因此消费者可以判断字形的方向；缓冲路径使用它来将每行重排为视觉顺序。字形以**视觉**顺序输出，共享基线，与分配路径逐字形匹配。
 - `LayoutWorkerManager.getInstance()` —— 用于线程外布局的单例；`queueLayout(entityId, text, { fontId, fontSize, maxWidth, maxHeight, callback, ... })` / `cancelLayout(entityId)`。被 [`MSDFTextEntity`](/reference/core-text/#msdftextentity) 使用。
 
 参见[文本与排版](/learn/text-typography/)了解用法，以及 [Text & Bidi](/reference/core-text/) 了解消费此引擎输出的字体/字形渲染层。

@@ -83,8 +83,33 @@ interface A11yAttributes {
   activedescendant?: string; // aria-activedescendant（複合ウィジェット用）
   valuemin?: string; // aria-valuemin（スライダー、メーター用）
   valuemax?: string; // aria-valuemax
+
+  // 他のノードからの関係と命名
+  labelledby?: string; // aria-labelledby
+  describedby?: string; // aria-describedby — ヒント/エラーテキスト
+
+  // バリデーション状態（キャンバスフォームがアナウンスableな唯一の方法）
+  required?: boolean; // aria-required
+  invalid?: boolean; // aria-invalid — falseは「明示的に有効」を意味します
+
+  // 構造とダイアログ
+  level?: number; // aria-level（見出し、ツリーアイテム）
+  ariaModal?: 'true' | 'false'; // role="dialog"のaria-modal
+
+  // ライブリージョン — フォーケスを移動せずにストリーミング更新をアナウンス
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean; // aria-atomic — 差分ではなくリージョン全体を読みます
+  relevant?: string; // aria-relevant — 例: 'additions text'
+
+  // ポインターサーフェース
+  pointerEvents?: 'auto' | 'none'; // 構造/オーバーレイ専用ノードの'none'
+
+  target?: string; // tag='a'用
+  textInputStyle?: TextInputStyle; // ネイティブエディタータイポグラフィ
 }
 ```
+
+フィールドに`undefined`を返すと属性が**削除**され、適用されなくなった状態は古くなる代わりに消えます。
 
 ボタンやフォームコントロールではないがキーボードショートカットを所有する必要があるキャンバスワークスペースには、明示的な`tabIndex: 0`を使用します：
 
@@ -98,20 +123,49 @@ getA11yAttributes(): A11yAttributes {
 
 ### 組み込みコンポーネントの投影
 
-| コンポーネント       | シャドウ要素              | 主なARIA属性                                                    |
-| -------------------- | ------------------------- | --------------------------------------------------------------- |
-| `Button`             | `<button>`                | `role="button"`, `aria-label`                                   |
-| `Link`               | `<a href>`                | ネイティブリンク, `aria-label`                                  |
-| `Image`              | `<img>`                   | `src`, `alt`                                                    |
-| `Input`              | `<input type="text">`     | `placeholder`, `value`（リアルタイム）                          |
-| `TextArea`           | `<textarea>`              | `placeholder`, `value`（リアルタイム）                          |
-| `Checkbox`           | `<input type="checkbox">` | `checked`（リアルタイム）, `aria-label`                         |
-| `Toggle`             | `<div role="switch">`     | `aria-checked`（リアルタイム）, `aria-label`                    |
-| `Slider`             | `<div role="slider">`     | `aria-valuenow/min/max`（リアルタイム）                         |
-| `Dropdown`           | `<div role="combobox">`   | `aria-expanded`, `aria-controls`, メニュー項目は`role="option"` |
-| `Card`（ラベル付き） | `<div role="group">`      | `aria-label`                                                    |
-| `Table`              | `<div role="grid">`       | 行/列数を含む`aria-label`                                       |
-| `Text`               | `<div>`                   | `aria-label` = テキスト内容                                     |
+| コンポーネント       | シャドウ要素                               | 主なARIA属性                                                    |
+| -------------------- | ------------------------------------------ | --------------------------------------------------------------- |
+| `Button`             | `<button>`                                 | `role="button"`, `aria-label`                                   |
+| `Link`               | `<a href>`                                 | ネイティブリンク, `aria-label`                                  |
+| `Image`              | `<img>`                                    | `src`, `alt`                                                    |
+| `Input`              | `<input type="text">`                      | `placeholder`, `value`（リアルタイム）                          |
+| `TextArea`           | `<textarea>`                               | `placeholder`, `value`（リアルタイム）                          |
+| `Checkbox`           | `<input type="checkbox">`                  | `checked`（リアルタイム）, `aria-label`                         |
+| `Toggle`             | `<div role="switch">`                      | `aria-checked`（リアルタイム）, `aria-label`                    |
+| `Slider`             | `<div role="slider">`                      | `aria-valuenow/min/max`（リアルタイム）                         |
+| `Dropdown`           | `<div role="combobox">`                    | `aria-expanded`, `aria-controls`, メニュー項目は`role="option"` |
+| `Card`（ラベル付き） | `<div role="group">`                       | `aria-label`                                                    |
+| `Table`              | `grid` › `row` › `gridcell`/`columnheader` | ルービング tabindex、2D矢印キー、Ctrl+Home/End                  |
+| `TreeView`           | `treeitem`（表示行ごと）                   | `aria-level`/`expanded`/`selected`、矢印で展開/折りたたみ       |
+| `ContextMenu`        | `menuitem`（項目ごと）                     | `aria-haspopup`/`expanded`、矢印がラップ、Escapeで閉じる        |
+| `RadioGroup`         | `radio`（オプションごと）                  | `aria-checked`、矢印で移動+選択                                 |
+| `Tabs`               | `tab`（タブごと）                          | `aria-selected`、矢印で移動、Home/End                           |
+| `Text`               | `<div>`                                    | `aria-label` = テキスト内容                                     |
+
+## 複合ウィジェット：1つのタブストップ、内部で矢印キー
+
+ツリー、グリッド、メニュー、ラジオグループまたはタブリストは、すべての子をタブ順序に置いてはいけません。VectoJSは各**可见**な子の上に透明なフォーカス可能なホットスポットをプールし、その子のロールと状態を持たせ、正確に1つに`tabIndex: 0` —— **ルービング tabindex** —— を与えます。親は矢印キーハンドラを所有し、ストップを移動します。各コンポーネントのキーについては上記のテーブルを参照し、独自に構築する場合は[複合ウィジェット](/reference/core-a11y/#composite-widgets-roving-tabindex)を参照してください。
+
+そのパターンを再利用して独自に発明しないでください：重要な微妙な点は、ホットスポットが下にあるものがマウスを所有している場合（選択可能なセルテキスト、ドラッグでスクロール、キャンバスヒット処理）に`pointerEvents: 'none'`を設定する必要があることです。キーボードフォーケスとAT合成の`click`はそれでも通過します。
+
+タブ順序はエンティティを追加した順序ではなく、**視覚的**な読み取り順序に従います。RTL UIの場合はSceneに`readingDirection: 'rtl'`を設定すると、各行内のインライン順序も反転します。
+
+## 強制カラー（Windows高コントラスト）
+
+`<canvas>`は不透明なピクセルであるため、ブラウザの`forced-colors`再マッピングは描画した内容に到達しません —— テーマ付きコントロールは低コントラストで読み取れないままになります。`scene.forcedColors`を読み取り、CSSシステムカラーで描画します。シーンはOS設定の切り替え時に自動で再描画します：
+
+```typescript
+render(r: IRenderer) {
+  const forced = this.scene?.forcedColors ?? false;
+  r.beginPath();
+  r.roundRect(0, 0, this.width, this.height, 8);
+  r.fill(forced ? 'ButtonFace' : this.bg);
+  if (forced) r.stroke('ButtonText', 1);       // give the shape an edge
+  r.fillText(this.label, x, y, this.font, forced ? 'ButtonText' : this.color);
+}
+```
+
+`Button`はすでにこの処理を行っています。選択/フォーケスには`Highlight`、サーフェースと本文テキストには`Canvas`/`CanvasText`を使用してください。
 
 ## IME対応入力フィールド
 

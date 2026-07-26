@@ -85,11 +85,15 @@ ArabicShaper.shapeArabic(text: string): ShapedResult   // { shapedText, indexMap
 BidiResolver.getBaseLevel(text: string): number
 BidiResolver.resolveLevels(text: string): Uint8Array
 BidiResolver.reorderVisual(nodes: any[], baseLevel: number): void
+BidiResolver.reorderSegments(str: string, levels: Uint8Array, baseLevel: number):
+  Array<[number, number]>
 ```
 
 Bidi intégré léger : classes de direction basées sur des plages (R/AL hébreu/arabe,
 chiffres EN/AN) et sélection de forme de présentation contextuelle arabe. `indexMap` mappe
 les indices façonnés vers la chaîne source pour le hit-testing / le mappage de caret.
+
+`reorderVisual` réordonne un tableau d'objets nœud en place. `reorderSegments` expose les mêmes plages d'inversion UAX #9 **L2** (paires d'indices inclusives `[start, end]` sur les propres positions de la séquence) sans nécessiter d'objets nœud, de sorte qu'un appelant détenant des **tableaux typés parallèles** peut appliquer la permutation identique en place — c'est ce qu'utilise le chemin de mise en page tampon zéro-GC. `reorderVisual` délègue maintenant à celui-ci, donc les deux ne peuvent pas dériver.
 
 Voir [Texte et typographie](/learn/text-typography/) pour l'utilisation.
 

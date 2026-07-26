@@ -12,7 +12,7 @@ order: 23
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Input</span></div>
-  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.15.0-ui-2.0.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>キーボード入力またはロールベースの自動化を通じてテキストボックスを埋めます。</figcaption>
 </figure>
 
@@ -28,8 +28,12 @@ const name = new Input({
 });
 ```
 
+## IME コンポジション
+
+IME コンポジションがアクティブな間、コンポーネントはコンポジション範囲の下にアンダーラインを描画します。この間、**選択ハイライトは抑制されます**：選択されたテキストの上にコンポジションを行うと論理的にその範囲を置き換えますが、ネイティブ要素はコンポジションがコミットされるまでコンポジション前の `selectionStart`/`selectionEnd` を報告し続けます——これを描画すると、コンポジションアンダーラインの後ろ（かつより広い）に古いハイライトが表示されます。長さゼロのコンポジション（最初の `compositionstart`）は、まだ何も置き換えていないため、選択を引き続き表示します。
+
 ## メンテナー向けチェックリスト
 
-- カスタムのテキスト入力エンティティの代わりに `Input` を使用します。
-- プレースホルダーは意味のあるものに保ちます。これはデフォルトのアクセシブルラベルでもあります。
-- 制御された更新を実装する際は、選択を意図的に保持します。
+- カスタムテキスト入力エンティティではなく `Input` を使用してください。
+- プレースホルダーを意味のあるものにしてください。これもデフォルトのアクセシブル名です。
+- 制御された更新を実装する場合は、選択を意図的に保持してください。

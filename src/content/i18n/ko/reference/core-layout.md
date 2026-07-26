@@ -53,8 +53,12 @@ exclusions: ExclusionRect[]): LineSegment[]`는 순수하고 테스트 가능한
 - `PreparedText` → `PreparedParagraph[]` → `PreparedWord[]` → `PreparedGlyph[]`.
 - `LayoutResult` — `{ nodes: LayoutNode[], totalWidth, totalHeight,
 fallbackToCanvas? }`; `LayoutNode`는 하나의 위치가 지정된 글리프입니다.
-- `LayoutResultBuffer` — 평면 타입화-배열 결과(`xs/ys/ws/hs`, `chars`,
+- `LayoutResultBuffer` — 평면 타입화-배열 결과(`xs/ys/ws/hs`, `chars`, `levels`,
   `count`, `CAPACITY = 16384`); 재사용 전 `reset()`, 구체화하려면 `toLayoutResult()`.
+  `levels`는 각 글리프의 해결된 BiDi 임베딩 레벨(짝수 = LTR, 홀수 = RTL)이며,
+  소비자는 글리프의 방향을 판단할 수 있습니다. 버퍼 경로는 각 줄을 시각 순서로
+  재정렬하는 데 이를 사용합니다. 글리프는 공유 기준선과 함께 **시각** 순서로
+  출력되며, 할당 경로와 글리프별로 일치합니다.
 - `LayoutWorkerManager.getInstance()` — 스레드 외부 레이아웃용 싱글턴;
   `queueLayout(entityId, text, { fontId, fontSize, maxWidth, maxHeight, callback,
 ... })` / `cancelLayout(entityId)`. [`MSDFTextEntity`](/reference/core-text/#msdftextentity)에서 사용됩니다.

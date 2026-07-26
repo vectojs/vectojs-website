@@ -55,8 +55,11 @@ exclusions: ExclusionRect[]): LineSegment[]` is the pure, testable core: the
 - `LayoutResult` — `{ nodes: LayoutNode[], totalWidth, totalHeight,
 fallbackToCanvas? }`; `LayoutNode` is one positioned glyph.
 - `LayoutResultBuffer` — flat typed-array result (`xs/ys/ws/hs`, `chars`,
-  `count`, `CAPACITY = 16384`); `reset()` before reuse, `toLayoutResult()` to
-  materialize.
+  `levels`, `count`, `CAPACITY = 16384`); `reset()` before reuse, `toLayoutResult()` to
+  materialize. `levels` is the per-glyph resolved BiDi embedding level (even =
+  LTR, odd = RTL), so a consumer can tell a glyph's direction; the buffer path
+  uses it to reorder each line to visual order. Glyphs come out in **visual**
+  order with a shared baseline, matching the allocating path glyph-for-glyph.
 - `LayoutWorkerManager.getInstance()` — singleton for off-thread layout;
   `queueLayout(entityId, text, { fontId, fontSize, maxWidth, maxHeight, callback,
 ... })` / `cancelLayout(entityId)`. Used by [`MSDFTextEntity`](/reference/core-text/#msdftextentity).

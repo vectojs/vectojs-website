@@ -14,7 +14,7 @@ Les versions UI 1.11.1 à 1.11.3 sécurisent le cycle de vie des menus imbriqué
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ContextMenu</span></div>
-  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.15.0-ui-2.0.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de ContextMenu" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de ContextMenu" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Cliquez sur le lanceur pour ouvrir le menu dans une zone dʼaffichage contrainte.</figcaption>
 </figure>
 
@@ -42,8 +42,26 @@ target.on('pointerdown', (event) => {
 });
 ```
 
+## Accessibilité et clavier
+
+Chaque élément non-séparateur projette un point d'accès `role="menuitem"` avec un **tabindex tournant** (le menu est un seul arrêt de tabulation), `disabled` le cas échéant, et `aria-haspopup="menu"` + `aria-expanded` sur un parent de sous-menu.
+
+| Touche          | Action                                                                                                    |
+| --------------- | --------------------------------------------------------------------------------------------------------- |
+| Bas / Haut      | Élément **activé** suivant / précédent, avec retour ; les séparateurs et éléments désactivés sont ignorés |
+| Home / End      | Premier / dernier élément activé                                                                          |
+| Droite          | Ouvrir un parent de sous-menu et donner le focus à son premier élément                                    |
+| Gauche          | Fermer ce sous-menu et retourner le focus à son menu parent                                               |
+| Entrée / Espace | Activer (ouvrir un sous-menu, ou déclencher `onClick` et fermer l'arbre du menu)                          |
+| Échappement     | Fermer tout l'arbre du menu                                                                               |
+
+Les points d'accès définissent `pointerEvents: 'none'` pour que le menu conserve sa propre gestion des clics par position via `pointerdown`. Voir [Widgets composites](/reference/core-a11y/#composite-widgets-roving-tabindex).
+
+> **L'affichage d'un menu installe un arrière-plan sur toute la scène.** Un menu racine ajoute une entité interactive invisible de la taille de la scène pour capter le clic extérieur qui le ferme. Cet arrière-plan intercepte les événements de pointeur sur toute la scène pendant que le menu est ouvert — ne laissez donc pas un menu ouvert dans un fixture ou un test qui a également besoin de glisser/sélectionner ailleurs.
+
 ## Liste de vérification pour les mainteneurs
 
 - Ne laissez pas le texte du menu déborder du panneau.
 - Maintenez les lignes désactivées non interactives.
 - Repositionnez les sous-menus imbriqués via la racine de la superposition.
+- Gardez le menu racine comme unique propriétaire de l'arrière-plan partagé et fermez la chaîne complète des sous-menus sur commande, pointerdown externe ou destruction.

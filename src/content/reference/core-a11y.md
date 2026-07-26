@@ -23,24 +23,105 @@ is not part of this mapping.
 
 ```ts
 {
+  // Element + identity
   tag?: 'div' | 'a' | 'button' | 'img' | 'input' | 'textarea';   // default 'div'
-  role?, label?, tabIndex?, href?, src?, alt?, inputType?, placeholder?, value?,
-  checked?, disabled?, expanded?, controls?, haspopup?, selected?,
-  activedescendant?, valuemin?, valuemax?
+  role?: string;
+  label?: string;                      // aria-label
+  labelledby?: string;                 // aria-labelledby
+  describedby?: string;                // aria-describedby
+
+  // Focus & pointer
+  tabIndex?: number;
+  pointerEvents?: 'auto' | 'none';     // default 'auto'
+
+  // Native element attributes (only for the matching `tag`)
+  href?: string; target?: string;      // tag: 'a'
+  src?: string; alt?: string;          // tag: 'img'
+  inputType?: string; placeholder?: string; value?: string;
+  textInputStyle?: TextInputStyle;     // native editor typography
+
+  // State
+  checked?: boolean; disabled?: boolean; selected?: boolean;
+  expanded?: boolean; required?: boolean; invalid?: boolean;
+  valuemin?: string; valuemax?: string;
+  level?: number;                      // aria-level (headings, tree items)
+
+  // Relationships & popups
+  controls?: string; haspopup?: string; activedescendant?: string;
+  ariaModal?: 'true' | 'false';        // aria-modal on a role="dialog"
+
+  // Live regions
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean;                    // aria-atomic
+  relevant?: string;                   // aria-relevant
 }
 ```
 
+Every field above is projected to a real attribute each frame with dirty
+checking. Returning `undefined` for a field **removes** the attribute, so state
+that stops applying disappears rather than going stale — note that `false` is
+distinct from `undefined` here (`aria-invalid="false"` means "explicitly valid"
+and is preserved).
+
 The sync applies these to a real element (a true `<button>`, `<a href>`, `<img>`,
-`<input>`/`<textarea>` with IME-aware `change`/`focus`/`blur`, etc.), with dirty
-checking to minimize DOM writes. Non-natively-focusable interactive roles
-(`button`, `switch`, `checkbox`, `link`, `slider`, …) get `tabindex="0"` and
-Enter/Space → `click`. This is the "**canvas performance AND DOM-grade
-accessibility**" story: visuals are 100% GPU/canvas, yet a Playwright/agent
-`getByRole('button', { name })` resolves the shadow node and clicks it.
+`<input>`/`<textarea>` with IME-aware `change`/`focus`/`blur`, etc.). This is the
+"**canvas performance AND DOM-grade accessibility**" story: visuals are 100%
+GPU/canvas, yet a Playwright/agent `getByRole('button', { name })` resolves the
+shadow node and clicks it.
+
+## Focus order
+
+Non-natively-focusable interactive roles (`button`, `switch`, `checkbox`, `link`,
+`slider`, …) get `tabindex="0"` and Enter/Space → `click`.
+
+**Composite widgets are different.** A `tree`, `grid`, `menu`, `radiogroup`, or
+`tablist` is one tab stop, not one per child — so their children use a **roving
+tabindex**: exactly one child carries `tabIndex: 0` and the rest `-1`, and arrow
+keys move that stop. See [Composite widgets](#composite-widgets-roving-tabindex)
+below.
+
+Tab order follows the **visual** reading order, not scene-graph insertion order —
+see [`Scene.readingDirection`](/reference/core-scene/#accessibility--appearance)
+for RTL.
 
 Set `tabIndex: 0` explicitly when a non-control region such as a design canvas
 must enter sequential focus order and receive VMT `keydown` events. Use `-1`
 for programmatic focus only; returning `undefined` removes the explicit value.
+
+## Composite widgets (roving tabindex)
+
+A tree, grid, menu, radio group, or tab list must expose **one role per child**,
+not just a container role — otherwise AT sees a single opaque box. VectoJS does
+this by pooling a transparent, focusable child entity ("hotspot") over each
+visible child: it carries the child's `role` + state + roving `tabIndex`, renders
+nothing, and the parent owns the keyboard handler.
+
+Crucially these hotspots set `pointerEvents: 'none'`. The component underneath
+already owns the mouse (tap-to-toggle, drag-to-scroll, selectable cell text), so
+the hotspot must not intercept it — keyboard focus and AT-synthesized `click`
+still work through a `pointer-events:none` element.
+
+| Component     | Child role                                                    | Keyboard                                                                                                                                          |
+| ------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TreeView`    | `treeitem` (+ `aria-level`, `aria-expanded`, `aria-selected`) | Up/Down move · Right expands then enters · Left collapses then goes to parent · Home/End · Enter/Space activate                                   |
+| `Table`       | `row` › `gridcell` / `columnheader`                           | Arrows move in 2D (header is row −1) · Home/End row extremes · Ctrl+Home/Ctrl+End grid corners                                                    |
+| `ContextMenu` | `menuitem` (+ `aria-haspopup`, `aria-expanded`)               | Up/Down wrap and skip separators + disabled · Home/End · Right opens submenu · Left returns to parent menu · Enter/Space activate · Escape closes |
+| `RadioGroup`  | `radio` (+ `aria-checked`)                                    | Arrows move and select · Home/End · Space selects                                                                                                 |
+| `Tabs`        | `tab` (+ `aria-selected`)                                     | Arrows move · Home/End · Space/Enter activate                                                                                                     |
+
+Only the visible children are pooled, so a virtualized `TreeView` or `Table`
+projects O(viewport) hotspots rather than one per row in the dataset. The focused
+row/cell is scrolled into view before focus moves to it.
+
+## Forced colors (High Contrast)
+
+A canvas is opaque pixels, so the browser's `forced-colors` remapping never
+touches what VectoJS draws — under Windows High Contrast a themed control stays
+unreadable unless the component repaints itself. Read
+[`Scene.forcedColors`](/reference/core-scene/#accessibility--appearance) and draw
+with CSS system colors (`ButtonFace`, `ButtonText`, `Highlight`, `Canvas`,
+`CanvasText`); the scene repaints automatically when the setting toggles.
+`Button` already does this.
 
 ## Controls & gotchas
 

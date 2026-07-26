@@ -41,8 +41,22 @@ interface IRenderer {
   present?(): void; // 可選的幀結束提交
   createLinearGradient(x0, y0, x1, y1, colorStops: { stop; color }[]): any;
   dispose?(): void; // 冪等的後端清理；Scene.destroy() 會呼叫它
+
+  // GPU context loss (optional; implement for a GPU-backed renderer)
+  isContextLost?(): boolean; // Scene skips the render pass while true
+  onContextRestored?(cb: () => void): void; // Scene repaints the cleared surface
 }
 ```
+
+### 因應 GPU 上下文遺失
+
+GPU 重設或記憶體壓力驅逐會奪走繪圖上下文；如果不處理，表面將永久空白。擁有 GPU 上下文的渲染器應該：
+
+1. 監聽其遺失事件並 `preventDefault()` 它 — 否則瀏覽器永遠不會觸發對應的恢復事件；
+2. 回報 `isContextLost() === true`，讓 `Scene.render` 跳過渲染傳遞，而非對著失效的上下文發出繪圖呼叫；
+3. 在恢復時重新取得上下文、重新套用 DPR 變換/尺寸，並觸發 `onContextRestored` 回呼，讓 Scene 重新繪製新清空的影格緩衝區。
+
+`CanvasRenderer` 為 Canvas2D 執行此操作，`ThreeRenderer` 為 WebGL 執行此操作 — 請參閱 [`@vectojs/three`](/reference/three-renderer/)。
 
 `fillCircle` 將連續相同 `color`/`alpha` 的呼叫合併為一個路徑，
 在 `flush()` 時提交（或當樣式改變時）。Scene 在每個

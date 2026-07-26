@@ -35,6 +35,7 @@ no-op so headless layout / `toSVG()` still work.
 | `particleBackend`      | `'auto' \| 'webgpu' \| 'cpu'` | `'auto'`         | [`ComputeParticleEntity`](/reference/core-particles/) backend. `'auto'` tries WebGPU and warns before falling back to CPU. `'webgpu'` explicitly requests WebGPU but currently logs an error and still falls back if initialization fails. `'cpu'` forces the CPU sim (sets `webgpuDisabled`). |
 | `maxFPS`               | `number`                      | `60`             | Frame-rate cap. `0` = uncapped (native refresh). Continuous animations still run, just less often. (Internally `0` under `NODE_ENV=test`/`VITEST`.) Also settable live via `scene.maxFPS`.                                                                                                     |
 | `respectReducedMotion` | `boolean`                     | `true`           | When the OS requests `prefers-reduced-motion`, cap to `REDUCED_MOTION_FPS` (30) — or the lower of that and `maxFPS`. `false` ignores the OS setting.                                                                                                                                           |
+| `readingDirection`     | `'ltr' \| 'rtl'`              | `'ltr'`          | Reading direction for the a11y/automation shadow tree, so keyboard **tab order** and screen-reader traversal follow the _visual_ reading order rather than scene-graph insertion order. `'rtl'` reverses the inline order within each row. Live via `scene.readingDirection`.                  |
 | `a11ySyncInterval`     | `number`                      | `0`              | Throttle the a11y shadow-DOM sync to at most once per N ms. `0` = sync every rendered frame. A small value (e.g. `100`) keeps the a11y layer eventually consistent during heavy animation while sparing per-frame DOM writes. Also live via `scene.a11ySyncInterval`.                          |
 | `debugA11y`            | `boolean`                     | `false`          | Render shadow nodes with a blue dashed outline (dev aid) instead of `opacity:0`. They stay clickable by automation either way.                                                                                                                                                                 |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | Custom renderer (e.g. `ThreeRenderer` from [`@vectojs/three`](/reference/three-renderer/)).                                                                                                                                                                                                    |
@@ -80,6 +81,8 @@ scene.a11ySyncInterval: number
 scene.particleBackend: 'auto' | 'webgpu' | 'cpu'
 scene.webgpuDisabled: boolean      // getter true when _disabled OR particleBackend === 'cpu'
 scene.a11yNeedsReorder: boolean
+scene.readingDirection: 'ltr' | 'rtl'   // tab/traversal order; setting it re-flows
+scene.forcedColors: boolean             // getter — OS is in a forced-colors mode
 ```
 
 ## renderMode, maxFPS, and the idle auto-throttle
@@ -108,6 +111,42 @@ of every rendered frame (post-render), so:
 `effectiveMaxFPS` = `maxFPS`, further lowered to 30 (`REDUCED_MOTION_FPS`) when
 the OS requests reduced motion and `respectReducedMotion` is on. `0` means
 uncapped.
+
+### Off-screen pause and the dt clamp
+
+Two loop behaviors that are easy to miss:
+
+- **Off-screen scenes stop rendering.** An `IntersectionObserver` on the canvas
+  pauses the rAF loop when the canvas scrolls fully out of view (a dashboard tab,
+  a chart below the fold) and resumes on re-entry — instead of running the full
+  update/render for a scene nobody can see. Where `IntersectionObserver` is
+  unavailable (SSR/jsdom) the scene is treated as always on-screen, so behavior is
+  unchanged there.
+- **`dt` is clamped to 100ms** (`MAX_FRAME_DT`). After a backgrounded tab, a
+  breakpoint, or a long GC pause the real elapsed time can be seconds; feeding
+  that raw into physics/tween integration makes everything teleport. If you
+  integrate `dt` yourself in `update(dt)`, note it will never exceed 100ms.
+
+## Accessibility & appearance
+
+| Member                 | Type               | Notes                                                                                                                                                                                    |
+| ---------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `readingDirection`     | `'ltr' \| 'rtl'`   | Orders the a11y shadow tree so **tab order** matches the visual reading order (rows top-to-bottom, then inline). Setting it trips a reorder on the next sync. Also a constructor option. |
+| `forcedColors`         | `boolean` (getter) | `true` when the OS is in a forced-colors mode (Windows High Contrast). Backed by `(forced-colors: active)`; the scene **repaints automatically** when it toggles.                        |
+| `prefersReducedMotion` | `boolean` (getter) | `true` when the OS asks for reduced motion and `respectReducedMotion` is on. Read by the animation drivers, which snap non-opacity properties instead of tweening them.                  |
+
+A `<canvas>` is opaque pixels, so the browser's forced-colors remapping never
+touches what you draw. Components must react themselves:
+
+```ts
+render(r: IRenderer) {
+  const forced = this.scene?.forcedColors ?? false;
+  r.fill(forced ? 'ButtonFace' : this.bg);
+  r.fillText(this.label, x, y, this.font, forced ? 'ButtonText' : this.color);
+}
+```
+
+See [a11yRoot & the agent contract](/reference/core-a11y/#forced-colors-high-contrast).
 
 ## Lifecycle methods
 

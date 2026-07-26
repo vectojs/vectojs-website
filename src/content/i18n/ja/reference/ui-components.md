@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — コンポーネントリファレンス
 
 > VectoJS ゼロ DOM Canvas エンジン向けの再利用可能な高レベルコンポーネント。
-> ドキュメントバージョン：**1.11.3**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
+> ドキュメントバージョン：**2.0.0**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
 
 すべてのコンポーネントは、Virtual Math Tree（VMT）のリーフまたはコンテナです。ここにあるものは実際の DOM ではありません — コンポーネントは `IRenderer` を介して Canvas に自身を描画します。アクセシビリティ、エージェント自動化、クローラビリティは、並行する **A11y シャドウ DOM** から提供されます：コンポーネントが `interactive` の場合、`Scene` はコンポーネントのボックスの上に配置された単一の隠れた透明な実際の DOM ノードを投影します。これは `getA11yAttributes()` から構築されます。これが、`page.getByRole('button', { name })` / `fill()` / スクリーンリーダーが純粋な Canvas UI に対して機能する理由です。
 
@@ -26,7 +26,7 @@ order: 11
 | オーバーレイと一時的 UI | [`Overlay`](/reference/ui-overlay/)、[`Tooltip`](/reference/ui-tooltip/)、[`Popover`](/reference/ui-popover/)、[`ContextMenu`](/reference/ui-contextmenu/)、[`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class=\"sandbox component-gallery\">
-  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.11.3 · 内部をスクロール</span></div>
+  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 2.0.0 · 内部をスクロール</span></div>
   <iframe src=\"/sandbox/ui-components.html\" class=\"sandbox-frame component-gallery-frame\" loading=\"eager\" title=\"すべての VectoJS UI コンポーネントのインタラクティブギャラリー\" sandbox=\"allow-scripts allow-same-origin allow-popups\"></iframe>
   <figcaption>パッケージレベルのスモークギャラリー：まず広範なカバレッジ、特定の動作をデバッグするときは焦点を絞ったコンポーネントページ。</figcaption>
 </figure>
@@ -95,8 +95,23 @@ interface A11yAttributes {
   activedescendant?: string;
   valuemin?: string;
   valuemax?: string;
+  tabIndex?: number; // コンポジットウィジェット子のルービング tabindex
+  pointerEvents?: 'auto' | 'none'; // 下にマウスを持つものがある場合は 'none'
+  labelledby?: string;
+  describedby?: string; // aria-describedby — ヒント/エラーテキスト
+  required?: boolean;
+  invalid?: boolean; // バリデーション状態
+  level?: number; // aria-level（ツリーアイテム、見出し）
+  ariaModal?: 'true' | 'false';
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean;
+  relevant?: string; // ライブリージョン制御
+  // （`target`、`textInputStyle` も参照 — 完全なリファレンス）
 }
 ```
+
+各フィールドはダーティチェックで毎フレーム実際の属性に投影されます；`undefined` を返すと**削除**されます。完全なリストとコンポジットウィジェットのキーボードパターンは
+[a11yRoot とエージェント契約](/reference/core-a11y/)にあります。
 
 ---
 

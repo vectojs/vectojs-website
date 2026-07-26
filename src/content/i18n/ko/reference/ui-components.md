@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — 컴포넌트 레퍼런스
 
 > VectoJS zero-DOM Canvas 엔진을 위한 재사용 가능한 고수준 컴포넌트입니다.
-> 문서 버전: **1.11.3**. 진실 공급원: `dist/index.d.ts`(공개 표면) 및 `packages/ui/src/*`(동작).
+> 문서 버전: **2.0.0**. 진실 공급원: `dist/index.d.ts`(공개 표면) 및 `packages/ui/src/*`(동작).
 
 모든 컴포넌트는 Virtual Math Tree(VMT)의 리프 또는 컨테이너입니다. 여기 있는 어떤 것도 실제 DOM이 아닙니다 — 컴포넌트는 `IRenderer`를 통해 Canvas에 자신을 그립니다. 접근성, 에이전트 자동화, 크롤링 가능성은 병렬 **A11y Shadow DOM**에서 제공됩니다: 컴포넌트가 `interactive`하면 `Scene`이 컴포넌트의 박스 위에 위치한 단일 숨겨진 투명한 실제 DOM 노드를 `getA11yAttributes()`에서 빌드하여 프로젝션합니다. 이것이 `page.getByRole('button', { name })` / `fill()` / 스크린 리더가 순수 Canvas UI에서 작동하는 이유입니다.
 
@@ -29,7 +29,7 @@ order: 11
 | 오버레이 및 일시적 UI | [`Overlay`](/reference/ui-overlay/), [`Tooltip`](/reference/ui-tooltip/), [`Popover`](/reference/ui-popover/), [`ContextMenu`](/reference/ui-contextmenu/), [`Modal`](/reference/ui-modal/)                                                                                                                                                                                          |
 
 <figure class=\"sandbox component-gallery\">
-  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 1.11.3 · scroll inside</span></div>
+  <div class=\"sandbox-bar\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"sandbox-label\">live · @vectojs/ui 2.0.0 · scroll inside</span></div>
   <iframe src=\"/sandbox/ui-components.html\" class=\"sandbox-frame component-gallery-frame\" loading=\"eager\" title=\"모든 VectoJS UI 컴포넌트의 대화형 갤러리\" sandbox=\"allow-scripts allow-same-origin allow-popups\"></iframe>
   <figcaption>패키지 수준 스모크 갤러리: 먼저 광범위한 범위, 특정 동작 디버깅 시 집중된 컴포넌트 페이지.</figcaption>
 </figure>
@@ -98,8 +98,23 @@ interface A11yAttributes {
   activedescendant?: string;
   valuemin?: string;
   valuemax?: string;
+  tabIndex?: number; // 복합 위젯 자식용 루빙 tabindex
+  pointerEvents?: 'auto' | 'none'; // 아래에 마우스를 소유하는 것이 있을 때 'none'
+  labelledby?: string;
+  describedby?: string; // aria-describedby — 힌트/오류 텍스트
+  required?: boolean;
+  invalid?: boolean; // 유효성 검사 상태
+  level?: number; // aria-level (트리 항목, 제목)
+  ariaModal?: 'true' | 'false';
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean;
+  relevant?: string; // 라이브 영역 제어
+  // (`target`, `textInputStyle`도 참조 — 전체 레퍼런스)
 }
 ```
+
+모든 필드는 더티 체크를 통해 매 프레임 실제 속성으로 프로젝션됩니다; `undefined`를 반환하면 **제거**됩니다. 전체 목록과 복합 위젯 키보드 패턴은
+[a11yRoot 및 에이전트 계약](/reference/core-a11y/)에 있습니다.
 
 ---
 

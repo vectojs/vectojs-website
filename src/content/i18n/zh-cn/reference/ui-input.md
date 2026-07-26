@@ -12,7 +12,7 @@ order: 23
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Input</span></div>
-  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.15.0-ui-2.0.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>通过键盘输入或基于角色的自动化填充文本框。</figcaption>
 </figure>
 
@@ -27,6 +27,10 @@ const name = new Input({
   onChange: (value) => updateProjectName(value),
 });
 ```
+
+## IME 输入法组合
+
+当 IME 组合处于活动状态时，组件会在组合范围下方绘制下划线。在此期间**选择高亮被抑制**：在选中文本上进行组合会在逻辑上替换该范围，但原生元素在组合提交之前仍报告组合前的 `selectionStart`/`selectionEnd`——绘制它会显示一个在组合下划线后面（且更宽）的过时高亮。零长度组合（初始 `compositionstart`）仍然显示选择，因为尚未有任何内容替换它。
 
 ## 维护者检查清单
 

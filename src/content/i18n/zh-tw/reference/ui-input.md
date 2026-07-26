@@ -12,7 +12,7 @@ order: 23
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Input</span></div>
-  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.15.0-ui-2.0.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>透過鍵盤輸入或基於角色的自動化填寫文字框。</figcaption>
 </figure>
 
@@ -27,6 +27,10 @@ const name = new Input({
   onChange: (value) => updateProjectName(value),
 });
 ```
+
+## IME 輸入法組合
+
+當 IME 組合處於活動狀態時，元件會在組合範圍下方繪製底線。在此期間**選取高亮被抑制**：在選取文字上進行組合會在邏輯上替換該範圍，但原生元素在組合提交之前仍報告組合前的 `selectionStart`/`selectionEnd`——繪製它會顯示一個在組合底線後面（且更寬）的過時高亮。零長度組合（初始 `compositionstart`）仍然顯示選取，因為尚未有任何內容替換它。
 
 ## 維護者檢查清單
 

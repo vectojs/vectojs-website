@@ -256,7 +256,7 @@ class Chip extends Entity {
 }
 ```
 
-Now Playwright's `page.getByRole('button', { name: 'OK' })` finds your chip, screen readers announce it, and keyboard users can Tab to and Enter it. The full set of fields:
+Now Playwright's `page.getByRole('button', { name: 'OK' })` finds your chip, screen readers announce it, and keyboard users can Tab to and Enter it. The commonly used fields (see [the a11y reference](/reference/core-a11y/) for the complete list, including live regions, validation state and `aria-labelledby`/`describedby`):
 
 ```typescript
 interface A11yAttributes {

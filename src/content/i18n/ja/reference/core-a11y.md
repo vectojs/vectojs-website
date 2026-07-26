@@ -16,16 +16,73 @@ order: 10
 
 ```ts
 {
+  // Element + identity
   tag?: 'div' | 'a' | 'button' | 'img' | 'input' | 'textarea';   // デフォルト 'div'
-  role?, label?, tabIndex?, href?, src?, alt?, inputType?, placeholder?, value?,
-  checked?, disabled?, expanded?, controls?, haspopup?, selected?,
-  activedescendant?, valuemin?, valuemax?
+  role?: string;
+  label?: string;                      // aria-label
+  labelledby?: string;                 // aria-labelledby
+  describedby?: string;                // aria-describedby
+
+  // Focus & pointer
+  tabIndex?: number;
+  pointerEvents?: 'auto' | 'none';     // default 'auto'
+
+  // Native element attributes (only for the matching `tag`)
+  href?: string; target?: string;      // tag: 'a'
+  src?: string; alt?: string;          // tag: 'img'
+  inputType?: string; placeholder?: string; value?: string;
+  textInputStyle?: TextInputStyle;     // native editor typography
+
+  // State
+  checked?: boolean; disabled?: boolean; selected?: boolean;
+  expanded?: boolean; required?: boolean; invalid?: boolean;
+  valuemin?: string; valuemax?: string;
+  level?: number;                      // aria-level (headings, tree items)
+
+  // Relationships & popups
+  controls?: string; haspopup?: string; activedescendant?: string;
+  ariaModal?: 'true' | 'false';        // aria-modal on a role="dialog"
+
+  // Live regions
+  live?: 'off' | 'polite' | 'assertive';
+  atomic?: boolean;                    // aria-atomic
+  relevant?: string;                   // aria-relevant
 }
 ```
 
-同期はこれらを実際の要素（真の `<button>`、`<a href>`、`<img>`、IME対応の `change`/`focus`/`blur` を持つ `<input>`/`<textarea>` など）に適用し、ダーティチェックでDOM書き込みを最小限に抑えます。ネイティブでフォーカス不可のインタラクティブロール（`button`、`switch`、`checkbox`、`link`、`slider`、…）には `tabindex="0"` と Enter/Space → `click` が付与されます。これが「**キャンバスパフォーマンスとDOMグレードのアクセシビリティ**」の話です：ビジュアルは100% GPU/キャンバスである一方、Playwright/エージェントの `getByRole('button', { name })` はシャドウノードを解決してクリックできます。
+各フィールドは毎フレームダーティチェックで実際の属性に投影されます。`undefined` を返すと属性が**削除**されるため、適用されなくなった状態は古くなるのではなく消滅します——`false` と `undefined` はここでは異なる点に注意してください（`aria-invalid="false"` は「明示的に有効」として保持されます）。
 
-デザインキャンバスなどの非コントロール領域を順次フォーカス順序に入れ、VMTの `keydown` イベントを受け取る必要がある場合は、`tabIndex: 0` を明示的に設定してください。プログラムによるフォーカスのみの場合は `-1` を使用し、`undefined` を返すと明示的な値が削除されます。
+同期はこれらを実際の要素（真の `<button>`、`<a href>`、`<img>`、IME対応の `change`/`focus`/`blur` を持つ `<input>`/`<textarea>` など）に適用します。これが「**キャンバスパフォーマンスとDOMグレードのアクセシビリティ**」の話です：ビジュアルは100% GPU/キャンバスである一方、Playwright/エージェントの `getByRole('button', { name })` はシャドウノードを解決してクリックできます。
+
+## フォーカス順序
+
+ネイティブでフォーカス不可のインタラクティブロール（`button`、`switch`、`checkbox`、`link`、`slider`、…）には `tabindex="0"` と Enter/Space → `click` が付与されます。
+
+**複合ウィジェットは異なります。** `tree`、`grid`、`menu`、`radiogroup`、または `tablist` は子ごとに1つのタブストップではなく、1つのみです——そのため子は**ロービング tabindex**を使用します：正確に1つの子が `tabIndex: 0` を持ち、残りは `-1` で、矢印キーがそのストップを移動します。[複合ウィジェット](#複合ウィジェットロービング-tabindex)を参照してください。
+
+タブ順序はシーングラフの挿入順ではなく、**ビジュアル**な読み取り順に従います——RTLについては [`Scene.readingDirection`](/reference/core-scene/#accessibility--appearance) を参照してください。
+
+デザインキャンバスなどの非コントロール領域が順次フォーカス順序に入り、VMTの `keydown` イベントを受け取る必要がある場合は、`tabIndex: 0` を明示的に設定してください。プログラムによるフォーカスのみの場合は `-1` を使用し、`undefined` を返すと明示的な値が削除されます。
+
+## 複合ウィジェット（ロービング tabindex）
+
+ツリー、グリッド、メニュー、ラジオグループ、またはタブリストは、コンテナロールだけでなく各子に**1つのロール**を公開する必要があります——否则ATは不透明なボックスとしてしか見ません。VectoJSは各可见子の上に透過的でフォーカス可能な子エンティティ（「ホットスポット」）をプールすることでこれを実現します：子の `role` + 状態 + ロービング `tabIndex` を持ち、何もレンダリングせず、親がキーボードハンドラーを所有します。
+
+重要なのは、これらのホットスポットが `pointerEvents: 'none'` を設定している点です。下位コンポーネントがすでにマウスを所有しているため（タップで切り替え、ドラッグでスクロール、選択可能なセルテキスト）、ホットスポットはそれらをインターセプトしてはなりません——キーボードフォーカスとAT合成の `click` は `pointer-events:none` の要素を通じて引き続き動作します。
+
+| コンポーネント | 子ロール                                                       | キーボード操作                                                                                                                                             |
+| -------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TreeView`     | `treeitem`（+ `aria-level`、`aria-expanded`、`aria-selected`） | Up/Down移動 · Right展開してから入る · Left折りたたんでから親に戻る · Home/End · Enter/Spaceアクティベート                                                  |
+| `Table`        | `row` › `gridcell` / `columnheader`                            | 矢印キーで2D移動（ヘッダーはrow −1）· Home/End行の端 · Ctrl+Home/Ctrl+Endグリッドの角                                                                      |
+| `ContextMenu`  | `menuitem`（+ `aria-haspopup`、`aria-expanded`）               | Up/Downでラップしセパレーターと無効をスキップ · Home/End · Rightでサブメニューを開く · Leftで親メニューに戻る · Enter/Spaceアクティベート · Escapeで閉じる |
+| `RadioGroup`   | `radio`（+ `aria-checked`）                                    | 矢印キーで移動して選択 · Home/End · Spaceで選択                                                                                                            |
+| `Tabs`         | `tab`（+ `aria-selected`）                                     | 矢印キーで移動 · Home/End · Space/Enterアクティベート                                                                                                      |
+
+可见な子のみがプールされるため、バーチャライズされた `TreeView` や `Table` はデータセットの各行ではなくO(viewport)個のホットスポットを投影します。フォーカスされた行/セルはフォーカスが移動する前にビューにスクロールされます。
+
+## 強制カラーハイコントラスト
+
+キャンバスは不透明なピクセルであり、ブラウザの `forced-colors` リマッピングはVectoJSが描画するものに決して触れません——Windowsハイコントラストでは、コンポーネントが自身を再描画しない限り、テーマ付きコントロールは読めないままです。[`Scene.forcedColors`](/reference/core-scene/#accessibility--appearance) を参照し、CSSシステムカラー（`ButtonFace`、`ButtonText`、`Highlight`、`Canvas`、`CanvasText`）で描画してください。設定が切り替わるとシーンが自動的に再描画します。`Button`はすでにこれを行っています。
 
 ## 制御と注意点
 

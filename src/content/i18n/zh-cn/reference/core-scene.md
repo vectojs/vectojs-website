@@ -30,6 +30,7 @@ Scene 将两个透明的兄弟 `<div>` 附加到 canvas 的**父**元素中（�
 | `particleBackend`      | `'auto' \| 'webgpu' \| 'cpu'` | `'auto'`         | [`ComputeParticleEntity`](/reference/core-particles/) 后端。`'auto'` 尝试 WebGPU 并在回退到 CPU 之前发出警告。`'webgpu'` 显式请求 WebGPU，但当前会记录一个错误，并且在初始化失败时仍然回退。`'cpu'` 强制 CPU 模拟（设置 `webgpuDisabled`）。 |
 | `maxFPS`               | `number`                      | `60`             | 帧率上限。`0` = 不限制（原生刷新）。连续动画仍然运行，只是频率更低。（在 `NODE_ENV=test`/`VITEST` 下内部为 `0`。）也可通过 `scene.maxFPS` 实时设置。                                                                                         |
 | `respectReducedMotion` | `boolean`                     | `true`           | 当操作系统请求 `prefers-reduced-motion` 时，上限为 `REDUCED*MOTION*FPS`（30）—— 或该值与 `maxFPS` 中较低者。`false` 忽略操作系统设置。                                                                                                       |
+| `readingDirection`     | `'ltr' \ \| 'rtl'`            | `'ltr'`          |                                                                                                                                                                                                                                              |
 | `a11ySyncInterval`     | `number`                      | `0`              | 将 a11y 影子 DOM 同步节流至最多每 N ms 一次。`0` = 每个渲染帧同步。小值（例如 `100`）在繁重动画期间保持 a11y 层最终一致，同时节省每帧 DOM 写入。也可通过 `scene.a11ySyncInterval` 实时设置。                                                 |
 | `debugA11y`            | `boolean`                     | `false`          | 用蓝色虚线轮廓渲染影子节点（开发辅助），而不是 `opacity:0`。无论哪种方式它们都保持可被自动化点击。                                                                                                                                           |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | 自定义渲染器（例如来自 [`@vectojs/three`](/reference/three-renderer/) 的 `ThreeRenderer`）。                                                                                                                                                 |
@@ -62,6 +63,8 @@ scene.a11ySyncInterval: number
 scene.particleBackend: 'auto' | 'webgpu' | 'cpu'
 scene.webgpuDisabled: boolean      // getter true when _disabled OR particleBackend === 'cpu'
 scene.a11yNeedsReorder: boolean
+scene.readingDirection: 'ltr' | 'rtl'   // tab/traversal order; setting it re-flows
+scene.forcedColors: boolean             // getter — OS is in a forced-colors mode
 ```
 
 ## renderMode、maxFPS 与空闲自动节流
@@ -74,6 +77,33 @@ scene.a11yNeedsReorder: boolean
 > 如果你在自定义 `update()` 内部通过修改 `entity.x` 等手动制作动画，在 `update()` **内部**调用 `markDirty()` 无济于事 —— 渲染后重置会清除它，下一帧的静态检查看到 `dirty === false` 并将你节流到 2 fps。要么通过 [`entity.animate()`](/reference/core-entity/#动画)（它在补间运行时保持场景非静态）驱动运动，要么在帧**之间**调用 `scene.markDirty()`（从事件处理器、单独的 `rAF` 或计时器），以便该标志存活到下一次循环迭代。
 
 `effectiveMaxFPS` = `maxFPS`，当操作系统请求减弱动效且 `respectReducedMotion` 开启时，进一步降低到 30（`REDUCED*MOTION*FPS`）。`0` 表示不限制。
+
+### 离屏暂停与 dt 钳制
+
+两个容易忽略的循环行为：
+
+- **离屏场景停止渲染。** canvas 上的 `IntersectionObserver` 在 canvas 完全滚动出视野时暂停 rAF 循环（仪表板标签页、折叠线以下的图表），并在重新进入时恢复 —— 而不是为一个没人看到的场景运行完整的更新/渲染。在 `IntersectionObserver` 不可用的地方（SSR/jsdom），场景被视为始终在屏幕上，因此那里的行为不变。
+- **`dt` 被钳制到 100ms**（`MAX_FRAME_DT`）。在标签页切换到后台后、断点处或长时间 GC 暂停后，实际经过的时间可能是秒级的；将该原始值输入物理/补间积分会使一切瞬移。如果你在 `update(dt)` 中自己积分 `dt`，请注意它永远不会超过 100ms。
+
+## 无障碍与外观
+
+| 成员                   | 类型               | 说明                                                                                                                               |
+| ---------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `readingDirection`     | `'ltr' \ \| 'rtl'` | 对 a11y 影子树排序，使**标签顺序**匹配视觉阅读顺序（行从上到下，然后行内）。设置它会在下一次同步时触发重排。同时也是构造函数选项。 |
+| `forcedColors`         | `boolean` (getter) | 当操作系统处于强制颜色模式时为 `true`（Windows 高对比度）。由 `(forced-colors: active)` 支持；当其切换时，场景**自动重绘**。       |
+| `prefersReducedMotion` | `boolean` (getter) | 当操作系统要求减弱动效且 `respectReducedMotion` 开启时为 `true`。由动画驱动器读取，它们会快速定位而非补间非 opacity 属性。         |
+
+`<canvas>` 是不透明像素，因此浏览器的强制颜色重映射永远不会触及你绘制的内容。组件必须自行响应：
+
+```ts
+render(r: IRenderer) {
+  const forced = this.scene?.forcedColors ?? false;
+  r.fill(forced ? 'ButtonFace' : this.bg);
+  r.fillText(this.label, x, y, this.font, forced ? 'ButtonText' : this.color);
+}
+```
+
+参见 [a11yRoot 与智能体约定](/reference/core-a11y/#强制颜色高对比度)。
 
 ## 生命周期方法
 
@@ -117,6 +147,25 @@ Scene.registerWebGPUParticleSystemManager(managerClass: any): void
 ```
 
 由 `.` 入口自动调用。相关接口（`IWebGLPointRenderer`、`IWebGPUParticleSystemManager`、`WebGLPointRendererCreator`）为自定义后端导出。WebGPU 设备丢失会以指数退避自动恢复（3 次重试），然后才永久禁用 WebGPU。
+
+## 帧遥测（`frameStats`，1.13.0）
+
+```ts
+scene.frameStats: FrameStats; // 实时渲染循环遥测（只读）
+
+interface FrameStats {
+  fps: number; // 实际渲染帧的帧率，受 maxFPS 限制；在首帧渲染之前为 0
+  frameTimeMs: number; // 最后一次 render() 调用的墙上时钟耗时（不含 a11y/内容同步）
+  frameIntervalMs: number; // 已渲染帧之间的平滑间隔（EMA）
+  dt: number; // 传递给最后一帧渲染的 dt
+  renderedFrames: number; // 自 start() 以来渲染的总帧数
+  skippedFrames: number; // 自 start() 以来跳过的 rAF 切片总数（idle/onDemand/capped）
+  renderMode: 'always' | 'onDemand';
+  dirty: boolean; // 是否有待处理的重绘
+}
+```
+
+`fps` 基于_实际渲染帧_之间的间隔计算，因此空闲的 `onDemand` 场景、被 `maxFPS` 上限或静态自动节流丢弃的帧不会压低该值——它报告的是真实重绘的节奏，而非原始 rAF 频率。计时在 `requestAnimationFrame` 循环上测量；仅由 `step()` 驱动的场景（确定性导出）其值为零。渲染器始终重绘完整画布，不存在局部脏矩形机制——`dirty` 是布尔型重绘待处理标志。为 [`@vectojs/devtools`](/reference/devtools/) 性能 HUD 提供数据支撑。
 
 ## 相关
 

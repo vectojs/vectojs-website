@@ -255,7 +255,7 @@ class Chip extends Entity {
 }
 ```
 
-現在 Playwright 的 `page.getByRole('button', { name: 'OK' })` 可以找到你的 chip，螢幕閱讀器會朗讀它，鍵盤使用者可以 Tab 到它並按 Enter。完整的欄位集：
+現在 Playwright 的 `page.getByRole('button', { name: 'OK' })` 可以找到你的 chip，螢幕閱讀器會朗讀它，鍵盤使用者可以 Tab 到它並按 Enter。常用欄位（請參閱 [a11y 參考](/reference/core-a11y/) 取得完整清單，包含即時區域、驗證狀態和 `aria-labelledby`/`describedby`）：
 
 ```typescript
 interface A11yAttributes {

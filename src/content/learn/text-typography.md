@@ -234,6 +234,11 @@ This bounds repeated measurement/layout preparation to the changed paragraph. A 
 
 `LayoutEngine` supports `textAlign = 'justify'` (stretches wrapped lines flush to `maxWidth`, ragged last line) and wrap-time hyphenation (soft hyphens `­` work out of the box; plug a `hyphenate: (word) => string[]` function for automatic breaks — e.g. the `hyphen` npm package's Knuth–Liang patterns).
 
+Justified **RTL** lines are flush on _both_ edges: the line's logical trailing
+space is reset to the base direction by BiDi rule L1 and lands at the visual left,
+so it is collapsed rather than left holding the line a space-width inside the
+measure. The paragraph-final line stays ragged (still flush right).
+
 `TextEntity` exposes both directly: `text.setTextAlign('justify')`, `text.setHyphenator(fn)` — see the [core API reference](/reference/core-api/#textentity--gridtextentity-from-) for details. These render correctly because `TextEntity` draws each glyph at its own computed position. The `@vectojs/ui` `Text`/`RichText` components collapse each wrapped line into a single native `fillText()` call for performance, so they don't yet honor per-glyph justification — reach for `TextEntity` when you need justified body copy.
 
 ---
@@ -319,6 +324,12 @@ const hebrew = new RichText([{ text: 'שלום ' }, { text: 'VectoJS', style: { 
 
 > [!NOTE]
 > Newlines (`\n`) always reset the Arabic shaping context and BiDi state. Soft-wrapped lines within the same paragraph share one shaping pass, so multi-line Arabic paragraphs shape correctly across wraps.
+>
+> **All line-ending forms are handled.** `\r\n` (CRLF), `\n`, and a lone `\r`
+> each end a paragraph and are never shaped or laid out as glyphs — a stray `\r`
+> would otherwise render as a visible tofu box, inflate the line width, and shift
+> selection offsets. Source offsets still index the **original** string, so a CRLF
+> break correctly counts as two characters for hit-testing and caret mapping.
 
 ---
 
@@ -329,7 +340,9 @@ const hebrew = new RichText([{ text: 'שלום ' }, { text: 'VectoJS', style: { 
 ```typescript
 import { measureText, wrapLines, fontSizePx } from '@vectojs/ui';
 
-// Rendered pixel width, LRU-cached (cap 1000)
+// Rendered pixel width, LRU-cached (cap 1000) — keyed on the RAW text, so a
+// cache hit costs a map lookup and does not re-run Arabic shaping
+// (Arabic is still measured in its contextually-shaped form on a miss)
 const w = measureText('Hello world', '600 16px Inter');
 
 // Greedy word-wrap — returns string[]
