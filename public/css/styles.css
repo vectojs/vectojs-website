@@ -926,6 +926,81 @@ body.page-home::before {
   }
 }
 
+/* Measured-performance section (Hero follow-on) */
+.metrics-section {
+  padding: 6rem 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+}
+
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.75rem;
+  transition: border-color 0.25s ease;
+}
+
+.metric-card:hover {
+  border-color: rgba(var(--info-rgb), 0.3);
+}
+
+.metric-value {
+  font-family: var(--font-title);
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-label {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-top: 0.6rem;
+}
+
+.metric-detail {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  margin-top: 0.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.metrics-footnote {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.metrics-footnote code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.95em;
+}
+
+@media (max-width: 900px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Use cases section */
 .usecases-section {
   padding: 6rem 0;

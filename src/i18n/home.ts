@@ -23,6 +23,14 @@ export interface HomeUsecase {
   readonly body: string;
 }
 
+export interface HomeMetric {
+  /** The headline number, e.g. '149x'. Locale-independent. */
+  readonly value: string;
+  readonly label: string;
+  /** How it was measured — shown small, keeps the claim honest. */
+  readonly detail: string;
+}
+
 export interface HomeStrings {
   readonly hero: {
     readonly title: string;
@@ -38,6 +46,12 @@ export interface HomeStrings {
     readonly title: string;
     readonly subtitle: string;
     readonly tiles: readonly HomeUsecase[];
+  };
+  readonly metrics: {
+    readonly title: string;
+    readonly subtitle: string;
+    readonly items: readonly HomeMetric[];
+    readonly footnote: string;
   };
 }
 
@@ -106,6 +120,45 @@ const en: HomeStrings = {
       },
     ],
   },
+  metrics: {
+    title: 'Measured, on real hardware',
+    subtitle:
+      'Every number below is a before/after on the same workload, measured in a real browser on a real GPU — never headless, and quoted for both engines because V8 and SpiderMonkey diverge.',
+    items: [
+      {
+        value: '149\u00d7',
+        label: 'Table virtualization',
+        detail: '5,000 rows: 41.1ms \u2192 0.275ms per frame (Chrome 150)',
+      },
+      {
+        value: '27\u00d7',
+        label: 'Content-projection gate',
+        detail: '1,600 blocks / 384k glyphs: 23.95ms \u2192 0.87ms (Chrome 150)',
+      },
+      {
+        value: '171\u2013451\u00d7',
+        label: 'Virtualized scroll math',
+        detail: 'Fenwick vs linear scan, 100k rows (Chrome 150 / Firefox 153)',
+      },
+      {
+        value: '4.2\u20137.2\u00d7',
+        label: 'Force-directed layout vs d3',
+        detail: '5,000 nodes: 36.2ms \u2192 5.0ms per tick (Chrome 150)',
+      },
+      {
+        value: '2.7\u20134.2\u00d7',
+        label: 'WASM transform kernel',
+        detail: '100k entities, world AABB pass (Chrome 150); JS stays the fallback',
+      },
+      {
+        value: '12\u201318M',
+        label: 'MSDF glyphs per second',
+        detail: 'chars/s at 28.5k chars (Chrome 150 / Firefox 153)',
+      },
+    ],
+    footnote:
+      'Reproduce any of these: the benchmark sources live in <code>benchmarks/</code> and the raw JSON baselines are committed alongside them.',
+  },
   usecases: {
     title: 'Built for',
     subtitle: 'Anywhere a DOM is too slow, too rigid, or too visible.',
@@ -171,6 +224,13 @@ export interface HomeOverride {
     readonly subtitle?: string;
     readonly tiles?: readonly (Partial<Pick<HomeUsecase, 'title' | 'body'>> | undefined)[];
   };
+  readonly metrics?: {
+    readonly title?: string;
+    readonly subtitle?: string;
+    readonly footnote?: string;
+    /** Only `label`/`detail` translate; `value` is a number and stays as-is. */
+    readonly items?: readonly (Partial<Pick<HomeMetric, 'label' | 'detail'>> | undefined)[];
+  };
 }
 
 function mergeHome(base: HomeStrings, over: HomeOverride): HomeStrings {
@@ -191,6 +251,16 @@ function mergeHome(base: HomeStrings, over: HomeOverride): HomeStrings {
         label: tile.label,
         title: over.usecases?.tiles?.[i]?.title ?? tile.title,
         body: over.usecases?.tiles?.[i]?.body ?? tile.body,
+      })),
+    },
+    metrics: {
+      title: over.metrics?.title ?? base.metrics.title,
+      subtitle: over.metrics?.subtitle ?? base.metrics.subtitle,
+      footnote: over.metrics?.footnote ?? base.metrics.footnote,
+      items: base.metrics.items.map((m, i) => ({
+        value: m.value,
+        label: over.metrics?.items?.[i]?.label ?? m.label,
+        detail: over.metrics?.items?.[i]?.detail ?? m.detail,
       })),
     },
   };

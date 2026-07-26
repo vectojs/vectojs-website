@@ -55,6 +55,23 @@ const home = getHomeStrings(locale);
   </div>
 </section>
 
+<section class="metrics-section container">
+  <h2 class="section-title">{home.metrics.title}</h2>
+  <p class="section-subtitle">{home.metrics.subtitle}</p>
+  <div class="metrics-grid">
+    {
+      home.metrics.items.map((m) => (
+        <div class="metric-card">
+          <div class="metric-value">{m.value}</div>
+          <div class="metric-label">{m.label}</div>
+          <div class="metric-detail">{m.detail}</div>
+        </div>
+      ))
+    }
+  </div>
+  <p class="metrics-footnote" set:html={home.metrics.footnote} />
+</section>
+
 <section class="usecases-section container">
   <h2 class="section-title">{home.usecases.title}</h2>
   <p class="section-subtitle">{home.usecases.subtitle}</p>
