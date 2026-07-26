@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Component Reference
 
 > Reusable high-level components for the VectoJS zero-DOM Canvas engine.
-> Version documented: **2.0.0**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
+> Version documented: **2.2.0**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
 
 Every component is a leaf or container in the Virtual Math Tree (VMT). Nothing here is real DOM — components draw themselves to a Canvas via an `IRenderer`. Accessibility, agent automation, and crawlability come from a parallel **A11y Shadow DOM**: when a component is `interactive`, the `Scene` projects a single hidden, transparent real DOM node positioned over the component's box, built from `getA11yAttributes()`. That is why `page.getByRole('button', { name })` / `fill()` / screen readers work against a pure-Canvas UI.
 
@@ -426,6 +426,7 @@ new Slider(props?: SliderProps)   // props is loosely typed (any) in the .d.ts
 
 // Recognized props (read in the constructor):
 {
+  label?: string;          // accessible name (2.2.0+) — set this
   min?: number;            // default 0
   max?: number;            // default 100
   value?: number;          // default = min
@@ -438,7 +439,7 @@ new Slider(props?: SliderProps)   // props is loosely typed (any) in the .d.ts
 }
 ```
 
-Horizontal slider with a circular thumb. Public: `min`, `max`, `value`, `step`. Dragging (`pointerdown` → `pointermove` → `pointerup`) maps pointer `localX` to a value, **snapped to the `step` grid anchored at `min`** (integer steps by default, matching `input[type=range]` semantics), and emits a `change` event with `{ value }` (subscribe via `on('change', e => e.value)`). Keyboard: `ArrowRight`/`ArrowUp` step up, `ArrowLeft`/`ArrowDown` step down, `Home`/`End` jump to `min`/`max`. A11y: `{ role: 'slider', value, valuemin, valuemax }`. Older pre-1.0 UI builds had integer-only values and no keyboard handling.
+Horizontal slider with a circular thumb. Public: `min`, `max`, `value`, `step`. Dragging (`pointerdown` → `pointermove` → `pointerup`) maps pointer `localX` to a value, **snapped to the `step` grid anchored at `min`** (integer steps by default, matching `input[type=range]` semantics), and emits a `change` event with `{ value }` (subscribe via `on('change', e => e.value)`). Keyboard: `ArrowRight`/`ArrowUp` step up, `ArrowLeft`/`ArrowDown` step down, `Home`/`End` jump to `min`/`max`. A11y: `{ role: 'slider', label, value, valuemin, valuemax }`. **Pass `label`** (2.2.0+) — before it existed the projected node had no accessible name and was announced as bare "slider" (WCAG 4.1.2). Older pre-1.0 UI builds had integer-only values and no keyboard handling.
 
 ### `Dropdown`
 
@@ -447,6 +448,7 @@ new Dropdown(options: string[], props?: DropdownProps)  // props loosely typed (
 
 // Recognized props:
 {
+  label?: string;   // accessible name (2.2.0+) — set this
   value?: string;   // initial selection; default = options[0]
   width?: number;   // default 120
   height?: number;  // default 36

@@ -7,7 +7,7 @@ order: 14
 # `Markdown` — `@vectojs/markdown`
 
 `Markdown` and `CodeBlock` live in the standalone **`@vectojs/markdown`** package
-(as of `@vectojs/ui@2.2.0` they are no longer part of `@vectojs/ui`, so the
+(as of `@vectojs/ui@2.0.0` they are no longer part of `@vectojs/ui`, so the
 `marked` + MathJax dependencies only load when you render Markdown). It composes
 `@vectojs/ui` components, so install it alongside `@vectojs/ui` and `@vectojs/core`:
 `bun add @vectojs/markdown @vectojs/ui @vectojs/core`.
