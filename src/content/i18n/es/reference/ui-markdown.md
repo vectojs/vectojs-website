@@ -7,7 +7,7 @@ order: 14
 # `Markdown` — `@vectojs/markdown`
 
 `Markdown` y `CodeBlock` viven en el paquete independiente **`@vectojs/markdown`**
-(a partir de `@vectojs/ui@2.0.0` ya no forman parte de `@vectojs/ui`, así que las
+(a partir de `@vectojs/ui@2.2.0` ya no forman parte de `@vectojs/ui`, así que las
 dependencias `marked` + MathJax solo se cargan cuando renderizas Markdown). Compone
 componentes de `@vectojs/ui`, así que instálalo junto a `@vectojs/ui` y `@vectojs/core`:
 `bun add @vectojs/markdown @vectojs/ui @vectojs/core`.
@@ -20,7 +20,7 @@ Los párrafos y encabezados se convierten en `RichText`, los bloques de código 
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Demostración en vivo de Markdown" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Demostración en vivo de Markdown" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>La muestra mantiene prosa, enlaces, código en línea y un bloque de código en un viewport enfocado para que los defectos de diseño sean visibles.</figcaption>
 </figure>
 

@@ -6,13 +6,13 @@ order: 40
 
 # `CodeBlock`
 
-`CodeBlock` は `Markdown` が使用する低レベルのフェンス付きコードレンダラーです。どちらもスタンドアロンの **`@vectojs/markdown`** パッケージにあります（`@vectojs/ui@2.0.0` で `@vectojs/ui` から移動しました）。背景と構文色付きテキストを自身で描画し、トークンごとに1つの子エンティティを持つことを避けます。
+`CodeBlock` は `Markdown` が使用する低レベルのフェンス付きコードレンダラーです。どちらもスタンドアロンの **`@vectojs/markdown`** パッケージにあります（`@vectojs/ui@2.2.0` で `@vectojs/ui` から移動しました）。背景と構文色付きテキストを自身で描画し、トークンごとに1つの子エンティティを持つことを避けます。
 
 ## 試してみる
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · CodeBlock</span></div>
-  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>これを直接使用するのはカスタムレンダラーの場合のみです。通常のドキュメントは `Markdown` を通すべきです。</figcaption>
 </figure>
 

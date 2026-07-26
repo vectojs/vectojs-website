@@ -12,7 +12,7 @@ order: 27
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Dropdown</span></div>
-  <iframe src="/sandbox/ui/component.html?name=dropdown&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Dropdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=dropdown&v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Dropdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Open it with pointer or keyboard; the menu mounts through the scene overlay path.</figcaption>
 </figure>
 
@@ -22,10 +22,16 @@ order: 27
 import { Dropdown } from '@vectojs/ui';
 
 const backend = new Dropdown(['Canvas', 'WebGL', 'WebGPU'], {
+  label: 'Renderer backend',
   width: 220,
   onChange: (value) => setBackend(value),
 });
 ```
+
+> **Set `label`.** A `role="combobox"` with no accessible name is announced as
+> bare "combobox" (WCAG 4.1.2); the selected value alone does not say what the
+> control is for. Any visual label drawn on canvas does not reach the semantic
+> layer, so pass it here too. Available since `@vectojs/ui@2.2.0`.
 
 ## Maintainer checklist
 

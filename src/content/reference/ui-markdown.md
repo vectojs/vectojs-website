@@ -7,7 +7,7 @@ order: 14
 # `Markdown` — `@vectojs/markdown`
 
 `Markdown` and `CodeBlock` live in the standalone **`@vectojs/markdown`** package
-(as of `@vectojs/ui@2.0.0` they are no longer part of `@vectojs/ui`, so the
+(as of `@vectojs/ui@2.2.0` they are no longer part of `@vectojs/ui`, so the
 `marked` + MathJax dependencies only load when you render Markdown). It composes
 `@vectojs/ui` components, so install it alongside `@vectojs/ui` and `@vectojs/core`:
 `bun add @vectojs/markdown @vectojs/ui @vectojs/core`.
@@ -20,7 +20,7 @@ Paragraphs and headings become `RichText`, fenced code becomes `CodeBlock`, and 
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>The sample keeps prose, links, inline code and a fenced block in one focused viewport so layout defects are visible.</figcaption>
 </figure>
 

@@ -6,7 +6,7 @@ order: 14
 
 # `Markdown` — `@vectojs/markdown`
 
-`Markdown` 和 `CodeBlock` 位於獨立的 **`@vectojs/markdown`** 套件中（自 `@vectojs/ui@2.0.0` 起，它們不再是 `@vectojs/ui` 的一部分，因此 `marked` + MathJax 依賴只在你渲染 Markdown 時才載入）。它組合了 `@vectojs/ui` 元件，因此請將它與 `@vectojs/ui` 和 `@vectojs/core` 一起安裝：`bun add @vectojs/markdown @vectojs/ui @vectojs/core`。
+`Markdown` 和 `CodeBlock` 位於獨立的 **`@vectojs/markdown`** 套件中（自 `@vectojs/ui@2.2.0` 起，它們不再是 `@vectojs/ui` 的一部分，因此 `marked` + MathJax 依賴只在你渲染 Markdown 時才載入）。它組合了 `@vectojs/ui` 元件，因此請將它與 `@vectojs/ui` 和 `@vectojs/core` 一起安裝：`bun add @vectojs/markdown @vectojs/ui @vectojs/core`。
 
 `Markdown` 使用 `marked` 解析 Markdown，並將結果渲染為 VectoJS entity 子樹。段落和標題成為 `RichText`，圍欄程式碼成為 `CodeBlock`，而 GFM 表格成為 `Table`。
 
@@ -14,7 +14,7 @@ order: 14
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>此範例將文章、連結、行內程式碼和一個圍欄區塊保持在一個聚焦的視口中，讓布局缺陷清晰可見。</figcaption>
 </figure>
 

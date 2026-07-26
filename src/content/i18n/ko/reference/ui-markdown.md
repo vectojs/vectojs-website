@@ -7,7 +7,7 @@ order: 14
 # `Markdown` — `@vectojs/markdown`
 
 `Markdown`과 `CodeBlock`은 독립형 **`@vectojs/markdown`** 패키지에 있습니다
-(`@vectojs/ui@2.0.0`부터 더 이상 `@vectojs/ui`의 일부가 아니므로,
+(`@vectojs/ui@2.2.0`부터 더 이상 `@vectojs/ui`의 일부가 아니므로,
 `marked` + MathJax 의존성은 Markdown을 렌더링할 때만 로드됩니다). 이는
 `@vectojs/ui` 컴포넌트를 조합하므로 `@vectojs/ui` 및 `@vectojs/core`와 함께 설치하세요:
 `bun add @vectojs/markdown @vectojs/ui @vectojs/core`.
@@ -19,7 +19,7 @@ order: 14
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>샘플은 산문, 링크, 인라인 코드 및 펜스 블록을 하나의 집중된 뷰포트에 유지하여 레이아웃 결함을 확인할 수 있습니다.</figcaption>
 </figure>
 

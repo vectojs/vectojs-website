@@ -7,14 +7,14 @@ order: 40
 # `CodeBlock`
 
 `CodeBlock` es el renderizador de bajo nivel para bloques de código utilizado por `Markdown`. Ambos viven en el paquete
-independiente **`@vectojs/markdown`** (extraídos de `@vectojs/ui` en `@vectojs/ui@2.0.0`). Dibuja el fondo y el
+independiente **`@vectojs/markdown`** (extraídos de `@vectojs/ui` en `@vectojs/ui@2.2.0`). Dibuja el fondo y el
 texto coloreado por sintaxis él mismo, evitando una entidad hija por token.
 
 ## Pruébalo
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · CodeBlock</span></div>
-  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de CodeBlock" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de CodeBlock" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Úsalo directamente solo para renderizadores personalizados; los documentos normales deberían usar `Markdown`.</figcaption>
 </figure>
 

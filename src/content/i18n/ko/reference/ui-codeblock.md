@@ -6,13 +6,13 @@ order: 40
 
 # `CodeBlock`
 
-`CodeBlock`은 `Markdown`에서 사용하는 저수준 펜스 코드 렌더러입니다. 둘 다 독립형 **`@vectojs/markdown`** 패키지에 있습니다(`@vectojs/ui@2.0.0`에서 `@vectojs/ui` 밖으로 이동됨). 배경과 구문 강조 텍스트를 자체적으로 그리며, 토큰당 하나의 자식 Entity를 사용하지 않습니다.
+`CodeBlock`은 `Markdown`에서 사용하는 저수준 펜스 코드 렌더러입니다. 둘 다 독립형 **`@vectojs/markdown`** 패키지에 있습니다(`@vectojs/ui@2.2.0`에서 `@vectojs/ui` 밖으로 이동됨). 배경과 구문 강조 텍스트를 자체적으로 그리며, 토큰당 하나의 자식 Entity를 사용하지 않습니다.
 
 ## 직접 사용해보기
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · CodeBlock</span></div>
-  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>커스텀 렌더러가 아니라면 일반 문서에서는 `Markdown`을 통해 사용하세요.</figcaption>
 </figure>
 

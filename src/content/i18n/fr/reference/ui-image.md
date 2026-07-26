@@ -12,7 +12,7 @@ order: 19
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Image</span></div>
-  <iframe src="/sandbox/ui/component.html?name=image&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live dʼImage" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=image&v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live dʼImage" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Le placeholder sʼaffiche jusquʼà ce que le callback de chargement de lʼimage marque la scène comme modifiée.</figcaption>
 </figure>
 

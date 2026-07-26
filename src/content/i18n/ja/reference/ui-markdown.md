@@ -6,7 +6,7 @@ order: 14
 
 # `Markdown` — `@vectojs/markdown`
 
-`Markdown` と `CodeBlock` はスタンドアロンの **`@vectojs/markdown`** パッケージにあります（`@vectojs/ui@2.0.0` 以降、これらはもはや `@vectojs/ui` の一部ではないため、`marked` + MathJax の依存はMarkdownをレンダリングするときにのみ読み込まれます）。これは `@vectojs/ui` のコンポーネントを組み合わせて構築されているため、`@vectojs/ui` と `@vectojs/core` とともにインストールしてください：`bun add @vectojs/markdown @vectojs/ui @vectojs/core`。
+`Markdown` と `CodeBlock` はスタンドアロンの **`@vectojs/markdown`** パッケージにあります（`@vectojs/ui@2.2.0` 以降、これらはもはや `@vectojs/ui` の一部ではないため、`marked` + MathJax の依存はMarkdownをレンダリングするときにのみ読み込まれます）。これは `@vectojs/ui` のコンポーネントを組み合わせて構築されているため、`@vectojs/ui` と `@vectojs/core` とともにインストールしてください：`bun add @vectojs/markdown @vectojs/ui @vectojs/core`。
 
 `Markdown` は `marked` でMarkdownを解析し、結果をVectoJSのエンティティサブツリーにレンダリングします。段落と見出しは `RichText` になり、フェンス付きコードは `CodeBlock` になり、GFMテーブルは `Table` になります。
 
@@ -14,7 +14,7 @@ order: 14
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>このサンプルは、プロース、リンク、インラインコード、フェンス付きブロックを1つの集中したビューポートに保つため、レイアウトの欠陥が見えるようになっています。</figcaption>
 </figure>
 

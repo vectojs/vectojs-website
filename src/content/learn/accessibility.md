@@ -142,24 +142,24 @@ shortcuts. The Scene refreshes an explicit tab index when attributes change.
 
 ### What built-in components project
 
-| Component           | Shadow element                             | Key ARIA attributes                                             |
-| ------------------- | ------------------------------------------ | --------------------------------------------------------------- |
-| `Button`            | `<button>`                                 | `role="button"`, `aria-label`                                   |
-| `Link`              | `<a href>`                                 | native link, `aria-label`                                       |
-| `Image`             | `<img>`                                    | `src`, `alt`                                                    |
-| `Input`             | `<input type="text">`                      | `placeholder`, `value` (live)                                   |
-| `TextArea`          | `<textarea>`                               | `placeholder`, `value` (live)                                   |
-| `Checkbox`          | `<input type="checkbox">`                  | `checked` (live), `aria-label`                                  |
-| `Toggle`            | `<div role="switch">`                      | `aria-checked` (live), `aria-label`                             |
-| `Slider`            | `<div role="slider">`                      | `aria-valuenow/min/max` (live)                                  |
-| `Dropdown`          | `<div role="combobox">`                    | `aria-expanded`, `aria-controls`, menu items as `role="option"` |
-| `Card` (with label) | `<div role="group">`                       | `aria-label`                                                    |
-| `Table`             | `grid` › `row` › `gridcell`/`columnheader` | roving tabindex, 2D arrow keys, Ctrl+Home/End                   |
-| `TreeView`          | `treeitem` per visible row                 | `aria-level`/`expanded`/`selected`, arrows expand/collapse      |
-| `ContextMenu`       | `menuitem` per item                        | `aria-haspopup`/`expanded`, arrows wrap, Escape closes          |
-| `RadioGroup`        | `radio` per option                         | `aria-checked`, arrows move+select                              |
-| `Tabs`              | `tab` per tab                              | `aria-selected`, arrows move, Home/End                          |
-| `Text`              | `<div>`                                    | `aria-label` = text content                                     |
+| Component           | Shadow element                             | Key ARIA attributes                                                        |
+| ------------------- | ------------------------------------------ | -------------------------------------------------------------------------- |
+| `Button`            | `<button>`                                 | `role="button"`, `aria-label`                                              |
+| `Link`              | `<a href>`                                 | native link, `aria-label`                                                  |
+| `Image`             | `<img>`                                    | `src`, `alt`                                                               |
+| `Input`             | `<input type="text">`                      | `placeholder`, `value` (live)                                              |
+| `TextArea`          | `<textarea>`                               | `placeholder`, `value` (live)                                              |
+| `Checkbox`          | `<input type="checkbox">`                  | `checked` (live), `aria-label`                                             |
+| `Toggle`            | `<div role="switch">`                      | `aria-checked` (live), `aria-label`                                        |
+| `Slider`            | `<div role="slider">`                      | `aria-valuenow/min/max` (live); pass `label` for the name                  |
+| `Dropdown`          | `<div role="combobox">`                    | `aria-expanded`, `aria-controls`, options as `role="option"`; pass `label` |
+| `Card` (with label) | `<div role="group">`                       | `aria-label`                                                               |
+| `Table`             | `grid` › `row` › `gridcell`/`columnheader` | roving tabindex, 2D arrow keys, Ctrl+Home/End                              |
+| `TreeView`          | `treeitem` per visible row                 | `aria-level`/`expanded`/`selected`, arrows expand/collapse                 |
+| `ContextMenu`       | `menuitem` per item                        | `aria-haspopup`/`expanded`, arrows wrap, Escape closes                     |
+| `RadioGroup`        | `radio` per option                         | `aria-checked`, arrows move+select                                         |
+| `Tabs`              | `tab` per tab                              | `aria-selected`, arrows move, Home/End                                     |
+| `Text`              | `<div>`                                    | `aria-label` = text content                                                |
 
 ## Composite widgets: one tab stop, arrow keys inside
 
@@ -459,6 +459,13 @@ await page.locator('[data-vecto-id="submit-btn"]').click();
 - [ ] `Checkbox`/`Toggle` `checked` state is reflected live in
       `getA11yAttributes()`.
 - [ ] `Slider` has `valuemin`, `valuemax`, and `value` set on every render.
+- [ ] **Every projected control has a non-empty accessible name.** A role with no
+      name is announced as bare "slider"/"combobox"/"button" and says nothing
+      about what it does (WCAG 4.1.2). This is the single easiest thing to miss on
+      canvas, because a visual label drawn next to a control does not reach the
+      semantic layer — `Slider` and `Dropdown` both shipped without names until
+      `@vectojs/ui@2.2.0`. Check with `scene.getA11yTree()` or a real
+      accessibility-tree inspector, not by looking at the canvas.
 - [ ] `Card` groups have a `label` when they represent a logical region.
 - [ ] Tab order is reasonable (shadow nodes are positioned in DOM order, which
       matches add order).

@@ -6,13 +6,13 @@ order: 40
 
 # `CodeBlock`
 
-`CodeBlock` 是 `Markdown` 使用的低階圍欄程式碼渲染器。兩者都位於獨立的 **`@vectojs/markdown`** 套件中（於 `@vectojs/ui@2.0.0` 從 `@vectojs/ui` 移出）。它自行繪製背景和語法著色文字，避免每個 token 都產生一個子 entity。
+`CodeBlock` 是 `Markdown` 使用的低階圍欄程式碼渲染器。兩者都位於獨立的 **`@vectojs/markdown`** 套件中（於 `@vectojs/ui@2.2.0` 從 `@vectojs/ui` 移出）。它自行繪製背景和語法著色文字，避免每個 token 都產生一個子 entity。
 
 ## 試試看
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · CodeBlock</span></div>
-  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>僅在自訂渲染器時直接使用它；一般文件應透過 `Markdown`。</figcaption>
 </figure>
 

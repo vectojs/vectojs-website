@@ -13,7 +13,7 @@ exposing `role="slider"` with `valuemin`, `valuemax`, and live `value` metadata.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Slider</span></div>
-  <iframe src="/sandbox/ui/slider.html?v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Slider live demo" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/slider.html?v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Slider live demo" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Drag the thumb and watch the label and progress bar update from the same change event.</figcaption>
 </figure>
 
@@ -39,6 +39,7 @@ const slider = new Slider({
 
 ```ts
 new Slider({
+  label?: string;            // accessible name — set this
   min?: number;              // default 0
   max?: number;              // default 100
   value?: number;            // default min
@@ -50,6 +51,13 @@ new Slider({
   onChange?: (value: number) => void;
 })
 ```
+
+> **Set `label`.** A `role="slider"` with no accessible name is announced as bare
+> "slider", telling a screen-reader user nothing about what it controls (WCAG
+> 4.1.2). Any visual label you draw on canvas does not reach the semantic layer,
+> so pass it here too. Omitting `label` leaves `aria-label` unset rather than
+> deriving a name from the value — a wrong name is worse than a missing one.
+> Available since `@vectojs/ui@2.2.0`.
 
 ## Events
 

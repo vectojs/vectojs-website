@@ -6,13 +6,13 @@ order: 40
 
 # `CodeBlock`
 
-`CodeBlock` 是 `Markdown` 使用的底层围栏代码渲染器。两者都位于独立的 **`@vectojs/markdown`** 包中（在 `@vectojs/ui@2.0.0` 中从 `@vectojs/ui` 移出）。它自己绘制背景和语法着色的文本，避免每个 token 一个子实体。
+`CodeBlock` 是 `Markdown` 使用的底层围栏代码渲染器。两者都位于独立的 **`@vectojs/markdown`** 包中（在 `@vectojs/ui@2.2.0` 中从 `@vectojs/ui` 移出）。它自己绘制背景和语法着色的文本，避免每个 token 一个子实体。
 
 ## 试试看
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · CodeBlock</span></div>
-  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>仅在自定义渲染器时直接使用它；普通文档应通过 `Markdown`。</figcaption>
 </figure>
 

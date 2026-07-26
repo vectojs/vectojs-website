@@ -7,14 +7,14 @@ order: 40
 # `CodeBlock`
 
 `CodeBlock` est le moteur de rendu de code délimité de bas niveau utilisé par `Markdown`. Tous deux vivent dans le paquet autonome
-**`@vectojs/markdown`** (sortis de `@vectojs/ui` dans `@vectojs/ui@2.0.0`). Il dessine lui-même lʼarrière-plan et le texte coloré syntaxiquement,
+**`@vectojs/markdown`** (sortis de `@vectojs/ui` dans `@vectojs/ui@2.2.0`). Il dessine lui-même lʼarrière-plan et le texte coloré syntaxiquement,
 évitant ainsi une entité enfant par jeton.
 
 ## Try it
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · CodeBlock</span></div>
-  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.16.0-ui-2.1.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de CodeBlock" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.16.3-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de CodeBlock" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Utilisez ceci directement uniquement pour les moteurs de rendu personnalisés ; la documentation normale devrait passer par `Markdown`.</figcaption>
 </figure>
 
