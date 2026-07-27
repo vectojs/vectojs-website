@@ -263,9 +263,25 @@ body.page-home::before {
 }
 
 .nav-logo-mark {
-  width: 28px;
+  /* The mark is 697x507 (~1.37:1), so a square box would letterbox it. */
+  width: 38px;
   height: 28px;
   flex-shrink: 0;
+}
+
+/* Pick the variant that matches the stamped theme. `data-theme` is set
+   pre-paint in <head>, so only one of these is ever visible and there is no
+   flash of the wrong-contrast logo. */
+.nav-logo-mark--dark {
+  display: none;
+}
+
+html[data-theme='dark'] .nav-logo-mark--light {
+  display: none;
+}
+
+html[data-theme='dark'] .nav-logo-mark--dark {
+  display: block;
 }
 
 .nav-logo-text {

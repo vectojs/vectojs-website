@@ -128,7 +128,7 @@ function switchLocaleHref(target: Locale): string {
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
-    <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" />
 
     <!-- Cross-document view transitions (Chrome 126+) -->
     <style>
@@ -152,45 +152,35 @@ function switchLocaleHref(target: Locale): string {
       <div class="container nav-container">
         <!-- Left: logo -->
         <a href={homeHref} class="nav-logo" aria-label={t('nav.home')}>
-          <svg
-            class="nav-logo-mark"
-            viewBox="0 0 32 32"
-            fill="none"
-            stroke="url(#logo-grad)"
-            stroke-width="2.2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+          <!--
+            Brand mark, served from the CDN (cdn.vectojs.org/brand/).
+            Two <img>s rather than one: `currentColor` does NOT inherit into an
+            SVG loaded via <img> (it renders in its own document context), and
+            this site toggles theme with `data-theme` on <html> rather than
+            `prefers-color-scheme`, so a <picture> with a media query would also
+            ignore the manual toggle. Shipping both baked-color variants and
+            letting CSS pick on `data-theme` is what actually follows the toggle.
+            The artwork is near-black, so getting this wrong makes the logo
+            disappear on one of the two themes.
+          -->
+          <img
+            class="nav-logo-mark nav-logo-mark--light"
+            src="https://cdn.vectojs.org/brand/vectojs-logo-light.svg"
+            alt=""
             aria-hidden="true"
-          >
-            <path d="M 22 5 L 12 15"></path>
-            <path d="M 9 11 L 23 11"></path>
-            <path d="M 16 11 L 16 19 L 7 28"></path>
-            <path d="M 5 19 L 27 19"></path>
-            <path d="M 16 19 L 25 28"></path>
-            <circle cx="22" cy="5" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
-            <circle cx="12" cy="15" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
-            <circle cx="9" cy="11" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
-            <circle cx="23" cy="11" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
-            <circle cx="16" cy="11" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
-            <circle cx="16" cy="19" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
-            <circle cx="5" cy="19" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
-            <circle cx="27" cy="19" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
-            <circle cx="7" cy="28" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
-            <circle cx="25" cy="28" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
-            <defs>
-              <linearGradient
-                id="logo-grad"
-                x1="5"
-                y1="28"
-                x2="27"
-                y2="5"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop offset="0%" stop-color="#6366f1"></stop>
-                <stop offset="100%" stop-color="#38bdf8"></stop>
-              </linearGradient>
-            </defs>
-          </svg>
+            width="38"
+            height="28"
+            decoding="async"
+          />
+          <img
+            class="nav-logo-mark nav-logo-mark--dark"
+            src="https://cdn.vectojs.org/brand/vectojs-logo-dark.svg"
+            alt=""
+            aria-hidden="true"
+            width="38"
+            height="28"
+            decoding="async"
+          />
           <span class="nav-logo-text">Vecto</span>
         </a>
 
