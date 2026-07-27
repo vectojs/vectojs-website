@@ -13,7 +13,7 @@ entrée et sortie.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Modal</span></div>
-  <iframe src="/sandbox/ui/component.html?name=modal&v=core-1.17.0-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de Modal" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=modal&v=core-1.17.1-ui-2.3.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de Modal" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Ouvrez la modal, puis fermez-la avec le bouton de fermeture rendu sur canvas.</figcaption>
 </figure>
 

@@ -12,7 +12,7 @@ order: 21
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Stack</span></div>
-  <iframe src="/sandbox/ui/component.html?name=stack&v=core-1.17.0-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Stack 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=stack&v=core-1.17.1-ui-2.3.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Stack 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>자식은 자신의 크기를 유지합니다. `Stack`은 로컬 `x`와 `y`만 설정합니다.</figcaption>
 </figure>
 

@@ -12,7 +12,7 @@ order: 25
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Checkbox</span></div>
-  <iframe src="/sandbox/ui/component.html?name=checkbox&v=core-1.17.0-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Checkbox live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=checkbox&v=core-1.17.1-ui-2.3.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Checkbox live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Canvas 點擊和原生 input 變更共用相同的 `change` 路徑。</figcaption>
 </figure>
 

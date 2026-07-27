@@ -6,10 +6,10 @@
       "name": "vecto-website",
       "dependencies": {
         "@astrojs/sitemap": "^3.7.3",
-        "@vectojs/core": "1.17.0",
+        "@vectojs/core": "1.17.1",
         "@vectojs/graph3d": "0.3.0",
         "@vectojs/three": "0.1.7",
-        "@vectojs/ui": "2.2.0",
+        "@vectojs/ui": "2.3.0",
         "astro": "^7.0.3",
         "three": "^0.160.0",
       },
@@ -337,7 +337,7 @@
 
     "@vectojs/animation": ["@vectojs/animation@0.1.1", "", { "dependencies": { "@vectojs/math": "^0.1.1" } }, "sha512-XmQjh2vhJUpmui61HiAZKcYRVV2W3qH9afIHza4Ls69Uq6tURBaOiE9Of0lQqszfi2y/HqbJ2KPKdeqh1pO4fQ=="],
 
-    "@vectojs/core": ["@vectojs/core@1.17.0", "", { "dependencies": { "@vectojs/animation": "^0.1.1", "@vectojs/layout": "^0.3.0", "@vectojs/math": "^0.1.1", "@vectojs/text": "^0.2.0" } }, "sha512-EHBFe791LXPe5gjyPS3upsLlK5fBhCISPdpncwViGqbDyDeMAjF4yxuJO5lBLqqbdDxthbd4KNu3eLVKGLzqZA=="],
+    "@vectojs/core": ["@vectojs/core@1.17.1", "", { "dependencies": { "@vectojs/animation": "^0.1.1", "@vectojs/layout": "^0.3.0", "@vectojs/math": "^0.1.1", "@vectojs/text": "^0.2.0" } }, "sha512-jyItkVsNU+VCBBGLZHTfbeh/3z2oJZpYl+7i87LNO6N9gFYxfzklLprVfN4AuNFiBOursaejGJYjuTxigqd4AQ=="],
 
     "@vectojs/graph3d": ["@vectojs/graph3d@0.3.0", "", { "dependencies": { "d3-force-3d": "^3.0.6" }, "peerDependencies": { "three": "^0.160.0" } }, "sha512-/MWYrB3YjEsGfD+gwJ4dBZuDLsox7XoEemPHqorLETONqtXQAF00qM/GFjYwpQnrztxS29F00zD63uKCyQOYOg=="],
 
@@ -349,7 +349,7 @@
 
     "@vectojs/three": ["@vectojs/three@0.1.7", "", { "peerDependencies": { "@vectojs/core": ">=1.0.0 <2.0.0", "three": "^0.160.0" } }, "sha512-s6/1hIKWOjrkjd/igaDZRQ+cR+PsL9cHVz57M52sVVNlH/rGadVcY/9so+kevVRjj4hYzdSEpcgErzKtMK2CXQ=="],
 
-    "@vectojs/ui": ["@vectojs/ui@2.2.0", "", { "peerDependencies": { "@vectojs/core": ">=1.8.0 <2.0.0" } }, "sha512-FU3PNwwnibUtp3wa//gYVlH5zL4JqLanASuYw1BfrXiNWTljuyWSvnlJIeK5SwePIQFVtW4TEOjaWt2Pn81BrA=="],
+    "@vectojs/ui": ["@vectojs/ui@2.3.0", "", { "peerDependencies": { "@vectojs/core": ">=1.8.0 <2.0.0" } }, "sha512-36P+5wRUl/ddZS9wRo6d6pdpyd0wCPjoODyGhlbXYZf0rxk74edMd0s+Ygl5S5EQcc5e6uG1UK4hsPBEkG9ymg=="],
 
     "@volar/kit": ["@volar/kit@2.4.28", "", { "dependencies": { "@volar/language-service": "2.4.28", "@volar/typescript": "2.4.28", "typesafe-path": "^0.2.2", "vscode-languageserver-textdocument": "^1.0.11", "vscode-uri": "^3.0.8" }, "peerDependencies": { "typescript": "*" } }, "sha512-cKX4vK9dtZvDRaAzeoUdaAJEew6IdxHNCRrdp5Kvcl6zZOqb6jTOfk3kXkIkG3T7oTFXguEMt5+9ptyqYR84Pg=="],
 

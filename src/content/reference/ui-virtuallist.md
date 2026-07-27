@@ -13,7 +13,7 @@ regular child mounting would waste work.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · VirtualList</span></div>
-  <iframe src="/sandbox/ui/component.html?name=virtuallist&v=core-1.17.0-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="VirtualList live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=virtuallist&v=core-1.17.1-ui-2.3.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="VirtualList live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>The demo has 120 items, but only the visible rows plus overscan are mounted.</figcaption>
 </figure>
 

@@ -13,7 +13,7 @@ exposant `role="slider"` avec `valuemin`, `valuemax` et les métadonnées `value
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Slider</span></div>
-  <iframe src="/sandbox/ui/slider.html?v=core-1.17.0-ui-2.2.0" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Démonstration live de Slider" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/slider.html?v=core-1.17.1-ui-2.3.0" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Démonstration live de Slider" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Faites glisser le pouce et regardez le libellé et la barre de progression se mettre à jour à partir du même événement de changement.</figcaption>
 </figure>
 

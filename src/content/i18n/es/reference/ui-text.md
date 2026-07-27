@@ -15,7 +15,7 @@ RTL, por lo que la selección nativa, la copia, la búsqueda en página y la tra
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Text</span></div>
-  <iframe src="/sandbox/ui/component.html?name=text&v=core-1.17.0-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Text" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=text&v=core-1.17.1-ui-2.3.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Text" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Redimensiona la página para inspeccionar el reflujo en caliente de `maxWidth` en un viewport enfocado.</figcaption>
 </figure>
 

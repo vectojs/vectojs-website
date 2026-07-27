@@ -12,7 +12,7 @@ order: 24
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · TextArea</span></div>
-  <iframe src="/sandbox/ui/component.html?name=textarea&v=core-1.17.0-ui-2.2.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de TextArea" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=textarea&v=core-1.17.1-ui-2.3.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de TextArea" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>La edición multilínea es nativa; el canvas pinta el espejo visual.</figcaption>
 </figure>
 
