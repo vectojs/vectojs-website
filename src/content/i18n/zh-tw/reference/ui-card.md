@@ -12,7 +12,7 @@ order: 20
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Card</span></div>
-  <iframe src="/sandbox/ui/component.html?name=card&v=core-1.17.1-ui-2.3.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Card live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=card&v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Card live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Card 擁有背景和邊框；子項目在 card 的區域空間中定位。</figcaption>
 </figure>
 

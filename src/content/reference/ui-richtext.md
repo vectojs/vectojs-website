@@ -14,7 +14,7 @@ clipboard text through mixed font sizes, ligatures, Arabic/Hebrew text, soft wra
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · RichText</span></div>
-  <iframe src="/sandbox/ui/component.html?name=richtext&v=core-1.17.1-ui-2.3.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="RichText live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=richtext&v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame-tall" loading="eager" title="RichText live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>The inline link is a transparent anchor hotspot over the canvas text.</figcaption>
 </figure>
 

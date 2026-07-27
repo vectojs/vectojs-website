@@ -14,7 +14,7 @@ automation tools operate the semantic node.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Button</span></div>
-  <iframe src="/sandbox/ui/button.html?v=core-1.17.1-ui-2.3.0" class="sandbox-frame component-demo-frame" loading="eager" title="Button live demo" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/button.html?v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame" loading="eager" title="Button live demo" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Hover changes the painted state. Clicks route through the same button role that Playwright can find.</figcaption>
 </figure>
 

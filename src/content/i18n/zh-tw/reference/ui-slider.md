@@ -12,7 +12,7 @@ order: 13
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Slider</span></div>
-  <iframe src="/sandbox/ui/slider.html?v=core-1.17.1-ui-2.3.0" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Slider live demo" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/slider.html?v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Slider live demo" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>拖曳滑塊，觀察標籤和進度條從相同的變更事件更新。</figcaption>
 </figure>
 
