@@ -17,7 +17,7 @@ export const VERSIONS = {
   math: '0.1.1',
   animation: '0.1.1',
   ui: '2.4.0',
-  markdown: '0.3.0',
+  markdown: '0.4.0',
   three: '0.1.8',
   graph3d: '0.3.0',
   videoExporter: '0.2.2',
