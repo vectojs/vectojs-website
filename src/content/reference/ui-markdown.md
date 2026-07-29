@@ -1,6 +1,6 @@
 ---
 title: 'Markdown'
-description: 'Canvas-native Markdown renderer with rich text, code blocks, tables, streaming append, and link callbacks — the standalone @vectojs/markdown package.'
+description: 'Canvas-native Markdown renderer with rich text, code blocks, tables, frame-coalesced StreamController, and link callbacks — the standalone @vectojs/markdown package.'
 order: 14
 ---
 
@@ -67,30 +67,67 @@ When an application owns container sizing or CSS zoom, notify the Scene with
 
 ## Streaming
 
-For token streams, append only the new delta — and batch tokens per animation
-frame rather than appending per token:
+`createStream()` binds one frame-coalesced writer to this `Markdown`. Await
+`write()` while consuming the source; `close()` force-commits the tail without
+waiting for another animation frame:
 
 ```ts
-let pending = '';
-let scheduled = false;
-function pushToken(token: string) {
-  pending += token;
-  if (scheduled) return;
-  scheduled = true;
-  requestAnimationFrame(() => {
-    scheduled = false;
-    const chunk = pending;
-    pending = '';
-    markdown.appendMarkdown(chunk);
-    scrollView.scrollToBottom();
-  });
+const stream = markdown.createStream();
+
+try {
+  for await (const token of llmStream) {
+    await stream.write(token);
+  }
+  await stream.close();
+} catch (error) {
+  stream.abort(error);
+  throw error;
 }
-for await (const token of llmStream) pushToken(token);
 ```
 
-Avoid calling `setContent(fullDocumentSoFar)` for every token; that rebuilds the whole subtree.
-The full recipe — bottom-follow stickiness, long-transcript segmentation,
-render-mode choice — is in the [Streaming & Real-Time Text](/learn/streaming/) guide.
+```ts
+interface StreamControllerOptions {
+  maxBufferedChars?: number; // default 64 * 1024 UTF-16 code units
+  pacing?: {
+    graphemesPerSecond: number;
+  };
+  signal?: AbortSignal;
+}
+
+type StreamControllerState = 'open' | 'closed' | 'aborted';
+
+interface StreamController {
+  readonly state: StreamControllerState;
+  readonly bufferedChars: number; // accepted + one blocked write
+  write(chunk: string): Promise<void>;
+  flush(): void;
+  close(): Promise<void>;
+  abort(reason?: unknown): void;
+  destroy(): void;
+}
+```
+
+Default mode batches all chunks accepted before the next rAF into one
+parse/layout commit. `write()` resolves on bounded-buffer admission, not
+visibility. When capacity is insufficient, one write waits; another write while
+that waiter exists rejects, so a producer that ignores backpressure cannot grow
+an unbounded queue.
+
+`pacing.graphemesPerSecond` adds fixed wall-clock typewriter pacing while
+retaining the one-commit-per-frame ceiling. `Intl.Segmenter` keeps ordinary
+combining sequences, emoji ZWJ clusters, flags, and surrogate pairs together
+across chunk/frame boundaries. The full lifecycle, bounded pathological-cluster
+fallback, bottom-follow pattern, and transcript strategy are in
+[Streaming & Real-Time Text](/learn/streaming/).
+
+Only one controller may be open for a `Markdown`. `setContent()` aborts it before
+replacement; `destroy()` aborts it and removes rAF/`AbortSignal` listeners.
+Terminal controllers unregister. Public `appendMarkdown()` remains synchronous:
+it first flushes every previously submitted controller chunk, then applies the
+direct chunk in exact call order.
+
+Avoid calling `setContent(fullDocumentSoFar)` for every token; that rebuilds the
+whole subtree.
 
 ## Performance model
 
@@ -102,9 +139,9 @@ What each call actually costs, so streaming code can be reasoned about:
   without `Worker` (some test runners, SSR) fall back to synchronous lexing —
   same result, main-thread cost.
 - **Lexing is O(document) per append**, not O(chunk): the whole accumulated
-  source is re-tokenized each call. Batch per frame (above) and segment long
-  transcripts into one `Markdown` entity per message so the live document stays
-  small.
+  source is re-tokenized each call. Use `createStream()` to batch per frame and
+  segment long transcripts into one `Markdown` entity per message so the live
+  document stays small.
 - **Finished blocks are reused, not rebuilt.** `appendMarkdown` prefix-matches
   the new token list against the old one by raw source; every already-rendered
   block keeps its entity instance. The common streaming case — the last
@@ -125,6 +162,6 @@ blocks while still delegating normal tokens to the built-in renderer.
 - Fenced code must project its exact source text and line breaks.
 - Table headers use heading color/bold style, while each logical cell owns exactly one content projection.
 - Pointer ownership stays with the leaf text/code projection; structural list and table entities must not intercept native selection.
-- Streaming append should reuse unchanged prefix entities.
+- StreamController commits and direct appends must reuse unchanged prefix entities.
 
 Related: [`RichText`](/reference/ui-components/#richtext), [`CodeBlock`](/reference/ui-components/#codeblock), [`Table`](/reference/ui-components/#table).
