@@ -12,52 +12,58 @@ code most often falls off a cliff. The engine gives you fast primitives —
 off-thread Markdown parsing — but wiring them up per token instead of per frame
 throws most of that away. This page is the end-to-end recipe.
 
-## The one rule: batch per frame, not per token
+## The one rule: commit per frame, not per token
 
-A stream delivers tokens far faster than the display refreshes. Every
-`append()`/`appendMarkdown()` call pays a layout pass, and every layout between
-two rendered frames except the last is **invisible work**. The fix is four
-lines: buffer tokens as they arrive, flush once per animation frame.
+A stream delivers tokens far faster than the display refreshes. Every direct
+`appendMarkdown()` call can pay a parse/layout pass, and every pass between two
+rendered frames except the last is **invisible work**. Use the built-in
+`StreamController` rather than wiring a second scheduler:
 
 ```typescript
-let pending = '';
-let scheduled = false;
+const stream = markdown.createStream();
 
-function pushToken(token: string) {
-  pending += token;
-  if (scheduled) return;
-  scheduled = true;
-  requestAnimationFrame(() => {
-    scheduled = false;
-    const chunk = pending;
-    pending = '';
-    markdown.appendMarkdown(chunk); // ONE layout for the whole frame's tokens
-    transcript.scrollToBottom();
-  });
+try {
+  for await (const token of llmStream) {
+    await stream.write(token);
+  }
+  await stream.close(); // force the final commit; do not wait for another frame
+} catch (error) {
+  stream.abort(error); // discard accepted but uncommitted text
+  throw error;
 }
-
-for await (const token of llmStream) pushToken(token);
 ```
 
-With a 200-token/s stream at 60 fps this turns ~200 layout passes per second
-into ~60 — and under load it degrades gracefully: the busier the main thread,
-the larger (and _rarer_) the flushed chunks become. The pattern is
-self-regulating; a fixed `setInterval` debounce is not.
+Default mode keeps accepted chunks as separate strings, then joins and commits
+them at most once in the next animation frame. `write()` resolves when a chunk
+enters the bounded buffer, not when it becomes visible, so one async producer
+can still contribute several tokens to the same frame. Await it: once the
+64 KiB high-water buffer fills, one write waits for capacity and any additional
+write rejects rather than creating an unbounded queue.
+
+With a 200-token/s stream at 60 fps this turns up to ~200 layout passes per
+second into at most ~60. Under load it degrades gracefully: the busier the main
+thread, the larger (and _rarer_) the committed chunks become. A fixed
+`setInterval` debounce does the opposite.
+
+`appendMarkdown()` remains the synchronous escape hatch. A direct call first
+flushes all previously submitted controller text (including one backpressured
+write), then appends its own chunk, so call order stays exact.
 
 > [!NOTE]
 > `scene.markDirty()` already coalesces naturally — three appends in one frame
-> set one flag and cost one repaint. The expensive part of an append is the
-> **layout**, not the dirty flag, which is why the batching must wrap the
-> append itself.
+> set one flag and cost one repaint. The expensive part is parse/layout, which
+> is why batching must wrap `appendMarkdown()` itself. `createStream()` does
+> that; it does not create another parser or reconciliation path.
 
 ## Choosing the append API
 
-| Content            | API                                     | Cost per call                                                                                                                |
-| ------------------ | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Plain text         | `text.append(chunk)`                    | Cold pass, but the paragraph memo reuses every finished `\n`-terminated paragraph                                            |
-| Styled spans       | `richText.appendSpans(spans)`           | Appends spans; prior spans' measurements are reused                                                                          |
-| Markdown           | `markdown.appendMarkdown(chunk)`        | Re-lexes the raw source (off-thread when `Worker` exists), reuses finished block entities, grows the last paragraph in place |
-| Anything, replaced | `setText` / `setContent` (anti-pattern) | Full rebuild — never call with a growing document per token                                                                  |
+| Content            | API                                                | Cost per commit                                                                   |
+| ------------------ | -------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Plain text         | `text.append(chunk)`                               | Cold pass, but the paragraph memo reuses every finished `\n`-terminated paragraph |
+| Styled spans       | `richText.appendSpans(spans)`                      | Appends spans; prior spans' measurements are reused                               |
+| Markdown, direct   | `markdown.appendMarkdown(chunk)`                   | Synchronous API; one append commit per call                                       |
+| Markdown, streamed | `await stream.write(chunk)` after `createStream()` | At most one append commit per animation frame; bounded producer backpressure      |
+| Anything, replaced | `setText` / `setContent` (streaming anti-pattern)  | Full rebuild — never call with a growing document per token                       |
 
 Two costs hide inside `appendMarkdown` that you should know about:
 
@@ -73,6 +79,41 @@ Two costs hide inside `appendMarkdown` that you should know about:
    run-on line defeats the memo and degrades to O(document) measurement per
    flush. LLM output has natural paragraph breaks; log lines end in `\n` —
    you usually get this for free, but don't strip the newlines.
+
+## Typewriter pacing and lifecycle
+
+Performance batching is the default. Add fixed wall-clock pacing only when the
+product needs a typewriter reveal:
+
+```typescript
+const stream = markdown.createStream({
+  pacing: { graphemesPerSecond: 48 },
+  maxBufferedChars: 64 * 1024,
+  signal: requestAbort.signal,
+});
+```
+
+Pacing never switches to “one token per frame.” It accumulates
+`graphemesPerSecond` credit from rAF timestamps, may reveal several graphemes in
+one frame, and still performs at most one append commit. A 100ms timestamp cap
+prevents a background tab from dumping a large catch-up burst.
+
+Slicing uses `Intl.Segmenter`, including across chunk/frame boundaries, so
+combining marks, emoji ZWJ sequences, flags, and surrogate pairs stay together.
+Unicode permits a single grapheme to grow without limit; if adversarial input
+fills the complete bounded accepted-plus-blocked window without reaching a
+boundary, the controller commits one Unicode code point (never half a surrogate
+pair) rather than deadlocking or growing memory without bound.
+
+- `flush()` synchronously commits submitted text and keeps the stream open.
+- `close()` admits the blocked write, releases the held grapheme tail, performs
+  one ordered final commit, and closes.
+- `abort(reason)` discards uncommitted text. Pending and future operations reject
+  with the retained reason.
+- `Markdown.setContent()` aborts the active controller before replacement.
+- `Markdown.destroy()` aborts it and removes rAF/`AbortSignal` listeners.
+- One `Markdown` owns at most one open controller; terminal controllers
+  unregister so a later stream can start.
 
 ## Render mode and the idle throttle
 
@@ -98,34 +139,38 @@ override `hasPendingAnimations()` or drive it with `animate()`/`springTo()`.
 `ScrollView.scrollToBottom()` **snaps** to the content end — deliberately
 bypassing the scroll spring, because retargeting a spring many times a second
 never lets it settle and the viewport jitters instead of tracking the newest
-content. Call it inside the same rAF flush as the append (as in the recipe
-above) so the target is computed _after_ the new layout.
-
-For a chat UI, follow the user's intent: stick to the bottom only while they
-were already at the bottom. `content` is public and its `y` holds the negative
-scroll translation, so "at bottom" is:
+content. `Markdown.onLayoutUpdated` runs after each stream commit, when the new
+height is available:
 
 ```typescript
+let stickToBottom = true;
+
 function nearBottom(sv: ScrollView, slack = 24): boolean {
   const maxScroll = Math.max(0, sv.content.height - sv.height);
   return -sv.content.y >= maxScroll - slack;
 }
 
-// In the flush: read stickiness BEFORE appending, apply AFTER.
-const stick = nearBottom(transcript);
-markdown.appendMarkdown(chunk);
-if (stick) transcript.scrollToBottom();
+markdown.onLayoutUpdated = () => {
+  if (stickToBottom) transcript.scrollToBottom();
+};
+
+for await (const token of llmStream) {
+  // Read intent before the commit changes content height.
+  stickToBottom = nearBottom(transcript);
+  await stream.write(token);
+}
+await stream.close();
 ```
 
-The read-append-scroll ordering inside one flush is the point: measuring
-"was at bottom" after the append always answers "no" once content grew.
+Also set `stickToBottom = false` from the app's user-scroll handling; otherwise
+a user who scrolls during the final pending frame can be snapped back by stale
+intent. The ordering is the invariant: read “was at bottom” before content
+grows, snap only after `onLayoutUpdated`.
 
 > [!NOTE]
-> The two scroll APIs are deliberately asymmetric: `scrollTo(y)` retargets the
-> scroll **spring** (so `content.y` animates there over the next frames), while
-> `scrollToBottom()` **snaps**. Position-derived state read immediately after a
-> `scrollTo` sees the old position — read it on the next flush, as the
-> stickiness pattern above naturally does.
+> `scrollTo(y)` retargets the scroll **spring**, while `scrollToBottom()` snaps.
+> Position-derived state read immediately after `scrollTo` still sees the old
+> position — read it on a later commit/frame.
 
 ## Long transcripts: segment, then virtualize
 
@@ -156,13 +201,14 @@ and scrolling far back never triggers re-layout of the live tail.
 
 Symptoms and their signals, in the order to check them:
 
-| Symptom                            | Probe                                                                                              |
-| ---------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Jank while streaming               | Count appends per second vs. frames per second — if appends ≫ frames, you're missing the rAF batch |
-| Jank grows with transcript length  | You're streaming into one ever-growing entity — segment per message                                |
-| Whole UI stalls on long paragraphs | No `\n` in the stream — the paragraph memo can't split; check the source formatting                |
-| Scroll fights the user             | `scrollToBottom()` unconditionally — gate on "was at bottom" stickiness                            |
-| CPU busy while stream is idle      | Scene left in `'always'` mode, or a custom animation without `hasPendingAnimations()`              |
+| Symptom                            | Probe                                                                                                         |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Jank while streaming               | DevTools `Streaming/appends` exceeds rendered frames — use one `createStream()` per live message              |
+| `write()` rejects under load       | A second write arrived while one was backpressured — await every write                                        |
+| Jank grows with transcript length  | You're streaming into one ever-growing entity — segment per message                                           |
+| Whole UI stalls on long paragraphs | No `\n` in the stream — the paragraph memo can't split; check the source formatting                           |
+| Scroll fights the user             | `scrollToBottom()` unconditionally — gate on “was at bottom” stickiness                                       |
+| CPU busy while stream is idle      | Scene left in `'always'` mode, or a custom animation without `hasPendingAnimations()`; controller rAF is idle |
 
 For real numbers, use the in-page measurement pattern from
 [Measuring real performance](/learn/performance/#measuring-real-performance) —

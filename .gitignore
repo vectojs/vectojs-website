@@ -16,3 +16,5 @@ public/demos/*.mp4
 
 # Agent scratchpad
 tmp/
+.carryctx/config.local.toml
+.worktrees/
