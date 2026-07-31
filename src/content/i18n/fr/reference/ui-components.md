@@ -69,7 +69,7 @@ abstract class UIComponent extends Entity {
 
 Centralise le modèle de boîte + hit-test aligné sur les axes (AABB) partagé par tous les composants. `isPointInside` renvoie si le point se trouve dans `[0,width] × [0,height]` dans l'espace local. `getBounds()` renvoie la boîte locale pour que la `Scene` puisse faire du viewport-culling. Les sous-classes définissent `width`/`height` à partir du contenu mesuré, implémentent `render(r)`, et (quand interactif) surchargent `getA11yAttributes()`.
 
-**Présence :** déclarez `enterMotion` / `exitMotion` comme `MotionSpec` (`{ props: { opacity: [0, 1], … }, config? }`) et le composant s'anime à l'entrée lorsqu'il est monté sur une scène active et à la sortie sur `dismiss()` — qui retarde sa propre suppression jusqu'à la résolution de l'animation de sortie. Une implémentation partagée sur le [système d'animation de base](/reference/core-api/#animation), remplaçant les ressorts faits main par composant. Les animations sont supprimées sous `prefers-reduced-motion` (les fondus d'opacité sont conservés).
+**Présence :** déclarez `enterMotion` / `exitMotion` comme `MotionSpec` (`{ props: { opacity: [0, 1], … }, config? }`) et le composant s'anime à l'entrée lorsqu'il est monté sur une scène active et à la sortie sur `dismiss()` — qui retarde sa propre suppression jusqu'à la résolution de l'animation de sortie. Une implémentation partagée sur le [système d'animation de base](/reference/core-entity/#animation), remplaçant les ressorts faits main par composant. Les animations sont supprimées sous `prefers-reduced-motion` (les fondus d'opacité sont conservés).
 
 ### `getA11yAttributes(): A11yAttributes`
 
@@ -498,7 +498,7 @@ new Modal(title: string, props?: ModalProps)  // props faiblement typé (any)
 }
 ```
 
-Un fond d'écran assombrissant plein écran avec une `Card` centrée contenant le texte `title` et un bouton \"Fermer\" intégré. La carte s'agrandit au montage (ressort) via le [système d'animation](/reference/core-api/#animation) partagé ; bloque les `click`/`pointerdown` sous-jacents. Affichez-la avec `scene.showOverlay(modal)`.
+Un fond d'écran assombrissant plein écran avec une `Card` centrée contenant le texte `title` et un bouton \"Fermer\" intégré. La carte s'agrandit au montage (ressort) via le [système d'animation](/reference/core-entity/#animation) partagé ; bloque les `click`/`pointerdown` sous-jacents. Affichez-la avec `scene.showOverlay(modal)`.
 
 - `close(): Promise<void>` — réduit la carte à 0 (ressort), puis la démonte via `scene.hideOverlay(this)` une fois l'animation de sortie résolue (démontage sécurisé différé). Attente possible.
 - `update(dt, time)` — fait tic le ressort et marque la scène comme sale pendant l'animation (appelé par la boucle de rendu).

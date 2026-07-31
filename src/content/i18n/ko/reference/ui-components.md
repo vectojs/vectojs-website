@@ -72,7 +72,7 @@ abstract class UIComponent extends Entity {
 
 모든 컴포넌트가 공유하는 박스 모델 + 축-정렬(AABB) 히트 테스트를 중앙화합니다. `isPointInside`는 포인트가 로컬 공간의 `[0,width] × [0,height]` 내에 있는지 반환합니다. `getBounds()`는 로컬 박스를 반환하여 `Scene`이 뷰포트 컬링할 수 있게 합니다. 서브클래스는 측정된 콘텐츠에서 `width`/`height`를 설정하고, `render(r)`를 구현하며, (interactive할 때) `getA11yAttributes()`를 재정의합니다.
 
-**프레즌스:** `enterMotion` / `exitMotion`을 `MotionSpec`(`{ props: { opacity: [0, 1], … }, config? }`)으로 선언하면 컴포넌트가 라이브 씬에 마운트될 때 애니메이션으로 나타나고 `dismiss()` 시 사라집니다 — 퇴장 애니메이션이 해결될 때까지 자체 제거를 지연합니다. [코어 애니메이션 시스템](/reference/core-api/#animation) 위의 하나의 공유 구현체로, 컴포넌트별 수동 스프링을 대체합니다. `prefers-reduced-motion`에서는 모션이 억제됩니다(불투명도 페이드는 유지).
+**프레즌스:** `enterMotion` / `exitMotion`을 `MotionSpec`(`{ props: { opacity: [0, 1], … }, config? }`)으로 선언하면 컴포넌트가 라이브 씬에 마운트될 때 애니메이션으로 나타나고 `dismiss()` 시 사라집니다 — 퇴장 애니메이션이 해결될 때까지 자체 제거를 지연합니다. [코어 애니메이션 시스템](/reference/core-entity/#애니메이션) 위의 하나의 공유 구현체로, 컴포넌트별 수동 스프링을 대체합니다. `prefers-reduced-motion`에서는 모션이 억제됩니다(불투명도 페이드는 유지).
 
 ### `getA11yAttributes(): A11yAttributes`
 
@@ -500,7 +500,7 @@ new Modal(title: string, props?: ModalProps)  // props는 느슨하게 타입됨
 }
 ```
 
-`title` 텍스트와 내장 "Close" 버튼이 있는 중앙 `Card`가 포함된 전체 화면 딤 백드롭. 카드는 공유 [애니메이션 시스템](/reference/core-api/#animation)을 통해 마운트 시 스프링으로 확장됩니다; 기본 `click`/`pointerdown`을 차단합니다. `scene.showOverlay(modal)`로 표시합니다.
+`title` 텍스트와 내장 "Close" 버튼이 있는 중앙 `Card`가 포함된 전체 화면 딤 백드롭. 카드는 공유 [애니메이션 시스템](/reference/core-entity/#애니메이션)을 통해 마운트 시 스프링으로 확장됩니다; 기본 `click`/`pointerdown`을 차단합니다. `scene.showOverlay(modal)`로 표시합니다.
 
 - `close(): Promise<void>` — 카드 스케일을 다시 0으로 스프링한 후, 퇴장 애니메이션이 해결되면 `scene.hideOverlay(this)`를 통해 마운트 해제합니다(안전한 지연 해체). await 가능합니다.
 - `update(dt, time)` — 스프링을 틱하고 애니메이션 중 씬을 더티로 표시합니다(렌더 루프에서 호출).

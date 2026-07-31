@@ -18,7 +18,7 @@ order: 29
 
 ## Ejemplo mínimo
 
-````ts
+```ts
 import { Tabs, Text } from '@vectojs/ui';
 
 const tabs = new Tabs({
@@ -29,6 +29,7 @@ const tabs = new Tabs({
     { id: 'api', label: 'API', content: new Text('Panel de API') },
   ],
 });
+```
 
 ## Ocultar la barra para una sola pestaña
 
@@ -48,7 +49,7 @@ const tabs = new Tabs({
   tabs: [{ id: 'only', label: 'untitled', content: editorView }],
 });
 tabs.effectiveTabBarHeight; // 0 ahora, tabHeight cuando se abra una segunda pestaña
-````
+```
 
 ## Lista de verificación para mantenedores
 

@@ -69,7 +69,7 @@ abstract class UIComponent extends Entity {
 
 Centraliza el modelo de caja + prueba de impacto alineada a ejes (AABB) compartida por cada componente. `isPointInside` devuelve si el punto está en `[0,width] × [0,height]` en espacio local. `getBounds()` devuelve la caja local para que la `Scene` pueda hacer culling del viewport. Las subclases establecen `width`/`height` a partir del contenido medido, implementan `render(r)` y (cuando son interactivas) sobrescriben `getA11yAttributes()`.
 
-**Presencia:** declara `enterMotion` / `exitMotion` como un `MotionSpec` (`{ props: { opacity: [0, 1], … }, config? }`) y el componente se anima al entrar cuando se monta en una escena viva y al salir en `dismiss()` — que difiere su propia eliminación hasta que la animación de salida se resuelve. Una implementación compartida sobre el [sistema de animación base](/reference/core-api/#animation), reemplazando los springs hechos a mano por componente. El movimiento se suprime bajo `prefers-reduced-motion` (las transiciones de opacidad se mantienen).
+**Presencia:** declara `enterMotion` / `exitMotion` como un `MotionSpec` (`{ props: { opacity: [0, 1], … }, config? }`) y el componente se anima al entrar cuando se monta en una escena viva y al salir en `dismiss()` — que difiere su propia eliminación hasta que la animación de salida se resuelve. Una implementación compartida sobre el [sistema de animación base](/reference/core-entity/#animación), reemplazando los springs hechos a mano por componente. El movimiento se suprime bajo `prefers-reduced-motion` (las transiciones de opacidad se mantienen).
 
 ### `getA11yAttributes(): A11yAttributes`
 
@@ -498,7 +498,7 @@ new Modal(title: string, props?: ModalProps)  // props tipado libremente (any)
 }
 ```
 
-Un fondo oscuro de pantalla completa con una `Card` centrada que contiene el texto `title` y un botón "Cerrar" integrado. La tarjeta se escala al montar (spring) a través del [sistema de animación](/reference/core-api/#animation) compartido; bloquea los `click`/`pointerdown` subyacentes. Muéstralo con `scene.showOverlay(modal)`.
+Un fondo oscuro de pantalla completa con una `Card` centrada que contiene el texto `title` y un botón "Cerrar" integrado. La tarjeta se escala al montar (spring) a través del [sistema de animación](/reference/core-entity/#animación) compartido; bloquea los `click`/`pointerdown` subyacentes. Muéstralo con `scene.showOverlay(modal)`.
 
 - `close(): Promise<void>` — devuelve la escala de la tarjeta a 0 mediante spring, luego desmonta mediante `scene.hideOverlay(this)` una vez que la animación de salida se resuelve (teardown seguro diferido). Esperable.
 - `update(dt, time)` — ejecuta el spring y marca la escena como sucia mientras anima (llamado por el bucle de renderizado).

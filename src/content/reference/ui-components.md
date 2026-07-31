@@ -72,7 +72,7 @@ abstract class UIComponent extends Entity {
 
 Centralizes the box model + axis-aligned (AABB) hit-test shared by every component. `isPointInside` returns whether the point lies in `[0,width] × [0,height]` in local space. `getBounds()` returns the local box so the `Scene` can viewport-cull. Subclasses set `width`/`height` from measured content, implement `render(r)`, and (when interactive) override `getA11yAttributes()`.
 
-**Presence:** declare `enterMotion` / `exitMotion` as a `MotionSpec` (`{ props: { opacity: [0, 1], … }, config? }`) and the component animates in when it mounts to a live scene and out on `dismiss()` — which defers its own removal until the exit animation resolves. One shared implementation over the [core animation system](/reference/core-api/#animation), replacing per-component hand-rolled springs. Motion is suppressed under `prefers-reduced-motion` (opacity fades kept).
+**Presence:** declare `enterMotion` / `exitMotion` as a `MotionSpec` (`{ props: { opacity: [0, 1], … }, config? }`) and the component animates in when it mounts to a live scene and out on `dismiss()` — which defers its own removal until the exit animation resolves. One shared implementation over the [core animation system](/reference/core-entity/#animation), replacing per-component hand-rolled springs. Motion is suppressed under `prefers-reduced-motion` (opacity fades kept).
 
 ### `getA11yAttributes(): A11yAttributes`
 
@@ -507,7 +507,7 @@ new Modal(title: string, props?: ModalProps)  // props loosely typed (any)
 }
 ```
 
-A full-screen dimming backdrop with a centered `Card` containing the `title` text and a built-in "Close" button. The card scales in on mount (spring) through the shared [animation system](/reference/core-api/#animation); blocks underlying `click`/`pointerdown`. Show it with `scene.showOverlay(modal)`.
+A full-screen dimming backdrop with a centered `Card` containing the `title` text and a built-in "Close" button. The card scales in on mount (spring) through the shared [animation system](/reference/core-entity/#animation); blocks underlying `click`/`pointerdown`. Show it with `scene.showOverlay(modal)`.
 
 - `close(): Promise<void>` — springs the card scale back to 0, then unmounts via `scene.hideOverlay(this)` once the exit animation resolves (safe deferred teardown). Awaitable.
 - `update(dt, time)` — ticks the spring and marks the scene dirty while animating (called by the render loop).

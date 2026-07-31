@@ -225,7 +225,7 @@ Cela borne la préparation répétée de mesure/mise en page au paragraphe modif
 
 `LayoutEngine` prend en charge `textAlign = 'justify'` (étire les lignes renvoyées jusqu'à `maxWidth`, dernière ligne irrégulière) et la césure au moment du retour à la ligne (les traits d'union conditionnels `­` fonctionnent d'emblée ; branchez une fonction `hyphenate: (word) => string[]` pour des coupures automatiques — par exemple les motifs de Knuth–Liang du paquet npm `hyphen`).
 
-`TextEntity` expose les deux directement : `text.setTextAlign('justify')`, `text.setHyphenator(fn)` — voir la [référence de l'API core](/reference/core-api/#textentity--gridtextentity-from-) pour les détails. Ceux-ci se rendent correctement car `TextEntity` dessine chaque glyphe à sa propre position calculée. Les composants `Text`/`RichText` de `@vectojs/ui` réduisent chaque ligne renvoyée en un seul appel `fillText()` natif pour la performance, ils n'honorent donc pas encore la justification par glyphe — recourez à `TextEntity` lorsque vous avez besoin d'un corps de texte justifié.
+`TextEntity` expose les deux directement : `text.setTextAlign('justify')`, `text.setHyphenator(fn)` — voir la [`TextEntity` & `GridTextEntity`](/reference/core-text/#textentity-et-gridtextentity-depuis-) pour les détails. Ceux-ci se rendent correctement car `TextEntity` dessine chaque glyphe à sa propre position calculée. Les composants `Text`/`RichText` de `@vectojs/ui` réduisent chaque ligne renvoyée en un seul appel `fillText()` natif pour la performance, ils n'honorent donc pas encore la justification par glyphe — recourez à `TextEntity` lorsque vous avez besoin d'un corps de texte justifié.
 
 ---
 

@@ -51,27 +51,56 @@ interface MarkdownOptions {
 
 ## 串流
 
-對於 token 串流，只附加新的差異 — 並按動畫幀批量處理 token，而不是每個 token 都附加：
+`createStream()` 為該 `Markdown` 綁定一個按幀合併的寫入器。消費來源資料時 await
+`write()`；`close()` 會強制提交尾端內容，無需再等待一個動畫幀：
 
 ```ts
-let pending = '';
-let scheduled = false;
-function pushToken(token: string) {
-  pending += token;
-  if (scheduled) return;
-  scheduled = true;
-  requestAnimationFrame(() => {
-    scheduled = false;
-    const chunk = pending;
-    pending = '';
-    markdown.appendMarkdown(chunk);
-    scrollView.scrollToBottom();
-  });
+const stream = markdown.createStream();
+
+try {
+  for await (const token of llmStream) {
+    await stream.write(token);
+  }
+  await stream.close();
+} catch (error) {
+  stream.abort(error);
+  throw error;
 }
-for await (const token of llmStream) pushToken(token);
 ```
 
-避免為每個 token 呼叫 `setContent(fullDocumentSoFar)`；那會重建整個子樹。完整的方案 — 底部跟隨黏性、長轉錄分段、渲染模式選擇 — 在[串流與即時文字](/learn/streaming/)指南中。
+```ts
+interface StreamControllerOptions {
+  maxBufferedChars?: number; // default 64 * 1024 UTF-16 code units
+  pacing?: {
+    graphemesPerSecond: number;
+  };
+  signal?: AbortSignal;
+  incompleteMode?: IncompleteMarkdownMode; // default 'literal'
+  onStable?: (blocks: readonly Entity[]) => void;
+}
+
+type IncompleteMarkdownMode = 'literal' | 'optimistic';
+
+type StreamControllerState = 'open' | 'closed' | 'aborted';
+
+interface StreamController {
+  readonly state: StreamControllerState;
+  readonly bufferedChars: number; // accepted + one blocked write
+  write(chunk: string): Promise<void>;
+  flush(): void;
+  close(): Promise<void>;
+  abort(reason?: unknown): void;
+  destroy(): void;
+}
+```
+
+預設模式會把下一個 rAF 之前接受的所有區塊合併為一次解析/版面配置提交。`write()`
+在有界緩衝區接納時解析，而不是在可見時解析。容量不足時，一次寫入會等待；若在該等待者
+存在期間再寫入則會拒絕，因此忽略背壓的生產者無法讓佇列無限增長。
+
+`pacing.graphemesPerSecond` 在保持每幀一次提交上限的同時，加入固定的掛鐘打字機節奏。
+`Intl.Segmenter` 會讓普通組合序列、emoji ZWJ 叢集、旗幟和代理對在區塊/幀邊界上保持完整。
+完整的生命週期、有界的病態叢集回退、底部跟隨模式與轉錄策略見[串流與即時文字](/learn/streaming/)。
 
 ### 尾部未閉合語法：`incompleteMode`
 
@@ -105,12 +134,22 @@ const stream = markdown.createStream({
 - 從回呼中呼叫 `appendMarkdown()` 或 `setContent()` 會**同步拋出錯誤** — 重新進入的改變會使它剛收到的快照失效。
 - 回呼拋出錯誤會拒絕 `close()` 的 promise。無論如何，控制器都會被釋放。
 
+串流結束後的一次性工作 —— 烘焙高亮快取、啟動入場動畫 —— 適合放在這裡，
+這類工作不該在內容仍可能變化的串流過程中執行。
+
+一個 `Markdown` 同時只能開啟一個控制器。`setContent()` 會在替換前中止它；
+`destroy()` 會中止它並移除 rAF/`AbortSignal` 監聽器。終態控制器會註銷。公開的
+`appendMarkdown()` 仍是同步的：它先沖刷此前提交的每個控制器區塊，再按精確的呼叫
+順序套用直接區塊。
+
+避免為每個 token 呼叫 `setContent(fullDocumentSoFar)`；那會重建整個子樹。
+
 ## 效能模型
 
 每次呼叫的實際開銷，以便可以理性分析串流程式碼：
 
 - **解析預設在背景執行緒進行。** `appendMarkdown` 將累積的原始碼發佈到由內嵌 bundle 建構的 `Worker`（無網路請求）；當解析返回時，套用 token 差異和實體更新。沒有 `Worker` 的環境（某些測試執行器、SSR）回退到同步詞法分析 — 相同的結果，主執行緒成本。
-- **每次附加的詞法分析是 O(文件大小)**，而非 O(區塊大小)：每次呼叫都會重新標記化整個累積的原始碼。按幀批次處理（如上所述），並將長篇轉錄分段為每則訊息一個 `Markdown` 實體，以使即時文件保持較小。
+- **每次附加的詞法分析是 O(文件大小)**，而非 O(區塊大小)：每次呼叫都會重新標記化整個累積的原始碼。使用 `createStream()` 按幀批次處理，並將長篇轉錄分段為每則訊息一個 `Markdown` 實體，以使即時文件保持較小。
 - **已完成的區塊會被重複使用，而非重建。** `appendMarkdown` 透過原始原始碼將新 token 列表與舊列表進行前綴匹配；每個已渲染的區塊保持其實體實例。常見的串流情況 — 最後一個段落增長 — 原地更新該段落的跨度。
 - **`setContent()` 不重複使用任何內容。** 它移除所有子元素並重新渲染完整的 token 列表。它是_替換_文件的正確呼叫，而_增長_文件的錯誤呼叫。
 

@@ -60,28 +60,60 @@ Core 1.8은 변환된 산문을 2차원 커서 지오메트리로 라우팅하�
 
 ## 스트리밍
 
-토큰 스트림의 경우, 새로운 델타만 추가하세요 — 그리고 토큰마다 추가하는 대신 애니메이션 프레임별로 토큰을 배치 처리합니다:
+`createStream()`은 이 `Markdown`에 프레임 단위로 합치는 라이터 하나를 연결합니다.
+소스를 소비하는 동안 `write()`를 await 하세요. `close()`는 또 다른 애니메이션
+프레임을 기다리지 않고 꼬리를 강제로 커밋합니다:
 
 ```ts
-let pending = '';
-let scheduled = false;
-function pushToken(token: string) {
-  pending += token;
-  if (scheduled) return;
-  scheduled = true;
-  requestAnimationFrame(() => {
-    scheduled = false;
-    const chunk = pending;
-    pending = '';
-    markdown.appendMarkdown(chunk);
-    scrollView.scrollToBottom();
-  });
+const stream = markdown.createStream();
+
+try {
+  for await (const token of llmStream) {
+    await stream.write(token);
+  }
+  await stream.close();
+} catch (error) {
+  stream.abort(error);
+  throw error;
 }
-for await (const token of llmStream) pushToken(token);
 ```
 
-모든 토큰에 대해 `setContent(fullDocumentSoFar)`를 호출하지 마세요. 전체 서브트리를 재구축합니다.
-전체 레시피 — 하단 고정 스티키니스, 긴 트랜스크립트 세분화, 렌더 모드 선택 — 은 [스트리밍 및 실시간 텍스트](/learn/streaming/) 가이드에 있습니다.
+```ts
+interface StreamControllerOptions {
+  maxBufferedChars?: number; // default 64 * 1024 UTF-16 code units
+  pacing?: {
+    graphemesPerSecond: number;
+  };
+  signal?: AbortSignal;
+  incompleteMode?: IncompleteMarkdownMode; // default 'literal'
+  onStable?: (blocks: readonly Entity[]) => void;
+}
+
+type IncompleteMarkdownMode = 'literal' | 'optimistic';
+
+type StreamControllerState = 'open' | 'closed' | 'aborted';
+
+interface StreamController {
+  readonly state: StreamControllerState;
+  readonly bufferedChars: number; // accepted + one blocked write
+  write(chunk: string): Promise<void>;
+  flush(): void;
+  close(): Promise<void>;
+  abort(reason?: unknown): void;
+  destroy(): void;
+}
+```
+
+기본 모드는 다음 rAF 이전에 수락된 모든 청크를 하나의 파싱/레이아웃 커밋으로
+묶습니다. `write()`는 가시성이 아니라 유계 버퍼 수락 시점에 resolve 됩니다. 용량이
+부족하면 하나의 write가 대기하며, 그 대기자가 있는 동안의 다른 write는 reject 되므로
+백프레셔를 무시하는 프로듀서가 큐를 무한히 키울 수는 없습니다.
+
+`pacing.graphemesPerSecond`는 프레임당 한 번의 커밋이라는 상한을 유지하면서 고정된
+실시간 타이프라이터 페이싱을 더합니다. `Intl.Segmenter`는 일반 결합 시퀀스, 이모지 ZWJ
+클러스터, 국기, 서로게이트 페어를 청크/프레임 경계를 넘어 하나로 유지합니다. 전체
+라이프사이클, 병리적 클러스터에 대한 유계 폴백, 하단 고정 패턴, 트랜스크립트 전략은
+[스트리밍 및 실시간 텍스트](/learn/streaming/)에 있습니다.
 
 ### 후행 미닫힘 구문(Trailing unclosed syntax): `incompleteMode`
 
@@ -116,12 +148,25 @@ const stream = markdown.createStream({
 - 콜백 내부에서 `appendMarkdown()` 또는 `setContent()`를 호출하면 **동기적으로 throw됩니다** — 재진입 변형(reentrant mutation)은 방금 전달받은 스냅샷을 무효화하기 때문입니다.
 - 콜백에서 throw가 발생하면 `close()` 프라미스(promise)가 reject됩니다. 어느 쪽이든 컨트롤러는 해제됩니다.
 
+스트림 이후 한 번만 해야 하는 작업 — 하이라이트 캐시 굽기, 등장 애니메이션 시작 —
+을 위한 것입니다. 아직 바뀔 가능성이 있는 콘텐츠에 대해 스트림 중간에 실행해서는
+안 되는 종류의 작업입니다.
+
+하나의 `Markdown`에 대해 열 수 있는 컨트롤러는 하나뿐입니다. `setContent()`는 교체
+전에 그것을 중단하고, `destroy()`는 중단한 뒤 rAF/`AbortSignal` 리스너를 제거합니다.
+종료 상태의 컨트롤러는 등록이 해제됩니다. 공개 `appendMarkdown()`은 여전히
+동기적입니다. 먼저 이전에 제출된 모든 컨트롤러 청크를 플러시한 다음, 직접 전달된
+청크를 정확한 호출 순서로 적용합니다.
+
+모든 토큰에 대해 `setContent(fullDocumentSoFar)`를 호출하지 마세요. 전체 서브트리를
+재구축합니다.
+
 ## 성능 모델
 
 각 호출의 실제 비용을 통해 스트리밍 코드를 합리적으로 분석할 수 있습니다:
 
 - **파싱은 기본적으로 오프-스레드입니다.** `appendMarkdown`은 누적된 소스를 임베디드 번들로 빌드된 `Worker`에 게시합니다(네트워크 요청 없음); 파싱이 반환될 때 토큰 diff와 엔터티 업데이트가 적용됩니다. `Worker`가 없는 환경(일부 테스트 러너, SSR)은 동기식 렉싱으로 폴백합니다 — 동일한 결과, 메인 스레드 비용.
-- **렉싱은 추가당 O(문서)입니다**, O(청크)가 아닙니다: 호출할 때마다 누적된 전체 소스가 다시 토큰화됩니다. 프레임별로 배치 처리하고(위 참조) 긴 트랜스크립트를 메시지당 하나의 `Markdown` 엔터티로 분할하여 라이브 문서를 작게 유지하세요.
+- **렉싱은 추가당 O(문서)입니다**, O(청크)가 아닙니다: 호출할 때마다 누적된 전체 소스가 다시 토큰화됩니다. `createStream()`으로 프레임별로 배치 처리하고 긴 트랜스크립트를 메시지당 하나의 `Markdown` 엔터티로 분할하여 라이브 문서를 작게 유지하세요.
 - **완료된 블록은 재사용되며 재구축되지 않습니다.** `appendMarkdown`은 새 토큰 목록을 원시 소스로 이전 목록과 접두사 일치시킵니다; 이미 렌더링된 모든 블록은 해당 엔터티 인스턴스를 유지합니다. 일반적인 스트리밍 사례 — 마지막 단락이 커짐 — 해당 단락의 스팬을 제자리에서 업데이트합니다.
 - **`setContent()`는 아무것도 재사용하지 않습니다.** 모든 자식을 제거하고 전체 토큰 목록을 다시 렌더링합니다. 이는 문서를 _대체_하는 경우 올바른 호출이며, 문서를 _성장_시키는 경우 잘못된 호출입니다.
 

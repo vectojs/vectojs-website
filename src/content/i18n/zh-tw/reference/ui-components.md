@@ -69,7 +69,7 @@ abstract class UIComponent extends Entity {
 
 集中了每個元件共享的方塊模型 + 軸對齊（AABB）點擊測試。`isPointInside` 返回點是否在局部空間的 `[0,width] × [0,height]` 內。`getBounds()` 返回局部方塊，以便 `Scene` 可以進行視口剔除。子類別從量測的內容設定 `width`/`height`，實作 `render(r)`，並在互動時覆寫 `getA11yAttributes()`。
 
-**顯示：** 將 `enterMotion` / `exitMotion` 宣告為 `MotionSpec`（`{ props: { opacity: [0, 1], … }, config? }`），元件在掛載到即時場景時會動畫進入，並在 `dismiss()` 時動畫退出 — 後者會延遲其自身移除直到退出動畫解析。一個共享的實作基於[核心動畫系統](/reference/core-api/#animation)，取代每個元件手寫的彈簧。在 `prefers-reduced-motion` 下會抑制動畫（保留透明度淡入淡出效果）。
+**顯示：** 將 `enterMotion` / `exitMotion` 宣告為 `MotionSpec`（`{ props: { opacity: [0, 1], … }, config? }`），元件在掛載到即時場景時會動畫進入，並在 `dismiss()` 時動畫退出 — 後者會延遲其自身移除直到退出動畫解析。一個共享的實作基於[核心動畫系統](/reference/core-entity/#動畫)，取代每個元件手寫的彈簧。在 `prefers-reduced-motion` 下會抑制動畫（保留透明度淡入淡出效果）。
 
 ### `getA11yAttributes(): A11yAttributes`
 
@@ -497,7 +497,7 @@ new Modal(title: string, props?: ModalProps)  // props 為鬆散型別 (any)
 }
 ```
 
-一個全螢幕暗化背景，帶有包含 `title` 文字和內建「關閉」按鈕的居中 `Card`。卡片在掛載時透過共享的[動畫系統](/reference/core-api/#animation)以彈簧動畫縮放進入；阻擋底層 `click`/`pointerdown`。使用 `scene.showOverlay(modal)` 顯示。
+一個全螢幕暗化背景，帶有包含 `title` 文字和內建「關閉」按鈕的居中 `Card`。卡片在掛載時透過共享的[動畫系統](/reference/core-entity/#動畫)以彈簧動畫縮放進入；阻擋底層 `click`/`pointerdown`。使用 `scene.showOverlay(modal)` 顯示。
 
 - `close(): Promise<void>` — 將卡片縮放回 0，然後在退出動畫解析後透過 `scene.hideOverlay(this)` 卸載（安全的延遲拆卸）。可等待。
 - `update(dt, time)` — 在動畫進行中推進彈簧並將場景標記為髒（由渲染迴圈呼叫）。

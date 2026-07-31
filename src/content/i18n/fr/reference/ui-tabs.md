@@ -18,7 +18,7 @@ order: 29
 
 ## Exemple minimal
 
-````ts
+```ts
 import { Tabs, Text } from '@vectojs/ui';
 
 const tabs = new Tabs({
@@ -29,6 +29,7 @@ const tabs = new Tabs({
     { id: 'api', label: 'API', content: new Text('Panneau API') },
   ],
 });
+```
 
 ## Masquer la barre pour un seul onglet
 
@@ -48,7 +49,7 @@ const tabs = new Tabs({
   tabs: [{ id: 'only', label: 'untitled', content: editorView }],
 });
 tabs.effectiveTabBarHeight; // 0 maintenant, tabHeight dès qu'un second onglet s'ouvre
-````
+```
 
 ## Liste de vérification pour les mainteneurs
 

@@ -225,7 +225,7 @@ Esto acota la medición/preparación de disposición repetida al párrafo modifi
 
 `LayoutEngine` soporta `textAlign = 'justify'` (estira las líneas ajustadas hasta alinearse con `maxWidth`, con la última línea irregular) y el guionado en tiempo de ajuste (los guiones suaves `­` funcionan de fábrica; conecta una función `hyphenate: (word) => string[]` para saltos automáticos — p. ej., los patrones de Knuth–Liang del paquete npm `hyphen`).
 
-`TextEntity` expone ambos directamente: `text.setTextAlign('justify')`, `text.setHyphenator(fn)` — consulta la [referencia de la API core](/reference/core-api/#textentity--gridtextentity-from-) para más detalles. Estos se renderizan correctamente porque `TextEntity` dibuja cada glifo en su propia posición calculada. Los componentes `Text`/`RichText` de `@vectojs/ui` colapsan cada línea ajustada en una sola llamada nativa a `fillText()` por rendimiento, por lo que aún no respetan la justificación por glifo — recurre a `TextEntity` cuando necesites cuerpo de texto justificado.
+`TextEntity` expone ambos directamente: `text.setTextAlign('justify')`, `text.setHyphenator(fn)` — consulta la [`TextEntity` & `GridTextEntity`](/reference/core-text/#textentity-y-gridtextentity-desde-) para más detalles. Estos se renderizan correctamente porque `TextEntity` dibuja cada glifo en su propia posición calculada. Los componentes `Text`/`RichText` de `@vectojs/ui` colapsan cada línea ajustada en una sola llamada nativa a `fillText()` por rendimiento, por lo que aún no respetan la justificación por glifo — recurre a `TextEntity` cuando necesites cuerpo de texto justificado.
 
 ---
 

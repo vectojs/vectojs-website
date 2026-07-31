@@ -67,28 +67,63 @@ Lorsquʼune application gère le dimensionnement du conteneur ou le zoom CSS, no
 
 ## Flux en continu
 
-Pour les flux de jetons, ajoutez uniquement le nouveau delta — et regroupez les jetons par trame d'animation plutôt que d'ajouter par jeton :
+`createStream()` lie à ce `Markdown` un unique writer qui regroupe les écritures par
+trame. Faites `await write()` pendant que vous consommez la source ; `close()`
+valide de force la fin sans attendre une nouvelle trame d'animation :
 
 ```ts
-let pending = '';
-let scheduled = false;
-function pushToken(token: string) {
-  pending += token;
-  if (scheduled) return;
-  scheduled = true;
-  requestAnimationFrame(() => {
-    scheduled = false;
-    const chunk = pending;
-    pending = '';
-    markdown.appendMarkdown(chunk);
-    scrollView.scrollToBottom();
-  });
+const stream = markdown.createStream();
+
+try {
+  for await (const token of llmStream) {
+    await stream.write(token);
+  }
+  await stream.close();
+} catch (error) {
+  stream.abort(error);
+  throw error;
 }
-for await (const token of llmStream) pushToken(token);
 ```
 
-Évitez d'appeler `setContent(fullDocumentSoFar)` pour chaque jeton ; cela reconstruit tout le sous-arbre.
-La recette complète — adhérence de suivi inférieur, segmentation des longs transcripts, choix du mode de rendu — se trouve dans le guide [Streaming & Texte en temps réel](/learn/streaming/).
+```ts
+interface StreamControllerOptions {
+  maxBufferedChars?: number; // default 64 * 1024 UTF-16 code units
+  pacing?: {
+    graphemesPerSecond: number;
+  };
+  signal?: AbortSignal;
+  incompleteMode?: IncompleteMarkdownMode; // default 'literal'
+  onStable?: (blocks: readonly Entity[]) => void;
+}
+
+type IncompleteMarkdownMode = 'literal' | 'optimistic';
+
+type StreamControllerState = 'open' | 'closed' | 'aborted';
+
+interface StreamController {
+  readonly state: StreamControllerState;
+  readonly bufferedChars: number; // accepted + one blocked write
+  write(chunk: string): Promise<void>;
+  flush(): void;
+  close(): Promise<void>;
+  abort(reason?: unknown): void;
+  destroy(): void;
+}
+```
+
+Le mode par défaut regroupe en une seule validation parse/layout tous les fragments
+acceptés avant la trame suivante. `write()` se résout à l'admission dans un tampon
+borné, pas à l'affichage. Quand la capacité est insuffisante, une écriture attend ;
+une autre écriture pendant que cet attendant existe est rejetée, si bien qu'un
+producteur qui ignore la contre-pression ne peut pas faire croître une file non bornée.
+
+`pacing.graphemesPerSecond` ajoute une cadence de machine à écrire fixe en temps réel
+tout en conservant le plafond d'une validation par trame. `Intl.Segmenter` garde
+ensemble les séquences combinantes ordinaires, les clusters ZWJ d'emoji, les drapeaux
+et les paires de substitution au travers des frontières de fragment et de trame. Le
+cycle de vie complet, le repli borné pour les clusters pathologiques, le motif de
+suivi du bas et la stratégie de transcript sont dans
+[Streaming & Texte en temps réel](/learn/streaming/).
 
 ### Syntaxe non fermée de fin : `incompleteMode`
 
@@ -138,12 +173,25 @@ Ce n'est délibérément pas un hook général de "progression du flux" :
 - Une exception lancée depuis le callback rejette la promesse de `close()`. Le contrôleur est
   libéré dans tous les cas.
 
+Destiné au travail ponctuel d'après-flux — précalculer un cache de coloration,
+lancer une animation d'entrée — qui ne devrait pas s'exécuter en cours de flux sur
+un contenu encore susceptible de changer.
+
+Un seul contrôleur peut être ouvert pour un `Markdown`. `setContent()` l'interrompt
+avant le remplacement ; `destroy()` l'interrompt et retire les écouteurs
+rAF/`AbortSignal`. Les contrôleurs terminaux se désinscrivent. L'API publique
+`appendMarkdown()` reste synchrone : elle vide d'abord chaque fragment de contrôleur
+soumis auparavant, puis applique le fragment direct dans l'ordre exact des appels.
+
+Évitez d'appeler `setContent(fullDocumentSoFar)` pour chaque jeton ; cela reconstruit
+tout le sous-arbre.
+
 ## Modèle de performance
 
 Ce que coûte réellement chaque appel, afin que le code de streaming puisse être raisonné :
 
 - **L'analyse est hors thread par défaut.** `appendMarkdown` poste la source accumulée vers un `Worker` construit à partir d'un bundle intégré (aucune requête réseau) ; le diff de jetons et les mises à jour d'entités s'appliquent lorsque l'analyse revient. Les environnements sans `Worker` (certains exécuteurs de tests, SSR) tombent en analyse lexicale synchrone — même résultat, coût sur le thread principal.
-- **L'analyse lexicale est O(document) par ajout**, pas O(morceau) : toute la source accumulée est re-tokenisée à chaque appel. Regroupez par trame (ci-dessus) et segmentez les longs transcripts en une entité `Markdown` par message pour que le document en direct reste petit.
+- **L'analyse lexicale est O(document) par ajout**, pas O(morceau) : toute la source accumulée est re-tokenisée à chaque appel. Utilisez `createStream()` pour regrouper par trame et segmentez les longs transcripts en une entité `Markdown` par message pour que le document en direct reste petit.
 - **Les blocs terminés sont réutilisés, pas reconstruits.** `appendMarkdown` fait correspondre par préfixe la nouvelle liste de jetons avec l'ancienne via la source brute ; chaque bloc déjà rendu conserve son instance d'entité. Le cas de streaming courant — le dernier paragraphe a grandi — met à jour les étendues de ce paragraphe sur place.
 - **`setContent()` ne réutilise rien.** Il supprime chaque enfant et réaffiche la liste complète des jetons. C'est l'appel correct pour _remplacer_ un document, et l'appel incorrect pour _agrandir_ un document.
 

@@ -103,7 +103,7 @@ layout.step(5); // 5 ticks in one call — cheaper per-frame amortization
 
 **Pinning (since 0.2.0).** `D3ForceLayout` implements the optional pin controls
 over d3-force's `fx`/`fy`/`fz`, which is what powers
-[`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction-hover-select-drag-to-pin)'s
+[`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--hover--select--drag-to-pin)'s
 drag-to-pin:
 
 ```ts

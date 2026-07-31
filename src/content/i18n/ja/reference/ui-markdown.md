@@ -51,27 +51,61 @@ interface MarkdownOptions {
 
 ## ストリーミング
 
-トークンストリームの場合、新しいデルタのみを追加します — そして、トークンごとに追加するのではなく、アニメーションフレームごとにトークンをバッチ処理します：
+`createStream()` はこの `Markdown` にフレーム単位で合体するライターを1つ束縛します。
+ソースを消費しながら `write()` を await してください。`close()` は次のアニメーション
+フレームを待たずに末尾を強制コミットします：
 
 ```ts
-let pending = '';
-let scheduled = false;
-function pushToken(token: string) {
-  pending += token;
-  if (scheduled) return;
-  scheduled = true;
-  requestAnimationFrame(() => {
-    scheduled = false;
-    const chunk = pending;
-    pending = '';
-    markdown.appendMarkdown(chunk);
-    scrollView.scrollToBottom();
-  });
+const stream = markdown.createStream();
+
+try {
+  for await (const token of llmStream) {
+    await stream.write(token);
+  }
+  await stream.close();
+} catch (error) {
+  stream.abort(error);
+  throw error;
 }
-for await (const token of llmStream) pushToken(token);
 ```
 
-トークンごとに `setContent(fullDocumentSoFar)` を呼び出すことは避けてください。それはサブツリー全体を再構築します。完全なレシピ — ボトムフォローの粘着性、長文トランスクリプトの分割、レンダーモードの選択 — は[ストリーミング＆リアルタイムテキスト](/learn/streaming/)ガイドにあります。
+```ts
+interface StreamControllerOptions {
+  maxBufferedChars?: number; // default 64 * 1024 UTF-16 code units
+  pacing?: {
+    graphemesPerSecond: number;
+  };
+  signal?: AbortSignal;
+  incompleteMode?: IncompleteMarkdownMode; // default 'literal'
+  onStable?: (blocks: readonly Entity[]) => void;
+}
+
+type IncompleteMarkdownMode = 'literal' | 'optimistic';
+
+type StreamControllerState = 'open' | 'closed' | 'aborted';
+
+interface StreamController {
+  readonly state: StreamControllerState;
+  readonly bufferedChars: number; // accepted + one blocked write
+  write(chunk: string): Promise<void>;
+  flush(): void;
+  close(): Promise<void>;
+  abort(reason?: unknown): void;
+  destroy(): void;
+}
+```
+
+デフォルトモードは、次の rAF より前に受理されたすべてのチャンクを1回の解析/レイアウト
+コミットにまとめます。`write()` は可視化ではなく、有界バッファへの受理で解決します。
+容量が不足している場合、1つの write が待機します。その待機者が存在する間の別の write は
+拒否されるため、バックプレッシャーを無視するプロデューサーがキューを無限に伸ばすことは
+できません。
+
+`pacing.graphemesPerSecond` は、1フレーム1コミットの上限を保ちながら、実時間で固定の
+タイプライター的ペーシングを加えます。`Intl.Segmenter` は通常の結合シーケンス、絵文字の
+ZWJ クラスタ、旗、サロゲートペアをチャンク/フレーム境界をまたいで一体に保ちます。
+完全なライフサイクル、有界の病的クラスタのフォールバック、ボトムフォローのパターン、
+トランスクリプト戦略は[ストリーミング＆リアルタイムテキスト](/learn/streaming/)にあります。
 
 ### 末尾の未完の構文: `incompleteMode`
 
@@ -106,12 +140,25 @@ const stream = markdown.createStream({
 - コールバック内から `appendMarkdown()` または `setContent()` を呼び出すと**同期的にスロー**されます — リエントラントな変更は、渡されたばかりのスナップショットを無効にします。
 - コールバックからのスローは `close()` プロミスを拒否します。いずれにせよコントローラーは解放されます。
 
+ストリーム後の一度きりの作業 — ハイライトキャッシュの焼き込み、登場アニメーションの
+開始 — を意図しています。まだ変化しそうなコンテンツに対してストリーム途中で実行すべき
+ではない類の処理です。
+
+1つの `Markdown` に対して開けるコントローラーは1つだけです。`setContent()` は置換前に
+それを中止し、`destroy()` は中止した上で rAF/`AbortSignal` のリスナーを取り除きます。
+終端状態のコントローラーは登録解除されます。公開 API の `appendMarkdown()` は同期的な
+ままです。まず以前に提出されたすべてのコントローラーのチャンクをフラッシュし、その後に
+直接のチャンクを正確な呼び出し順で適用します。
+
+トークンごとに `setContent(fullDocumentSoFar)` を呼び出すことは避けてください。
+それはサブツリー全体を再構築します。
+
 ## パフォーマンスモデル
 
 各呼び出しの実際のコストを理解することで、ストリーミングコードを合理的に分析できます：
 
 - **デフォルトで解析はオフスレッドです。** `appendMarkdown` は蓄積されたソースを、埋め込まれたバンドルから構築された `Worker` にポストします（ネットワークリクエストなし）。パースが戻ったときに、トークンの差分とエンティティの更新が適用されます。`Worker` がない環境（一部のテストランナー、SSR）は同期字句解析にフォールバックします — 同じ結果、メインスレッドのコストがかかります。
-- **字句解析はチャンク単位ではなくドキュメント単位で O(ドキュメント) です。** 呼び出しごとに蓄積されたソース全体が再トークン化されます。フレームごとにバッチ処理し（上記参照）、長いトランスクリプトをメッセージごとに1つの `Markdown` エンティティに分割して、ライブドキュメントを小さく保ちます。
+- **字句解析はチャンク単位ではなくドキュメント単位で O(ドキュメント) です。** 呼び出しごとに蓄積されたソース全体が再トークン化されます。`createStream()` を使ってフレームごとにバッチ処理し、長いトランスクリプトをメッセージごとに1つの `Markdown` エンティティに分割して、ライブドキュメントを小さく保ちます。
 - **完了したブロックは再利用され、再構築されません。** `appendMarkdown` は新しいトークンリストを古いものと生ソースでプレフィックスマッチします。既にレンダリングされたすべてのブロックはそのエンティティインスタンスを保持します。一般的なストリーミングケース — 最後の段落が成長した — は、その段落のスパンをその場で更新します。
 - **`setContent()` は何も再利用しません。** すべての子を削除し、トークンリスト全体を再レンダリングします。これはドキュメントを_置き換える_場合は正しい呼び出しであり、_成長させる_場合は誤った呼び出しです。
 

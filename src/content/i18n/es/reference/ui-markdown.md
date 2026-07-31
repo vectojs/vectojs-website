@@ -67,28 +67,63 @@ Cuando una aplicación controla el tamaño del contenedor o el zoom CSS, notific
 
 ## Transmisión por streaming
 
-Para flujos de tokens, agrega solo el nuevo delta — y agrupa tokens por fotograma de animación en lugar de agregar por token:
+`createStream()` vincula a este `Markdown` un único escritor que agrupa las escrituras
+por fotograma. Haz `await write()` mientras consumes la fuente; `close()` confirma a
+la fuerza la cola sin esperar otro fotograma de animación:
 
 ```ts
-let pending = '';
-let scheduled = false;
-function pushToken(token: string) {
-  pending += token;
-  if (scheduled) return;
-  scheduled = true;
-  requestAnimationFrame(() => {
-    scheduled = false;
-    const chunk = pending;
-    pending = '';
-    markdown.appendMarkdown(chunk);
-    scrollView.scrollToBottom();
-  });
+const stream = markdown.createStream();
+
+try {
+  for await (const token of llmStream) {
+    await stream.write(token);
+  }
+  await stream.close();
+} catch (error) {
+  stream.abort(error);
+  throw error;
 }
-for await (const token of llmStream) pushToken(token);
 ```
 
-Evita llamar a `setContent(fullDocumentSoFar)` por cada token; eso reconstruye todo el subárbol.
-La receta completa — adherencia de seguimiento inferior, segmentación de transcripciones largas, elección de modo de renderizado — está en la guía [Streaming y texto en tiempo real](/learn/streaming/).
+```ts
+interface StreamControllerOptions {
+  maxBufferedChars?: number; // default 64 * 1024 UTF-16 code units
+  pacing?: {
+    graphemesPerSecond: number;
+  };
+  signal?: AbortSignal;
+  incompleteMode?: IncompleteMarkdownMode; // default 'literal'
+  onStable?: (blocks: readonly Entity[]) => void;
+}
+
+type IncompleteMarkdownMode = 'literal' | 'optimistic';
+
+type StreamControllerState = 'open' | 'closed' | 'aborted';
+
+interface StreamController {
+  readonly state: StreamControllerState;
+  readonly bufferedChars: number; // accepted + one blocked write
+  write(chunk: string): Promise<void>;
+  flush(): void;
+  close(): Promise<void>;
+  abort(reason?: unknown): void;
+  destroy(): void;
+}
+```
+
+El modo por defecto agrupa en una sola confirmación de análisis/maquetación todos los
+fragmentos aceptados antes del siguiente rAF. `write()` se resuelve al admitirse en un
+búfer acotado, no al hacerse visible. Cuando la capacidad es insuficiente, una
+escritura espera; otra escritura mientras ese esperador existe se rechaza, de modo que
+un productor que ignora la contrapresión no puede hacer crecer una cola no acotada.
+
+`pacing.graphemesPerSecond` añade un ritmo de máquina de escribir fijo en tiempo real
+manteniendo el techo de una confirmación por fotograma. `Intl.Segmenter` mantiene
+juntas las secuencias combinantes ordinarias, los clústeres ZWJ de emoji, las banderas
+y los pares subrogados a través de los límites de fragmento y fotograma. El ciclo de
+vida completo, el repliegue acotado para clústeres patológicos, el patrón de
+seguimiento inferior y la estrategia de transcripciones están en
+[Streaming y texto en tiempo real](/learn/streaming/).
 
 ### Sintaxis de cierre pendiente: `incompleteMode`
 
@@ -123,12 +158,25 @@ Deliberadamente no es un gancho general de "flujo progresado":
 - Llamar a `appendMarkdown()` o `setContent()` desde dentro de la devolución de llamada **lanza un error de forma síncrona** — una mutación reentrante invalidaría la instantánea que acaba de recibir.
 - Un error lanzado desde la devolución de llamada rechaza la promesa de `close()`. El controlador se libera en cualquier caso.
 
+Pensado para el trabajo puntual posterior al flujo — precalcular una caché de
+resaltado, iniciar una animación de entrada — que no debería ejecutarse a mitad del
+flujo contra contenido que aún es probable que cambie.
+
+Solo puede haber un controlador abierto para un `Markdown`. `setContent()` lo aborta
+antes de reemplazar; `destroy()` lo aborta y elimina los escuchadores de
+rAF/`AbortSignal`. Los controladores terminales se dan de baja. El `appendMarkdown()`
+público sigue siendo sincrónico: primero vacía cada fragmento de controlador enviado
+previamente y luego aplica el fragmento directo en el orden exacto de llamada.
+
+Evita llamar a `setContent(fullDocumentSoFar)` por cada token; eso reconstruye todo el
+subárbol.
+
 ## Modelo de rendimiento
 
 Lo que realmente cuesta cada llamada, para que el código de streaming pueda razonarse:
 
 - **El análisis sintáctico está fuera del hilo principal por defecto.** `appendMarkdown` envía la fuente acumulada a un `Worker` construido desde un paquete incrustado (sin solicitud de red); el diff de tokens y las actualizaciones de entidades se aplican cuando el análisis regresa. Los entornos sin `Worker` (algunos ejecutores de pruebas, SSR) recurren al análisis léxico sincrónico — mismo resultado, costo en el hilo principal.
-- **El análisis léxico es O(documento) por adjunto**, no O(fragmento): toda la fuente acumulada se retokeniza en cada llamada. Agrupa por fotograma (arriba) y segmenta transcripciones largas en una entidad `Markdown` por mensaje para que el documento en vivo se mantenga pequeño.
+- **El análisis léxico es O(documento) por adjunto**, no O(fragmento): toda la fuente acumulada se retokeniza en cada llamada. Usa `createStream()` para agrupar por fotograma y segmenta transcripciones largas en una entidad `Markdown` por mensaje para que el documento en vivo se mantenga pequeño.
 - **Los bloques terminados se reutilizan, no se reconstruyen.** `appendMarkdown` compara por prefijo la nueva lista de tokens con la anterior mediante la fuente original; cada bloque ya renderizado mantiene su instancia de entidad. El caso común de streaming — el último párrafo creció — actualiza los spans de ese párrafo en el lugar.
 - **`setContent()` no reutiliza nada.** Elimina cada hijo y vuelve a renderizar la lista completa de tokens. Es la llamada correcta para _reemplazar_ un documento, y la llamada incorrecta para _hacer crecer_ uno.
 
