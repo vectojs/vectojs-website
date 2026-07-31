@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/DavidAnson/markdownlint-cli2/main/schema/markdownlint-cli2-config-schema.json",
+  // Rules mirror the former .markdownlint.yaml exactly. This repo is prose-heavy
+  // documentation, so MD013 (line length) stays off, and the docs embed HTML
+  // (<figure>, <iframe>) plus bare URLs by design.
+  "config": {
+    "default": true,
+    "MD013": false,
+    "MD025": false,
+    "MD033": false,
+    "MD034": false,
+    "MD024": {
+      "siblings_only": true,
+    },
+  },
+  "ignores": ["**/node_modules/**", "**/dist/**", "**/.astro/**", "tmp/**"],
+}

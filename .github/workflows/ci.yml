@@ -22,6 +22,8 @@ jobs:
       - run: bun run check
       - run: bun run test
       - run: bun run format:check
+      - run: bun run lint
+      - run: bun run lint:md
       - run: bun run build
 
   # Production auto-deploy to Cloudflare Pages (project `vectojs`) on every

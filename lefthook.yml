@@ -1,0 +1,58 @@
+# Lefthook — unified git hooks (replaces the former pre-commit.com setup).
+# https://lefthook.dev
+#
+# Formatting authority is split by what each tool can actually parse:
+#   - oxfmt owns md/ts/js/mjs/json/yaml. Measured 2026-07-31: it is byte-identical
+#     to the prettier config it replaces across all 483 files under src/content,
+#     so the swap introduced zero reformatting.
+#   - prettier owns .astro ONLY, because oxfmt does not parse Astro at all — it
+#     reports "all matched files may have been excluded by ignore rules" and
+#     processes zero of the 15 tracked .astro files. Dropping prettier here would
+#     silently stop formatting them rather than reformat them.
+# The three .css files live under public/, which prettier already ignored.
+pre-commit:
+  parallel: false
+  jobs:
+    - name: oxfmt
+      glob: '*.{js,ts,mjs,cjs,json,jsonc,md,yaml,yml}'
+      run: bunx oxfmt --write {staged_files}
+      stage_fixed: true
+    - name: prettier-astro
+      glob: '*.astro'
+      run: bunx prettier --write {staged_files}
+      stage_fixed: true
+    - name: oxlint
+      glob: '*.{js,ts,mjs,cjs,astro}'
+      run: bunx oxlint --fix {staged_files}
+      stage_fixed: true
+    - name: markdownlint
+      glob: '*.md'
+      run: bunx markdownlint-cli2 --fix {staged_files}
+      stage_fixed: true
+    # The two below are the only checks from the former pre-commit.com config
+    # that no tool above already covers. oxfmt handles the rest for every file
+    # type it parses: it adds a missing EOF newline, rewrites CRLF to LF, and
+    # fails outright on unparseable YAML (verified for .ts and .md). markdownlint
+    # MD009 covers trailing whitespace. Only .carryctx/config.toml is left
+    # unvalidated, and it is tool-managed rather than hand-edited.
+    - name: merge-conflicts
+      run: |
+        if git diff --cached --check | grep -q 'conflict marker'; then
+          git diff --cached --check | grep 'conflict marker'
+          exit 1
+        fi
+    - name: large-files
+      run: |
+        for f in {staged_files}; do
+          [ -f "$f" ] || continue
+          size=$(wc -c < "$f")
+          if [ "$size" -gt 512000 ]; then
+            echo "$f is $((size / 1024))KB, over the 500KB cap"
+            exit 1
+          fi
+        done
+
+commit-msg:
+  jobs:
+    - name: commitlint
+      run: bunx --no -- commitlint --edit {1}
