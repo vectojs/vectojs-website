@@ -86,6 +86,50 @@ EN/AN 數字）和阿拉伯文上下文呈現形式選擇。`indexMap` 將
 
 用法請參閱 [Text & Typography](/learn/text-typography/)。
 
+## 無頭環境下的文本度量
+
+```ts
+registerFontMetrics(family: string, source: FontMetricsSource): void
+registerMSDFFontMetrics(family: string, font: MSDFFont | MSDFFontData | string)
+createMSDFMetricsSource(font: MSDFFont): FontMetricsSource
+getFontMetrics(family: string): FontMetricsSource | undefined
+hasFontMetrics(): boolean
+fontMetricsVersion(): number
+clearFontMetrics(): void
+```
+
+文字測量通常透過 Canvas 2D 內容進行，它會測量渲染器實際要繪製的字型。如果沒有內容——如 Node SSR、沒有 `OffscreenCanvas` 的 Web Worker——就沒有東西可以用來測量，每個字形的 advance 都會退化為一個固定的 `0.5em`。與 Chrome 下 32px 的 `sans-serif` 相比，這在窄文字上誤差達到了 **+125%**，在寬文字上誤差為 **−47%**，並且 `iiiiiiiiii` 會和 `WWWWWWWWWW` 完全一樣寬。自動換行也會繼承這個誤差，導致斷行位置同樣出錯。
+
+在啟動時註冊一次測量資料即可修復此問題。任何 `msdf-atlas-gen` 產生的 JSON 都可以，並且只讀取其中的 `glyphs[].advance`、`kerning` 和 `metrics`——圖集圖片是無關緊要的，因此一個純測量檔案就足夠了，不會進行任何解碼：
+
+```ts
+import { registerMSDFFontMetrics } from '@vectojs/core';
+
+registerMSDFFontMetrics('sans-serif', await readFile('inter.json', 'utf8'));
+```
+
+字型 family 會不區分大小寫地匹配並去除引號，逗號分隔的清單只註冊它的第一個 family。再次註冊相同的 family 會替換先前的 source，而 `clearFontMetrics()` 會丟棄所有內容（這對測試隔離很有用，因為註冊表是處理程序全域的）。
+
+對於非 MSDF 字型，可以直接提供一個 source：
+
+```ts
+interface FontMetricsSource {
+  advanceEm(char: string): number | undefined; // required
+  measureEm?(text: string): number | undefined; // honors kerning
+  ascenderEm?: number; // for cssLineBoxBaseline
+  descenderEm?: number;
+}
+```
+
+有三條路徑會查閱該註冊表：佈局引擎中的逐字形 advance、`@vectojs/ui` 中的全字串寬度（用於確定 `Button`、`Input`、`Link`、`Checkbox`、`ContextMenu`、`ProgressBar` 的尺寸），以及 `cssLineBoxBaseline` 中的基線（這需要 `ascenderEm`/`descenderEm`）。
+
+> [!IMPORTANT]
+> 真實的 Canvas 2D 內容永遠優先，因此註冊測量資料不能改變瀏覽器測量或繪製的結果。它們的存在是為了取代編造的猜測，而不是為了覆蓋將要渲染文字的引擎。
+
+`measureEm` 是值得提供的。逐字形的契約是 `measure(char, fontSize, family)` 且沒有相鄰字元，因此累加的 advance 無法恢復 kerning（在包含大量字距調整的字串上誤差約為 ~10%）。全字串測量會透過 `measureEm` 並且是精確的。
+
+要檢查是否有任何文字是使用編造的 advance 進行測量的，來自 [`@vectojs/layout`](/reference/core-layout/) 的 `unmeasuredGlyphCount()` 會對它們進行計數，並且一次性的主控台警告會指出修復方法。它不同於 `LayoutResult.fallbackToCanvas`，後者僅報告 **atlas** 未命中，並且即使在瀏覽器中幾乎每個段落都會返回 true。
+
 ## 相關
 
 [Layout engine](/reference/core-layout/)（此處渲染的冷/熱傳遞）·

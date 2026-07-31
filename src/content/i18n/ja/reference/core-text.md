@@ -64,6 +64,50 @@ BidiResolver.reorderSegments(str: string, levels: Uint8Array, baseLevel: number)
 
 使用法については [テキスト & タイポグラフィ](/learn/text-typography/) を参照してください。
 
+## ヘッドレス環境でのテキストメトリクス
+
+```ts
+registerFontMetrics(family: string, source: FontMetricsSource): void
+registerMSDFFontMetrics(family: string, font: MSDFFont | MSDFFontData | string)
+createMSDFMetricsSource(font: MSDFFont): FontMetricsSource
+getFontMetrics(family: string): FontMetricsSource | undefined
+hasFontMetrics(): boolean
+fontMetricsVersion(): number
+clearFontMetrics(): void
+```
+
+テキストの測定は通常、レンダラーが実際に描画するフォントを測定する Canvas 2D コンテキストを通じて行われます。Node SSR や `OffscreenCanvas` のないワーカーなど、コンテキストがない場合、測定に使用できるものがなく、すべてのグリフの advance は一律 `0.5em` にフォールバックします。32px の `sans-serif` を使用した Chrome での測定と比較すると、これは幅の狭いテキストで **+125%**、幅の広いテキストで **−47%** 間違っており、`iiiiiiiiii` は `WWWWWWWWWW` とまったく同じ幅になります。折り返しはこのエラーを引き起こすため、改行も間違った場所に着地します。
+
+起動時に一度メトリクスを登録すると、これが修正されます。任意の `msdf-atlas-gen` JSON が機能し、その `glyphs[].advance`、`kerning`、および `metrics` のみが読み取られます — アトラス画像は無関係であるため、メトリクスのみのファイルで十分であり、何もデコードされません：
+
+```ts
+import { registerMSDFFontMetrics } from '@vectojs/core';
+
+registerMSDFFontMetrics('sans-serif', await readFile('inter.json', 'utf8'));
+```
+
+ファミリーは引用符を削除して大文字と小文字を区別せずに一致し、カンマ区切りのリストはその最初のファミリーのみを登録します。同じファミリーを再度登録すると以前の source が置き換えられ、`clearFontMetrics()` はすべてを破棄します（レジストリはプロセス全体に及ぶため、テストの分離に役立ちます）。
+
+MSDF ではないフォントの source を直接指定します：
+
+```ts
+interface FontMetricsSource {
+  advanceEm(char: string): number | undefined; // required
+  measureEm?(text: string): number | undefined; // honors kerning
+  ascenderEm?: number; // for cssLineBoxBaseline
+  descenderEm?: number;
+}
+```
+
+3 つのパスがレジストリを参照します：レイアウトエンジンのグリフごとの advance、`@vectojs/ui` の文字列全体の幅（`Button`、`Input`、`Link`、`Checkbox`、`ContextMenu`、`ProgressBar` のサイズを決定します）、および `ascenderEm`/`descenderEm` を必要とする `cssLineBoxBaseline` のベースライン。
+
+> [!IMPORTANT]
+> 実際の Canvas 2D コンテキストが常に優先されるため、メトリクスを登録してもブラウザが測定または描画するものを変更することはできません。これらはレンダリングを行うエンジンを上書きするためではなく、でっち上げの推測を置き換えるために存在します。
+
+`measureEm` は提供する価値があります。グリフごとの契約は `measure(char, fontSize, family)` であり、隣接する文字がないため、合計された advance では kerning を復元できません — kerning が多い文字列では約 ~10% の誤差があります。文字列全体の測定は `measureEm` を介して行われ、正確です。
+
+でっち上げの advance で測定されたテキストがあるかどうかを確認するには、[`@vectojs/layout`](/reference/core-layout/) の `unmeasuredGlyphCount()` がそれらをカウントし、1 回限りのコンソール警告で修正方法が示されます。これは `LayoutResult.fallbackToCanvas` とは異なります。後者は **atlas** のミスのみを報告し、ブラウザであっても基本的にすべての段落で true になります。
+
 ## 関連情報
 
 [レイアウトエンジン](/reference/core-layout/)（これがレンダリングするコールド/ホットパス） ·

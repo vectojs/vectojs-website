@@ -98,6 +98,73 @@ it, so the two can't drift.
 
 See [Text & Typography](/learn/text-typography/) for usage.
 
+## Headless text metrics
+
+```ts
+registerFontMetrics(family: string, source: FontMetricsSource): void
+registerMSDFFontMetrics(family: string, font: MSDFFont | MSDFFontData | string)
+createMSDFMetricsSource(font: MSDFFont): FontMetricsSource
+getFontMetrics(family: string): FontMetricsSource | undefined
+hasFontMetrics(): boolean
+fontMetricsVersion(): number
+clearFontMetrics(): void
+```
+
+Text measurement normally goes through a Canvas 2D context, which measures the
+font the renderer will actually draw. Without one — Node SSR, a worker with no
+`OffscreenCanvas` — there is nothing to measure with, and every glyph
+advance falls back to a flat `0.5em`. Measured against Chrome at 32px
+`sans-serif` that is wrong by **+125%** on narrow text and **−47%** on wide,
+and `iiiiiiiiii` comes out exactly as wide as `WWWWWWWWWW`. Wrapping inherits
+the error, so line breaks land in the wrong places too.
+
+Register metrics once at startup to fix it. Any `msdf-atlas-gen` JSON works,
+and only its `glyphs[].advance`, `kerning`, and `metrics` are read — the atlas
+image is irrelevant, so a metrics-only file is enough and nothing decodes:
+
+```ts
+import { registerMSDFFontMetrics } from '@vectojs/core';
+
+registerMSDFFontMetrics('sans-serif', await readFile('inter.json', 'utf8'));
+```
+
+A family is matched case-insensitively with quotes stripped, and a
+comma-separated list registers only its first family. Registering the same
+family again replaces the previous source, and `clearFontMetrics()` drops
+everything (useful for test isolation, since the registry is process-wide).
+
+Supply a source directly for a font that is not MSDF:
+
+```ts
+interface FontMetricsSource {
+  advanceEm(char: string): number | undefined; // required
+  measureEm?(text: string): number | undefined; // honors kerning
+  ascenderEm?: number; // for cssLineBoxBaseline
+  descenderEm?: number;
+}
+```
+
+Three paths consult the registry: per-glyph advances in the layout engine,
+whole-string widths in `@vectojs/ui` (which size `Button`, `Input`, `Link`,
+`Checkbox`, `ContextMenu`, `ProgressBar`), and the baseline in
+`cssLineBoxBaseline`, which needs `ascenderEm`/`descenderEm`.
+
+> [!IMPORTANT]
+> A real Canvas 2D context always wins, so registering metrics cannot change
+> what a browser measures or draws. These exist to replace a fabricated guess,
+> not to override the engine that will render the text.
+
+`measureEm` is worth supplying. The per-glyph contract is
+`measure(char, fontSize, family)` and has no neighbouring character, so summed
+advances cannot recover kerning — around 10% on kern-heavy strings. Whole-string
+measurement goes through `measureEm` and is exact.
+
+To check whether any text was measured with fabricated advances,
+`unmeasuredGlyphCount()` from [`@vectojs/layout`](/reference/core-layout/)
+counts them, and a one-time console warning names the fix. It is distinct from
+`LayoutResult.fallbackToCanvas`, which only reports an **atlas** miss and is
+true on essentially every paragraph even in a browser.
+
 ## Related
 
 [Layout engine](/reference/core-layout/) (the cold/hot pass this renders) ·

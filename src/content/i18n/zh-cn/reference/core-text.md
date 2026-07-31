@@ -64,6 +64,50 @@ BidiResolver.reorderSegments(str: string, levels: Uint8Array, baseLevel: number)
 
 参见[文本与排版](/learn/text-typography/)了解用法。
 
+## 无头环境下的文本度量
+
+```ts
+registerFontMetrics(family: string, source: FontMetricsSource): void
+registerMSDFFontMetrics(family: string, font: MSDFFont | MSDFFontData | string)
+createMSDFMetricsSource(font: MSDFFont): FontMetricsSource
+getFontMetrics(family: string): FontMetricsSource | undefined
+hasFontMetrics(): boolean
+fontMetricsVersion(): number
+clearFontMetrics(): void
+```
+
+文本度量通常通过 Canvas 2D 上下文进行，它会测量渲染器实际要绘制的字体。如果没有上下文——如 Node SSR、没有 `OffscreenCanvas` 的 Web Worker——就没有东西可以用来测量，每个字形的 advance 都会退化为一个固定的 `0.5em`。与 Chrome 下 32px 的 `sans-serif` 相比，这在窄文本上误差达到了 **+125%**，在宽文本上误差为 **−47%**，并且 `iiiiiiiiii` 会和 `WWWWWWWWWW` 完全一样宽。自动换行也会继承这个误差，导致断行位置同样出错。
+
+在启动时注册一次度量数据即可修复此问题。任何 `msdf-atlas-gen` 生成的 JSON 都可以，并且只读取其中的 `glyphs[].advance`、`kerning` 和 `metrics`——图集图片是无关紧要的，因此一个纯度量文件就足够了，不会进行任何解码：
+
+```ts
+import { registerMSDFFontMetrics } from '@vectojs/core';
+
+registerMSDFFontMetrics('sans-serif', await readFile('inter.json', 'utf8'));
+```
+
+字体 family 会不区分大小写地匹配并去除引号，逗号分隔的列表只注册它的第一个 family。再次注册相同的 family 会替换先前的 source，而 `clearFontMetrics()` 会丢弃所有内容（这对测试隔离很有用，因为注册表是进程全局的）。
+
+对于非 MSDF 字体，可以直接提供一个 source：
+
+```ts
+interface FontMetricsSource {
+  advanceEm(char: string): number | undefined; // required
+  measureEm?(text: string): number | undefined; // honors kerning
+  ascenderEm?: number; // for cssLineBoxBaseline
+  descenderEm?: number;
+}
+```
+
+有三条路径会查阅该注册表：布局引擎中的逐字形 advance、`@vectojs/ui` 中的全字符串宽度（用于确定 `Button`、`Input`、`Link`、`Checkbox`、`ContextMenu`、`ProgressBar` 的尺寸），以及 `cssLineBoxBaseline` 中的基线（这需要 `ascenderEm`/`descenderEm`）。
+
+> [!IMPORTANT]
+> 真实的 Canvas 2D 上下文永远优先，因此注册度量数据不能改变浏览器测量或绘制的结果。它们的存在是为了取代编造的猜测，而不是为了覆盖将要渲染文本的引擎。
+
+`measureEm` 是值得提供的。逐字形的契约是 `measure(char, fontSize, family)` 且没有相邻字符，因此累加的 advance 无法恢复 kerning（在包含大量字距调整的字符串上误差约为 ~10%）。全字符串度量会通过 `measureEm` 并且是精确的。
+
+要检查是否有任何文本是使用编造的 advance 进行测量的，来自 [`@vectojs/layout`](/reference/core-layout/) 的 `unmeasuredGlyphCount()` 会对它们进行计数，并且一次性的控制台警告会指出修复方法。它不同于 `LayoutResult.fallbackToCanvas`，后者仅报告 **atlas** 未命中，并且即使在浏览器中几乎每个段落都会返回 true。
+
 ## 相关
 
 [布局引擎](/reference/core-layout/)（它渲染的冷/热过程）·

@@ -25,7 +25,9 @@ The Scene appends two transparent sibling `<div>`s into the canvas's
 **parent** element (for the a11y shadow layer at `z-index:10` and the DOM-portal
 layer at `z-index:9`), and forces the parent to `position:relative` if it is
 `static`. In SSR/Node (no `document`) the a11y/portal projection degrades to a
-no-op so headless layout / `toSVG()` still work.
+no-op so headless layout / `toSVG()` still work — but register font metrics
+first, or every glyph advance is a flat `0.5em` guess. See
+[Headless text metrics](/reference/core-text/#headless-text-metrics).
 
 ## SceneOptions
 

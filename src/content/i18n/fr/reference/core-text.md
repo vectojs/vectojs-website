@@ -97,6 +97,73 @@ les indices façonnés vers la chaîne source pour le hit-testing / le mappage d
 
 Voir [Texte et typographie](/learn/text-typography/) pour l'utilisation.
 
+## Mesures de texte sans tête (Headless text metrics)
+
+```ts
+registerFontMetrics(family: string, source: FontMetricsSource): void
+registerMSDFFontMetrics(family: string, font: MSDFFont | MSDFFontData | string)
+createMSDFMetricsSource(font: MSDFFont): FontMetricsSource
+getFontMetrics(family: string): FontMetricsSource | undefined
+hasFontMetrics(): boolean
+fontMetricsVersion(): number
+clearFontMetrics(): void
+```
+
+La mesure du texte passe normalement par un contexte Canvas 2D, qui mesure la
+police que le moteur de rendu dessinera réellement. Sans cela — Node SSR, un worker sans
+`OffscreenCanvas` — il n'y a rien à mesurer, et l'advance de chaque glyphe
+se rabat sur un `0.5em` fixe. Mesuré avec Chrome à 32px
+`sans-serif` c'est faux de **+125%** sur du texte étroit et **−47%** sur du large,
+et `iiiiiiiiii` ressort exactement aussi large que `WWWWWWWWWW`. Le retour à la ligne hérite
+de l'erreur, de sorte que les sauts de ligne atterrissent également aux mauvais endroits.
+
+Enregistrez les mesures une fois au démarrage pour corriger cela. N'importe quel JSON `msdf-atlas-gen` fonctionne,
+et seuls ses `glyphs[].advance`, `kerning`, et `metrics` sont lus — l'image
+de l'atlas n'est pas pertinente, donc un fichier uniquement avec des mesures est suffisant et rien ne se décode :
+
+```ts
+import { registerMSDFFontMetrics } from '@vectojs/core';
+
+registerMSDFFontMetrics('sans-serif', await readFile('inter.json', 'utf8'));
+```
+
+Une famille est mise en correspondance sans tenir compte de la casse avec les guillemets supprimés, et une
+liste séparée par des virgules n'enregistre que sa première famille. L'enregistrement de la même
+famille remplace à nouveau la source précédente, et `clearFontMetrics()` supprime
+tout (utile pour l'isolation des tests, car le registre s'étend à l'ensemble du processus).
+
+Fournissez directement une source pour une police qui n'est pas MSDF :
+
+```ts
+interface FontMetricsSource {
+  advanceEm(char: string): number | undefined; // required
+  measureEm?(text: string): number | undefined; // honors kerning
+  ascenderEm?: number; // for cssLineBoxBaseline
+  descenderEm?: number;
+}
+```
+
+Trois chemins consultent le registre : les advance par glyphe dans le moteur de disposition,
+les largeurs de chaîne entière dans `@vectojs/ui` (qui dimensionnent `Button`, `Input`, `Link`,
+`Checkbox`, `ContextMenu`, `ProgressBar`), et la ligne de base dans
+`cssLineBoxBaseline`, qui a besoin de `ascenderEm`/`descenderEm`.
+
+> [!IMPORTANT]
+> Un vrai contexte Canvas 2D l'emporte toujours, l'enregistrement des métriques ne peut donc pas changer
+> ce qu'un navigateur mesure ou dessine. Celles-ci existent pour remplacer une supposition fabriquée,
+> pas pour remplacer le moteur qui rendra le texte.
+
+`measureEm` vaut la peine d'être fourni. Le contrat par glyphe est
+`measure(char, fontSize, family)` et n'a pas de caractère voisin, donc les advance
+sommés ne peuvent pas récupérer le kerning — environ ~10% sur les chaînes avec beaucoup de crénage. La mesure
+de la chaîne entière passe par `measureEm` et est exacte.
+
+Pour vérifier si un texte a été mesuré avec des advance fabriqués,
+`unmeasuredGlyphCount()` de [`@vectojs/layout`](/reference/core-layout/)
+les compte, et un avertissement unique dans la console nomme le correctif. Il est distinct de
+`LayoutResult.fallbackToCanvas`, qui signale uniquement un échec d'**atlas** et est
+vrai sur presque chaque paragraphe, même dans un navigateur.
+
 ## Associé
 
 [Moteur de mise en page](/reference/core-layout/) (le passage froid/chaud qu'il rend) ·

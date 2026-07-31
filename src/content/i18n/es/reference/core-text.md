@@ -93,6 +93,73 @@ dígitos EN/AN) y selección de formas de presentación contextual árabe. `inde
 
 Ver [Texto y Tipografía](/learn/text-typography/) para uso.
 
+## Métricas de texto sin interfaz (Headless text metrics)
+
+```ts
+registerFontMetrics(family: string, source: FontMetricsSource): void
+registerMSDFFontMetrics(family: string, font: MSDFFont | MSDFFontData | string)
+createMSDFMetricsSource(font: MSDFFont): FontMetricsSource
+getFontMetrics(family: string): FontMetricsSource | undefined
+hasFontMetrics(): boolean
+fontMetricsVersion(): number
+clearFontMetrics(): void
+```
+
+La medición de texto normalmente pasa por un contexto Canvas 2D, que mide la
+fuente que el renderizador realmente dibujará. Sin uno — Node SSR, un worker sin
+`OffscreenCanvas` — no hay con qué medir, y el advance de cada glifo
+vuelve a un `0.5em` plano. Medido contra Chrome a 32px
+`sans-serif` que es incorrecto por **+125%** en texto estrecho y **−47%** en ancho,
+y `iiiiiiiiii` sale exactamente tan ancho como `WWWWWWWWWW`. El ajuste de línea hereda
+el error, por lo que los saltos de línea también caen en los lugares equivocados.
+
+Registre las métricas una vez al inicio para solucionarlo. Cualquier JSON de `msdf-atlas-gen` funciona,
+y solo se leen sus `glyphs[].advance`, `kerning`, y `metrics` — la imagen del atlas
+es irrelevante, por lo que un archivo solo de métricas es suficiente y no se decodifica nada:
+
+```ts
+import { registerMSDFFontMetrics } from '@vectojs/core';
+
+registerMSDFFontMetrics('sans-serif', await readFile('inter.json', 'utf8'));
+```
+
+Una familia coincide sin distinguir mayúsculas de minúsculas con las comillas eliminadas, y una
+lista separada por comas registra solo su primera familia. Al registrar la misma
+familia nuevamente se reemplaza la source anterior, y `clearFontMetrics()` descarta
+todo (útil para el aislamiento de pruebas, ya que el registro abarca todo el proceso).
+
+Proporcione una source directamente para una fuente que no sea MSDF:
+
+```ts
+interface FontMetricsSource {
+  advanceEm(char: string): number | undefined; // required
+  measureEm?(text: string): number | undefined; // honors kerning
+  ascenderEm?: number; // for cssLineBoxBaseline
+  descenderEm?: number;
+}
+```
+
+Tres rutas consultan el registro: advances por glifo en el motor de diseño,
+anchos de cadena completa en `@vectojs/ui` (que dimensionan `Button`, `Input`, `Link`,
+`Checkbox`, `ContextMenu`, `ProgressBar`), y la línea base en
+`cssLineBoxBaseline`, que necesita `ascenderEm`/`descenderEm`.
+
+> [!IMPORTANT]
+> Un contexto Canvas 2D real siempre gana, por lo que el registro de métricas no puede cambiar
+> lo que mide o dibuja un navegador. Estos existen para reemplazar una suposición inventada,
+> no para anular el motor que renderizará el texto.
+
+Vale la pena proporcionar `measureEm`. El contrato por glifo es
+`measure(char, fontSize, family)` y no tiene un carácter vecino, por lo que los advances
+sumados no pueden recuperar el kerning — alrededor del ~10% en cadenas con mucho kerning. La medición
+de la cadena completa pasa por `measureEm` y es exacta.
+
+Para comprobar si algún texto se midió con advances fabricados,
+`unmeasuredGlyphCount()` de [`@vectojs/layout`](/reference/core-layout/)
+los cuenta, y una advertencia de consola única nombra la corrección. Es distinto de
+`LayoutResult.fallbackToCanvas`, que solo informa de una falta de **atlas** y es
+verdadero en esencialmente cada párrafo incluso en un navegador.
+
 ## Relacionados
 
 [Motor de disposición](/reference/core-layout/) (el pase frío/caliente que esto renderiza) ·
