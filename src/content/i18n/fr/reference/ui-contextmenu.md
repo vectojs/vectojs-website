@@ -55,7 +55,7 @@ Chaque élément non-séparateur projette un point d'accès `role="menuitem"` av
 | Entrée / Espace | Activer (ouvrir un sous-menu, ou déclencher `onClick` et fermer l'arbre du menu)                          |
 | Échappement     | Fermer tout l'arbre du menu                                                                               |
 
-Les points d'accès définissent `pointerEvents: 'none'` pour que le menu conserve sa propre gestion des clics par position via `pointerdown`. Voir [Widgets composites](/reference/core-a11y/#composite-widgets-roving-tabindex).
+Les points d'accès définissent `pointerEvents: 'none'` pour que le menu conserve sa propre gestion des clics par position via `pointerdown`. Voir [Widgets composites](/reference/core-a11y/#widgets-composés-tabindex-flottant).
 
 > **L'affichage d'un menu installe un arrière-plan sur toute la scène.** Un menu racine ajoute une entité interactive invisible de la taille de la scène pour capter le clic extérieur qui le ferme. Cet arrière-plan intercepte les événements de pointeur sur toute la scène pendant que le menu est ouvert — ne laissez donc pas un menu ouvert dans un fixture ou un test qui a également besoin de glisser/sélectionner ailleurs.
 

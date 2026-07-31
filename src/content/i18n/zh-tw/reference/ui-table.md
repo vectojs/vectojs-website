@@ -46,7 +46,7 @@ const table = new Table({
 | Home / End           | 當前行的第一個/最後一個儲存格                 |
 | Ctrl+Home / Ctrl+End | 第一個表頭儲存格 / 最後一個主體儲存格         |
 
-目標儲存格在焦點移動到它之前會滾動到視圖中。參見[複合元件](/reference/core-a11y/#composite-widgets-roving-tabindex)。
+目標儲存格在焦點移動到它之前會滾動到視圖中。參見[複合元件](/reference/core-a11y/#複合元件漫遊-tabindex)。
 
 ## 指標與觸控
 

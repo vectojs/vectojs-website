@@ -56,7 +56,7 @@ GPU 重設或記憶體壓力驅逐會奪走繪圖上下文；如果不處理，�
 2. 回報 `isContextLost() === true`，讓 `Scene.render` 跳過渲染傳遞，而非對著失效的上下文發出繪圖呼叫；
 3. 在恢復時重新取得上下文、重新套用 DPR 變換/尺寸，並觸發 `onContextRestored` 回呼，讓 Scene 重新繪製新清空的影格緩衝區。
 
-`CanvasRenderer` 為 Canvas2D 執行此操作，`ThreeRenderer` 為 WebGL 執行此操作 — 請參閱 [`@vectojs/three`](/reference/three-renderer/)。
+`CanvasRenderer` 為 Canvas2D 執行此操作，`ThreeRenderer` 為 WebGL 執行此操作 — 請參閱 [`@vectojs/three`](/reference/three-renderer/#gpu-上下文遺失與運行時-dpr)。
 
 `fillCircle` 將連續相同 `color`/`alpha` 的呼叫合併為一個路徑，
 在 `flush()` 時提交（或當樣式改變時）。Scene 在每個
@@ -151,7 +151,7 @@ Firefox 缺失字型回退度量；自訂 resize/zoom 擁有者必須呼叫
 轉換後的二維字素游標幾何。
 
 `present()` 由 Scene 在每個渲染傳遞結束時精確呼叫**一次**。
-一次性提交整個幀的保留後端（例如來自 [`@vectojs/three`](/reference/three-renderer/) 的 `ThreeRenderer`）
+一次性提交整個幀的保留後端（例如來自 [`@vectojs/three`](/reference/three-renderer/#gpu-上下文遺失與運行時-dpr) 的 `ThreeRenderer`）
 應在此處進行其單次昂貴提交，並保持 `flush()` 輕量 —
 Scene 會在每個非批次節點周圍呼叫 `flush()`，因此昂貴的 `flush()`
 會使幀成本與實體數量成二次方關係。

@@ -56,7 +56,7 @@ GPU 重置或内存压力驱逐会夺走绘图上下文；如果不处理它，�
 2. 报告 `isContextLost() === true`，这样 `Scene.render` 会跳过渲染过程，而不是对着失效的上下文发出绘制调用；
 3. 在恢复时，重新获取上下文，重新应用 DPR 变换/尺寸，并触发 `onContextRestored` 回调，让 Scene 重新绘制新清空的表面。
 
-`CanvasRenderer` 为 Canvas2D 执行此操作，`ThreeRenderer` 为 WebGL 执行此操作 —— 参见 [`@vectojs/three`](/reference/three-renderer/)。
+`CanvasRenderer` 为 Canvas2D 执行此操作，`ThreeRenderer` 为 WebGL 执行此操作 —— 参见 [`@vectojs/three`](/reference/three-renderer/#gpu-上下文丢失与运行时-dpr)。
 
 `fillCircle` 将连续的相同 `color`/`alpha` 调用合并为一条路径，在 `flush()` 时（或样式变化时）提交。Scene 在每个兄弟组结束时和每帧结束时 flush，保留画家顺序。
 
@@ -120,7 +120,7 @@ getContentProjection() {
 
 Core 在字体加载后校准保留的载体，并在局部网格空间中路由指针选择。因此 Firefox 字体替换、DPR、浏览器缩放、旋转、镜像变换和非均匀缩放使用一个几何方案。校准探测继承投影的缩放上下文并考虑 Firefox 缺失字形的回退度量；自定义调整大小/缩放的所有者必须调用 `scene.resize()` 以使保留的校准失效。普通的 `lines` 投影和无行的自定义投影也使用变换后的二维字素光标几何。
 
-`present()` 由 Scene 在每个渲染过程结束时恰好调用**一次**。一次提交整帧的保留式后端（例如来自 [`@vectojs/three`](/reference/three-renderer/) 的 `ThreeRenderer`）应在此处进行其单次昂贵的提交，并保持 `flush()` 廉价 —— Scene 在每个非批处理节点周围调用 `flush()`，因此昂贵的 `flush()` 会使帧成本随实体数量呈平方增长。
+`present()` 由 Scene 在每个渲染过程结束时恰好调用**一次**。一次提交整帧的保留式后端（例如来自 [`@vectojs/three`](/reference/three-renderer/#gpu-上下文丢失与运行时-dpr) 的 `ThreeRenderer`）应在此处进行其单次昂贵的提交，并保持 `flush()` 廉价 —— Scene 在每个非批处理节点周围调用 `flush()`，因此昂贵的 `flush()` 会使帧成本随实体数量呈平方增长。
 
 ## CanvasRenderer
 

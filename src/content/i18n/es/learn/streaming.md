@@ -90,7 +90,7 @@ por lo que el desplazamiento suave hasta el fondo sigue animando después de que
 
 Si impulsas cualquier _movimiento personalizado_ por fotograma durante el flujo (un indicador
 de escritura, un cursor pulsante) desde `update()`, recuerda el
-[contrato de throttle de inactividad](/learn/performance/#the-idle-auto-throttle-the-hidden-pitfall):
+[contrato de throttle de inactividad](/learn/performance/#la-limitación-automática-por-inactividad-la-trampa-oculta):
 sobrescribe `hasPendingAnimations()` o condúcelo con `animate()`/`springTo()`.
 
 ## Seguir el fondo
@@ -165,7 +165,7 @@ Síntomas y sus señales, en el orden en que revisarlos:
 | CPU ocupada mientras el flujo está inactivo | Escena en modo `'always'`, o una animación personalizada sin `hasPendingAnimations()`                 |
 
 Para números reales, usa el patrón de medición en página de
-[Medir el rendimiento real](/learn/performance/#measuring-real-performance) —
+[Medir el rendimiento real](/learn/performance/#medir-el-rendimiento-real) —
 el FPS headless no es representativo.
 
 > **Siguiente:** [Rendimiento](/learn/performance/) para la caja de herramientas de optimización

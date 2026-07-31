@@ -55,7 +55,7 @@ Cada elemento que no sea separador proyecta un punto de acceso `role="menuitem"`
 | Enter / Space  | Activar (abrir un submenú, o disparar `onClick` y cerrar el árbol del menú)                                     |
 | Escape         | Cerrar todo el árbol del menú                                                                                   |
 
-Los puntos de acceso establecen `pointerEvents: 'none'` para que el menú mantenga su propio manejo de `pointerdown` por posición. Ver [Widgets compuestos](/reference/core-a11y/#composite-widgets-roving-tabindex).
+Los puntos de acceso establecen `pointerEvents: 'none'` para que el menú mantenga su propio manejo de `pointerdown` por posición. Ver [Widgets compuestos](/reference/core-a11y/#widgets-compuestos-tabindex-flotante).
 
 > **Mostrar un menú instala un backdrop de toda la escena.** Un menú raíz añade una entidad interactiva invisible del tamaño de la escena para capturar el clic externo que lo cierra. Ese backdrop intercepta eventos de puntero en toda la escena mientras el menú está abierto — así que no dejes un menú abierto en un fixture o prueba que también necesite arrastrar/seleccionar en otro lugar.
 

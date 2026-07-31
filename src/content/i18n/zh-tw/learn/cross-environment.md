@@ -108,4 +108,4 @@ const trace = createEventTrace(scene, { capacity: 50 });
 - [ ] 在啟用OS減少動畫設定的情況下驗證動畫。
 - [ ] 如果啟用了WebGL/WebGPU後端，同時也要測試Canvas2D回退路徑。
 
-> **下一篇：** [偵錯工作流程](/reference/devtools/#debugging-workflows)提供了此檢查清單所依賴的數值工具，以及[串流與即時文字](/learn/streaming/)用於即時UI。
+> **下一篇：** [偵錯工作流程](/reference/devtools/#除錯工作流程)提供了此檢查清單所依賴的數值工具，以及[串流與即時文字](/learn/streaming/)用於即時UI。

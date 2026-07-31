@@ -74,7 +74,7 @@ Enter/Space → `click`을 받습니다.
 **복합 위젯은 다릅니다.** `tree`, `grid`, `menu`, `radiogroup` 또는
 `tablist`는 자식당 하나의 탭 정지가 아니라 하나뿐입니다—따라서 자식은 **로빙 tabindex**를 사용합니다: 정확히 하나의 자식이 `tabIndex: 0`을 가지고 나머지는 `-1`이며, 화살표 키가 해당 정지를 이동합니다. [복합 위젯](#복합-위젯-로빙-tabindex)을 참조하세요.
 
-탭 순서는 씬 그래프 삽입 순서가 아닌 **시각적** 읽기 순서를 따릅니다—RTL의 경우 [`Scene.readingDirection`](/reference/core-scene/#accessibility--appearance)을 참조하세요.
+탭 순서는 씬 그래프 삽입 순서가 아닌 **시각적** 읽기 순서를 따릅니다—RTL의 경우 [`Scene.readingDirection`](/reference/core-scene/#접근성-및-외관)을 참조하세요.
 
 디자인 캔버스와 같은 비-컨트롤 영역이 순차적 포커스 순서에 진입하고
 VMT `keydown` 이벤트를 수신해야 하는 경우 `tabIndex: 0`을 명시적으로 설정하세요. 프로그래매틱 포커스만
@@ -98,7 +98,7 @@ VMT `keydown` 이벤트를 수신해야 하는 경우 `tabIndex: 0`을 명시적
 
 ## 강제 색상 (고대비)
 
-캔버스는 불투명한 픽셀이므로 브라우저의 `forced-colors` 리매핑은 VectoJS가 그리는 것에 절대 닿지 않습니다—Windows 고대비에서 컴포넌트가 자체를 다시 그리지 않는 한 테마가 적용된 컨트롤은 읽을 수 없게 됩니다. [`Scene.forcedColors`](/reference/core-scene/#accessibility--appearance)를 참조하고 CSS 시스템 색상(`ButtonFace`, `ButtonText`, `Highlight`, `Canvas`, `CanvasText`)으로 그리세요. 설정이 전환되면 씬이 자동으로 다시 그려집니다. `Button`은 이미 이를 수행하고 있습니다.
+캔버스는 불투명한 픽셀이므로 브라우저의 `forced-colors` 리매핑은 VectoJS가 그리는 것에 절대 닿지 않습니다—Windows 고대비에서 컴포넌트가 자체를 다시 그리지 않는 한 테마가 적용된 컨트롤은 읽을 수 없게 됩니다. [`Scene.forcedColors`](/reference/core-scene/#접근성-및-외관)를 참조하고 CSS 시스템 색상(`ButtonFace`, `ButtonText`, `Highlight`, `Canvas`, `CanvasText`)으로 그리세요. 설정이 전환되면 씬이 자동으로 다시 그려집니다. `Button`은 이미 이를 수행하고 있습니다.
 
 ## 컨트롤 및 주의사항
 

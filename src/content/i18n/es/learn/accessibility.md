@@ -144,7 +144,7 @@ Mantén las entradas nativas, las áreas de texto y el contenido editable a carg
 
 ## Widgets compuestos: una parada de tabulación, teclas de flecha dentro
 
-Un árbol, cuadrícula, menú, grupo de radio o lista de pestañas no debe poner cada hijo en el orden de tabulación. VectoJS agrupa un hotspot transparente y enfocable sobre cada hijo **visible** que lleva el rol y estado de ese hijo, y le da exactamente a uno `tabIndex: 0` — un **tabindex flotante**. El padre posee el manejador de teclas de flecha y mueve la parada. Consulte la tabla anterior para las teclas de cada componente, y [Widgets compuestos](/reference/core-a11y/#composite-widgets-roving-tabindex) si está construyendo el suyo.
+Un árbol, cuadrícula, menú, grupo de radio o lista de pestañas no debe poner cada hijo en el orden de tabulación. VectoJS agrupa un hotspot transparente y enfocable sobre cada hijo **visible** que lleva el rol y estado de ese hijo, y le da exactamente a uno `tabIndex: 0` — un **tabindex flotante**. El padre posee el manejador de teclas de flecha y mueve la parada. Consulte la tabla anterior para las teclas de cada componente, y [Widgets compuestos](/reference/core-a11y/#widgets-compuestos-tabindex-flotante) si está construyendo el suyo.
 
 Reutilice ese patrón en lugar de inventar uno: lo importante es que el hotspot debe establecer `pointerEvents: 'none'` siempre que algo debajo posea el ratón (texto de celda seleccionable, arrastrar para desplazar, manejo de impactos del canvas). El foco del teclado y el `click` sintetizado por AT aún pasan a través de él.
 
@@ -278,7 +278,7 @@ La regla práctica: `interactive = true` es para cosas con las que un usuario ac
 Para un campo de partículas, una capa de danmaku o un enjambre de sprites, prefiere una de estas opciones:
 
 - **Proyecta el contenedor, no los miembros.** Una entidad interactiva para toda la capa, con un `aria-label` que la describa colectivamente (\"5000 partículas\"), y maneja la entrada del puntero tú mismo mediante `scene.findEntityAt(x, y)` — que resuelve entidades independientemente de si son `interactive`, por lo que la detección de impacto no requiere proyección.
-- **Proyecta solo lo que es alcanzable.** El patrón de pooling usado por `TreeView`/`Table` virtualizados ajusta un pool de hotspots a las filas visibles en lugar de al conjunto de datos, por lo que la proyección se mantiene en O(viewport). Consulta [widgets compuestos](#Widgets compuestos: una parada de tabulación, teclas de flecha en el interior).
+- **Proyecta solo lo que es alcanzable.** El patrón de pooling usado por `TreeView`/`Table` virtualizados ajusta un pool de hotspots a las filas visibles en lugar de al conjunto de datos, por lo que la proyección se mantiene en O(viewport). Consulta [widgets compuestos](#widgets-compuestos-una-parada-de-tabulación-teclas-de-flecha-dentro).
 - **Llama a `scene.detachA11y(entity)`** cuando una entidad deje de ser accionable. Documentado en otra parte como prevención de fugas, es igualmente una palanca de costo: la sincronización por frame crea y actualiza pero nunca poda.
 
 > Un modo `a11yProjection` por entidad (`'eager' | 'onDemand' | 'never'`) que materializa un nodo solo al pasar el ratón o al enfocar está diseñado pero **aún no implementado**. Ten en cuenta que no puede basarse en \"si hay un lector de pantalla presente\" — eso es deliberadamente indetectable por diseño (principio de diseño 2.7 del W3C TAG), y los nodos virtuales de accesibilidad AOM están bloqueados en todos los motores por razones de privacidad.

@@ -90,7 +90,7 @@ const scene = new Scene(canvas, { renderMode: 'onDemand' });
 
 스트림 중에 `update()`에서 _사용자 정의_ 프레임별 모션(타이핑
 인디케이터, 깜빡이는 커서)을 구동하는 경우,
-[유휴-스로틀 계약](/learn/performance/#the-idle-auto-throttle-the-hidden-pitfall)을
+[유휴-스로틀 계약](/learn/performance/#유휴-자동-스로틀-숨은-함정)을
 기억하세요: `hasPendingAnimations()`를 재정의하거나 `animate()`/`springTo()`로 구동하세요.
 
 ## 하단 따라가기
@@ -163,7 +163,7 @@ function startAssistantMessage(): Markdown {
 | 스크롤이 사용자와 충돌          | 무조건 `scrollToBottom()` — "하단에 있었는지" 고정 조건으로 게이트                      |
 | 스트림 유휴 중 CPU 바쁨         | 씬이 `'always'` 모드로 남아있거나, `hasPendingAnimations()` 없는 사용자 정의 애니메이션 |
 
-실제 숫자는 [실제 성능 측정](/learn/performance/#measuring-real-performance)의
+실제 숫자는 [실제 성능 측정](/learn/performance/#실제-성능-측정)의
 인페이지 측정 패턴을 사용하세요 — headless FPS는 대표적이지 않습니다.
 
 > **다음:** [성능](/learn/performance/) 전체 최적화 도구 모음 및

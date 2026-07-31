@@ -95,7 +95,7 @@ doux vers le bas continue d'animer après l'arrivée du dernier token.
 
 Si vous pilotez un _mouvement personnalisé_ par trame pendant le flux (un
 indicateur de frappe, un curseur pulsant) depuis `update()`, souvenez-vous du
-[contrat de throttling d'inactivité](/learn/performance/#the-idle-auto-throttle-the-hidden-pitfall) :
+[contrat de throttling d'inactivité](/learn/performance/#lauto-limitation-au-repos-le-piège-caché) :
 surchargez `hasPendingAnimations()` ou pilotez-le avec `animate()`/`springTo()`.
 
 ## Suivre le bas
@@ -174,7 +174,7 @@ Symptômes et leurs signaux, dans l'ordre à vérifier :
 | CPU occupée alors que le flux est inactif     | Scène en mode `'always'`, ou animation personnalisée sans `hasPendingAnimations()`                     |
 
 Pour des chiffres réels, utilisez le motif de mesure en page de
-[Mesurer les performances réelles](/learn/performance/#measuring-real-performance) —
+[Mesurer les performances réelles](/learn/performance/#mesurer-la-performance-réelle) —
 le FPS headless n'est pas représentatif.
 
 > **Suivant :** [Performances](/learn/performance/) pour la boîte à outils

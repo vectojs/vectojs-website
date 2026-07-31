@@ -76,7 +76,7 @@ reçoivent `tabindex="0"` et Entrée/Espace → `click`.
 **Les widgets composés sont différents.** Un `tree`, `grid`, `menu`, `radiogroup` ou
 `tablist` est un arrêt de tabulation, pas un par enfant — donc leurs enfants utilisent un **tabindex flottant** : exactement un enfant porte `tabIndex: 0` et le reste `-1`, et les flèches déplacent cet arrêt. Voir [Widgets composés](#widgets-composés-tabindex-flottant).
 
-L'ordre de tabulation suit l'ordre de lecture **visuel**, pas l'ordre d'insertion du graphe de scène — voir [`Scene.readingDirection`](/reference/core-scene/#accessibility--appearance) pour le RTL.
+L'ordre de tabulation suit l'ordre de lecture **visuel**, pas l'ordre d'insertion du graphe de scène — voir [`Scene.readingDirection`](/reference/core-scene/#accessibilité-et-apparence) pour le RTL.
 
 Définissez explicitement `tabIndex: 0` lorsqu'une région non-contrôle telle qu'un
 canvas de conception doit entrer dans l'ordre de focus séquentiel et recevoir des
@@ -113,7 +113,7 @@ La ligne/ cellule focalisée est défilée en vue avant que le focus ne se dépl
 Un canvas est des pixels opaques, donc le remappage `forced-colors` du navigateur ne
 touche jamais ce que VectoJS dessine — sous Windows Contraste élevé un contrôle thématisé
 reste illisible à moins que le composant ne se repeigne. Lire
-[`Scene.forcedColors`](/reference/core-scene/#accessibility--appearance) et dessiner
+[`Scene.forcedColors`](/reference/core-scene/#accessibilité-et-apparence) et dessiner
 avec les couleurs système CSS (`ButtonFace`, `ButtonText`, `Highlight`, `Canvas`,
 `CanvasText`) ; la scène se repeint automatiquement quand le paramètre change.
 `Button` le fait déjà.

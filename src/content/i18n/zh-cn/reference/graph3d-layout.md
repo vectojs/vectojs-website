@@ -80,7 +80,7 @@ layout.step(5); // 5 ticks in one call — cheaper per-frame amortization
 // than per-tick smoothness
 ```
 
-**固定（自 0.2.0 起）。** `D3ForceLayout` 在 d3-force 的 `fx`/`fy`/`fz` 之上实现可选的固定控件，这正是驱动 [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction-hover-select-drag-to-pin) 的拖拽固定的原因：
+**固定（自 0.2.0 起）。** `D3ForceLayout` 在 d3-force 的 `fx`/`fy`/`fz` 之上实现可选的固定控件，这正是驱动 [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--悬停--选择--拖拽固定) 的拖拽固定的原因：
 
 ```ts
 layout.pinNode(i, x, y, z); // clamp node i to (x,y,z) every tick; also updates positions[i] now

@@ -55,7 +55,7 @@ const tree = new TreeView({
 
 La fila activa se desplaza a la vista antes de que el foco se mueva a ella. Como solo las filas visibles se agrupan, un árbol de 100k nodos aún proyecta O(viewport) nodos.
 
-Los puntos de acceso establecen `pointerEvents: 'none'` para que el árbol mantenga su propio manejo de ratón (toque para alternar y arrastrar para desplazar) — el foco de teclado y los `click` sintetizados por AT aún pasan. Ver [Widgets compuestos](/reference/core-a11y/#composite-widgets-roving-tabindex).
+Los puntos de acceso establecen `pointerEvents: 'none'` para que el árbol mantenga su propio manejo de ratón (toque para alternar y arrastrar para desplazar) — el foco de teclado y los `click` sintetizados por AT aún pasan. Ver [Widgets compuestos](/reference/core-a11y/#widgets-compuestos-tabindex-flotante).
 
 ## Puntero y toque
 

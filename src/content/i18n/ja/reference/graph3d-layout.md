@@ -79,7 +79,7 @@ layout.step(5); // 1回の呼び出しで5ティック — フレームあたり
 // ビジュアルの収束時間がティックあたりの滑らかさよりも重要なグラフ向け
 ```
 
-**ピン留め（0.2.0以降）。** `D3ForceLayout` はd3-forceの`fx`/`fy`/`fz`を介してオプションのピンコントロールを実装しており、これが [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction-hover-select-drag-to-pin) のドラッグ＆ピンを支えています：
+**ピン留め（0.2.0以降）。** `D3ForceLayout` はd3-forceの`fx`/`fy`/`fz`を介してオプションのピンコントロールを実装しており、これが [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--ホバー--選択--ドラッグピン) のドラッグ＆ピンを支えています：
 
 ```ts
 layout.pinNode(i, x, y, z); // ノードiを(x,y,z)に毎ティック固定；positions[i]も即時更新

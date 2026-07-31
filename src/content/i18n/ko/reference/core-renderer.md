@@ -44,6 +44,22 @@ interface IRenderer {
 }
 ```
 
+### GPU 컨텍스트 손실에서 살아남기
+
+GPU 리셋 또는 메모리 압박에 의한 축출은 드로잉 컨텍스트를 빼앗아 갑니다. 이를
+처리하지 않으면 표면은 영구히 빈 상태로 남습니다. GPU 컨텍스트를 소유한 렌더러는
+다음을 수행해야 합니다:
+
+1. 손실 이벤트를 수신하고 `preventDefault()`를 호출합니다 — 그러지 않으면 브라우저는
+   대응하는 복원 이벤트를 결코 발생시키지 않습니다;
+2. `isContextLost() === true`를 보고하여 `Scene.render`가 죽은 컨텍스트에 대해 드로우
+   콜을 발행하는 대신 해당 패스를 건너뛰도록 합니다;
+3. 복원 시 컨텍스트를 다시 획득하고, DPR 변환/크기를 다시 적용하며,
+   `onContextRestored` 콜백을 발생시켜 Scene이 새로 지워진 표면을 다시 그리도록 합니다.
+
+`CanvasRenderer`는 Canvas2D에 대해, `ThreeRenderer`는 WebGL에 대해 이를 수행합니다 —
+[`@vectojs/three`](/reference/three-renderer/#gpu-컨텍스트-손실-및-런타임-dpr)를 참조하세요.
+
 `fillCircle`은 연속된 동일-`color`/`alpha` 호출을 하나의 경로로 병합하여
 `flush()`(또는 스타일이 변경될 때) 커밋됩니다. Scene은 각 형제 그룹과 각 프레임 끝에서
 플러시하여 페인터의 순서를 보존합니다.

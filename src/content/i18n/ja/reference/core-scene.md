@@ -103,7 +103,7 @@ render(r: IRenderer) {
 }
 ```
 
-[a11yRoot & エージェント契約](/reference/core-a11y/#強制カラー高コントラスト) を参照してください。
+[a11yRoot & エージェント契約](/reference/core-a11y/#強制カラーハイコントラスト) を参照してください。
 
 ## ライフサイクルメソッド
 
