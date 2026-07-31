@@ -20,7 +20,7 @@ Paragraphs and headings become `RichText`, fenced code becomes `CodeBlock`, and 
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>The sample keeps prose, links, inline code and a fenced block in one focused viewport so layout defects are visible.</figcaption>
 </figure>
 
@@ -92,7 +92,11 @@ interface StreamControllerOptions {
     graphemesPerSecond: number;
   };
   signal?: AbortSignal;
+  incompleteMode?: IncompleteMarkdownMode; // default 'literal'
+  onStable?: (blocks: readonly Entity[]) => void;
 }
+
+type IncompleteMarkdownMode = 'literal' | 'optimistic';
 
 type StreamControllerState = 'open' | 'closed' | 'aborted';
 
@@ -119,6 +123,59 @@ combining sequences, emoji ZWJ clusters, flags, and surrogate pairs together
 across chunk/frame boundaries. The full lifecycle, bounded pathological-cluster
 fallback, bottom-follow pattern, and transcript strategy are in
 [Streaming & Real-Time Text](/learn/streaming/).
+
+### Trailing unclosed syntax: `incompleteMode`
+
+A stream is cut mid-token constantly, so the last few characters of a chunk are
+routinely half a construct. `incompleteMode` picks how that tail renders while
+the controller is open:
+
+| Mode                    | While streaming `a **bo`                        |
+| ----------------------- | ----------------------------------------------- |
+| `'literal'` _(default)_ | text `a **bo` — the asterisks are ordinary text |
+| `'optimistic'`          | text `a bo`, with `bo` bold — syntax hidden     |
+
+`'optimistic'` guesses that the trailing paragraph's last unclosed
+strong/emphasis/inline-code/link construct will close. The guess is
+**display-only** — token state is never mutated — and it is unwound on
+`close()`, so a `'literal'` and an `'optimistic'` stream of the same source end
+at a byte-identical document. `'literal'` is what every release before this
+option shipped.
+
+The mode is interpreted by `Markdown`, not by the controller: the controller
+owns buffering and pacing, while the guess is a render-time transform over the
+trailing paragraph.
+
+### One-shot completion: `onStable`
+
+```ts
+const stream = markdown.createStream({
+  onStable: (blocks) => {
+    // Runs once, with the finished document. Safe place for work that would be
+    // wasted mid-stream.
+    console.log(`settled with ${blocks.length} top-level blocks`);
+  },
+});
+```
+
+Fires **exactly once**, after `close()` has committed the final text _and_ any
+in-flight worker parse has been applied, with a snapshot of the document's
+top-level block entities at that instant. Independent of `incompleteMode`, so it
+works with the `'literal'` default.
+
+It is deliberately not a general "stream progressed" hook:
+
+- **Never fired by `flush()`, `abort()`, or `destroy()`.** None of those
+  mean the content finished changing.
+- Calling `appendMarkdown()` or `setContent()` from inside the callback **throws
+  synchronously** — reentrant mutation would invalidate the snapshot it was just
+  handed.
+- A throw from the callback rejects the `close()` promise. The controller is
+  released either way.
+
+Intended for one-time post-stream work — baking a highlight cache, starting an
+entrance animation — that should not run mid-stream against content still likely
+to change.
 
 Only one controller may be open for a `Markdown`. `setContent()` aborts it before
 replacement; `destroy()` aborts it and removes rAF/`AbortSignal` listeners.

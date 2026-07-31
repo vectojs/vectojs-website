@@ -8,8 +8,9 @@
     <script type="importmap">
       {
         "imports": {
-          "@vectojs/core": "https://esm.sh/@vectojs/core@1.24.0",
-          "@vectojs/ui": "https://esm.sh/@vectojs/ui@2.5.0?bundle"
+          "@vectojs/core": "https://esm.sh/@vectojs/core@1.25.0",
+          "@vectojs/ui": "https://esm.sh/@vectojs/ui@2.6.0?bundle",
+          "@vectojs/markdown": "https://esm.sh/@vectojs/markdown@0.6.0?bundle"
         }
       }
     </script>
@@ -24,7 +25,6 @@
         Button,
         Card,
         Checkbox,
-        CodeBlock,
         ContextMenu,
         Dropdown,
         Flow,
@@ -49,6 +49,7 @@
         TreeView,
         VirtualList,
       } from '@vectojs/ui';
+      import { CodeBlock } from '@vectojs/markdown';
       import { commonCardWidth, createSandbox } from '/sandbox/ui/shared.js';
 
       class Swatch extends Entity {
