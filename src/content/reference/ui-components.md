@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Component Reference
 
 > Reusable high-level components for the VectoJS zero-DOM Canvas engine.
-> Version documented: **2.5.0**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
+> Version documented: **2.6.0**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
 
 Every component is a leaf or container in the Virtual Math Tree (VMT). Nothing here is real DOM — components draw themselves to a Canvas via an `IRenderer`. Accessibility, agent automation, and crawlability come from a parallel **A11y Shadow DOM**: when a component is `interactive`, the `Scene` projects a single hidden, transparent real DOM node positioned over the component's box, built from `getA11yAttributes()`. That is why `page.getByRole('button', { name })` / `fill()` / screen readers work against a pure-Canvas UI.
 
@@ -170,6 +170,29 @@ Multi-style inline text: bold / italic / colored / differently-sized runs flow a
 - `setMaxWidth(maxWidth): this` — reflow.
 - `setExclusions(exclusions): this` — set float regions and reflow.
 - `setSelectable(selectable): this` — toggle native selection without rebuilding spans.
+
+**Inline objects (2.6.0+).** A span can reserve horizontal space for something `RichText` does not shape — a formula, an icon, an embedded box — so it sits mid-sentence instead of block-breaking the line:
+
+```ts
+import { OBJECT_REPLACEMENT, type StyledSpan } from '@vectojs/layout';
+
+const spans: StyledSpan[] = [
+  { text: 'the identity ' },
+  {
+    text: OBJECT_REPLACEMENT, // U+FFFC; required, or `object` is ignored
+    object: {
+      width: 42, // advance to reserve, px at final size
+      height: 20, // ascent + descent; feeds line height
+      depth: 4, // how far it hangs below the baseline
+      alt: 'x+1', // accessible name, selection, and copy text
+      paint: (surface, box) => surface.drawImage(bitmap, box.x, box.y, box.width, box.height),
+    },
+  },
+  { text: ' holds.' },
+];
+```
+
+Metrics are px at final size — a fixed box, not scaled by the run's `fontSize`. `box.y` is already resolved against the baseline and `depth`, so a painter does not repeat that arithmetic. `paint` is called during a paint, so it must be synchronous; an object still loading its content should draw nothing and request a repaint when ready. **Omitting `paint` reserves the space and draws nothing** — a blank gap. Set `alt`, or the raw sentinel reaches the accessibility layer and copies as an invisible character.
 
 A11y: each contiguous **link run** gets a transparent `<a>` hotspot child (reconciled across re-wrap — one hotspot per run; position updates in place, only a change in link _count_ rebuilds the shadow nodes). The component's own accessible name is the full concatenated text.
 
