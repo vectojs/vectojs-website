@@ -75,14 +75,14 @@ window.addEventListener('resize', () => {
 
 | 偏移常量                     | 索引 | 字段       | 说明                                             |
 | ---------------------------- | ---- | ---------- | ------------------------------------------------ |
-| `PARTICLE*OFFSET*POSITION_X` | 0    | position.x | 当前世界空间x                                    |
-| `PARTICLE*OFFSET*POSITION_Y` | 1    | position.y | 当前世界空间y                                    |
-| `PARTICLE*OFFSET*VELOCITY_X` | 2    | velocity.x |                                                  |
-| `PARTICLE*OFFSET*VELOCITY_Y` | 3    | velocity.y |                                                  |
-| `PARTICLE*OFFSET*ORIGIN_X`   | 4    | origin.x   | 弹簧静止/锚点                                    |
-| `PARTICLE*OFFSET*ORIGIN_Y`   | 5    | origin.y   |                                                  |
-| `PARTICLE*OFFSET*SIZE`       | 6    | size       | 每粒子大小覆盖                                   |
-| `PARTICLE*OFFSET*LIFE`       | 7    | life       | `-1` = 永久；`≥0`以0.5/s衰减；`0` = 死亡（跳过） |
+| `PARTICLE_OFFSET_POSITION_X` | 0    | position.x | 当前世界空间x                                    |
+| `PARTICLE_OFFSET_POSITION_Y` | 1    | position.y | 当前世界空间y                                    |
+| `PARTICLE_OFFSET_VELOCITY_X` | 2    | velocity.x |                                                  |
+| `PARTICLE_OFFSET_VELOCITY_Y` | 3    | velocity.y |                                                  |
+| `PARTICLE_OFFSET_ORIGIN_X`   | 4    | origin.x   | 弹簧静止/锚点                                    |
+| `PARTICLE_OFFSET_ORIGIN_Y`   | 5    | origin.y   |                                                  |
+| `PARTICLE_OFFSET_SIZE`       | 6    | size       | 每粒子大小覆盖                                   |
+| `PARTICLE_OFFSET_LIFE`       | 7    | life       | `-1` = 永久；`≥0`以0.5/s衰减；`0` = 死亡（跳过） |
 
 你可以直接读写`particleData`以设置自定义队形。写入后，设置`needsInit = true`以在下一帧触发GPU上传。
 

@@ -75,14 +75,14 @@ Chaque particule correspond à 8 valeurs `float32` consécutives dans `entity.pa
 
 | Constante d'offset           | Index | Champ      | Notes                                                             |
 | ---------------------------- | ----- | ---------- | ----------------------------------------------------------------- |
-| `PARTICLE*OFFSET*POSITION_X` | 0     | position.x | x actuel en espace monde                                          |
-| `PARTICLE*OFFSET*POSITION_Y` | 1     | position.y | y actuel en espace monde                                          |
-| `PARTICLE*OFFSET*VELOCITY_X` | 2     | velocity.x |                                                                   |
-| `PARTICLE*OFFSET*VELOCITY_Y` | 3     | velocity.y |                                                                   |
-| `PARTICLE*OFFSET*ORIGIN_X`   | 4     | origin.x   | Point de repos/d'ancrage du ressort                               |
-| `PARTICLE*OFFSET*ORIGIN_Y`   | 5     | origin.y   |                                                                   |
-| `PARTICLE*OFFSET*SIZE`       | 6     | size       | Remplacement de taille par particule                              |
-| `PARTICLE*OFFSET*LIFE`       | 7     | life       | `-1` = perpétuelle ; `≥0` décroît à 0,5/s ; `0` = morte (ignorée) |
+| `PARTICLE_OFFSET_POSITION_X` | 0     | position.x | x actuel en espace monde                                          |
+| `PARTICLE_OFFSET_POSITION_Y` | 1     | position.y | y actuel en espace monde                                          |
+| `PARTICLE_OFFSET_VELOCITY_X` | 2     | velocity.x |                                                                   |
+| `PARTICLE_OFFSET_VELOCITY_Y` | 3     | velocity.y |                                                                   |
+| `PARTICLE_OFFSET_ORIGIN_X`   | 4     | origin.x   | Point de repos/d'ancrage du ressort                               |
+| `PARTICLE_OFFSET_ORIGIN_Y`   | 5     | origin.y   |                                                                   |
+| `PARTICLE_OFFSET_SIZE`       | 6     | size       | Remplacement de taille par particule                              |
+| `PARTICLE_OFFSET_LIFE`       | 7     | life       | `-1` = perpétuelle ; `≥0` décroît à 0,5/s ; `0` = morte (ignorée) |
 
 Vous pouvez lire et écrire `particleData` directement pour configurer des formations personnalisées. Après écriture, définissez `needsInit = true` pour déclencher un téléversement GPU à la trame suivante.
 

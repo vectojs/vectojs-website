@@ -38,13 +38,15 @@ if (import.meta.env.DEV) {
 
 ## Qué muestra
 
-- **Vista de árbol en vivo** de `scene.rootEntity` y `scene.overlayRootEntity`, actualizada en un intervalo (por defecto 500ms). Cada fila muestra el nombre del constructor de la entidad, posición, tamaño y dos insignias: **⚡** (`interactive`) y **▶** (`hasPendingAnimations()`).
+- **Vista de árbol en vivo (pestaña `Tree`)** de `scene.rootEntity` y `scene.overlayRootEntity`, actualizada en un intervalo (por defecto 500ms). Cada fila muestra el nombre del constructor de la entidad, posición, tamaño y dos insignias: **⚡** (`interactive`) y **▶** (`hasPendingAnimations()`).
 - **Modo selección**: haz clic en **Pick**, luego haz clic en cualquier parte de la página. El inspector resuelve el clic en la entidad más profunda bajo ese punto usando el mismo orden de recorrido que la Scene usa para la entrada del puntero (con un respaldo AABB para entidades decorativas no interactivas).
 - **Resaltado de selección**: la caja delimitadora en espacio mundial de la entidad seleccionada se dibuja como un contorno en la capa de superposición de la escena _anfitriona_, para que veas exactamente qué está seleccionado en relación con el renderizado en vivo.
-- **Lectura de estado**: geometría, escala/rotación/opacidad, la matriz de transformación mundial completa y el estado de animación como texto plano — los números que una captura de pantalla no puede darte directamente.
+- **Lectura de estado + edición en línea (pestaña `Info`)**: geometría, escala/rotación/opacidad, la matriz de transformación mundial completa y el estado de animación como texto plano — los números que una captura de pantalla no puede darte directamente.
 - **Edición por teclado**: con una entidad seleccionada, las teclas de flecha la mueven 1px (Mayús: 10px); `+`/`-` ajustan la opacidad en 0.1. Útil para confirmar _qué_ entidad tiene un error de diseño antes de tocar el código.
 
-Desde la versión 0.4.3, el dock fijo del borde derecho y su canvas usan `pointer-events: none`; solo los controles interactivos proyectados vuelven a habilitar los eventos del puntero. Así, el inspector ya no roba la entrada de los controles anfitriones situados bajo píxeles vacíos del dock, mientras que sus filas VMT y botones siguen siendo clicables.
+- **HUD de rendimiento** (0.5.0): una tira inferior lee [`Scene.frameStats`](/reference/core-scene) — fps, ms/fotograma, recuento de entidades, modo de renderizado y conteo de fotogramas renderizados/omitidos. Los fps son la cadencia real de _fotogramas renderizados_, por lo que una escena `onDemand` inactiva o con aceleración automática dice honestamente ~2fps en lugar de un falso 60. Desactivar con `showPerf: false`.
+- **Configuración** (pestaña `⚙`, 0.5.0): alternar el resaltado de selección, y cambiar el intervalo de actualización y el lado de anclaje (izquierdo/derecho) en vivo.
+  Desde la versión 0.4.3, el dock fijo del borde derecho y su canvas usan `pointer-events: none`; solo los controles interactivos proyectados vuelven a habilitar los eventos del puntero. Así, el inspector ya no roba la entrada de los controles anfitriones situados bajo píxeles vacíos del dock, mientras que sus filas VMT y botones siguen siendo clicables.
 
 ## API
 

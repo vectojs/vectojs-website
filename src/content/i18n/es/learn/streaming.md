@@ -1,82 +1,59 @@
 ---
 title: 'Streaming y texto en tiempo real'
-description: 'Creación de UIs de chat, visores de logs y paneles en vivo: coalescencia de fragmentos por fotograma, las APIs de append, interacción con el throttle de inactividad y estrategia para transcripciones largas.'
+description: 'Construcción de interfaces de chat, visores de registros y paneles en vivo: coalescencia de bloques por fotograma, API de adición, interacción con la aceleración inactiva y estrategia para transcripciones largas.'
 order: 18
 ---
 
 # Streaming y texto en tiempo real
 
-Los flujos de tokens (chat LLM), las colas de logs y las fuentes de datos en vivo son donde el código ingenuo de VectoJS
-más a menudo se despeña. El motor te proporciona primitivas rápidas —
-`Text.append()`, `Markdown.appendMarkdown()`, memoización de diseño a nivel de párrafo,
-análisis de Markdown fuera del hilo — pero conectarlas por token en lugar de por fotograma
-desperdicia la mayor parte de esa ventaja. Esta página es la receta integral.
+Los flujos de tokens (chat LLM), los registros en vivo (log tails) y las fuentes de datos en tiempo real son los casos en los que el código VectoJS ingenuo falla con más frecuencia. El motor ofrece primitivas rápidas — `Text.append()`, `Markdown.appendMarkdown()`, memoización del diseño a nivel de párrafo, análisis Markdown fuera del hilo principal — pero conectarlas token por token en lugar de fotograma por fotograma desperdicia casi todas esas ventajas. Esta página proporciona la receta completa de principio a fin.
 
-## La regla de oro: agrupar por fotograma, no por token
+## La regla de oro: confirmar por fotograma, no por token
 
-Un flujo entrega tokens mucho más rápido de lo que la pantalla se refresca. Cada
-llamada a `append()`/`appendMarkdown()` paga un pase de diseño, y todo diseño entre
-dos fotogramas renderizados excepto el último es **trabajo invisible**. La solución son cuatro
-líneas: almacenar los tokens en búfer a medida que llegan, vaciarlos una vez por fotograma de animación.
+Un flujo entrega tokens mucho más rápido de lo que se actualiza la pantalla. Cada llamada directa a `appendMarkdown()` puede desencadenar una pasada de análisis/diseño, y cada pasada entre dos fotogramas renderizados, excepto la última, es **trabajo invisible**. Usa el `StreamController` integrado en lugar de diseñar un segundo planificador:
 
 ```typescript
-let pending = '';
-let scheduled = false;
+const stream = markdown.createStream();
 
-function pushToken(token: string) {
-  pending += token;
-  if (scheduled) return;
-  scheduled = true;
-  requestAnimationFrame(() => {
-    scheduled = false;
-    const chunk = pending;
-    pending = '';
-    markdown.appendMarkdown(chunk); // UN diseño para todos los tokens del fotograma
-    transcript.scrollToBottom();
-  });
+try {
+  for await (const token of llmStream) {
+    await stream.write(token);
+  }
+  await stream.close(); // fuerza la confirmación final; no esperes otro fotograma
+} catch (error) {
+  stream.abort(error); // descarta el texto aceptado pero no confirmado
+  throw error;
 }
-
-for await (const token of llmStream) pushToken(token);
 ```
 
-Con un flujo de 200 tokens/s a 60 fps esto convierte ~200 pases de diseño por segundo
-en ~60 — y bajo carga se degrada con gracia: cuanto más ocupado esté el hilo principal,
-más grandes (y _más raros_) serán los fragmentos vaciados. El patrón es
-autorregulado; un `setInterval` fijo no lo es.
+El modo predeterminado mantiene los fragmentos aceptados como cadenas separadas, para luego unirlos y confirmarlos como máximo una vez en el siguiente fotograma de animación. `write()` se resuelve cuando un fragmento entra en el búfer limitado, no cuando se vuelve visible, por lo que un productor asíncrono aún puede aportar varios tokens al mismo fotograma. Usa `await`: una vez que se llena el búfer de nivel alto de 64 KiB, una escritura esperará capacidad y cualquier escritura adicional será rechazada (reject) en lugar de crear una cola ilimitada.
+
+Con un flujo de 200 tokens/s funcionando a 60 fps, esto reduce hasta ~200 pasadas de diseño por segundo a como máximo ~60. Bajo carga se degrada elegantemente: cuanto más ocupado esté el hilo principal, más grandes (y _raros_) serán los fragmentos confirmados. Un debounce fijo mediante `setInterval` hace exactamente lo contrario.
+
+`appendMarkdown()` sigue siendo la vía de escape síncrona. Una llamada directa primero vacía todo el texto del controlador enviado previamente (incluida una escritura con presión de retroceso), y luego agrega su propio fragmento, por lo que el orden de las llamadas se mantiene exacto.
 
 > [!NOTE]
-> `scene.markDirty()` ya se combina naturalmente — tres appends en un fotograma
-> establecen una bandera y cuestan un repintado. La parte costosa de un append es el
-> **diseño**, no la bandera de suciedad, por lo que la agrupación debe envolver
-> al propio append.
+> `scene.markDirty()` ya coalescen de forma natural: tres adiciones en un solo fotograma establecen una bandera y cuestan un solo repintado. La parte costosa es el análisis/diseño, razón por la cual el procesamiento por lotes debe envolver a `appendMarkdown()` en sí. `createStream()` hace precisamente eso; no crea otro analizador ni una ruta de reconciliación.
 
-## Elegir la API de append
+## Elección de la API de adición
 
-| Contenido                   | API                                    | Coste por llamada                                                                                                                             |
-| --------------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Texto plano                 | `text.append(chunk)`                   | Pase en frío, pero el memo de párrafo reusa cada párrafo terminado en `\n`                                                                    |
-| Tramos con estilo           | `richText.appendSpans(spans)`          | Añade spans; las medidas de spans anteriores se reutilizan                                                                                    |
-| Markdown                    | `markdown.appendMarkdown(chunk)`       | Re-lexea la fuente original (fuera del hilo cuando existe `Worker`), reusa entidades de bloque terminadas, extiende el último párrafo in situ |
-| Cualquier cosa, reemplazado | `setText` / `setContent` (anti-patrón) | Reconstrucción completa — nunca llamar con un documento creciente por token                                                                   |
+| Contenido                   | API                                                     | Costo por confirmación                                                                            |
+| --------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Texto sin formato           | `text.append(chunk)`                                    | Pasada en frío, pero la memoización de párrafos reutiliza todo párrafo terminado en `\n`          |
+| Spans estilizados           | `richText.appendSpans(spans)`                           | Añade spans; las medidas de los spans previos se reutilizan                                       |
+| Markdown, directo           | `markdown.appendMarkdown(chunk)`                        | API síncrona; una confirmación de adición por llamada                                             |
+| Markdown, en flujo          | `await stream.write(chunk)` después de `createStream()` | Como máximo una confirmación de adición por fotograma de animación; presión de retroceso limitada |
+| Cualquier cosa, reemplazada | `setText` / `setContent` (antipatrón de streaming)      | Reconstrucción completa — nunca la llames sobre un documento que crece token por token            |
 
-Dos costes se esconden dentro de `appendMarkdown` que deberías conocer:
+`appendMarkdown` esconde internamente dos costos que debes conocer:
 
-1. **El lexado es O(documento), no O(fragmento).** Cada llamada re-tokeniza toda la
-   fuente acumulada. El análisis se ejecuta en un Worker en segundo plano cuando está disponible
-   (con fallback a lexado síncrono en entornos sin `Worker`), y las
-   actualizaciones de entidades reutilizan todo bloque terminado — pero una transcripción de 100k caracteres
-   sigue pagando un lex de 100k caracteres por vaciado. La agrupación por fotograma divide eso
-   por el factor tokens-por-fotograma; la segmentación de transcripciones (más abajo) lo limita.
+1. **El análisis léxico es O(documento), no O(fragmento).** Cada llamada vuelve a dividir en tokens toda la fuente acumulada. El análisis se ejecuta en un Worker en segundo plano cuando está disponible (volviendo al análisis léxico síncrono en entornos sin `Worker`), y la actualización de entidades reutiliza todos los bloques terminados — pero una transcripción de 100k caracteres aún paga un costo léxico de 100k caracteres por vaciado. El procesamiento por lotes por fotograma divide eso por el factor de tokens por fotograma; la segmentación de la transcripción (abajo) lo limita.
 
-2. **La memoización de párrafos se basa en `\n`.** Tanto `Text.append` como el actualizador
-   de párrafos de Markdown solo re-miden el párrafo que cambió. Una línea
-   interminable sin saltos anula el memo y degrada a medición O(documento) por
-   vaciado. La salida LLM tiene saltos de párrafo naturales; las líneas de log terminan en `\n` —
-   normalmente lo obtienes gratis, pero no elimines los saltos de línea.
+2. **La memoización de párrafos usa como clave `\n`.** Tanto `Text.append` como el actualizador de párrafos Markdown solo vuelven a medir el párrafo que cambió. Una línea continua interminable deshabilita la memoización y degrada la medición a O(documento) por vaciado. La salida LLM tiene saltos de párrafo naturales; las líneas de registro terminan en `\n` — por lo general lo obtienes gratis, pero no elimines los saltos de línea.
 
 ## Ritmo de máquina de escribir y ciclo de vida
 
-La agrupación por rendimiento es el comportamiento predeterminado. Añade un ritmo de reloj de pared fijo solo cuando el producto necesite una revelación tipo máquina de escribir:
+El procesamiento por lotes para el rendimiento es el predeterminado. Agrega un ritmo de tiempo de reloj (pacing) fijo solo cuando el producto necesite una revelación tipo máquina de escribir:
 
 ```typescript
 const stream = markdown.createStream({
@@ -86,111 +63,88 @@ const stream = markdown.createStream({
 });
 ```
 
-El ritmo nunca cambia a “un token por fotograma”. Acumula crédito de `graphemesPerSecond` a partir de las marcas de tiempo de rAF, puede revelar varios grafemas en un fotograma y, aun así, realiza a lo sumo un commit de anexo. Un límite de 100ms en la marca de tiempo previene que una pestaña en segundo plano descargue una gran ráfaga de actualización de golpe.
+El ritmo (pacing) nunca cambia a "un token por fotograma". Acumula un crédito de `graphemesPerSecond` a partir de las marcas de tiempo rAF, puede revelar varios grafemas en un solo fotograma y aún realiza como máximo una confirmación de adición. Un límite de marca de tiempo de 100 ms evita que una pestaña en segundo plano vuelque una gran ráfaga de contenido de recuperación a la vez.
 
-La segmentación usa `Intl.Segmenter`, incluso a través de los límites de fragmentos/fotogramas, por lo que las marcas combinantes, secuencias ZWJ de emoji, banderas y pares subrogados permanecen juntos. Unicode permite que un único grafema crezca sin límite; si una entrada adversaria llena la ventana delimitada aceptada-más-bloqueada completa sin alcanzar un límite, el controlador aplica un punto de código Unicode (nunca la mitad de un par subrogado) en lugar de bloquearse o consumir memoria sin límite.
+El recorte utiliza `Intl.Segmenter`, incluso a través de los límites de fragmentos/fotogramas, por lo que las marcas combinatorias, las secuencias emoji ZWJ, las banderas y los pares sustitutos se mantienen unidos. Unicode permite que un solo grafema crezca sin límite; si una entrada maliciosa llena por completo la ventana delimitada (aceptada más bloqueada) sin alcanzar un límite, el controlador confirma un punto de código Unicode (nunca la mitad de un par sustituto) en lugar de bloquearse o aumentar la memoria de forma ilimitada.
 
-- `flush()` aplica de forma síncrona el texto enviado y mantiene el flujo abierto.
-- `close()` admite la escritura bloqueada, libera la cola de grafemas retenida, realiza un commit final ordenado y cierra.
-- `abort(reason)` descarta el texto no aplicado. Las operaciones pendientes y futuras se rechazan con la razón retenida.
-- `Markdown.setContent()` aborta el controlador activo antes del reemplazo.
-- `Markdown.destroy()` lo aborta y elimina los escuchadores de rAF/`AbortSignal`.
-- Un `Markdown` posee como máximo un controlador abierto; los controladores terminales se desregistran para que pueda comenzar un flujo posterior.
+- `flush()` confirma de forma síncrona el texto enviado y mantiene abierto el flujo.
+- `close()` admite la escritura bloqueada, libera el final del grafema retenido, realiza una última confirmación ordenada y cierra el flujo.
+- `abort(reason)` descarta el texto no confirmado. Las operaciones pendientes y futuras se rechazarán con la razón retenida.
+- `Markdown.setContent()` anula el controlador activo antes del reemplazo.
+- `Markdown.destroy()` anula el controlador y elimina los oyentes rAF/`AbortSignal`.
+- Un `Markdown` posee como máximo un controlador abierto; los controladores terminados se desregistran para que un flujo posterior pueda comenzar.
 
-## Modo de renderizado y el throttle de inactividad
+## Modo de renderizado y aceleración inactiva
 
-Las UIs de streaming deberían usar `renderMode: 'onDemand'`:
+Las interfaces de streaming deben ejecutarse con `renderMode: 'onDemand'`:
 
 ```typescript
 const scene = new Scene(canvas, { renderMode: 'onDemand' });
 ```
 
-Cada append marca la escena como sucia, así que los fotogramas se renderizan exactamente mientras el contenido
-fluye y se detienen en cuanto el flujo se inactiva — sin sorpresas de throttle automático a 2 fps
-y sin consumo de batería en inactividad entre respuestas. Las APIs de append y los
-contenedores de desplazamiento incorporados informan de su movimiento en curso (`hasPendingAnimations()`),
-por lo que el desplazamiento suave hasta el fondo sigue animando después de que llegue el último token.
+Cada adición marca la escena como sucia, por lo que los fotogramas se renderizan exactamente mientras el contenido fluye y se detienen en el momento en que el flujo queda inactivo: no hay sorpresas de aceleración automática a 2 fps ni consumo innecesario de batería entre respuestas. Las API de adición y los contenedores de desplazamiento integrados informan todos sobre sus animaciones en curso (`hasPendingAnimations()`), de modo que un desplazamiento suave hacia abajo continúa animándose después de que aterriza el último token.
 
-Si impulsas cualquier _movimiento personalizado_ por fotograma durante el flujo (un indicador
-de escritura, un cursor pulsante) desde `update()`, recuerda el
-[contrato de throttle de inactividad](/learn/performance/#la-limitación-automática-por-inactividad-la-trampa-oculta):
-sobrescribe `hasPendingAnimations()` o condúcelo con `animate()`/`springTo()`.
+Si controlas cualquier movimiento _personalizado_ por fotograma durante el flujo (un indicador de escritura, un cursor parpadeante) desde `update()`, recuerda el [contrato de la aceleración automática inactiva](/learn/performance/#la-limitación-automática-por-inactividad-la-trampa-oculta): anula `hasPendingAnimations()` o contrólalo con `animate()`/`springTo()`.
 
-## Seguir el fondo
+## Seguir el fondo (desplazamiento)
 
-`ScrollView.scrollToBottom()` **salta** al final del contenido — deliberadamente
-evita el resorte de desplazamiento, porque reorientar un resorte muchas veces por segundo
-nunca le permite asentarse y el viewport tiembla en lugar de seguir el contenido
-más nuevo. Llámalo dentro del mismo vaciado rAF que el append (como en la receta
-anterior) para que el objetivo se calcule _después_ del nuevo diseño.
-
-Para una UI de chat, sigue la intención del usuario: mantener el fondo solo mientras
-ya estaban en el fondo. `content` es público y su `y` contiene la traslación
-negativa de desplazamiento, por lo que "en el fondo" es:
+`ScrollView.scrollToBottom()` realiza un **ajuste (snap)** hasta el final del contenido — omitiendo deliberadamente el resorte de desplazamiento, porque reorientar un resorte muchas veces por segundo nunca le permite estabilizarse y la ventana tiembla en lugar de rastrear el contenido más nuevo. `Markdown.onLayoutUpdated` se ejecuta después de cada confirmación del flujo, cuando la nueva altura está disponible:
 
 ```typescript
+let stickToBottom = true;
+
 function nearBottom(sv: ScrollView, slack = 24): boolean {
   const maxScroll = Math.max(0, sv.content.height - sv.height);
   return -sv.content.y >= maxScroll - slack;
 }
 
-// En el vaciado: leer el anclaje ANTES de añadir, aplicar DESPUÉS.
-const stick = nearBottom(transcript);
-markdown.appendMarkdown(chunk);
-if (stick) transcript.scrollToBottom();
+markdown.onLayoutUpdated = () => {
+  if (stickToBottom) transcript.scrollToBottom();
+};
+
+for await (const token of llmStream) {
+  // Leer la intención antes de que la confirmación cambie la altura del contenido.
+  stickToBottom = nearBottom(transcript);
+  await stream.write(token);
+}
+await stream.close();
 ```
 
-El orden lectura-append-desplazamiento dentro de un mismo vaciado es la clave: medir
-"estaba en el fondo" después del append siempre responde "no" una vez que el contenido ha crecido.
+También establece `stickToBottom = false` desde el manejo del desplazamiento de usuario de la aplicación; de lo contrario, un usuario que se desplaza durante el fotograma pendiente final puede ser arrastrado hacia atrás por una intención obsoleta. El orden es el invariante: lee "estaba en el fondo" antes de que el contenido crezca, y ajusta (snap) solo después de `onLayoutUpdated`.
 
 > [!NOTE]
-> Las dos APIs de desplazamiento son deliberadamente asimétricas: `scrollTo(y)` reorienta el
-> **resorte** de desplazamiento (por lo que `content.y` anima hacia allí en los siguientes fotogramas), mientras que
-> `scrollToBottom()` **salta**. El estado derivado de la posición leído inmediatamente después de un
-> `scrollTo` ve la posición anterior — léelo en el siguiente vaciado, como el patrón
-> de anclaje anterior hace naturalmente.
+> `scrollTo(y)` reorienta el **resorte** de desplazamiento, mientras que `scrollToBottom()` **ajusta (snaps)**. Un estado derivado de la posición leído inmediatamente después de `scrollTo` todavía ve la antigua posición — léelo en una confirmación/fotograma posterior.
 
-## Transcripciones largas: segmentar, luego virtualizar
+## Transcripciones largas: segmentar y luego virtualizar
 
-El coste de append y el coste de lexado crecen con el tamaño del documento, así que limita el documento.
-Estrategia de dos niveles para UIs de chat/log:
+El costo de adición y el costo léxico crecen con el tamaño del documento, por lo tanto, limita el documento. Estrategia de dos niveles para interfaces de chat/registros:
 
-1. **Segmentar por mensaje.** Una entidad `Markdown` por mensaje del asistente, no
-   una para toda la conversación. La entidad en streaming es siempre pequeña (solo
-   el mensaje en curso), por lo que el lexado por vaciado se mantiene económico independientemente de la
-   longitud de la conversación. Los mensajes terminados nunca se re-lexean.
-2. **Virtualizar el historial.** Una vez que los mensajes son entidades separadas, un
-   [`VirtualList`](/reference/ui-virtuallist/) renderiza solo los visibles.
-   Una transcripción de mil mensajes cuesta lo que muestra el viewport, no lo que la
-   sesión ha acumulado.
+1. **Segmentar por mensaje.** Una entidad `Markdown` por mensaje de asistente, no una para toda la conversación. La entidad del flujo siempre es pequeña (solo el mensaje en vuelo), por lo que el análisis léxico por vaciado se mantiene económico independientemente de la duración de la conversación. Los mensajes terminados nunca se vuelven a analizar.
+2. **Virtualizar el historial.** Una vez que los mensajes son entidades separadas, una [`VirtualList`](/reference/ui-virtuallist/) renderiza solo aquellos que son visibles. Una transcripción de mil mensajes cuesta lo que muestra la ventana gráfica, no lo que acumuló la sesión.
 
 ```typescript
 function startAssistantMessage(): Markdown {
   const md = new Markdown('', { maxWidth: 640 });
-  messages.push(md); // tu fuente de datos de VirtualList
-  return md; // transmitir SÓLO a esta entidad
+  messages.push(md); // tu fuente de datos VirtualList
+  return md; // stream solo en ESTA entidad
 }
 ```
 
-Esto también limita la memoria: el diseño de un mensaje terminado es estático y descartable,
-y desplazarse muy atrás nunca desencadena un re-diseño de la cola en vivo.
+Esto también limita la memoria: el diseño estático de un mensaje terminado se puede descartar (cull), y desplazarse muy atrás nunca desencadena el rediseño de la cola en vivo.
 
-## Medir una UI de streaming
+## Medir una interfaz de streaming
 
-Síntomas y sus señales, en el orden en que revisarlos:
+Síntomas y sus señales, en el orden de comprobación:
 
-| Síntoma                                     | Sonda                                                                                                 |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Tirones durante el streaming                | Cuenta appends por segundo vs. fotogramas por segundo — si appends ≫ fotogramas, te falta el lote rAF |
-| Los tirones crecen con la transcripción     | Estás transmitiendo a una entidad que crece sin fin — segmenta por mensaje                            |
-| Toda la UI se traba en párrafos largos      | No hay `\n` en el flujo — el memo de párrafo no puede dividir; revisa el formato de la fuente         |
-| El desplazamiento lucha con el usuario      | `scrollToBottom()` incondicional — condiciona con el anclaje "estaba en el fondo"                     |
-| CPU ocupada mientras el flujo está inactivo | Escena en modo `'always'`, o una animación personalizada sin `hasPendingAnimations()`                 |
+| Síntoma                                                | Sonda                                                                                                                              |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Saltos o tirones al transmitir                         | DevTools `Streaming/appends` supera los fotogramas renderizados — usa un `createStream()` por mensaje en vivo                      |
+| `write()` es rechazado bajo carga                      | Una segunda escritura llegó mientras una sufría presión de retroceso — usa `await` en cada escritura                               |
+| Los tirones crecen con la longitud de la transcripción | Estás transmitiendo en una entidad en constante crecimiento — segmenta por mensaje                                                 |
+| Toda la IU se bloquea en párrafos largos               | No hay `\n` en el flujo — la memoización del párrafo no puede dividirse; revisa el formato de la fuente                            |
+| El desplazamiento lucha contra el usuario              | `scrollToBottom()` incondicional — limita a través de la adherencia "estaba en el fondo"                                           |
+| CPU ocupada mientras el flujo está inactivo            | Escena dejada en modo `'always'`, o una animación personalizada sin `hasPendingAnimations()`; el rAF del controlador está inactivo |
 
-Para números reales, usa el patrón de medición en página de
-[Medir el rendimiento real](/learn/performance/#medir-el-rendimiento-real) —
-el FPS headless no es representativo.
+Para obtener números reales, utiliza el patrón de medición en la página de [Medir el rendimiento real](/learn/performance/#medir-el-rendimiento-real) — los FPS en modo headless no son representativos.
 
-> **Siguiente:** [Rendimiento](/learn/performance/) para la caja de herramientas de optimización
-> completa, y [`Markdown`](/reference/ui-markdown/) para la referencia de la API
-> de streaming.
+> **A continuación:** [Rendimiento](/learn/performance/) para ver la caja de herramientas de optimización completa, y [`Markdown`](/reference/ui-markdown/) para la referencia de la API de streaming.

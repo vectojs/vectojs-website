@@ -30,14 +30,14 @@ new ComputeParticleEntity(options?: ComputeParticleOptions)
 
 | Constante de desplazamiento  | Índice | Campo                                                                |
 | ---------------------------- | ------ | -------------------------------------------------------------------- |
-| `PARTICLE*OFFSET*POSITION_X` | 0      | position.x                                                           |
-| `PARTICLE*OFFSET*POSITION_Y` | 1      | position.y                                                           |
-| `PARTICLE*OFFSET*VELOCITY_X` | 2      | velocity.x                                                           |
-| `PARTICLE*OFFSET*VELOCITY_Y` | 3      | velocity.y                                                           |
-| `PARTICLE*OFFSET*ORIGIN_X`   | 4      | origin.x (anclaje del resorte)                                       |
-| `PARTICLE*OFFSET*ORIGIN_Y`   | 5      | origin.y                                                             |
-| `PARTICLE*OFFSET*SIZE`       | 6      | tamaño                                                               |
-| `PARTICLE*OFFSET*LIFE`       | 7      | vida: `-1` = perpetua, `>=0` decae a `0.5/s`, `0` = muerta (omitida) |
+| `PARTICLE_OFFSET_POSITION_X` | 0      | position.x                                                           |
+| `PARTICLE_OFFSET_POSITION_Y` | 1      | position.y                                                           |
+| `PARTICLE_OFFSET_VELOCITY_X` | 2      | velocity.x                                                           |
+| `PARTICLE_OFFSET_VELOCITY_Y` | 3      | velocity.y                                                           |
+| `PARTICLE_OFFSET_ORIGIN_X`   | 4      | origin.x (anclaje del resorte)                                       |
+| `PARTICLE_OFFSET_ORIGIN_Y`   | 5      | origin.y                                                             |
+| `PARTICLE_OFFSET_SIZE`       | 6      | tamaño                                                               |
+| `PARTICLE_OFFSET_LIFE`       | 7      | vida: `-1` = perpetua, `>=0` decae a `0.5/s`, `0` = muerta (omitida) |
 
 ## Métodos
 

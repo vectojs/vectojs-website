@@ -75,14 +75,14 @@ window.addEventListener('resize', () => {
 
 | オフセット定数               | インデックス | フィールド | 備考                                                   |
 | ---------------------------- | ------------ | ---------- | ------------------------------------------------------ |
-| `PARTICLE*OFFSET*POSITION_X` | 0            | position.x | 現在のワールド空間x                                    |
-| `PARTICLE*OFFSET*POSITION_Y` | 1            | position.y | 現在のワールド空間y                                    |
-| `PARTICLE*OFFSET*VELOCITY_X` | 2            | velocity.x |                                                        |
-| `PARTICLE*OFFSET*VELOCITY_Y` | 3            | velocity.y |                                                        |
-| `PARTICLE*OFFSET*ORIGIN_X`   | 4            | origin.x   | ばねの静止/アンカー点                                  |
-| `PARTICLE*OFFSET*ORIGIN_Y`   | 5            | origin.y   |                                                        |
-| `PARTICLE*OFFSET*SIZE`       | 6            | size       | パーティクルごとのサイズ上書き                         |
-| `PARTICLE*OFFSET*LIFE`       | 7            | life       | `-1` = 永続；`≥0`は0.5/sで減衰；`0` = 死亡（スキップ） |
+| `PARTICLE_OFFSET_POSITION_X` | 0            | position.x | 現在のワールド空間x                                    |
+| `PARTICLE_OFFSET_POSITION_Y` | 1            | position.y | 現在のワールド空間y                                    |
+| `PARTICLE_OFFSET_VELOCITY_X` | 2            | velocity.x |                                                        |
+| `PARTICLE_OFFSET_VELOCITY_Y` | 3            | velocity.y |                                                        |
+| `PARTICLE_OFFSET_ORIGIN_X`   | 4            | origin.x   | ばねの静止/アンカー点                                  |
+| `PARTICLE_OFFSET_ORIGIN_Y`   | 5            | origin.y   |                                                        |
+| `PARTICLE_OFFSET_SIZE`       | 6            | size       | パーティクルごとのサイズ上書き                         |
+| `PARTICLE_OFFSET_LIFE`       | 7            | life       | `-1` = 永続；`≥0`は0.5/sで減衰；`0` = 死亡（スキップ） |
 
 カスタムな編隊を設定するため、`particleData`を直接読み書きできます。書き込み後、次のフレームでのGPUアップロードをトリガーするため`needsInit = true`を設定してください。
 

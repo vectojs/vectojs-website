@@ -29,14 +29,14 @@ new ComputeParticleEntity(options?: ComputeParticleOptions)
 
 | 偏移常量                     | 索引 | 字段                                                         |
 | ---------------------------- | ---- | ------------------------------------------------------------ |
-| `PARTICLE*OFFSET*POSITION_X` | 0    | position.x                                                   |
-| `PARTICLE*OFFSET*POSITION_Y` | 1    | position.y                                                   |
-| `PARTICLE*OFFSET*VELOCITY_X` | 2    | velocity.x                                                   |
-| `PARTICLE*OFFSET*VELOCITY_Y` | 3    | velocity.y                                                   |
-| `PARTICLE*OFFSET*ORIGIN_X`   | 4    | origin.x（弹簧锚点）                                         |
-| `PARTICLE*OFFSET*ORIGIN_Y`   | 5    | origin.y                                                     |
-| `PARTICLE*OFFSET*SIZE`       | 6    | size                                                         |
-| `PARTICLE*OFFSET*LIFE`       | 7    | life：`-1` = 永久，`>=0` 以 `0.5/s` 衰减，`0` = 死亡（跳过） |
+| `PARTICLE_OFFSET_POSITION_X` | 0    | position.x                                                   |
+| `PARTICLE_OFFSET_POSITION_Y` | 1    | position.y                                                   |
+| `PARTICLE_OFFSET_VELOCITY_X` | 2    | velocity.x                                                   |
+| `PARTICLE_OFFSET_VELOCITY_Y` | 3    | velocity.y                                                   |
+| `PARTICLE_OFFSET_ORIGIN_X`   | 4    | origin.x（弹簧锚点）                                         |
+| `PARTICLE_OFFSET_ORIGIN_Y`   | 5    | origin.y                                                     |
+| `PARTICLE_OFFSET_SIZE`       | 6    | size                                                         |
+| `PARTICLE_OFFSET_LIFE`       | 7    | life：`-1` = 永久，`>=0` 以 `0.5/s` 衰减，`0` = 死亡（跳过） |
 
 ## 方法
 

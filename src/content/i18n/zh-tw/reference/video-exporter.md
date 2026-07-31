@@ -27,7 +27,7 @@ order: 47
 bun add @vectojs/video-exporter
 ```
 
-匯出器需要 `ffmpeg` 在 `PATH` 上。Chromium 從 `PUPPETEER*EXECUTABLE*PATH` 解析，然後在存在時從 `/usr/bin/chromium` 解析，然後從 Puppeteer 設定或捆綁的瀏覽器解析。
+匯出器需要 `ffmpeg` 在 `PATH` 上。Chromium 從 `PUPPETEER_EXECUTABLE_PATH` 解析，然後在存在時從 `/usr/bin/chromium` 解析，然後從 Puppeteer 設定或捆綁的瀏覽器解析。
 
 ```bash
 ffmpeg -version

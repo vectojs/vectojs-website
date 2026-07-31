@@ -27,7 +27,7 @@ order: 47
 bun add @vectojs/video-exporter
 ```
 
-エクスポーターは`PATH`に`ffmpeg`が必要です。Chromiumは `PUPPETEER*EXECUTABLE*PATH`、次に `/usr/bin/chromium`（存在する場合）、その後Puppeteerの設定またはバンドルされたブラウザから解決されます。
+エクスポーターは`PATH`に`ffmpeg`が必要です。Chromiumは `PUPPETEER_EXECUTABLE_PATH`、次に `/usr/bin/chromium`（存在する場合）、その後Puppeteerの設定またはバンドルされたブラウザから解決されます。
 
 ```bash
 ffmpeg -version

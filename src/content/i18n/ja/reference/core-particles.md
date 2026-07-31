@@ -29,14 +29,14 @@ new ComputeParticleEntity(options?: ComputeParticleOptions)
 
 | オフセット定数               | インデックス | フィールド                                                         |
 | ---------------------------- | ------------ | ------------------------------------------------------------------ |
-| `PARTICLE*OFFSET*POSITION_X` | 0            | position.x                                                         |
-| `PARTICLE*OFFSET*POSITION_Y` | 1            | position.y                                                         |
-| `PARTICLE*OFFSET*VELOCITY_X` | 2            | velocity.x                                                         |
-| `PARTICLE*OFFSET*VELOCITY_Y` | 3            | velocity.y                                                         |
-| `PARTICLE*OFFSET*ORIGIN_X`   | 4            | origin.x（スプリングアンカー）                                     |
-| `PARTICLE*OFFSET*ORIGIN_Y`   | 5            | origin.y                                                           |
-| `PARTICLE*OFFSET*SIZE`       | 6            | size                                                               |
-| `PARTICLE*OFFSET*LIFE`       | 7            | life：`-1` = 永続、`>=0` は `0.5/s` で減衰、`0` = 死亡（スキップ） |
+| `PARTICLE_OFFSET_POSITION_X` | 0            | position.x                                                         |
+| `PARTICLE_OFFSET_POSITION_Y` | 1            | position.y                                                         |
+| `PARTICLE_OFFSET_VELOCITY_X` | 2            | velocity.x                                                         |
+| `PARTICLE_OFFSET_VELOCITY_Y` | 3            | velocity.y                                                         |
+| `PARTICLE_OFFSET_ORIGIN_X`   | 4            | origin.x（スプリングアンカー）                                     |
+| `PARTICLE_OFFSET_ORIGIN_Y`   | 5            | origin.y                                                           |
+| `PARTICLE_OFFSET_SIZE`       | 6            | size                                                               |
+| `PARTICLE_OFFSET_LIFE`       | 7            | life：`-1` = 永続、`>=0` は `0.5/s` で減衰、`0` = 死亡（スキップ） |
 
 ## メソッド
 

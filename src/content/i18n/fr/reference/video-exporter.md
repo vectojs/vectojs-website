@@ -27,7 +27,7 @@ Version documentée : **0.2.2**
 bun add @vectojs/video-exporter
 ```
 
-L'exportateur nécessite `ffmpeg` dans le `PATH`. Chromium est résolu depuis `PUPPETEER*EXECUTABLE*PATH`, puis `/usr/bin/chromium` lorsqu'il est présent, puis le navigateur configuré ou intégré de Puppeteer.
+L'exportateur nécessite `ffmpeg` dans le `PATH`. Chromium est résolu depuis `PUPPETEER_EXECUTABLE_PATH`, puis `/usr/bin/chromium` lorsqu'il est présent, puis le navigateur configuré ou intégré de Puppeteer.
 
 ```bash
 ffmpeg -version

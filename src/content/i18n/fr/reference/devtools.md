@@ -42,7 +42,7 @@ if (import.meta.env.DEV) {
 
 ## Ce qu'il affiche
 
-- **Vue arborescente en direct** de `scene.rootEntity` et `scene.overlayRootEntity`, rafraîchie
+- **Vue arborescente en direct (onglet `Tree`)** de `scene.rootEntity` et `scene.overlayRootEntity`, rafraîchie
   à intervalle (défaut 500 ms). Chaque ligne montre le nom du constructeur de l'entité, sa
   position, sa taille et deux badges : **⚡** (`interactive`) et **▶** (`hasPendingAnimations()`).
 - **Mode sélection** : cliquez sur **Pick**, puis cliquez n'importe où sur la page.
@@ -52,18 +52,20 @@ if (import.meta.env.DEV) {
 - **Surbrillance de sélection** : la boîte englobante dans l'espace monde de l'entité
   sélectionnée est dessinée comme un contour sur la couche d'overlay de la scène _hôte_,
   pour que vous voyiez exactement ce qui est sélectionné par rapport au rendu en direct.
-- **Relevé d'état** : géométrie, échelle/rotation/opacité, la matrice de transformation
+- **Relevé d'état + édition en ligne (onglet `Info`)** : géométrie, échelle/rotation/opacité, la matrice de transformation
   monde complète et l'état d'animation en texte brut — les nombres qu'une capture d'écran
   ne peut pas vous donner directement.
 - **Édition par touches de déplacement** : avec une entité sélectionnée, les touches
   fléchées la déplacent de 1 px (Maj : 10 px) ; `+`/`-` modifient l'opacité par pas de 0,1.
   Utile pour confirmer _quelle_ entité possède un bug de mise en page avant de toucher au code.
 
-Depuis la version 0.4.3, le dock fixé à droite et son canvas utilisent
-`pointer-events: none` ; seuls les contrôles interactifs projetés réactivent les
-événements du pointeur. L'inspecteur ne vole donc plus les entrées destinées aux
-contrôles hôtes situés sous les pixels vides du dock, tandis que ses lignes VMT et ses
-boutons restent cliquables.
+- **HUD de performances** (0.5.0) : une bande inférieure lit [`Scene.frameStats`](/reference/core-scene) — fps, ms/trame, nombre d'entités, mode de rendu, et nombre de trames rendues/ignorées. Les fps représentent la véritable cadence des _trames rendues_, de sorte qu'une scène `onDemand` inactive ou auto-bridée lit honnêtement ~2fps plutôt qu'un faux 60. Désactivez avec `showPerf: false`.
+- **Paramètres** (onglet `⚙`, 0.5.0) : basculer la surbrillance de sélection, et changer l'intervalle de rafraîchissement et le côté d'ancrage (gauche/droite) en direct.
+  Depuis la version 0.4.3, le dock fixé à droite et son canvas utilisent
+  `pointer-events: none` ; seuls les contrôles interactifs projetés réactivent les
+  événements du pointeur. L'inspecteur ne vole donc plus les entrées destinées aux
+  contrôles hôtes situés sous les pixels vides du dock, tandis que ses lignes VMT et ses
+  boutons restent cliquables.
 
 ## API
 

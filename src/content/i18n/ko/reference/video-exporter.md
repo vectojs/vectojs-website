@@ -27,7 +27,7 @@ order: 47
 bun add @vectojs/video-exporter
 ```
 
-내보내기는 `PATH`에 `ffmpeg`가 필요합니다. Chromium은 `PUPPETEER*EXECUTABLE*PATH`에서 확인된 후, 있는 경우 `/usr/bin/chromium`, 그 다음 Puppeteer의 구성된 또는 번들 브라우저에서 확인됩니다.
+내보내기는 `PATH`에 `ffmpeg`가 필요합니다. Chromium은 `PUPPETEER_EXECUTABLE_PATH`에서 확인된 후, 있는 경우 `/usr/bin/chromium`, 그 다음 Puppeteer의 구성된 또는 번들 브라우저에서 확인됩니다.
 
 ```bash
 ffmpeg -version
