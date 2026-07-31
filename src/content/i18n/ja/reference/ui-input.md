@@ -12,7 +12,7 @@ order: 23
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Input</span></div>
-  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>キーボード入力またはロールベースの自動化を通じてテキストボックスを埋めます。</figcaption>
 </figure>
 
@@ -27,6 +27,23 @@ const name = new Input({
   onChange: (value) => updateProjectName(value),
 });
 ```
+
+## バリデーション状態 (2.3.0+)
+
+`required` と `invalid` はボーダーだけでなく、アクセシビリティツリーにも到達します：
+
+```ts
+const email = new Input({ width: 240, placeholder: 'Email', required: true });
+email.invalid = !isValidEmail(email.value); // 赤いボーダー + aria-invalid
+```
+
+`required` はシャドウ `<input>`/`<textarea>` の**ネイティブな** `required` 属性として投影されるため、単に制約を記述するだけでなく、フォームのバリデーションや `:invalid` スタイリングに参加します。`invalid` は `aria-invalid` になります。
+
+`invalid` をクリアすると、`"false"` を設定するのではなく、属性が**削除**されます。`aria-invalid="false"` は「明示的に有効である」ことをアサートするため、これらは異なる意味を持ちます。
+
+赤いボーダーだけでは、スクリーンリーダーや色を区別できない人には見えません（WCAG 1.4.1）。これが、状態を描画するだけでなく投影する理由です。強制カラーモードでは、両方の状態がシステムカラーに従います。
+
+`TextArea` も同じ2つのオプションを取ります。
 
 ## IME コンポジション
 

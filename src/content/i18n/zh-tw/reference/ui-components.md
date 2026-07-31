@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — 元件參考
 
 > 適用於 VectoJS zero-DOM Canvas 引擎的可重複使用高層級元件。
-> 文件版本：**2.2.0**。事實來源：`dist/index.d.ts`（公開表面）和 `packages/ui/src/*`（行為）。
+> 文件版本：**2.6.0**。事實來源：`dist/index.d.ts`（公開表面）和 `packages/ui/src/*`（行為）。
 
 每個元件都是 Virtual Math Tree (VMT) 中的葉節點或容器。這裡沒有任何東西是真實的 DOM — 元件會透過 `IRenderer` 將自己繪製到 Canvas 上。無障礙、agent 自動化和可爬取性來自一個平行的 **A11y Shadow DOM**：當元件為 `interactive` 時，`Scene` 會投射一個單一隱藏、透明的真實 DOM 節點，定位在元件的方塊上方，根據 `getA11yAttributes()` 構建。這就是為什麼 `page.getByRole('button', { name })` / `fill()` / 螢幕閱讀器可以在純 Canvas UI 上運作的原因。
 
@@ -165,6 +165,29 @@ interface RichTextOptions {
 - `setMaxWidth(maxWidth): this` — 重排。
 - `setExclusions(exclusions): this` — 設定浮動區域並重排。
 - `setSelectable(selectable): this` — 在不重建 spans 的情況下切換原生選取。
+
+**行內物件 (2.6.0+)。** 一個 span 可以為 `RichText` 不會塑形的內容保留水平空間 — 例如公式、圖示或嵌入方塊 — 讓它能位於句中，而不會阻斷行：
+
+```ts
+import { OBJECT_REPLACEMENT, type StyledSpan } from '@vectojs/layout';
+
+const spans: StyledSpan[] = [
+  { text: 'the identity ' },
+  {
+    text: OBJECT_REPLACEMENT, // U+FFFC；必填，否則 `object` 會被忽略
+    object: {
+      width: 42, // 要保留的推進量 (advance)，最終大小的 px
+      height: 20, // 升部 (ascent) + 降部 (descent)；影響行高
+      depth: 4, // 懸垂在基線以下的深度
+      alt: 'x+1', // 可存取名稱、選取與複製文字
+      paint: (surface, box) => surface.drawImage(bitmap, box.x, box.y, box.width, box.height),
+    },
+  },
+  { text: ' holds.' },
+];
+```
+
+度量單位為最終大小的 px — 一個固定的方塊，不會依 run 的 `fontSize` 縮放。`box.y` 已針對基線和 `depth` 進行解析，因此繪製器不需要重複該算術運算。`paint` 在繪製期間被呼叫，因此它必須是同步的；仍在載入內容的物件應該甚麼都不畫，並在準備好時請求重新繪製。**省略 `paint` 會保留空間但不繪製任何內容** — 即一個空白間隙。請設定 `alt`，否則原始哨兵字元（sentinel）會到達無障礙層，並複製為隱形字元。
 
 無障礙：每個連續的**連結 run** 會獲得一個透明的 `<a>` 熱點子節點（在重新換行時協調 — 每個 run 一個熱點；位置原地更新，只有連結_數量_變更時才會重建陰影節點）。元件自身的可存取名稱是完整串聯的文字。
 

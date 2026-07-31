@@ -14,7 +14,7 @@ order: 14
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>该示例将散文、链接、内联代码和一个围栏块保持在一个聚焦的视口中，使布局缺陷可见。</figcaption>
 </figure>
 
@@ -72,6 +72,38 @@ for await (const token of llmStream) pushToken(token);
 ```
 
 避免为每个 token 调用 `setContent(fullDocumentSoFar)`；那会重建整个子树。完整的方案 —— 底部跟随粘性、长转录分段、渲染模式选择 —— 在[流式与实时文本](/learn/streaming/)指南中。
+
+### 尾部未闭合语法：`incompleteMode`
+
+流经常在 token 中间被截断，因此一个块的最后几个字符常常是一半的语法结构。`incompleteMode` 决定了当控制器打开时，该尾部内容如何渲染：
+
+| 模式                 | 流式传输 `a **bo` 时                      |
+| -------------------- | ----------------------------------------- |
+| `'literal'` _(默认)_ | 文本 `a **bo` —— 星号作为普通文本显示     |
+| `'optimistic'`       | 文本 `a bo`，且 `bo` 加粗 —— 隐藏语法标记 |
+
+`'optimistic'` 会猜测尾部段落中最后一个未闭合的加粗/强调/内联代码/链接结构将会闭合。这种猜测**仅用于显示**——token 状态永远不会被改变——并且它会在 `close()` 时解开。因此，同一数据源的 `'literal'` 和 `'optimistic'` 流最终会生成字节级完全相同的文档。`'literal'` 是在该选项推出之前每个版本的默认行为。
+
+该模式由 `Markdown` 解释，而非由控制器解释：控制器负责缓冲和节调，而猜测是对尾部段落进行渲染时的转换。
+
+### 一次性完成：`onStable`
+
+```ts
+const stream = markdown.createStream({
+  onStable: (blocks) => {
+    // 运行一次，携带完成的文档。适合执行如果在流中途进行会被浪费的工作。
+    console.log(`settled with ${blocks.length} top-level blocks`);
+  },
+});
+```
+
+触发**仅一次**，在 `close()` 提交了最终文本**并且**任何进行中的 worker 解析都已应用之后，携带文档在那个瞬间顶级块实体的快照。独立于 `incompleteMode`，因此它与 `'literal'` 默认值协同工作。
+
+它被有意设计为非通用的“流进度”钩子：
+
+- **永远不会被 `flush()`、`abort()` 或 `destroy()` 触发。** 那些都不意味着内容完成了更改。
+- 在回调内部调用 `appendMarkdown()` 或 `setContent()` 会**同步抛出错误**——重入突变将使它刚刚获取到的快照失效。
+- 回调中抛出的错误会拒绝 `close()` 的 promise。无论哪种方式，控制器都会被释放。
 
 ## 性能模型
 

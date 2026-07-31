@@ -77,7 +77,11 @@ Un sistema de disposición de paneles divididos que permite divisiones de redime
 ```typescript
 import { PanelGroup, Panel, PanelResizeHandle } from '@vectojs/ui';
 
-const group = new PanelGroup({ direction: 'horizontal', width: 600, height: 400 });
+const group = new PanelGroup({
+  direction: 'horizontal',
+  width: 600,
+  height: 400,
+});
 const leftPanel = new Panel({ minSize: 100, defaultSize: 0.3 });
 const rightPanel = new Panel({ minSize: 150 });
 

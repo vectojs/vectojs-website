@@ -13,7 +13,7 @@ IME, portapapeles, selección y automatización se mantienen nativos.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Input</span></div>
-  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Input" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Input" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Llena el cuadro de texto mediante entrada de teclado o automatización basada en roles.</figcaption>
 </figure>
 
@@ -28,6 +28,23 @@ const name = new Input({
   onChange: (value) => updateProjectName(value),
 });
 ```
+
+## Estado de validación (2.3.0+)
+
+`required` e `invalid` llegan al árbol de accesibilidad, no solo al borde:
+
+```ts
+const email = new Input({ width: 240, placeholder: 'Email', required: true });
+email.invalid = !isValidEmail(email.value); // borde rojo + aria-invalid
+```
+
+`required` se proyecta como el atributo nativo `required` en el `<input>`/`<textarea>` sombra, por lo que participa en la validación del formulario y en el estilo `:invalid` en lugar de solo describir la restricción. `invalid` se convierte en `aria-invalid`.
+
+Limpiar `invalid` **elimina** el atributo en lugar de establecer `"false"` — significan cosas diferentes, ya que `aria-invalid="false"` afirma ser "explícitamente válido".
+
+Un borde rojo por sí solo sería invisible para un lector de pantalla y para cualquier persona que no pueda distinguir el color (WCAG 1.4.1), que es por lo que el estado se proyecta en lugar de solo dibujarse. Bajo colores forzados ambos estados se remiten a los colores del sistema.
+
+`TextArea` toma las mismas dos opciones.
 
 ## Composición IME
 

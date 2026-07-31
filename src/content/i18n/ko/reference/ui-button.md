@@ -12,7 +12,7 @@ order: 12
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Button</span></div>
-  <iframe src="/sandbox/ui/button.html?v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame" loading="eager" title="Button 라이브 데모" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/button.html?v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame" loading="eager" title="Button 라이브 데모" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>호버(Hover)하면 그려진 상태가 변경됩니다. 클릭은 Playwright가 찾을 수 있는 동일한 button 역할(role)을 통해 전달됩니다.</figcaption>
 </figure>
 
@@ -57,6 +57,19 @@ interface ButtonOptions {
 ```ts
 await page.getByRole('button', { name: 'Save changes' }).click();
 ```
+
+### `disabled` (2.3.0+)
+
+`disabled` 상태는 흐릿하게 그려지며 **동시에** shadow `<button>`에 투영되므로 시력이 있는 사용자가 보는 것과 스크린 리더가 보고하는 내용이 다를 수 없습니다. 생성 후에도 설정할 수 있습니다:
+
+```ts
+const save = new Button('Save', { onClick: submit });
+save.disabled = true; // 흐릿한 채우기(muted fill), `disabled` 투영, hover/focus 상태 무시
+```
+
+이는 또한 **양쪽** 입력 경로 모두에서 `onClick`을 차단합니다. 브라우저는 비활성화된 `<button>`에 대한 DOM 클릭을 억제하지만, 캔버스 히트 테스트는 독립적으로 디스패치되므로 네이티브 속성만으로는 충분하지 않습니다.
+
+활성화된 버튼은 `disabled="false"`를 쓰는 대신 해당 속성을 생략합니다. 네이티브 `<button>`에 `disabled="false"`를 쓰더라도 여전히 비활성화되기 때문입니다.
 
 ## 강제 색상(고대비)
 

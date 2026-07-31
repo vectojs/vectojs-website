@@ -74,6 +74,29 @@ for await (const token of llmStream) pushToken(token);
    LLM 출력에는 자연스러운 문단 나누기가 있습니다; 로그 줄은 `\n`으로 끝납니다 —
    보통은 공짜로 얻지만, 줄바꿈을 제거하지 마세요.
 
+## 타이프라이터 페이싱(Typewriter pacing)과 라이프사이클
+
+성능 배칭이 기본값입니다. 제품에 타자기 효과(typewriter reveal)가 필요할 때만 고정된 wall-clock 페이싱을 추가하세요:
+
+```typescript
+const stream = markdown.createStream({
+  pacing: { graphemesPerSecond: 48 },
+  maxBufferedChars: 64 * 1024,
+  signal: requestAbort.signal,
+});
+```
+
+페이싱은 결코 "프레임당 하나의 토큰"으로 전환되지 않습니다. rAF 타임스탬프에서 `graphemesPerSecond` 크레딧을 누적하고, 한 프레임에 여러 그래핌(grapheme)을 렌더링할 수 있으며, 여전히 최대 한 번의 append 커밋만 수행합니다. 100ms 타임스탬프 제한은 백그라운드 탭이 밀린 데이터를 대량으로 한 번에 쏟아내는 것을 방지합니다.
+
+슬라이싱은 청크/프레임 경계를 넘나들 때도 `Intl.Segmenter`를 사용하므로 결합 마크(combining marks), 이모지 ZWJ 시퀀스, 플래그 및 서로게이트 쌍(surrogate pairs)이 분리되지 않고 함께 유지됩니다. 유니코드는 단일 그래핌이 무제한으로 커지는 것을 허용합니다. 만약 악의적인 입력이 경계에 도달하지 않고 완전히 제한된 accepted-plus-blocked 윈도우를 채우는 경우, 컨트롤러는 교착 상태에 빠지거나 메모리를 무한정 늘리는 대신 하나의 유니코드 코드 포인트(결코 서로게이트 쌍의 절반이 아님)를 커밋합니다.
+
+- `flush()`는 제출된 텍스트를 동기적으로 커밋하고 스트림을 열어 둡니다.
+- `close()`는 차단된 쓰기를 허용하고, 보류된 그래핌 꼬리를 해제하며, 한 번의 순서화된 최종 커밋을 수행한 후 닫습니다.
+- `abort(reason)`은 커밋되지 않은 텍스트를 버립니다. 대기 중이거나 향후 작업은 보존된 reason과 함께 거부(reject)됩니다.
+- `Markdown.setContent()`는 교체하기 전에 활성 컨트롤러를 중단(abort)합니다.
+- `Markdown.destroy()`는 이를 중단(abort)하고 rAF/`AbortSignal` 리스너를 제거합니다.
+- 하나의 `Markdown`은 최대 하나의 열린 컨트롤러를 소유합니다; 터미널 컨트롤러는 등록을 해제하여 이후 스트림이 시작될 수 있도록 합니다.
+
 ## 렌더 모드와 유휴 스로틀
 
 스트리밍 UI는 `renderMode: 'onDemand'`를 사용해야 합니다:

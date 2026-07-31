@@ -20,7 +20,7 @@ Los párrafos y encabezados se convierten en `RichText`, los bloques de código 
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Demostración en vivo de Markdown" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Demostración en vivo de Markdown" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>La muestra mantiene prosa, enlaces, código en línea y un bloque de código en un viewport enfocado para que los defectos de diseño sean visibles.</figcaption>
 </figure>
 
@@ -89,6 +89,39 @@ for await (const token of llmStream) pushToken(token);
 
 Evita llamar a `setContent(fullDocumentSoFar)` por cada token; eso reconstruye todo el subárbol.
 La receta completa — adherencia de seguimiento inferior, segmentación de transcripciones largas, elección de modo de renderizado — está en la guía [Streaming y texto en tiempo real](/learn/streaming/).
+
+### Sintaxis de cierre pendiente: `incompleteMode`
+
+Un flujo se corta a mitad de token constantemente, por lo que los últimos caracteres de un fragmento son habitualmente la mitad de un constructo. `incompleteMode` escoge cómo se renderiza esa cola mientras el controlador está abierto:
+
+| Modo                        | Al transmitir `a **bo`                              |
+| --------------------------- | --------------------------------------------------- |
+| `'literal'` _(por defecto)_ | texto `a **bo` — los asteriscos son texto ordinario |
+| `'optimistic'`              | texto `a bo`, con `bo` en negrita — sintaxis oculta |
+
+`'optimistic'` supone que el último constructo strong/emphasis/inline-code/link del párrafo final sin cerrar, se cerrará. La suposición es **solo para visualización** — el estado del token nunca se muta — y se revierte en el `close()`, por lo que un flujo `'literal'` y uno `'optimistic'` de la misma fuente terminan en un documento idéntico a nivel de bytes. `'literal'` es lo que incluía cada lanzamiento anterior a esta opción.
+
+El modo es interpretado por `Markdown`, no por el controlador: el controlador es dueño del almacenamiento en búfer y el ritmo, mientras que la suposición es una transformación en el momento de renderizado sobre el párrafo final.
+
+### Finalización de un solo uso: `onStable`
+
+```ts
+const stream = markdown.createStream({
+  onStable: (blocks) => {
+    // Se ejecuta una vez, con el documento terminado. Lugar seguro para trabajo que sería
+    // desperdiciado en medio del flujo.
+    console.log(`settled with ${blocks.length} top-level blocks`);
+  },
+});
+```
+
+Se dispara **exactamente una vez**, después de que `close()` haya aplicado el texto final _y_ se haya aplicado cualquier análisis sintáctico en curso del worker, con una instantánea de las entidades de bloque de nivel superior del documento en ese instante. Independiente de `incompleteMode`, por lo que funciona con el valor por defecto `'literal'`.
+
+Deliberadamente no es un gancho general de "flujo progresado":
+
+- **Nunca disparado por `flush()`, `abort()`, o `destroy()`.** Ninguno de esos significa que el contenido haya dejado de cambiar.
+- Llamar a `appendMarkdown()` o `setContent()` desde dentro de la devolución de llamada **lanza un error de forma síncrona** — una mutación reentrante invalidaría la instantánea que acaba de recibir.
+- Un error lanzado desde la devolución de llamada rechaza la promesa de `close()`. El controlador se libera en cualquier caso.
 
 ## Modelo de rendimiento
 

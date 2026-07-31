@@ -74,6 +74,29 @@ Dos costes se esconden dentro de `appendMarkdown` que deberías conocer:
    vaciado. La salida LLM tiene saltos de párrafo naturales; las líneas de log terminan en `\n` —
    normalmente lo obtienes gratis, pero no elimines los saltos de línea.
 
+## Ritmo de máquina de escribir y ciclo de vida
+
+La agrupación por rendimiento es el comportamiento predeterminado. Añade un ritmo de reloj de pared fijo solo cuando el producto necesite una revelación tipo máquina de escribir:
+
+```typescript
+const stream = markdown.createStream({
+  pacing: { graphemesPerSecond: 48 },
+  maxBufferedChars: 64 * 1024,
+  signal: requestAbort.signal,
+});
+```
+
+El ritmo nunca cambia a “un token por fotograma”. Acumula crédito de `graphemesPerSecond` a partir de las marcas de tiempo de rAF, puede revelar varios grafemas en un fotograma y, aun así, realiza a lo sumo un commit de anexo. Un límite de 100ms en la marca de tiempo previene que una pestaña en segundo plano descargue una gran ráfaga de actualización de golpe.
+
+La segmentación usa `Intl.Segmenter`, incluso a través de los límites de fragmentos/fotogramas, por lo que las marcas combinantes, secuencias ZWJ de emoji, banderas y pares subrogados permanecen juntos. Unicode permite que un único grafema crezca sin límite; si una entrada adversaria llena la ventana delimitada aceptada-más-bloqueada completa sin alcanzar un límite, el controlador aplica un punto de código Unicode (nunca la mitad de un par subrogado) en lugar de bloquearse o consumir memoria sin límite.
+
+- `flush()` aplica de forma síncrona el texto enviado y mantiene el flujo abierto.
+- `close()` admite la escritura bloqueada, libera la cola de grafemas retenida, realiza un commit final ordenado y cierra.
+- `abort(reason)` descarta el texto no aplicado. Las operaciones pendientes y futuras se rechazan con la razón retenida.
+- `Markdown.setContent()` aborta el controlador activo antes del reemplazo.
+- `Markdown.destroy()` lo aborta y elimina los escuchadores de rAF/`AbortSignal`.
+- Un `Markdown` posee como máximo un controlador abierto; los controladores terminales se desregistran para que pueda comenzar un flujo posterior.
+
 ## Modo de renderizado y el throttle de inactividad
 
 Las UIs de streaming deberían usar `renderMode: 'onDemand'`:

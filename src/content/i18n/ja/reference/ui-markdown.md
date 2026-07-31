@@ -14,7 +14,7 @@ order: 14
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>このサンプルは、プロース、リンク、インラインコード、フェンス付きブロックを1つの集中したビューポートに保つため、レイアウトの欠陥が見えるようになっています。</figcaption>
 </figure>
 
@@ -72,6 +72,39 @@ for await (const token of llmStream) pushToken(token);
 ```
 
 トークンごとに `setContent(fullDocumentSoFar)` を呼び出すことは避けてください。それはサブツリー全体を再構築します。完全なレシピ — ボトムフォローの粘着性、長文トランスクリプトの分割、レンダーモードの選択 — は[ストリーミング＆リアルタイムテキスト](/learn/streaming/)ガイドにあります。
+
+### 末尾の未完の構文: `incompleteMode`
+
+ストリームは常にトークンの途中でカットされるため、チャンクの最後の数文字が未完の構成要素になることは日常茶飯事です。`incompleteMode` は、コントローラーが開いている間にその末尾がどのようにレンダリングされるかを選択します：
+
+| モード                     | `a **bo` をストリーミング中                                      |
+| -------------------------- | ---------------------------------------------------------------- |
+| `'literal'` _(デフォルト)_ | テキスト `a **bo` — アスタリスクは通常のテキストとして扱われます |
+| `'optimistic'`             | テキスト `a bo` で、`bo` は太字 — 構文は隠されます               |
+
+`'optimistic'` は、末尾の段落の最後に閉じられていない strong/emphasis/inline-code/link 構成要素が閉じられると推測します。この推測は**表示のみ**であり、トークンの状態が変更されることは決してありません。また、`close()` 時に元に戻されるため、同じソースの `'literal'` ストリームと `'optimistic'` ストリームは、バイト単位で同一のドキュメントで終了します。`'literal'` は、このオプションが導入される前のすべてのリリースで出荷されていたものです。
+
+モードはコントローラーではなく `Markdown` によって解釈されます：コントローラーはバッファリングとペース配分を所有し、この推測は末尾の段落に対するレンダリング時の変換です。
+
+### ワンショット完了: `onStable`
+
+```ts
+const stream = markdown.createStream({
+  onStable: (blocks) => {
+    // 完了したドキュメントとともに1回だけ実行されます。
+    // ストリームの途中で無駄になるような作業を安全に行える場所です。
+    console.log(`settled with ${blocks.length} top-level blocks`);
+  },
+});
+```
+
+これは**正確に1回**、`close()` が最終テキストをコミットし、_かつ_ 進行中のワーカーによる解析が適用された後に、その瞬間のドキュメントのトップレベルブロックエンティティのスナップショットとともに発火します。`incompleteMode` には依存しないため、デフォルトの `'literal'` でも機能します。
+
+これは意図的に、一般的な「ストリームの進行」フックではありません：
+
+- **`flush()`、`abort()`、または `destroy()` によって発火することはありません。** これらのいずれもコンテンツの変更が完了したことを意味しません。
+- コールバック内から `appendMarkdown()` または `setContent()` を呼び出すと**同期的にスロー**されます — リエントラントな変更は、渡されたばかりのスナップショットを無効にします。
+- コールバックからのスローは `close()` プロミスを拒否します。いずれにせよコントローラーは解放されます。
 
 ## パフォーマンスモデル
 

@@ -12,7 +12,7 @@ order: 18
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Link</span></div>
-  <iframe src="/sandbox/ui/component.html?name=link&v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Link 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=link&v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Link 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>보이는 텍스트는 캔버스이며, 자동화 및 보조 기술은 실제 앵커를 인식합니다.</figcaption>
 </figure>
 

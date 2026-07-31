@@ -96,7 +96,10 @@ camera.position.set(0, 0, 3);
 // --- Adaptador de panel VectoJS (512×256 píxeles lógicos, mostrado en un plano 2×1) ---
 const adapter = new ThreeAdapter({ width: 512, height: 256 });
 
-const heading = new Text('Settings', { font: '600 24px Inter', color: '#f8fafc' });
+const heading = new Text('Settings', {
+  font: '600 24px Inter',
+  color: '#f8fafc',
+});
 const applyBtn = new Button('Apply', { width: 120, height: 40 });
 applyBtn.on('click', () => console.log('apply clicked'));
 

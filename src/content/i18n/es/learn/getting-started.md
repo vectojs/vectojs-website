@@ -184,7 +184,11 @@ particleSlider.on('change', (e) => {
 });
 
 // Lay out label + display side by side
-const particleRow = new Stack({ direction: 'horizontal', gap: 12, align: 'center' });
+const particleRow = new Stack({
+  direction: 'horizontal',
+  gap: 12,
+  align: 'center',
+});
 particleRow.add(particleLabel);
 particleRow.add(particleCountDisplay);
 
@@ -215,7 +219,10 @@ const PANEL_W = 400;
 const PANEL_H = 480;
 const PADDING = 24;
 
-const scroll = new ScrollView({ width: PANEL_W - PADDING * 2, height: PANEL_H - PADDING * 2 });
+const scroll = new ScrollView({
+  width: PANEL_W - PADDING * 2,
+  height: PANEL_H - PADDING * 2,
+});
 content.setPosition(0, 0);
 scroll.add(content);
 
@@ -227,7 +234,10 @@ const card = new Card({
   label: 'Settings panel', // makes the card a role="group" landmark
 });
 
-const titleText = new Text('Settings', { font: '700 22px Inter', color: '#f8fafc' });
+const titleText = new Text('Settings', {
+  font: '700 22px Inter',
+  color: '#f8fafc',
+});
 titleText.setPosition(PADDING, PADDING);
 card.add(titleText);
 

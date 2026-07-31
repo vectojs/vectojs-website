@@ -12,7 +12,7 @@ order: 26
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Toggle</span></div>
-  <iframe src="/sandbox/ui/component.html?name=toggle&v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Toggle live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=toggle&v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Toggle live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>旋鈕平滑地重新定位，同時語意 `checked` 狀態保持即時更新。</figcaption>
 </figure>
 

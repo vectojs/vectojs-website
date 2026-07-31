@@ -12,7 +12,7 @@ order: 12
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Button</span></div>
-  <iframe src="/sandbox/ui/button.html?v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame" loading="eager" title="Button live demo" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/button.html?v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame" loading="eager" title="Button live demo" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>懸停會改變繪製的狀態。點擊會透過 Playwright 能找到的相同 button 角色路由。</figcaption>
 </figure>
 
@@ -57,6 +57,19 @@ interface ButtonOptions {
 ```ts
 await page.getByRole('button', { name: 'Save changes' }).click();
 ```
+
+### `disabled` (2.3.0+)
+
+`disabled` 繪製時會呈現靜音（暗淡）狀態，**並且**投射到陰影 `<button>` 上，因此視力正常使用者看到的內容與螢幕閱讀器報告的內容不會產生分歧。可在建構後設定：
+
+```ts
+const save = new Button('Save', { onClick: submit });
+save.disabled = true; // 靜音填色，投射 `disabled`，丟棄懸停/焦點狀態
+```
+
+它同時也阻擋了來自**雙方**輸入路徑的 `onClick`。瀏覽器會抑制對已停用 `<button>` 的 DOM 點擊，但 canvas 的點擊測試會獨立分派 — 因此單靠原生屬性是不夠的。
+
+啟用狀態的按鈕會省略該屬性，而不是寫入 `disabled="false"`，這在原生 `<button>` 上仍會將其停用。
 
 ## 強制色彩（高對比度）
 

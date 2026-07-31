@@ -51,11 +51,19 @@ export function openModal(
   const backdrop = new ModalBackdrop(VW, VH);
   backdrop.opacity = 0;
 
-  const modal = new Card({ width: MW, height: MH, radius: 16, label: opts.title });
+  const modal = new Card({
+    width: MW,
+    height: MH,
+    radius: 16,
+    label: opts.title,
+  });
   modal.setPosition((VW - MW) / 2, (VH - MH) / 2 + 32);
   modal.opacity = 0;
 
-  const titleText = new Text(opts.title, { font: '700 20px Inter', color: '#f8fafc' });
+  const titleText = new Text(opts.title, {
+    font: '700 20px Inter',
+    color: '#f8fafc',
+  });
   titleText.setPosition(24, 24);
   modal.add(titleText);
 
@@ -286,7 +294,10 @@ class DraggableCard extends Entity {
       if (hit) {
         const hp = hit.getGlobalPosition();
         this.animate(
-          { x: hp.x + (hit.width - this.width) / 2, y: hp.y + (hit.height - this.height) / 2 },
+          {
+            x: hp.x + (hit.width - this.width) / 2,
+            y: hp.y + (hit.height - this.height) / 2,
+          },
           200,
         );
       }
@@ -718,7 +729,10 @@ export function buildForm(scene: Scene): void {
   });
 
   // ── Volume slider ─────────────────────────────────────────────────────────
-  const volumeDisplay = new Text('Volume: 50', { font: '14px Inter', color: '#94a3b8' });
+  const volumeDisplay = new Text('Volume: 50', {
+    font: '14px Inter',
+    color: '#94a3b8',
+  });
   const volumeSlider = new Slider({ min: 0, max: 100, value: 50, width: 300 });
   const volumeError = new Text('', { font: '13px Inter', color: '#f87171' });
 
@@ -792,7 +806,12 @@ export function buildForm(scene: Scene): void {
 
   const CARD_W = 360;
   const CARD_H = 460;
-  const card = new Card({ width: CARD_W, height: CARD_H, radius: 16, label: 'Account settings' });
+  const card = new Card({
+    width: CARD_W,
+    height: CARD_H,
+    radius: 16,
+    label: 'Account settings',
+  });
   stack.setPosition(28, 28);
   card.add(stack);
   card.setPosition((window.innerWidth - CARD_W) / 2, (window.innerHeight - CARD_H) / 2);

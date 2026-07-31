@@ -12,7 +12,7 @@ order: 12
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Button</span></div>
-  <iframe src="/sandbox/ui/button.html?v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame" loading="eager" title="Button live demo" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/button.html?v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame" loading="eager" title="Button live demo" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>悬停会改变绘制的状态。点击通过同一个 Playwright 能找到的 button 角色路由。</figcaption>
 </figure>
 
@@ -57,6 +57,19 @@ interface ButtonOptions {
 ```ts
 await page.getByRole('button', { name: 'Save changes' }).click();
 ```
+
+### `disabled` (2.3.0+)
+
+`disabled` 状态会被绘制为暗淡效果，**并**投影到影子 `<button>` 上，因此视力正常的用户看到的和屏幕阅读器报告的内容不会产生分歧。可以在构造后设置：
+
+```ts
+const save = new Button('Save', { onClick: submit });
+save.disabled = true; // 暗淡的填充，投影 `disabled`，放弃悬停/焦点状态
+```
+
+它还会从**两个**输入路径阻止 `onClick`。浏览器会抑制对被禁用的 `<button>` 的 DOM 点击，但 canvas 命中测试是独立分发的——因此仅有原生属性是不够的。
+
+启用的按钮会省略该属性，而不是写入 `disabled="false"`，因为在原生 `<button>` 上这样写仍然会禁用它。
 
 ## 强制颜色（高对比度）
 

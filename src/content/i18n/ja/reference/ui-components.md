@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — コンポーネントリファレンス
 
 > VectoJS ゼロ DOM Canvas エンジン向けの再利用可能な高レベルコンポーネント。
-> ドキュメントバージョン：**2.2.0**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
+> ドキュメントバージョン：**2.6.0**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
 
 すべてのコンポーネントは、Virtual Math Tree（VMT）のリーフまたはコンテナです。ここにあるものは実際の DOM ではありません — コンポーネントは `IRenderer` を介して Canvas に自身を描画します。アクセシビリティ、エージェント自動化、クローラビリティは、並行する **A11y シャドウ DOM** から提供されます：コンポーネントが `interactive` の場合、`Scene` はコンポーネントのボックスの上に配置された単一の隠れた透明な実際の DOM ノードを投影します。これは `getA11yAttributes()` から構築されます。これが、`page.getByRole('button', { name })` / `fill()` / スクリーンリーダーが純粋な Canvas UI に対して機能する理由です。
 
@@ -165,6 +165,29 @@ interface RichTextOptions {
 - `setMaxWidth(maxWidth): this` — リフロー。
 - `setExclusions(exclusions): this` — フロート領域を設定し、リフロー。
 - `setSelectable(selectable): this` — スパンを再構築せずにネイティブ選択を切り替え。
+
+**インラインオブジェクト (2.6.0+).** スパンは、数式、アイコン、埋め込みボックスなど、`RichText` が整形しないもののために水平方向のスペースを確保できるため、行をブロックブレイクすることなく文の途中に配置できます：
+
+```ts
+import { OBJECT_REPLACEMENT, type StyledSpan } from '@vectojs/layout';
+
+const spans: StyledSpan[] = [
+  { text: 'the identity ' },
+  {
+    text: OBJECT_REPLACEMENT, // U+FFFC; 必須、そうでない場合 `object` は無視されます
+    object: {
+      width: 42, // 確保する前進量、最終サイズでのpx
+      height: 20, // アセント + ディセント; 行の高さに影響します
+      depth: 4, // ベースラインよりどれだけ下に下がるか
+      alt: 'x+1', // アクセシブルな名前、選択、およびコピテキスト
+      paint: (surface, box) => surface.drawImage(bitmap, box.x, box.y, box.width, box.height),
+    },
+  },
+  { text: ' holds.' },
+];
+```
+
+メトリクスは最終サイズの px です。ランの `fontSize` によってスケールされることはなく、固定されたボックスです。`box.y` はベースラインと `depth` に対して既に解決されているため、ペインターはその計算を繰り返しません。`paint` はペイント中に呼び出されるため、同期的である必要があります。コンテンツをまだロード中のオブジェクトは何も描画せず、準備ができたら再ペイントを要求する必要があります。**`paint` を省略するとスペースが確保され、何も描画されません** — 空白のギャップになります。`alt` を設定してください。そうしないと、生のセンチネルがアクセシビリティレイヤーに到達し、不可視文字としてコピーされます。
 
 A11y：各連続する**リンクラン**は、透過的な `<a>` ホットスポット子を取得します（再ラップ間で調整 — ランごとに 1 つのホットスポット；位置はその場で更新され、リンクの_数_が変更された場合のみシャドウノードが再構築されます）。コンポーネント自身のアクセシブルな名前は、完全な連結テキストです。
 

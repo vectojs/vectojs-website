@@ -52,6 +52,29 @@ for await (const token of llmStream) pushToken(token);
 
 2. **段落備忘錄以`\n`為鍵。** `Text.append`和Markdown段落更新器都只重新測量發生變化的段落。一個無休止的連續行會破壞備忘錄機制，使每次重新整理退化為O(文件長度)的測量。LLM輸出自帶自然段落分隔；日誌行以`\n`結尾——通常情況下你無需額外處理，但不要移除換行符。
 
+## 打字機節奏與生命週期
+
+效能批次處理是預設行為。僅在產品需要打字機般揭露效果時，才加入固定的掛鐘時間節奏（wall-clock pacing）：
+
+```typescript
+const stream = markdown.createStream({
+  pacing: { graphemesPerSecond: 48 },
+  maxBufferedChars: 64 * 1024,
+  signal: requestAbort.signal,
+});
+```
+
+節奏控制從不會切換成「每幀一個 token」。它會從 rAF 時間戳記累積 `graphemesPerSecond` 的額度，可能會在同一幀內揭露多個字素（grapheme），並且仍然最多執行一次附加提交。100ms 的時間戳記上限可防止背景分頁傾瀉出大量追趕累積的輸出。
+
+切片使用 `Intl.Segmenter`，甚至跨越區塊/幀的邊界，因此結合標記（combining marks）、表情符號 ZWJ 序列、旗幟和代理對（surrogate pairs）都能保持在一起。Unicode 允許單一字素無限制增長；如果惡意輸入填滿了整個有界限的「已接受加上已阻擋」視窗，而未達到邊界，控制器會提交一個 Unicode 碼位（永遠不會是半個代理對），而不是死鎖或使記憶體無限制增長。
+
+- `flush()` 同步提交已送出的文字並保持串流開啟。
+- `close()` 允許已阻擋的寫入，釋放保留的字素尾部，執行一次有序的最終提交，然後關閉。
+- `abort(reason)` 捨棄未提交的文字。擱置中和未來的操作都會以保留的理由拒絕。
+- `Markdown.setContent()` 在取代之前中止活動中的控制器。
+- `Markdown.destroy()` 中止它並移除 rAF/`AbortSignal` 監聽器。
+- 一個 `Markdown` 最多擁有一個開啟的控制器；終端控制器會取消註冊，以便後續的串流可以開始。
+
 ## 渲染模式與閒置節流
 
 串流UI應使用`renderMode: 'onDemand'`：

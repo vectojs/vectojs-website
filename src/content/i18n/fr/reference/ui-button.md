@@ -13,7 +13,7 @@ la même zone. Les utilisateurs voient les pixels du canvas ; les lecteurs dʼé
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Button</span></div>
-  <iframe src="/sandbox/ui/button.html?v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame" loading="eager" title="Démonstration live du bouton" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/button.html?v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame" loading="eager" title="Démonstration live du bouton" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Le survol change lʼétat peint. Les clics passent par le même rôle button que Playwright peut détecter.</figcaption>
 </figure>
 
@@ -59,6 +59,24 @@ sémantique plutôt que les pixels :
 ```ts
 await page.getByRole('button', { name: 'Save changes' }).click();
 ```
+
+### `disabled` (2.3.0+)
+
+`disabled` est dessiné de manière atténuée **et** projeté sur le shadow `<button>`, de sorte que ce
+qu'un utilisateur voyant perçoit et ce qu'un lecteur d'écran signale ne peuvent pas diverger. Modifiable
+après construction :
+
+```ts
+const save = new Button('Save', { onClick: submit });
+save.disabled = true; // remplissage atténué, projette `disabled`, annule l'état de survol/focus
+```
+
+Il bloque également `onClick` à partir des **deux** chemins d'entrée. Le navigateur supprime un clic
+DOM sur un `<button>` désactivé, mais le hit-test du canvas se déclenche indépendamment
+— l'attribut natif seul ne suffirait donc pas.
+
+Un bouton activé omet l'attribut plutôt que d'écrire `disabled="false"`,
+ce qui désactiverait toujours un `<button>` natif.
 
 ## Couleurs forcées (Contraste élevé)
 

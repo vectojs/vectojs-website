@@ -13,7 +13,7 @@ IME, 클립보드, 선택 및 자동화는 네이티브로 유지됩니다.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Input</span></div>
-  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>키보드 입력 또는 역할 기반 자동화를 통해 텍스트 상자를 채워보세요.</figcaption>
 </figure>
 
@@ -28,6 +28,23 @@ const name = new Input({
   onChange: (value) => updateProjectName(value),
 });
 ```
+
+## 유효성 검사 상태(Validation state) (2.3.0+)
+
+`required`와 `invalid`는 단순히 테두리에만 적용되는 것이 아니라 접근성 트리에도 전달됩니다:
+
+```ts
+const email = new Input({ width: 240, placeholder: 'Email', required: true });
+email.invalid = !isValidEmail(email.value); // red border + aria-invalid
+```
+
+`required`는 shadow `<input>`/`<textarea>`의 **네이티브** `required` 속성으로 투영(project)되므로, 단순히 제약 조건을 설명하는 데 그치지 않고 폼(form) 유효성 검사 및 `:invalid` 스타일링에 참여합니다. `invalid`는 `aria-invalid`가 됩니다.
+
+`invalid`를 지우면 `"false"`로 설정하는 대신 속성을 **제거**합니다 — `aria-invalid="false"`는 "명시적으로 유효함(explicitly valid)"을 주장하기 때문에 두 가지는 다른 의미를 갖습니다.
+
+빨간색 테두리만으로는 스크린 리더 사용자나 색상을 구별할 수 없는 사용자(WCAG 1.4.1)에게 보이지 않으므로, 상태가 단지 그려지기만 하는 것이 아니라 투영되는 것입니다. 강제 색상(forced colors) 환경에서는 두 상태 모두 시스템 색상을 따릅니다.
+
+`TextArea`도 동일한 두 가지 옵션을 취합니다.
 
 ## IME 합성
 

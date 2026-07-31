@@ -78,6 +78,41 @@ Deux coûts se cachent dans `appendMarkdown` que vous devez connaître :
    par `\n` — vous l'obtenez généralement gratuitement, mais ne supprimez pas les
    retours à la ligne.
 
+## Rythme de machine à écrire et cycle de vie
+
+Le groupement de performance est le comportement par défaut. N'ajoutez un rythme d'horloge fixe que lorsque le
+produit a besoin d'une révélation de type machine à écrire :
+
+```typescript
+const stream = markdown.createStream({
+  pacing: { graphemesPerSecond: 48 },
+  maxBufferedChars: 64 * 1024,
+  signal: requestAbort.signal,
+});
+```
+
+Le rythme ne passe jamais à « un token par trame ». Il accumule
+un crédit de `graphemesPerSecond` à partir des horodatages rAF, peut révéler plusieurs graphèmes dans
+une trame, et effectue toujours au plus un seul commit d'ajout. Un plafond d'horodatage de 100 ms
+empêche un onglet en arrière-plan de déverser une rafale de rattrapage trop importante.
+
+Le découpage utilise `Intl.Segmenter`, y compris au-delà des limites de morceaux/trames, de sorte que
+les marques de combinaison, les séquences d'emoji ZWJ, les drapeaux et les paires de substitution restent ensemble.
+Unicode permet à un seul graphème de croître sans limite ; si une entrée malveillante
+remplit la fenêtre bornée complète d'acceptation-plus-bloquée sans atteindre une
+limite, le contrôleur valide un point de code Unicode (jamais une demi-paire de
+substitution) plutôt que de bloquer ou d'augmenter la mémoire sans limite.
+
+- `flush()` valide de manière synchrone le texte soumis et garde le flux ouvert.
+- `close()` admet l'écriture bloquée, libère la queue de graphème retenue, effectue
+  un commit final ordonné, et ferme.
+- `abort(reason)` ignore le texte non validé. Les opérations en attente et futures sont rejetées
+  avec la raison retenue.
+- `Markdown.setContent()` annule le contrôleur actif avant le remplacement.
+- `Markdown.destroy()` l'annule et supprime les écouteurs rAF/`AbortSignal`.
+- Un `Markdown` possède au maximum un contrôleur ouvert ; les contrôleurs terminaux
+  se désinscrivent pour qu'un flux ultérieur puisse démarrer.
+
 ## Mode de rendu et throttling d'inactivité
 
 Les UIs en streaming devraient utiliser `renderMode: 'onDemand'` :

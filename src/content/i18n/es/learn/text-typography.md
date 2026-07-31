@@ -304,7 +304,10 @@ El texto árabe y bidireccional se maneja **automáticamente** dentro de `prepar
 Esto significa que un `Text` o `RichText` con contenido árabe o hebreo simplemente funciona:
 
 ```typescript
-const arabic = new Text('مرحبا بك في VectoJS', { font: '20px sans-serif', color: '#f8fafc' });
+const arabic = new Text('مرحبا بك في VectoJS', {
+  font: '20px sans-serif',
+  color: '#f8fafc',
+});
 const hebrew = new RichText([{ text: 'שלום ' }, { text: 'VectoJS', style: { bold: true } }]);
 ```
 

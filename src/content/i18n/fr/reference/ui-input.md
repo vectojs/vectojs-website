@@ -13,7 +13,7 @@ LʼIME, le presse-papier, la sélection et lʼautomatisation restent natifs.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Input</span></div>
-  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live dʼInput" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live dʼInput" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Remplissez la zone de texte via la saisie au clavier ou lʼautomatisation basée sur les rôles.</figcaption>
 </figure>
 
@@ -28,6 +28,30 @@ const name = new Input({
   onChange: (value) => updateProjectName(value),
 });
 ```
+
+## État de validation (2.3.0+)
+
+`required` et `invalid` atteignent l'arbre d'accessibilité, pas seulement la bordure :
+
+```ts
+const email = new Input({ width: 240, placeholder: 'Email', required: true });
+email.invalid = !isValidEmail(email.value); // bordure rouge + aria-invalid
+```
+
+`required` est projeté comme l'attribut **natif** `required` sur le shadow
+`<input>`/`<textarea>`, de sorte qu'il participe à la validation du formulaire et au style `:invalid`
+au lieu de décrire uniquement la contrainte. `invalid` devient
+`aria-invalid`.
+
+Effacer `invalid` **supprime** l'attribut plutôt que de définir `"false"` —
+ces valeurs signifient des choses différentes, puisque `aria-invalid="false"` affirme "explicitement
+valide".
+
+Une simple bordure rouge serait invisible pour un lecteur d'écran et pour quiconque
+ne peut pas distinguer la couleur (WCAG 1.4.1), c'est pourquoi l'état est projeté
+plutôt que seulement dessiné. Sous les couleurs forcées, les deux états s'en remettent aux couleurs du système.
+
+`TextArea` prend les deux mêmes options.
 
 ## Composition IME
 

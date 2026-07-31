@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Référence des composants
 
 > Composants réutilisables de haut niveau pour le moteur Canvas zero-DOM VectoJS.
-> Version documentée : **2.2.0**. Source de vérité : `dist/index.d.ts` (surface publique) et `packages/ui/src/*` (comportement).
+> Version documentée : **2.6.0**. Source de vérité : `dist/index.d.ts` (surface publique) et `packages/ui/src/*` (comportement).
 
 Chaque composant est une feuille ou un conteneur dans l'Arbre Mathématique Virtuel (VMT). Rien ici n'est du vrai DOM — les composants se dessinent eux-mêmes sur un Canvas via un `IRenderer`. L'accessibilité, l'automatisation par agent et la crawlabilité proviennent d'un **A11y Shadow DOM** parallèle : lorsqu'un composant est `interactive`, la `Scene` projette un seul nœud DOM réel caché et transparent positionné au-dessus de la boîte du composant, construit à partir de `getA11yAttributes()`. C'est pourquoi `page.getByRole('button', { name })` / `fill()` / les lecteurs d'écran fonctionnent sur une UI pure-Canvas.
 
@@ -166,6 +166,29 @@ Texte en ligne multi-style : segments gras / italique / colorés / de tailles di
 - `setMaxWidth(maxWidth): this` — réorganisation.
 - `setExclusions(exclusions): this` — définit les régions flottantes et réorganise.
 - `setSelectable(selectable): this` — bascule la sélection native sans reconstruire les segments.
+
+**Objets en ligne (2.6.0+).** Un segment peut réserver un espace horizontal pour quelque chose que `RichText` ne met pas en forme — une formule, une icône, une boîte intégrée — de sorte qu'il se trouve au milieu d'une phrase au lieu de créer un saut de ligne :
+
+```ts
+import { OBJECT_REPLACEMENT, type StyledSpan } from '@vectojs/layout';
+
+const spans: StyledSpan[] = [
+  { text: 'the identity ' },
+  {
+    text: OBJECT_REPLACEMENT, // U+FFFC; requis, sinon `object` est ignoré
+    object: {
+      width: 42, // avance à réserver, en px à la taille finale
+      height: 20, // montée + descente ; alimente la hauteur de ligne
+      depth: 4, // distance à laquelle il pend sous la ligne de base
+      alt: 'x+1', // nom accessible, texte de sélection et de copie
+      paint: (surface, box) => surface.drawImage(bitmap, box.x, box.y, box.width, box.height),
+    },
+  },
+  { text: ' holds.' },
+];
+```
+
+Les métriques sont en px à la taille finale — une boîte fixe, non redimensionnée par le `fontSize` du segment. `box.y` est déjà résolu par rapport à la ligne de base et à la `depth`, donc un painter n'a pas à répéter cette arithmétique. `paint` est appelé lors d'un dessin, il doit donc être synchrone ; un objet encore en train de charger son contenu ne doit rien dessiner et demander un nouveau dessin lorsqu'il est prêt. **Omettre `paint` réserve l'espace et ne dessine rien** — un espace vide. Définissez `alt`, sinon la sentinelle brute atteint la couche d'accessibilité et se copie comme un caractère invisible.
 
 A11y : chaque **segment de lien** contigu obtient un enfant `<a>` transparent comme point d'accès (réconcilié après ré-encapsulation — un point d'accès par segment ; la position se met à jour sur place, seul un changement du _nombre_ de liens reconstruit les nœuds d'ombre). Le nom accessible du composant lui-même est le texte complet concaténé.
 

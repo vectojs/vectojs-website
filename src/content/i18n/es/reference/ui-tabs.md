@@ -12,7 +12,7 @@ order: 29
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Tabs</span></div>
-  <iframe src="/sandbox/ui/component.html?name=tabs&v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Tabs" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=tabs&v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Tabs" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Cambiar de pestaña elimina el contenido inactivo del árbol de entidades.</figcaption>
 </figure>
 

@@ -13,7 +13,7 @@ recortada y `PanelResizeHandle` se inserta automáticamente entre los paneles.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · PanelGroup</span></div>
-  <iframe src="/sandbox/ui/component.html?name=resizablepanel&v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de panel redimensionable" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=resizablepanel&v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de panel redimensionable" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Arrastra el divisor entre paneles para inspeccionar el comportamiento de cambio de tamaño y hover del mango.</figcaption>
 </figure>
 
@@ -22,7 +22,11 @@ recortada y `PanelResizeHandle` se inserta automáticamente entre los paneles.
 ```ts
 import { Panel, PanelGroup, Stack, Text } from '@vectojs/ui';
 
-const group = new PanelGroup({ direction: 'horizontal', width: 640, height: 360 });
+const group = new PanelGroup({
+  direction: 'horizontal',
+  width: 640,
+  height: 360,
+});
 group
   // El contenido de la barra lateral es un Stack, diseñado para dimensionarse
   // para llenar su viewport — el `fit: true` por defecto lo mantiene

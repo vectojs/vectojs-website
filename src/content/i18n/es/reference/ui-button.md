@@ -13,7 +13,7 @@ misma caja. Los usuarios ven píxeles del canvas; los lectores de pantalla y her
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Button</span></div>
-  <iframe src="/sandbox/ui/button.html?v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame" loading="eager" title="Demostración en vivo de Button" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/button.html?v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame" loading="eager" title="Demostración en vivo de Button" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Al pasar el ratón cambia el estado pintado. Los clics se enrutan a través del mismo rol de botón que Playwright puede encontrar.</figcaption>
 </figure>
 
@@ -59,6 +59,19 @@ semántico en lugar de a los píxeles:
 ```ts
 await page.getByRole('button', { name: 'Guardar cambios' }).click();
 ```
+
+### `disabled` (2.3.0+)
+
+`disabled` se dibuja atenuado **y** se proyecta en el `<button>` sombra, por lo que lo que ve un usuario vidente y lo que informa un lector de pantalla no pueden divergir. Modificable después de la construcción:
+
+```ts
+const save = new Button('Save', { onClick: submit });
+save.disabled = true; // relleno atenuado, proyecta `disabled`, elimina el estado hover/focus
+```
+
+También bloquea `onClick` de **ambas** rutas de entrada. El navegador suprime un clic DOM en un `<button>` deshabilitado, pero la prueba de impacto del canvas emite eventos independientemente — por lo que el atributo nativo por sí solo no sería suficiente.
+
+Un botón habilitado omite el atributo en lugar de escribir `disabled="false"`, lo que en un `<button>` nativo aún lo deshabilitaría.
 
 ## Colores forzados (Alto contraste)
 

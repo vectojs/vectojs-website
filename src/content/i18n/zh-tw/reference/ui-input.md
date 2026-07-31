@@ -12,7 +12,7 @@ order: 23
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Input</span></div>
-  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>透過鍵盤輸入或基於角色的自動化填寫文字框。</figcaption>
 </figure>
 
@@ -27,6 +27,23 @@ const name = new Input({
   onChange: (value) => updateProjectName(value),
 });
 ```
+
+## 驗證狀態 (2.3.0+)
+
+`required` 和 `invalid` 會觸及無障礙樹，而不僅僅是邊框：
+
+```ts
+const email = new Input({ width: 240, placeholder: 'Email', required: true });
+email.invalid = !isValidEmail(email.value); // 紅色邊框 + aria-invalid
+```
+
+`required` 會投射為陰影 `<input>`/`<textarea>` 上的**原生** `required` 屬性，因此它會參與表單驗證和 `:invalid` 樣式設定，而不只是描述約束。`invalid` 則變為 `aria-invalid`。
+
+清除 `invalid` 會**移除**該屬性，而不是將其設定為 `"false"` — 兩者代表不同意義，因為 `aria-invalid="false"` 是斷言為「明確有效」。
+
+單純的紅色邊框對螢幕閱讀器和無法辨識該顏色的使用者（WCAG 1.4.1）來說是不可見的，這就是為什麼該狀態會被投射而不僅是繪製。在強制色彩下，這兩種狀態都會遵從系統色彩。
+
+`TextArea` 也接受這兩個相同的選項。
 
 ## IME 輸入法組合
 

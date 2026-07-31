@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — 컴포넌트 레퍼런스
 
 > VectoJS zero-DOM Canvas 엔진을 위한 재사용 가능한 고수준 컴포넌트입니다.
-> 문서 버전: **2.2.0**. 진실 공급원: `dist/index.d.ts`(공개 표면) 및 `packages/ui/src/*`(동작).
+> 문서 버전: **2.6.0**. 진실 공급원: `dist/index.d.ts`(공개 표면) 및 `packages/ui/src/*`(동작).
 
 모든 컴포넌트는 Virtual Math Tree(VMT)의 리프 또는 컨테이너입니다. 여기 있는 어떤 것도 실제 DOM이 아닙니다 — 컴포넌트는 `IRenderer`를 통해 Canvas에 자신을 그립니다. 접근성, 에이전트 자동화, 크롤링 가능성은 병렬 **A11y Shadow DOM**에서 제공됩니다: 컴포넌트가 `interactive`하면 `Scene`이 컴포넌트의 박스 위에 위치한 단일 숨겨진 투명한 실제 DOM 노드를 `getA11yAttributes()`에서 빌드하여 프로젝션합니다. 이것이 `page.getByRole('button', { name })` / `fill()` / 스크린 리더가 순수 Canvas UI에서 작동하는 이유입니다.
 
@@ -168,6 +168,29 @@ interface RichTextOptions {
 - `setMaxWidth(maxWidth): this` — 리플로우.
 - `setExclusions(exclusions): this` — 플로트 영역을 설정하고 리플로우합니다.
 - `setSelectable(selectable): this` — 스팬을 재구축하지 않고 네이티브 선택을 전환합니다.
+
+**인라인 객체(Inline objects) (2.6.0+).** 스팬(span)은 `RichText`가 형태를 잡지 않는 것 — 수식, 아이콘, 임베디드 박스 — 을 위해 가로 공간을 예약할 수 있으므로, 줄바꿈을 하지 않고 문장 중간에 위치할 수 있습니다:
+
+```ts
+import { OBJECT_REPLACEMENT, type StyledSpan } from '@vectojs/layout';
+
+const spans: StyledSpan[] = [
+  { text: 'the identity ' },
+  {
+    text: OBJECT_REPLACEMENT, // U+FFFC; 필수, 생략 시 `object`가 무시됨
+    object: {
+      width: 42, // 예약할 advance 너비, 최종 크기의 px 단위
+      height: 20, // ascent + descent; 줄 높이에 반영됨
+      depth: 4, // 기준선 아래로 내려가는 깊이
+      alt: 'x+1', // 접근 가능한 이름(accessible name), 선택 및 복사 텍스트
+      paint: (surface, box) => surface.drawImage(bitmap, box.x, box.y, box.width, box.height),
+    },
+  },
+  { text: ' holds.' },
+];
+```
+
+메트릭은 최종 크기의 px 단위입니다 — 고정된 박스이며, 런의 `fontSize`에 의해 스케일링되지 않습니다. `box.y`는 이미 기준선(baseline)과 `depth`에 대해 해석(resolve)되었으므로 렌더러(painter)가 이 계산을 반복하지 않습니다. `paint`는 그리기(paint) 중에 호출되므로 동기적이어야 합니다; 아직 콘텐츠를 로드 중인 객체는 아무것도 그리지 않아야 하며 준비되었을 때 리페인트(repaint)를 요청해야 합니다. **`paint`를 생략하면 공간만 예약하고 아무것도 그리지 않습니다** — 즉, 빈 간격(blank gap)이 됩니다. `alt`를 설정하지 않으면 원본 감시 문자(sentinel)가 접근성 계층(accessibility layer)에 도달하여 보이지 않는 문자로 복사됩니다.
 
 A11y: 각 연속적인 **링크 런**은 투명한 `<a>` 핫스팟 자식을 얻습니다(재줄바꿈 시 조정됨 — 런당 하나의 핫스팟; 위치는 제자리에서 업데이트되며, 링크 _개수_ 변경만 그림자 노드를 재구축함). 컴포넌트 자체의 접근 가능한 이름은 전체 연결된 텍스트입니다.
 

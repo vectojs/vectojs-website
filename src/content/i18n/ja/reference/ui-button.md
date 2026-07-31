@@ -12,7 +12,7 @@ order: 12
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Button</span></div>
-  <iframe src="/sandbox/ui/button.html?v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame" loading="eager" title="Button live demo" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/button.html?v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame" loading="eager" title="Button live demo" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>ホバーすると描画される状態が変わります。クリックは、Playwrightが見つけられるのと同じbuttonロールを通じてルーティングされます。</figcaption>
 </figure>
 
@@ -57,6 +57,19 @@ interface ButtonOptions {
 ```ts
 await page.getByRole('button', { name: 'Save changes' }).click();
 ```
+
+### `disabled` (2.3.0+)
+
+`disabled` はミュートされて描画される**とともに**、シャドウ `<button>` に投影されます。そのため、視覚的なユーザーが見るものとスクリーンリーダーが報告するものが乖離することはありません。コンストラクション後に設定可能です：
+
+```ts
+const save = new Button('Save', { onClick: submit });
+save.disabled = true; // ミュートされた塗りつぶし、`disabled`を投影、ホバー/フォーカス状態を破棄
+```
+
+また、これは**両方の**入力パスから `onClick` をブロックします。ブラウザは無効化された `<button>` でのDOMのクリックを抑制しますが、キャンバスのヒットテストは独立してディスパッチされるため、ネイティブ属性だけでは十分ではありません。
+
+有効なボタンは `disabled="false"` を書き込むのではなく、属性を省略します。ネイティブの `<button>` でそれを書き込むと、依然としてボタンが無効化されてしまうためです。
 
 ## 強制カラー（ハイコントラスト）
 

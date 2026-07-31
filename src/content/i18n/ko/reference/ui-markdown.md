@@ -19,7 +19,7 @@ order: 14
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.18.0-ui-2.3.2" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>샘플은 산문, 링크, 인라인 코드 및 펜스 블록을 하나의 집중된 뷰포트에 유지하여 레이아웃 결함을 확인할 수 있습니다.</figcaption>
 </figure>
 
@@ -82,6 +82,39 @@ for await (const token of llmStream) pushToken(token);
 
 모든 토큰에 대해 `setContent(fullDocumentSoFar)`를 호출하지 마세요. 전체 서브트리를 재구축합니다.
 전체 레시피 — 하단 고정 스티키니스, 긴 트랜스크립트 세분화, 렌더 모드 선택 — 은 [스트리밍 및 실시간 텍스트](/learn/streaming/) 가이드에 있습니다.
+
+### 후행 미닫힘 구문(Trailing unclosed syntax): `incompleteMode`
+
+스트림은 지속적으로 토큰 중간에 잘리므로 청크의 마지막 몇 글자는 일상적으로 구성요소의 절반에 불과합니다. `incompleteMode`는 컨트롤러가 열려 있는 동안 이 꼬리(tail)를 렌더링하는 방법을 선택합니다:
+
+| Mode                   | `a **bo` 스트리밍 중일 때                  |
+| ---------------------- | ------------------------------------------ |
+| `'literal'` _(기본값)_ | text `a **bo` — 별표는 일반 텍스트입니다   |
+| `'optimistic'`         | text `a bo`, `bo` 굵게 — 구문이 숨겨집니다 |
+
+`'optimistic'`은 후행 문단의 마지막 미닫힘 strong/emphasis/inline-code/link 구성요소가 닫힐 것이라고 추측합니다. 이 추측은 **디스플레이 전용**이며 — 토큰 상태는 결코 변형(mutate)되지 않습니다 — `close()` 시 풀리게 되므로, 동일한 소스의 `'literal'`과 `'optimistic'` 스트림은 바이트가 동일한 문서로 끝납니다. `'literal'`은 이 옵션 이전의 모든 릴리스에서 제공된 방식입니다.
+
+모드는 컨트롤러가 아닌 `Markdown`에 의해 해석됩니다: 컨트롤러는 버퍼링과 페이싱을 소유하는 반면, 추측은 후행 문단에 대한 렌더링 시간 변환입니다.
+
+### 1회성 완료(One-shot completion): `onStable`
+
+```ts
+const stream = markdown.createStream({
+  onStable: (blocks) => {
+    // 완성된 문서와 함께 한 번 실행됩니다. 스트림 중간에는 낭비가 될 수 있는
+    // 작업을 수행하기에 안전한 장소입니다.
+    console.log(`settled with ${blocks.length} top-level blocks`);
+  },
+});
+```
+
+`close()`가 최종 텍스트를 커밋하고 진행 중인 모든 워커 파싱이 적용된 후, 그 순간 문서의 최상위 블록 엔티티 스냅샷과 함께 **정확히 한 번** 실행됩니다. `incompleteMode`와 독립적이므로 `'literal'` 기본값과 함께 작동합니다.
+
+이는 의도적으로 일반적인 "스트림 진행(stream progressed)" 훅이 아닙니다:
+
+- **`flush()`, `abort()` 또는 `destroy()`에 의해 절대 발생하지 않습니다.** 이들 중 어느 것도 콘텐츠가 변경을 완료했다는 것을 의미하지 않습니다.
+- 콜백 내부에서 `appendMarkdown()` 또는 `setContent()`를 호출하면 **동기적으로 throw됩니다** — 재진입 변형(reentrant mutation)은 방금 전달받은 스냅샷을 무효화하기 때문입니다.
+- 콜백에서 throw가 발생하면 `close()` 프라미스(promise)가 reject됩니다. 어느 쪽이든 컨트롤러는 해제됩니다.
 
 ## 성능 모델
 

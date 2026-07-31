@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Referencia de Componentes
 
 > Componentes reutilizables de alto nivel para el motor Canvas zero-DOM de VectoJS.
-> Versión documentada: **2.2.0**. Fuente de verdad: `dist/index.d.ts` (superficie pública) y `packages/ui/src/*` (comportamiento).
+> Versión documentada: **2.6.0**. Fuente de verdad: `dist/index.d.ts` (superficie pública) y `packages/ui/src/*` (comportamiento).
 
 Cada componente es una hoja o contenedor en el Virtual Math Tree (VMT). Nada aquí es DOM real — los componentes se dibujan a sí mismos en un Canvas mediante un `IRenderer`. La accesibilidad, la automatización de agentes y la capacidad de rastreo provienen de un **A11y Shadow DOM** paralelo: cuando un componente es `interactive`, la `Scene` proyecta un único nodo DOM real oculto y transparente posicionado sobre la caja del componente, construido a partir de `getA11yAttributes()`. Es por eso que `page.getByRole('button', { name })` / `fill()` / los lectores de pantalla funcionan contra una UI de Canvas puro.
 
@@ -166,6 +166,29 @@ Texto en línea multi-estilo: fragmentos en negrita / cursiva / coloreados / de 
 - `setMaxWidth(maxWidth): this` — reflujo.
 - `setExclusions(exclusions): this` — establece regiones flotantes y refluye.
 - `setSelectable(selectable): this` — alterna la selección nativa sin reconstruir fragmentos.
+
+**Objetos en línea (2.6.0+).** Un fragmento (span) puede reservar espacio horizontal para algo que `RichText` no forma — una fórmula, un icono, una caja incrustada — para que se sitúe en medio de la oración en lugar de romper la línea como un bloque:
+
+```ts
+import { OBJECT_REPLACEMENT, type StyledSpan } from '@vectojs/layout';
+
+const spans: StyledSpan[] = [
+  { text: 'the identity ' },
+  {
+    text: OBJECT_REPLACEMENT, // U+FFFC; requerido, o el `object` se ignora
+    object: {
+      width: 42, // avance a reservar, px en el tamaño final
+      height: 20, // ascenso + descenso; alimenta la altura de línea
+      depth: 4, // cuánto cuelga debajo de la línea base
+      alt: 'x+1', // nombre accesible, selección y texto de copia
+      paint: (surface, box) => surface.drawImage(bitmap, box.x, box.y, box.width, box.height),
+    },
+  },
+  { text: ' holds.' },
+];
+```
+
+Las métricas son en px en el tamaño final — una caja fija, no escalada por el `fontSize` del fragmento. `box.y` ya está resuelto contra la línea base y la profundidad (`depth`), por lo que un pintor no repite esa aritmética. `paint` se llama durante un repintado, por lo que debe ser síncrona; un objeto que aún está cargando su contenido no debería dibujar nada y solicitar un repintado cuando esté listo. **Omitir `paint` reserva el espacio y no dibuja nada** — un hueco en blanco. Establece `alt`, o el centinela en bruto llegará a la capa de accesibilidad y se copiará como un carácter invisible.
 
 A11y: cada **fragmento de enlace** contiguo obtiene un hijo `<a>` hotspot transparente (reconciliado a través de re-ajuste — un hotspot por fragmento; la posición se actualiza in situ, solo un cambio en el _número_ de enlaces reconstruye los nodos de sombra). El nombre accesible del componente es el texto completo concatenado.
 
