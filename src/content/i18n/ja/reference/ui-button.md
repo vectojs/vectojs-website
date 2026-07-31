@@ -60,7 +60,7 @@ await page.getByRole('button', { name: 'Save changes' }).click();
 
 ## 強制カラー（ハイコントラスト）
 
-`Button` は [`Scene.forcedColors`](/reference/core-scene/#accessibility--appearance) を読み取り、OS が強制カラーモードの場合、テーマパレットの代わりに CSS システムカラーで再描画します：`ButtonFace` 填色、`ButtonText` ラベルに加えて 1px の `ButtonText` ボーダー（システム背景に対して形状を視認可能にするため）、および `Highlight` フォーカスリング。Canvas ピクセルはブラウザの強制カラーリマッピングの対象外であるため、この処理をスキップしたコンポーネントはハイコントラストモードでは読み取れません。設定が切り替わるとシーンは自動的に再描画されます。
+`Button` は [`Scene.forcedColors`](/reference/core-scene/#アクセシビリティと外観) を読み取り、OS が強制カラーモードの場合、テーマパレットの代わりに CSS システムカラーで再描画します：`ButtonFace` 填色、`ButtonText` ラベルに加えて 1px の `ButtonText` ボーダー（システム背景に対して形状を視認可能にするため）、および `Highlight` フォーカスリング。Canvas ピクセルはブラウザの強制カラーリマッピングの対象外であるため、この処理をスキップしたコンポーネントはハイコントラストモードでは読み取れません。設定が切り替わるとシーンは自動的に再描画されます。
 
 ## メンテナスチェックリスト
 

@@ -55,7 +55,7 @@ const tree = new TreeView({
 
 La rangée active est défilée en vue avant que le focus ne se déplace vers elle. Comme seules les rangées visibles sont groupées, un arbre de 100k nœuds projette encore O(viewport) nœuds.
 
-Les points dʼaccès définissent `pointerEvents: 'none'` pour que lʼarbre conserve sa propre gestion souris (tap pour basculer, glisser pour défiler) — le focus clavier et les `click` synthétisés par AT passent toujours. Voir [Widgets composites](/reference/core-a11y/#composite-widgets-roving-tabindex).
+Les points dʼaccès définissent `pointerEvents: 'none'` pour que lʼarbre conserve sa propre gestion souris (tap pour basculer, glisser pour défiler) — le focus clavier et les `click` synthétisés par AT passent toujours. Voir [Widgets composites](/reference/core-a11y/#widgets-composés-tabindex-flottant).
 
 ## Pointeur et toucher
 

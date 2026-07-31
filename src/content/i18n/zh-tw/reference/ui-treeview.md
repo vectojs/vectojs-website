@@ -55,7 +55,7 @@ const tree = new TreeView({
 
 活動列在焦點移動到它之前會滾動到視圖中。由於只有可見列被池化，100k 節點的樹仍然只投影 O(視口) 個節點。
 
-熱點設定 `pointerEvents: 'none'`，因此樹保持其自身的滑鼠處理（點擊切換和拖曳滾動）——鍵盤焦點和 AT 合成的 `click` 仍然通過。參見[複合元件](/reference/core-a11y/#composite-widgets-roving-tabindex)。
+熱點設定 `pointerEvents: 'none'`，因此樹保持其自身的滑鼠處理（點擊切換和拖曳滾動）——鍵盤焦點和 AT 合成的 `click` 仍然通過。參見[複合元件](/reference/core-a11y/#複合元件漫遊-tabindex)。
 
 ## 指標與觸控
 

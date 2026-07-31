@@ -60,7 +60,7 @@ order: 10
 
 **複合元件有所不同。** `tree`、`grid`、`menu`、`radiogroup` 或 `tablist` 是一個標籤停靠點，而不是每個子元素一個——因此它們的子元素使用**漫遊 tabindex**：恰好一個子元素攜帶 `tabIndex: 0`，其餘為 `-1`，方向鍵移動該停靠點。參見[複合元件](#複合元件漫遊-tabindex)。
 
-標籤順序遵循**視覺**閱讀順序，而非場景圖插入順序——參見 [`Scene.readingDirection`](/reference/core-scene/#accessibility--appearance) 了解 RTL。
+標籤順序遵循**視覺**閱讀順序，而非場景圖插入順序——參見 [`Scene.readingDirection`](/reference/core-scene/#無障礙與外觀) 了解 RTL。
 
 當非控制項區域（如設計 canvas）必須進入循序焦點順序並接收 VMT `keydown` 事件時，明確設定 `tabIndex: 0`。使用 `-1` 僅用於程式化焦點；回傳 `undefined` 會移除明確的值。
 
@@ -82,7 +82,7 @@ order: 10
 
 ## 強制色彩（高對比度）
 
-canvas 是不透明像素，因此瀏覽器的 `forced-colors` 重新對應永遠不會觸及 VectoJS 繪製的內容——在 Windows 高對比度下，主題控制項會保持不可讀，除非元件重新繪製自身。請參見 [`Scene.forcedColors`](/reference/core-scene/#accessibility--appearance) 並使用 CSS 系統顏色（`ButtonFace`、`ButtonText`、`Highlight`、`Canvas`、`CanvasText`）繪製；當設定切換時場景會自動重繪。`Button` 已經這樣做了。
+canvas 是不透明像素，因此瀏覽器的 `forced-colors` 重新對應永遠不會觸及 VectoJS 繪製的內容——在 Windows 高對比度下，主題控制項會保持不可讀，除非元件重新繪製自身。請參見 [`Scene.forcedColors`](/reference/core-scene/#無障礙與外觀) 並使用 CSS 系統顏色（`ButtonFace`、`ButtonText`、`Highlight`、`Canvas`、`CanvasText`）繪製；當設定切換時場景會自動重繪。`Button` 已經這樣做了。
 
 ## 控制項與注意事項
 

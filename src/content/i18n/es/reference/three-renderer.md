@@ -49,7 +49,7 @@ Un reinicio de GPU o una eliminación por presión de memoria dejaría una escen
 
 Todo está protegido para SSR / `OffscreenCanvas` (sin `addEventListener` ni
 `matchMedia`). `isContextLost()` también satisface el hook opcional
-[`IRenderer`](/reference/core-renderer/#supervivencia-a-pérdida-de-contexto-gpu), por lo que
+[`IRenderer`](/reference/core-renderer/#sobrevivir-a-la-pérdida-del-contexto-gpu), por lo que
 `Scene.render` omite el paso mientras el contexto no está disponible.
 
 ## Propiedades públicas

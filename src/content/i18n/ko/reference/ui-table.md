@@ -46,7 +46,7 @@ const table = new Table({
 | Home / End           | 현재 행의 첫 번째/마지막 열                      |
 | Ctrl+Home / Ctrl+End | 첫 번째 헤더 셀 / 마지막 본문 셀                 |
 
-대상 셀은 포커스가 이동하기 전에 뷰로 스크롤됩니다. [복합 위젯](/reference/core-a11y/#composite-widgets-roving-tabindex)을 참조하세요.
+대상 셀은 포커스가 이동하기 전에 뷰로 스크롤됩니다. [복합 위젯](/reference/core-a11y/#복합-위젯-로빙-tabindex)을 참조하세요.
 
 ## 포인터 및 터치
 

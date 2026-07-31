@@ -74,7 +74,7 @@ Enter/Espacio → `click`.
 **Los widgets compuestos son diferentes.** Un `tree`, `grid`, `menu`, `radiogroup` o
 `tablist` es una parada de tabulación, no una por hijo — por lo tanto sus hijos usan un **tabindex flotante**: exactamente un hijo lleva `tabIndex: 0` y el resto `-1`, y las teclas de flecha mueven esa parada. Ver [Widgets compuestos](#widgets-compuestos-tabindex-flotante).
 
-El orden de tabulación sigue el orden de lectura **visual**, no el orden de inserción del grafo de escena — ver [`Scene.readingDirection`](/reference/core-scene/#accessibility--appearance) para RTL.
+El orden de tabulación sigue el orden de lectura **visual**, no el orden de inserción del grafo de escena — ver [`Scene.readingDirection`](/reference/core-scene/#accesibilidad-y-apariencia) para RTL.
 
 Establece `tabIndex: 0` explícitamente cuando una región que no es un control, como un lienzo de diseño,
 debe entrar en el orden de enfoque secuencial y recibir eventos `keydown` del VMT. Usa `-1`
@@ -110,7 +110,7 @@ La fila/celda enfocada se desplaza a la vista antes de que el enfoque se mueva a
 Un canvas es píxeles opacos, por lo que el remapeo `forced-colors` del navegador nunca
 toca lo que VectoJS dibuja — bajo Alto contraste de Windows un control con tema permanece
 ilegible a menos que el componente se repinte. Lee
-[`Scene.forcedColors`](/reference/core-scene/#accessibility--appearance) y dibuja
+[`Scene.forcedColors`](/reference/core-scene/#accesibilidad-y-apariencia) y dibuja
 con colores del sistema CSS (`ButtonFace`, `ButtonText`, `Highlight`, `Canvas`,
 `CanvasText`); la escena se repinta automáticamente cuando la configuración cambia.
 `Button` ya hace esto.

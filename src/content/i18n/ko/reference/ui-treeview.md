@@ -55,7 +55,7 @@ const tree = new TreeView({
 
 활성 행은 포커스가 이동하기 전에 뷰로 스크롤됩니다. 보이는 행만 풀링되므로 100k 노드 트리도 O(viewport) 노드만 프로젝션합니다.
 
-핫스팟은 `pointerEvents: 'none'`을 설정하므로 트리는 자체 마우스 처리(탭으로 토글, 드래그로 스크롤)를 유지합니다—키보드 포커스와 AT 합성 `click`은 여전히 통과합니다. [복합 위젯](/reference/core-a11y/#composite-widgets-roving-tabindex)을 참조하세요.
+핫스팟은 `pointerEvents: 'none'`을 설정하므로 트리는 자체 마우스 처리(탭으로 토글, 드래그로 스크롤)를 유지합니다—키보드 포커스와 AT 합성 `click`은 여전히 통과합니다. [복합 위젯](/reference/core-a11y/#복합-위젯-로빙-tabindex)을 참조하세요.
 
 ## 포인터 및 터치
 

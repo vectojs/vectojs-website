@@ -62,7 +62,7 @@ await page.getByRole('button', { name: 'Guardar cambios' }).click();
 
 ## Colores forzados (Alto contraste)
 
-`Button` lee [`Scene.forcedColors`](/reference/core-scene/#accessibility--appearance) y, cuando el sistema operativo está en modo de colores forzados, repinta con colores CSS del sistema en lugar de su paleta temática: un relleno `ButtonFace`, una etiqueta `ButtonText` más un borde `ButtonText` de 1px (para que la forma sea visible contra el fondo del sistema), y un anillo de enfoque `Highlight`. Los píxeles del canvas están exentos del remapeo de colores forzados del navegador, por lo que un componente que omite esto queda ilegible en Alto contraste. La escena se repinta automáticamente al cambiar la configuración.
+`Button` lee [`Scene.forcedColors`](/reference/core-scene/#accesibilidad-y-apariencia) y, cuando el sistema operativo está en modo de colores forzados, repinta con colores CSS del sistema en lugar de su paleta temática: un relleno `ButtonFace`, una etiqueta `ButtonText` más un borde `ButtonText` de 1px (para que la forma sea visible contra el fondo del sistema), y un anillo de enfoque `Highlight`. Los píxeles del canvas están exentos del remapeo de colores forzados del navegador, por lo que un componente que omite esto queda ilegible en Alto contraste. La escena se repinta automáticamente al cambiar la configuración.
 
 ## Lista de verificación para mantenedores
 

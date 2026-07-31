@@ -56,7 +56,7 @@ Lʼarbre projeté est une vraie grille ARIA : une rangée épinglée de `columnh
 | Home / End           | Première / dernière colonne de la rangée courante                      |
 | Ctrl+Home / Ctrl+End | Première cellule dʼen-tête / dernière cellule du corps                 |
 
-La cellule cible est défilée en vue avant que le focus ne se déplace vers elle. Voir [Widgets composites](/reference/core-a11y/#composite-widgets-roving-tabindex).
+La cellule cible est défilée en vue avant que le focus ne se déplace vers elle. Voir [Widgets composites](/reference/core-a11y/#widgets-composés-tabindex-flottant).
 
 ## Pointeur et toucher
 

@@ -40,7 +40,7 @@ GPU 리셋이나 메모리 압력 제거가 없으면 Three로 구동되는 씬�
 - **`webglcontextrestored`**는 픽셀 비율과 크기를 재적용합니다(복원이 다른 디스플레이에 올 수 있음), 플래그를 지우고 새로 지워진 프레임버퍼의 다시 그리기를 강제합니다. Three의 `WebGLRenderer`는 다음 렌더링 시 GL 상태를 지연적으로 재구축합니다.
 - **DPR 변경**은 `(resolution: Ndppx)` 미디어 쿼리로 추적되며, `setPixelRatio` + `setSize`를 재적용하고 자체를 재무장합니다(쿼리는 일회성).
 
-모두 SSR / `OffscreenCanvas`를 위해 보호됩니다(`addEventListener` 또는 `matchMedia` 없음). `isContextLost()`는 선택적 [`IRenderer`](/reference/core-renderer/#gpu-컨텍스트-손실-처리) 훅도 충족하므로, `Scene.render`는 컨텍스트가 없는 동안 해당 패스를 건너뜁니다.
+모두 SSR / `OffscreenCanvas`를 위해 보호됩니다(`addEventListener` 또는 `matchMedia` 없음). `isContextLost()`는 선택적 [`IRenderer`](/reference/core-renderer/#gpu-컨텍스트-손실에서-살아남기) 훅도 충족하므로, `Scene.render`는 컨텍스트가 없는 동안 해당 패스를 건너뜁니다.
 
 ## Public 속성
 

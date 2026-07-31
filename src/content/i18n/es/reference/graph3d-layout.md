@@ -81,7 +81,7 @@ layout.step(5); // 5 ticks en una llamada — amortización más económica por 
 // que la suavidad por tick
 ```
 
-**Fijación (desde 0.2.0).** `D3ForceLayout` implementa los controles de fijación opcionales sobre `fx`/`fy`/`fz` de d3-force, que es lo que impulsa el arrastre para fijar de [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction-hover-select-drag-to-pin):
+**Fijación (desde 0.2.0).** `D3ForceLayout` implementa los controles de fijación opcionales sobre `fx`/`fy`/`fz` de d3-force, que es lo que impulsa el arrastre para fijar de [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--hover--seleccionar--arrastrar-para-fijar):
 
 ```ts
 layout.pinNode(i, x, y, z); // fija el nodo i en (x,y,z) cada tick; también actualiza positions[i] ahora

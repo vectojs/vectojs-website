@@ -189,6 +189,14 @@ getBounds() {
 
 Par exemple, si 90 % de 5 000 entités feuilles bornées sont hors écran, il ne reste qu'environ 500 appels `render()`, mais la Scene visite et met tout de même à jour les 5 000 nœuds.
 
+### La scène entière se met en pause hors écran
+
+L'élimination par entité coûte tout de même un parcours. Lorsque le **canvas lui-même** sort complètement de la vue par défilement — un onglet de tableau de bord, un graphique sous la ligne de flottaison — un `IntersectionObserver` met la boucle rAF entièrement en pause et la reprend au retour, de sorte qu'une scène que personne ne peut voir ne coûte rien au lieu d'une mise à jour et d'un rendu complets par image. Rien à activer. (Là où `IntersectionObserver` n'est pas disponible, par exemple en SSR/jsdom, la scène est traitée comme toujours à l'écran.)
+
+### `dt` est plafonné à 100 ms
+
+Après un onglet en arrière-plan, une pause du débogueur ou un long GC, le temps réellement écoulé peut atteindre plusieurs secondes. Injecter cette valeur brute dans l'intégration fait téléporter la physique et les interpolations, c'est pourquoi le delta d'image est plafonné à `MAX_FRAME_DT` (100 ms). Si vous intégrez `dt` vous-même dans `update(dt)`, il ne dépassera jamais cette valeur.
+
 ## Limitation de la synchronisation a11y
 
 À chaque image rendue, la `Scene` synchronise les positions et états de toutes les entités interactives vers leurs nœuds shadow DOM. Avec des centaines d'entités interactives s'animant simultanément, cette surcharge d'écritures DOM peut dominer le temps d'image.

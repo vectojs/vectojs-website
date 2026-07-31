@@ -80,7 +80,7 @@ layout.step(5); // 5 tics en un appel — amortissement moins coûteux par trame
 // que la fluidité par tic
 ```
 
-**Épinglage (depuis 0.2.0).** `D3ForceLayout` implémente les contrôles d'épinglage optionnels via `fx`/`fy`/`fz` de d3-force, ce qui alimente le glisser-épingler de [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction-hover-select-drag-to-pin) :
+**Épinglage (depuis 0.2.0).** `D3ForceLayout` implémente les contrôles d'épinglage optionnels via `fx`/`fy`/`fz` de d3-force, ce qui alimente le glisser-épingler de [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--survol--sélection--glisser-épingler) :
 
 ```ts
 layout.pinNode(i, x, y, z); // fixe le nœud i à (x,y,z) à chaque tic ; met aussi à jour positions[i] immédiatement

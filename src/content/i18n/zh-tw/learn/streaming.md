@@ -62,7 +62,7 @@ const scene = new Scene(canvas, { renderMode: 'onDemand' });
 
 每次追加都會將場景標記為骯髒，因此幀僅在內容流動時渲染，並在串流空閒時立即停止——不會出現2fps自動節流的意外，也不會在響應間隔期間消耗電池。追加API和內建滾動容器都會報告其進行中的動畫（`hasPendingAnimations()`），因此在最後一個令牌落地後，平滑滾動到底部仍會繼續動畫。
 
-如果在串流期間從`update()`驅動任何自訂的**每幀**運動（如打字指示器、閃爍游標），請記住[閒置節流契約](/learn/performance/#the-idle-auto-throttle-the-hidden-pitfall)：覆寫`hasPendingAnimations()`或使用`animate()`/`springTo()`來驅動。
+如果在串流期間從`update()`驅動任何自訂的**每幀**運動（如打字指示器、閃爍游標），請記住[閒置節流契約](/learn/performance/#空閒自動節流隱藏陷阱)：覆寫`hasPendingAnimations()`或使用`animate()`/`springTo()`來驅動。
 
 ## 跟隨底部
 
@@ -116,6 +116,6 @@ function startAssistantMessage(): Markdown {
 | 滾動與使用者操作衝突     | 無條件呼叫`scrollToBottom()`——應透過「是否在底部」吸附判斷來限制         |
 | 串流空閒時CPU仍繁忙      | 場景處於`'always'`模式，或者存在未使用`hasPendingAnimations()`的自訂動畫 |
 
-如需真實資料，請使用[衡量實際效能](/learn/performance/#measuring-real-performance)中介紹的頁內測量模式——無頭模式的FPS不具代表性。
+如需真實資料，請使用[衡量實際效能](/learn/performance/#測量實際效能)中介紹的頁內測量模式——無頭模式的FPS不具代表性。
 
 > **下一篇：** [效能](/learn/performance/)提供完整的優化工具箱，[`Markdown`](/reference/ui-markdown/)是串流API參考。

@@ -161,6 +161,6 @@ const trace = createEventTrace(scene, { capacity: 50 });
 - [ ] OS 모션 감소를 활성화한 상태에서 애니메이션 확인.
 - [ ] WebGL/WebGPU 백엔드가 활성화된 경우 Canvas2D 폴백 경로도 테스트됨.
 
-> **다음:** [디버깅 워크플로](/reference/devtools/#debugging-workflows) —
+> **다음:** [디버깅 워크플로](/reference/devtools/#디버깅-워크플로우) —
 > 이 체크리스트가 의존하는 숫자 도구들, 그리고
 > 실시간 UI를 위한 [스트리밍 및 실시간 텍스트](/learn/streaming/).

@@ -79,7 +79,7 @@ layout.step(5); // 一次呼叫中 5 個 tick — 更便宜的每影格攤銷
 // 適用於圖形視覺穩定時間比逐 tick 平滑度更重要的情況
 ```
 
-**固定點（自 0.2.0）。** `D3ForceLayout` 透過 d3-force 的 `fx`/`fy`/`fz` 實作可選的固定控制，這就是支援 [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction-hover-select-drag-to-pin) 拖曳固定的方式：
+**固定點（自 0.2.0）。** `D3ForceLayout` 透過 d3-force 的 `fx`/`fy`/`fz` 實作可選的固定控制，這就是支援 [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--懸停--選取--拖曳固定) 拖曳固定的方式：
 
 ```ts
 layout.pinNode(i, x, y, z); // 將節點 i 固定在 (x,y,z) 並每次 tick 更新；同時立即更新 positions[i]

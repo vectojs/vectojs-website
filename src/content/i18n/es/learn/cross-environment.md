@@ -160,6 +160,6 @@ Para una UI que debe verse y comportarse de manera idéntica en todas partes:
 - [ ] Animaciones verificadas con el movimiento reducido del SO activado.
 - [ ] Si los backends WebGL/WebGPU están habilitados, la ruta de respaldo Canvas2D también está probada.
 
-> **Siguiente:** [Flujos de depuración](/reference/devtools/#debugging-workflows)
+> **Siguiente:** [Flujos de depuración](/reference/devtools/#flujos-de-trabajo-de-depuración)
 > para las herramientas numéricas en las que se apoya esta lista, y
 > [Streaming y texto en tiempo real](/learn/streaming/) para UIs en tiempo real.

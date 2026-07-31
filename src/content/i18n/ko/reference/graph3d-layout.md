@@ -80,7 +80,7 @@ layout.step(5); // 한 번 호출에 5틱 — 프레임당 분할 상환 비용 
 // 틱당 부드러움보다 더 중요할 때 사용
 ```
 
-**핀 (0.2.0부터).** `D3ForceLayout`은 d3-force의 `fx`/`fy`/`fz`를 통해 선택적 핀 컨트롤을 구현하며, 이것이 [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction-hover-select-drag-to-pin)의 드래그-투-핀을 구동합니다:
+**핀 (0.2.0부터).** `D3ForceLayout`은 d3-force의 `fx`/`fy`/`fz`를 통해 선택적 핀 컨트롤을 구현하며, 이것이 [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--호버--선택--드래그-투-핀)의 드래그-투-핀을 구동합니다:
 
 ```ts
 layout.pinNode(i, x, y, z); // 노드 i를 (x,y,z)에 고정; 매 틱마다 positions[i]도 갱신

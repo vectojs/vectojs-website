@@ -52,11 +52,11 @@ interface IRenderer {
 
 GPUリセットまたはメモリ圧力による追放によって描画コンテキストが奪われます。対処しなければ、サーフェスは永久に空白のままになります。GPUコンテキストを持つレンダラーは以下を行うべきです：
 
-1. その消失イベントをリッスンし `preventDefault()` します——否则ブラウザは対応する復元イベントを決して発火させません；
+1. その消失イベントをリッスンし `preventDefault()` します——さもなければブラウザは対応する復元イベントを決して発火させません；
 2. `isContextLost() === true` を報告し、`Scene.render` が死んだコンテキストに対して描画コールを発行する代わりにパスをスキップするようにします；
 3. 復元時にコンテキストを再取得し、DPR変換/サイズを再適用し、`onContextRestored` コールバックを発火させてSceneが新しくクリアされたサーフェスを再描画するようにします。
 
-`CanvasRenderer` はCanvas2Dに対してこれを実行し、`ThreeRenderer` はWebGLに対してこれを実行します——[`@vectojs/three`](/reference/three-renderer/#gpu-context-loss--runtime-dpr) を参照。
+`CanvasRenderer` はCanvas2Dに対してこれを実行し、`ThreeRenderer` はWebGLに対してこれを実行します——[`@vectojs/three`](/reference/three-renderer/#gpuコンテキストの損失とランタイムdpr) を参照。
 
 `fillCircle` は連続する同じ `color`/`alpha` の呼び出しを1つのパスに統合し、`flush()` 時（またはスタイル変更時）にコミットされます。Sceneは各兄弟グループの終了時と各フレームの終了時にフラッシュし、ペインターズオーダーを保持します。
 

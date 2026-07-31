@@ -44,6 +44,23 @@ interface IRenderer {
 }
 ```
 
+### Survivre à la perte du contexte GPU
+
+Une réinitialisation du GPU ou une éviction sous pression mémoire retire le contexte
+de dessin ; sans le gérer, la surface reste définitivement vide. Un renderer qui
+possède un contexte GPU doit :
+
+1. écouter son événement de perte et appeler `preventDefault()` dessus — sinon le
+   navigateur ne déclenche jamais l'événement de restauration correspondant ;
+2. signaler `isContextLost() === true` afin que `Scene.render` saute la passe au lieu
+   d'émettre des appels de dessin vers un contexte mort ;
+3. à la restauration, réacquérir le contexte, réappliquer la transformation/taille DPR
+   et déclencher le callback `onContextRestored` pour que la Scene repeigne la surface
+   fraîchement effacée.
+
+`CanvasRenderer` le fait pour Canvas2D, et `ThreeRenderer` pour WebGL — voir
+[`@vectojs/three`](/reference/three-renderer/#perte-de-contexte-gpu-et-dpr-à-lexécution).
+
 `fillCircle` fusionne les appels consécutifs de même `color`/`alpha` en un seul chemin,
 validé sur `flush()` (ou quand le style change). La Scène vide à la fin de chaque
 groupe frère et de chaque image, préservant l'ordre du peintre.

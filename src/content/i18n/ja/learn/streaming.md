@@ -62,7 +62,7 @@ const scene = new Scene(canvas, { renderMode: 'onDemand' });
 
 追加のたびにシーンがダーティとしてマークされるため、フレームはコンテンツが流れている間だけレンダリングされ、ストリームがアイドルになると即座に停止します——2fpsの自動スロットルによる驚きも、応答間のバッテリー消費もありません。追加APIと組み込みのスクロールコンテナはすべて、進行中のアニメーションを報告するため（`hasPendingAnimations()`）、最後のトークンが到着した後もスムーズスクロールで最下部までアニメーションし続けることができます。
 
-ストリーム中に`update()`からカスタムの**フレームごとの**モーション（タイピングインジケーター、点滅するカーソルなど）を駆動する場合は、[アイドルスロットルの契約](/learn/performance/#the-idle-auto-throttle-the-hidden-pitfall)を忘れないでください：`hasPendingAnimations()`をオーバーライドするか、`animate()`/`springTo()`で駆動してください。
+ストリーム中に`update()`からカスタムの**フレームごとの**モーション（タイピングインジケーター、点滅するカーソルなど）を駆動する場合は、[アイドルスロットルの契約](/learn/performance/#アイドル自動スロットル隠れた落とし穴)を忘れないでください：`hasPendingAnimations()`をオーバーライドするか、`animate()`/`springTo()`で駆動してください。
 
 ## 最下部への追従
 
@@ -116,6 +116,6 @@ function startAssistantMessage(): Markdown {
 | スクロールがユーザーと競合する        | `scrollToBottom()`を無条件に呼び出している——「最下部にいたか」の粘着判定でゲートする               |
 | ストリームがアイドルなのにCPUがビジー | シーンが`'always'`モードのままか、`hasPendingAnimations()`なしのカスタムアニメーションが存在する   |
 
-実際の数値については、[実際のパフォーマンスの測定](/learn/performance/#measuring-real-performance)のページ内測定パターンを使用してください——ヘッドレスFPSは代表的ではありません。
+実際の数値については、[実際のパフォーマンスの測定](/learn/performance/#実際のパフォーマンスの測定)のページ内測定パターンを使用してください——ヘッドレスFPSは代表的ではありません。
 
 > **次へ：** [パフォーマンス](/learn/performance/)で完全な最適化ツールボックスを、[`Markdown`](/reference/ui-markdown/)でストリーミングAPIリファレンスを参照してください。

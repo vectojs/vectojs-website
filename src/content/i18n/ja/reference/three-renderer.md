@@ -40,7 +40,7 @@ GPUリセットまたはメモリ圧迫による除去がなければ、Threeで
 - **`webglcontextrestored`** はピクセル比とサイズを再適用し（復元が異なるディスプレイに来ることもあります）、フラグをクリアし、新しくクリアされたフレームバッファの再描画を強制します。Threeの `WebGLRenderer` は次のレンダリング時にGL状態を遅延的に再構築します。
 - **DPRの変更**は `(resolution: Ndppx)` メディアクエリで追跡され、`setPixelRatio` + `setSize` を再適用し、自身を再アームします（クエリはワンショットです）。
 
-これらすべてはSSR / `OffscreenCanvas`向けにガードされています（`addEventListener` や `matchMedia` なし）。`isContextLost()` はオプションの [`IRenderer`](/reference/core-renderer/#gpu-コンテキストの損失への対応) フックも満たすため、`Scene.render` はコンテキストが消失している間そのパスをスキップします。
+これらすべてはSSR / `OffscreenCanvas`向けにガードされています（`addEventListener` や `matchMedia` なし）。`isContextLost()` はオプションの [`IRenderer`](/reference/core-renderer/#gpuコンテキスト消失への対応) フックも満たすため、`Scene.render` はコンテキストが消失している間そのパスをスキップします。
 
 ## パブリックプロパティ
 

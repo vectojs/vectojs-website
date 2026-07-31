@@ -48,7 +48,7 @@ Ctrl/Comando+C y búsqueda en página alineados con el texto VMT exactamente una
 
 ## Accesibilidad y teclado
 
-El árbol proyectado es una cuadrícula ARIA real: una fila fija de `columnheader`s más un `row` por cada fila **visible** del cuerpo (consciente de la virtualización), cada celda un `gridcell`热点 enfocable. Exactamente una celda posee el **tabindex flotante**, por lo que toda la cuadrícula es una parada de tabulación.
+El árbol proyectado es una cuadrícula ARIA real: una fila fija de `columnheader`s más un `row` por cada fila **visible** del cuerpo (consciente de la virtualización), cada celda un `gridcell` hotspot enfocable. Exactamente una celda posee el **tabindex flotante**, por lo que toda la cuadrícula es una parada de tabulación.
 
 | Tecla                | Acción                                                           |
 | -------------------- | ---------------------------------------------------------------- |
@@ -56,7 +56,7 @@ El árbol proyectado es una cuadrícula ARIA real: una fila fija de `columnheade
 | Home / End           | Primera / última columna de la fila actual                       |
 | Ctrl+Home / Ctrl+End | Primera celda de encabezado / última celda del cuerpo            |
 
-La celda objetivo se desplaza a la vista antes de que el foco se mueva a ella. Ver [Widgets compuestos](/reference/core-a11y/#composite-widgets-roving-tabindex).
+La celda objetivo se desplaza a la vista antes de que el foco se mueva a ella. Ver [Widgets compuestos](/reference/core-a11y/#widgets-compuestos-tabindex-flotante).
 
 ## Puntero y toque
 

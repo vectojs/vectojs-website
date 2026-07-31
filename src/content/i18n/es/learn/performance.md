@@ -189,6 +189,14 @@ getBounds() {
 
 Por ejemplo, si el 90% de 5.000 entidades hoja acotadas están fuera de pantalla, solo quedan unas 500 llamadas a `render()`, pero el Scene aún visita y actualiza los 5.000 nodos.
 
+### La escena completa se pausa cuando está fuera de pantalla
+
+El descarte por entidad todavía cuesta un recorrido. Cuando el **propio canvas** se desplaza por completo fuera de la vista — una pestaña de un panel, un gráfico por debajo del pliegue — un `IntersectionObserver` pausa el bucle rAF por completo y la reanuda al volver a entrar, de modo que una escena que nadie puede ver no cuesta nada en lugar de una actualización y un renderizado completos por frame. No hay nada que activar. (Donde `IntersectionObserver` no está disponible, por ejemplo en SSR/jsdom, la escena se trata como si estuviera siempre en pantalla.)
+
+### `dt` está limitado a 100 ms
+
+Tras una pestaña en segundo plano, una pausa del depurador o un GC largo, el tiempo real transcurrido puede ser de segundos. Alimentar ese valor bruto a la integración hace que la física y las interpolaciones se teletransporten, así que el delta de frame se limita a `MAX_FRAME_DT` (100 ms). Si integras `dt` tú mismo en `update(dt)`, nunca superará ese valor.
+
 ## Limitación de la sincronización de A11y
 
 En cada frame renderizado, el `Scene` sincroniza las posiciones y estados de todas las entidades interactivas con sus nodos del shadow DOM. Con cientos de entidades interactivas animándose simultáneamente, esta sobrecarga de escritura en el DOM puede dominar el tiempo de frame.
