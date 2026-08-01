@@ -48,6 +48,25 @@ interface IRenderer {
 }
 ```
 
+`IRenderer` is **method-based** on purpose: a mutable Canvas2D-style property
+like `globalAlpha` or `strokeStyle` has no batch boundary, whereas passing
+style with the draw call (`stroke(color, lineWidth)`,
+`setGlobalAlpha(alpha)`) lets `CanvasRenderer` coalesce by color+alpha and
+lets a GPU backend honour it per-draw instead of as ambient state. There is
+deliberately no `globalAlpha`, `strokeStyle`, `lineWidth`, `fillStyle`, or
+`font` **property** — use the methods above.
+
+> [!IMPORTANT]
+> Writing `r.globalAlpha = 0.5` or `r.strokeStyle = '#fff'` instead of calling
+> the method compiles on untranspiled JS (nothing type-checks a plain object
+> assignment) and is a **silent no-op**: it attaches an expando to the
+> renderer and the underlying context keeps its previous value. Since
+> `1.27.0`, dev mode catches this: `CanvasRenderer` and `SVGRenderer` warn
+> once per property per instance and name the method to use instead. Enable
+> with the same `Scene.devMode` / `globalThis.__DEV__` /
+> `NODE_ENV=development` detection used for the `SceneOptions` warning above;
+> production pays nothing.
+
 ### Surviving GPU context loss
 
 A GPU reset or memory-pressure eviction takes the drawing context away; without

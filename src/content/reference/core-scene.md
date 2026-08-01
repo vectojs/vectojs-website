@@ -43,9 +43,23 @@ first, or every glyph advance is a flat `0.5em` guess. See
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | Custom renderer (e.g. `ThreeRenderer` from [`@vectojs/three`](/reference/three-renderer/)).                                                                                                                                                                                                    |
 | `disableWindowResize`  | `boolean`                     | `false`          | Skip the auto `window` resize listener. Use inside a custom layout container / offscreen canvas, then drive size with `resize(w, h)`.                                                                                                                                                          |
 | `maxDPR`               | `number`                      | `undefined`      | Cap the device pixel ratio used to size the Canvas2D and `pointBackend: 'webgl'` backing stores. `undefined` reads the real, uncapped `devicePixelRatio`. Re-applied on every `resize()` call, not just at construction. See "Capping render DPR" below.                                       |
+| `renderMode`           | `'always' \| 'onDemand'`      | `'always'`       | Since `1.27.0` (`1.26.0` shipped the option; see below). Also settable live via `scene.renderMode`, which stays writable. Applying it as an option, not a post-construction assignment, means an `onDemand` scene skips the initial always-on frames too.                                      |
 
-Note: `renderMode` is a **public field** (default `'always'`), not a constructor
-option — set `scene.renderMode = 'onDemand'` after construction.
+> [!NOTE]
+> Before `@vectojs/core@1.26.0`, `renderMode` was a **field only** — passing it
+> as a constructor option compiled, read correctly, and was silently ignored,
+> leaving the scene on `'always'` and its 2 fps idle throttle. If you still see
+> that shape in older code or forked examples, `scene.renderMode = 'onDemand'`
+> after construction works on every version; the option form only needs
+> `1.26.0+`.
+>
+> `SceneOptions` is a structural type, so **any** misspelled or unrecognized key
+> — not just this one — silently does nothing, and TypeScript only catches it
+> when the object literal is written inline at the call site. In dev mode
+> (`Scene.devMode = true`, `globalThis.__DEV__`, or `NODE_ENV=development`) the
+> constructor now warns per unknown key and suggests the closest real one. The
+> recognized set is exported as `SCENE_OPTION_KEYS`. Dev-only; production pays
+> nothing.
 
 ### Capping render DPR (`maxDPR`)
 
@@ -76,7 +90,7 @@ scene.canvas: HTMLCanvasElement
 scene.width: number
 scene.height: number
 scene.overlayRoot: Entity          // children drawn above the main tree, bypassing clip bounds
-scene.renderMode: 'always' | 'onDemand'   // default 'always'
+scene.renderMode: 'always' | 'onDemand'   // also a ctor option since 1.26.0
 scene.maxFPS: number               // default 60
 scene.respectReducedMotion: boolean
 scene.a11ySyncInterval: number

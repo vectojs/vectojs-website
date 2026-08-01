@@ -11,7 +11,7 @@
 export const BUILD_ID = Date.now().toString(36);
 
 export const VERSIONS = {
-  core: '1.26.0',
+  core: '1.27.0',
   text: '0.3.0',
   layout: '0.5.0',
   math: '0.1.1',
