@@ -35,7 +35,7 @@ no-op으로 저하되어 헤드리스 레이아웃 / `toSVG()`가 여전히 작�
 | `particleBackend`      | `'auto' \| 'webgpu' \| 'cpu'` | `'auto'`         | [`ComputeParticleEntity`](/reference/core-particles/) 백엔드. `'auto'`는 WebGPU를 시도하고 CPU로 폴백하기 전에 경고. `'webgpu'`는 명시적으로 WebGPU를 요청하지만 현재 오류를 기록하고 초기화 실패 시 여전히 폴백. `'cpu'`는 CPU 시뮬레이션 강제(`webgpuDisabled` 설정). |
 | `maxFPS`               | `number`                      | `60`             | 프레임률 캡. `0` = 무제한(네이티브 리프레시). 연속 애니메이션은 여전히 실행되지만 덜 자주. (내부적으로 `NODE_ENV=test`/`VITEST`에서 `0`). 라이브로도 설정 가능(`scene.maxFPS`).                                                                                         |
 | `respectReducedMotion` | `boolean`                     | `true`           | OS가 `prefers-reduced-motion`을 요청하면 `REDUCED_MOTION_FPS`(30)로 제한 — 또는 그 값과 `maxFPS` 중 낮은 값. `false`는 OS 설정을 무시.                                                                                                                                  |
-| `readingDirection`     | `'ltr' \| 'rtl'`              | `'ltr'`          |                                                                                                                                                                                                                                                                         |
+| `readingDirection`     | `'ltr' \| 'rtl'`              | `'ltr'`          | a11y/자동화 섀도우 트리의 읽기 방향. 키보드 **탭 순서**와 스크린 리더 순회가 씬 그래프 삽입 순서가 아닌 _시각적_ 읽기 순서를 따르도록 합니다. `'rtl'`은 각 행 내의 인라인 순서를 반전합니다. 라이브로도 설정 가능(`scene.readingDirection`).                            |
 | `a11ySyncInterval`     | `number`                      | `0`              | a11y 섀도우-DOM 동기화를 최대 N ms당 한 번으로 스로틀. `0` = 렌더링된 모든 프레임 동기화. 작은 값(예: `100`)은 무거운 애니메이션 중 a11y 레이어를 최종적으로 일관되게 유지하면서 프레임별 DOM 쓰기를 절약. `scene.a11ySyncInterval`로 라이브 설정 가능.                 |
 | `debugA11y`            | `boolean`                     | `false`          | 섀도우 노드를 `opacity:0` 대신 파란색 점선 외곽선(개발 보조)으로 렌더링. 어느 쪽이든 자동화로 클릭 가능한 상태 유지.                                                                                                                                                    |
 | `renderer`             | `IRenderer`                   | `CanvasRenderer` | 커스텀 렌더러(예: [`@vectojs/three`](/reference/three-renderer/)의 `ThreeRenderer`).                                                                                                                                                                                    |
@@ -94,6 +94,8 @@ scene.forcedColors: boolean             // getter — OS is in a forced-colors m
 > Scene을 비-정적으로 유지)를 통해 모션을 구동하거나, 프레임 **사이**에서
 > (이벤트 핸들러, 별도의 `rAF` 또는 타이머에서) `scene.markDirty()`를 호출하여
 > 플래그가 다음 루프 반복까지 살아남도록 하세요.
+
+`effectiveMaxFPS` = `maxFPS`, OS가 감소된 모션을 요청하고 `respectReducedMotion`이 켜져 있으면 30(`REDUCED_MOTION_FPS`)으로 더 낮아집니다. `0`은 무제한을 의미합니다.
 
 ### 오프스크린 일시정지 및 dt 클램프
 
