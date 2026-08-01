@@ -201,7 +201,7 @@ interface HighlightGeometryOptions {
 
 Una entidad tiene hasta siete cajas distintas, y los bugs de layout viven en las brechas entre ellas:
 
-| Kind      | Qué es                                                                         |
+| Tipo      | Qué es                                                                         |
 | --------- | ------------------------------------------------------------------------------ |
 | `aabb`    | Caja delimitadora alineada a los ejes del cuadrilátero de layout transformado. |
 | `layout`  | El cuadrilátero real, con rotación y skew incluidos. La referencia.            |

@@ -201,7 +201,7 @@ interface HighlightGeometryOptions {
 
 Une entité a jusqu'à sept boîtes différentes, et les bogues de mise en page vivent dans les écarts entre elles :
 
-| Kind      | Ce que c'est                                                              |
+| Type      | Ce que c'est                                                              |
 | --------- | ------------------------------------------------------------------------- |
 | `aabb`    | Boîte englobante alignée sur les axes du quad de mise en page transformé. |
 | `layout`  | Le vrai quad, rotation et inclinaison comprises. La référence.            |
