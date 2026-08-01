@@ -1,17 +1,32 @@
 ---
 title: '@vectojs/devtools'
-description: "L'inspecteur de Virtual Math Tree dans la page — sélection d'entité, une vue arborescente en direct, relevé de transformation et édition par touches de déplacement, lui-même rendu avec VectoJS."
+description: "L'inspecteur de Virtual Math Tree dans la page et sa couche modèle sans tête — sélection d'entité, vue arborescente, audits, instantanés, lectures GPU et accélérateurs, et pont JSON-RPC."
 order: 48
 ---
 
 # `@vectojs/devtools`
 
-Version documentée : **0.4.3**
+Version documentée : **0.11.0**
 
 `@vectojs/devtools` est la réponse à « où est le panneau Éléments ? » — un inspecteur
 dans la page pour le Virtual Math Tree, afin que le débogage d'une scène VectoJS reste
-dans l'espace d'état plutôt que dans l'espace de pixels. Le panneau est lui-même une
-`Scene` VectoJS (dogfooding le framework qu'il inspecte), ancré au bord droit de la page.
+dans l'espace d'état plutôt que dans l'espace de pixels. Il a deux moitiés :
+
+| Moitié                                              | Usage                                                                                                                                                                                                  |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Le panneau** (`@vectojs/devtools`)                | Un dock dans la page, lui-même une `Scene` VectoJS, avec des onglets pour l'arborescence, l'état d'entité, les audits, a11y, un journal d'événements et les réglages. Documenté sur cette page.        |
+| **La couche modèle** (`@vectojs/devtools/headless`) | ~60 fonctions pures qui répondent aux questions de mise en page, a11y, hit-testing, texte et performance sous forme de données. Pas de panneau DOM, utilisable dans les tests, CI, Node et les agents. |
+
+La couche modèle est la plus grande et la plus utile. Utilisez-la avant de faire une capture d'écran — un nombre vous dit _quelle_ entité est erronée, alors qu'une image ne dit seulement que quelque chose ne va pas.
+
+| Page                                           | Contenu                                                                                                                                                              |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Inspecter](/reference/devtools-inspect/)      | Modèle d'arborescence, sélection, état entité/a11y/texte, géométrie de surbrillance, explication du hit-test, traçage du routage d'événements.                       |
+| [Auditer](/reference/devtools-audit/)          | Toutes les fonctions `audit*` — mise en page, a11y, mise en forme du texte, dérive de sélection — plus instantanés et différences pour les assertions de régression. |
+| [Performance](/reference/devtools-perf/)       | Compteurs GPU et de dessin, état des accélérateurs WASM, attribution de repeint sale, métriques de streaming Markdown.                                               |
+| [Pont et plugins](/reference/devtools-extend/) | Le protocole JSON-RPC pour piloter une scène depuis un autre document, et le protocole de plugin pour ajouter vos propres onglets et audits.                         |
+
+---
 
 ## Installation
 
@@ -19,13 +34,10 @@ dans l'espace d'état plutôt que dans l'espace de pixels. Le panneau est lui-m�
 bun add -D @vectojs/devtools
 ```
 
-Ajoutez le panneau visuel conditionnellement en développement — il monte un panneau VectoJS
-et écoute sur `document`, donc gardez-le hors des bundles de production. Les audits
-sans tête, instantanés, la sélection et le traçage d'événements sont disponibles sans
-le panneau :
+Le panneau monte une scène VectoJS et écoute sur `document`, donc gardez-le hors des bundles de production. Importez la couche modèle depuis le sous-chemin `headless` — il ne contient pas le code du panneau et pas de dépendance `@vectojs/ui` :
 
 ```ts
-import { auditScene, captureSnapshot, createEventTrace } from '@vectojs/devtools/headless';
+import { auditScene, captureSnapshot, inspectEntity } from '@vectojs/devtools/headless';
 ```
 
 ```typescript
@@ -40,32 +52,27 @@ if (import.meta.env.DEV) {
 }
 ```
 
+> [!IMPORTANT]
+> Tout ce qui est sous `@vectojs/devtools/headless` est aussi ré-exporté depuis la racine du paquet, donc un unique import `attachDevtools` ne vous empêche pas d'appeler `auditScene`. Le sous-chemin existe pour qu'un bundle de test de production puisse inclure la couche modèle sans le panneau.
+
+---
+
 ## Ce qu'il affiche
 
-- **Vue arborescente en direct (onglet `Tree`)** de `scene.rootEntity` et `scene.overlayRootEntity`, rafraîchie
-  à intervalle (défaut 500 ms). Chaque ligne montre le nom du constructeur de l'entité, sa
-  position, sa taille et deux badges : **⚡** (`interactive`) et **▶** (`hasPendingAnimations()`).
-- **Mode sélection** : cliquez sur **Pick**, puis cliquez n'importe où sur la page.
-  L'inspecteur résout le clic vers l'entité la plus profonde sous ce point en utilisant le
-  même ordre de parcours que la Scène utilise pour l'entrée du pointeur (avec un repli AABB
-  pour les entités décoratives non interactives).
-- **Surbrillance de sélection** : la boîte englobante dans l'espace monde de l'entité
-  sélectionnée est dessinée comme un contour sur la couche d'overlay de la scène _hôte_,
-  pour que vous voyiez exactement ce qui est sélectionné par rapport au rendu en direct.
-- **Relevé d'état + édition en ligne (onglet `Info`)** : géométrie, échelle/rotation/opacité, la matrice de transformation
-  monde complète et l'état d'animation en texte brut — les nombres qu'une capture d'écran
-  ne peut pas vous donner directement.
-- **Édition par touches de déplacement** : avec une entité sélectionnée, les touches
-  fléchées la déplacent de 1 px (Maj : 10 px) ; `+`/`-` modifient l'opacité par pas de 0,1.
-  Utile pour confirmer _quelle_ entité possède un bug de mise en page avant de toucher au code.
+L'en-tête comporte trois boutons icônes fantômes — **⌖** (sélection), **⟳** (rafraîchir), **⚠** (audit) — et trois badges de compteur : total d'entités, interactives (**⚡**), et découvertes d'audit (**⚠**). Une barre `Tabs` divise les outils en **Tree · Info · Audit · A11y · Log · ⚙**, plus un onglet par [inspecteur de plugin](/reference/devtools-extend/#protocole-de-plugin) enregistré. Une bande de performance est épinglée en bas.
 
-- **HUD de performances** (0.5.0) : une bande inférieure lit [`Scene.frameStats`](/reference/core-scene) — fps, ms/trame, nombre d'entités, mode de rendu, et nombre de trames rendues/ignorées. Les fps représentent la véritable cadence des _trames rendues_, de sorte qu'une scène `onDemand` inactive ou auto-bridée lit honnêtement ~2fps plutôt qu'un faux 60. Désactivez avec `showPerf: false`.
-- **Paramètres** (onglet `⚙`, 0.5.0) : basculer la surbrillance de sélection, et changer l'intervalle de rafraîchissement et le côté d'ancrage (gauche/droite) en direct.
-  Depuis la version 0.4.3, le dock fixé à droite et son canvas utilisent
-  `pointer-events: none` ; seuls les contrôles interactifs projetés réactivent les
-  événements du pointeur. L'inspecteur ne vole donc plus les entrées destinées aux
-  contrôles hôtes situés sous les pixels vides du dock, tandis que ses lignes VMT et ses
-  boutons restent cliquables.
+- **Vue arborescente en direct** (`Tree`) de `scene.rootEntity` et `scene.overlayRootEntity`, rafraîchie à intervalle (défaut 500 ms). Chaque ligne montre le nom du constructeur de l'entité, sa position, sa taille, et deux badges : **⚡** (`interactive`) et **▶** (`hasPendingAnimations()`). Un champ **filtre** restreint les lignes par sous-chaîne de type/id ; il est en lecture seule, donc l'index id→entité résout toujours tout. Programmatiquement : `panel.setFilter(text)`.
+- **Mode sélection** : cliquez sur **⌖**, puis cliquez n'importe où sur la page. L'inspecteur résout le clic vers l'entité la plus profonde sous ce point en utilisant le même ordre de parcours que la Scene utilise pour l'entrée du pointeur, avec un repli AABB pour les entités décoratives, non interactives.
+- **Surbrillance de sélection** : la géométrie de l'entité sélectionnée est dessinée en contour sur la couche d'overlay de la scène _hôte_, pour que vous voyiez exactement ce qui est sélectionné par rapport au rendu en direct. Par défaut, il dessine la boîte de mise en page ; `panel.setHighlightLayers()` le bascule vers n'importe laquelle des sept [couches de géométrie de surbrillance](/reference/devtools-inspect/#géométrie-de-surbrillance) — y compris `'hit'`, qui échantillonne la vraie région de hit de l'entité plutôt que sa boîte.
+- **Relevé d'état + édition en ligne** (`Info`) : géométrie, échelle/rotation/opacité, la matrice de transformation monde complète, l'état d'animation, et toute sortie `getDevtoolsDescriptor()` que l'entité publie. Ajoute des éditeurs en ligne `x`/`y`/`opacity` et les boutons **Copy path** / **Copy JSON**.
+- **Onglet A11y** : le rôle projeté de l'entité sélectionnée, son nom accessible et sa source, l'index de tabulation, la position dans l'ordre de lecture, la boîte canvas-vs-DOM — plus les découvertes de l'[audit a11y](/reference/devtools-audit/#audit-a11y) à l'échelle de la scène.
+- **Édition par touches de déplacement** : avec une entité sélectionnée, les touches fléchées la déplacent de 1px (Maj : 10px) ; `+`/`-` modifient l'opacité par pas de 0.1. Utile pour confirmer _quelle_ entité possède un bug de mise en page avant de toucher au code.
+- **HUD de performance** : une bande en bas lit [`Scene.frameStats`](/reference/core-scene) — fps, ms/image, nombre d'entités, mode de rendu, et nombre d'images rendues/ignorées. Les fps sont la vraie cadence des _images rendues_, donc une scène `onDemand` inactive ou auto-bridée lit honnêtement ~2fps plutôt qu'un faux 60. Désactivez avec `showPerf: false`.
+- **Réglages** (`⚙`) : basculer la surbrillance de sélection, et changer l'intervalle de rafraîchissement et le côté d'ancrage (gauche/droite) en direct.
+
+Le panneau se reformate au redimensionnement de la fenêtre, donc la bande de performance du bas reste à l'écran à toute hauteur de viewport ou niveau de zoom. Le dock et son canvas utilisent `pointer-events: none` ; seuls leurs contrôles interactifs projetés réactivent l'opt-in — donc l'inspecteur ne vole jamais l'entrée des contrôles hôtes sous les pixels vides du dock, tandis que ses propres lignes, onglets, entrées et boutons restent cliquables.
+
+---
 
 ## API
 
@@ -76,131 +83,51 @@ function attachDevtools(
 ): DevtoolsPanel & { detach(): void };
 
 interface DevtoolsOptions {
-  width?: number; // largeur du panneau en px, défaut 320
-  refreshInterval?: number; // ms ; 0 désactive le rafraîchissement automatique
+  width?: number; // largeur du panneau en px, défaut 360
+  refreshInterval?: number; // ms ; 0 désactive le rafraîchissement auto. Défaut 500
   traceEvents?: boolean; // affiche les enregistrements limités de routage pointeur/molette/clavier
-  traceCapacity?: number;
+  traceCapacity?: number; // enregistrements de trace retenus, défaut 50
+  dockSide?: 'right' | 'left'; // défaut 'right'
+  showPerf?: boolean; // bande HUD de performance live, défaut true
+  defaultTab?: string; // 'tree' | 'inspect' | 'audit' | 'a11y' | 'events' | 'settings'
 }
 
 class DevtoolsPanel {
-  refresh(): void; // reconstruit le modèle arborescent depuis la scène hôte
+  refresh(force?: boolean): void; // reconstruit le modèle arborescent depuis la scène hôte
   armPick(): void; // one-shot : le prochain clic sur la page sélectionne l'entité dessous
   select(entity: Entity): void; // sélectionne programmatiquement
   get selection(): Entity | null;
-  destroy(): void; // démonte les écouteurs, minuteries, surbrillance de l'hôte et le panneau
+  get trace(): EventTrace | null; // null sauf si traceEvents était activé
+  setFilter(text: string): void; // filtre l'arbre par sous-chaîne type/id
+  setHighlightEnabled(on: boolean): void;
+  setHighlightLayers(kinds: ReadonlyArray<HighlightLayerKind>, hitSampleStep?: number): void;
+  getHighlightLayers(): ReadonlyArray<HighlightLayer>; // couches du dernier dessin
+  setRefreshInterval(ms: number): void;
+  setDockSide(side: 'right' | 'left'): void;
+  audit(): AuditFinding[]; // exécute l'audit de mise en page ; remplit aussi l'onglet Audit
+  selectFinding(i: number): void; // sélectionne + surbrillance l'entité derrière la découverte i
+  getPluginFindings(): ReadonlyArray<PluginFinding>; // découvertes des audits de plugin
+  getPluginRows(inspectorId: string): PluginRow[]; // lignes actuelles d'un onglet de plugin
+  runCommand(qualifiedId: string): unknown; // exécute un `<pluginId>/<commandId>`
+  destroy(): void; // démonte les écouteurs, minuteries, surbrillance hôte, et la scène du panneau
 }
 ```
 
 `detach()` (retourné par `attachDevtools`) est un alias pour `destroy()`.
 
-## Trace de routage d'événements
+`refresh(force)` saute la reconstruction quand `scene.structureVersion` n'a pas bougé, donc l'appeler à intervalle serré est bon marché ; passez `true` pour reconstruire quand même. Indépendamment de ce contrôle, le panneau se réconcilie toutes les 3s pour qu'un bump de structure manqué ne laisse pas l'arbre périmé indéfiniment.
 
-```ts
-const trace = createEventTrace(scene, { capacity: 100 });
-trace.subscribe((entry) => {
-  console.log(entry.source, entry.targetPath, entry.defaultPrevented);
-});
-```
+`getPluginRows` renvoie `[]` pour un ID d'inspecteur inconnu, sans sélection, ou quand le `appliesTo` de l'inspecteur rejette la sélection — les trois cas ne sont pas distingués. `runCommand` **lève** sur un ID de commande inconnu au lieu de ne rien faire.
 
-`source` est `"canvas"`, `"a11y"`, `"content"` ou `"document"`. La source
-`content` signifie que l'événement navigateur a commencé sur un miroir
-`[data-vecto-content]` sélectionnable. La trace valide l'entité propriétaire, enregistre
-les coordonnées scène/locales, et finalise dans une microtâche pour que `defaultPrevented`
-reflète la décision finale de raccourci ou de sélection de l'application. Appelez
-`trace.destroy()` quand la surface de diagnostic se démonte. Les traces de pointeur
-incluent `pointercancel`, ce qui rend visibles les transactions de glisser et de
-sélection interrompues au lieu de laisser un vide diagnostique après `pointerdown`.
-
-## Audit de scène
-
-`auditScene` parcourt l'arbre et signale les défauts de mise en page sous forme de constatations structurées et JSON-safe — la réponse numérique à « est-ce que quelque chose déborde, se chevauche ou s'échappe ? » :
-
-```typescript
-import { auditScene } from '@vectojs/devtools/headless';
-
-const findings = auditScene(scene, {
-  tolerance: 0.5, // marge en px avant qu'un échappement/chevauchement compte
-  includeOverlay: false, // modales/surbrillance exclues par défaut
-  ignore: (e) => e.id.startsWith('debug-'), // élaguer les sous-arbres
-  ignoreOverlap: (a, b) => a.id === 'badge', // autoriser l'empilement intentionnel
-});
-// -> AuditFinding[]: { kind, entityId, entityPath, worldBounds, message,
-//    containerBounds?, overflow?{left,right,top,bottom}, otherId?, intersection? }
-```
-
-Quatre `kind` sont détectés, triés déterministiquement :
-
-- `text-overflow` — la boîte mesurée d'une entité textuelle dépasse son ancêtre dimensionné le plus proche.
-- `clip-overflow` — le contenu dépasse un ancêtre `clipChildren` (pixels coupés).
-- `overlap` — **frères uniquement** ; le containment parent-enfant est normal.
-- `viewport-overflow` — une entité sans ancêtre dimensionné dessinée en dehors du canvas.
-
-Angles morts connus : les conteneurs défilables exemptent l'axe vertical (remplacez la liste via `scrollableTypes`, correspondance par `constructor.name`), et les entités `opacity: 0` sont ignorées.
-
-Le bouton **Audit** du panneau effectue la même vérification à la place de la vue arborescente ; `panel.audit()` retourne les constatations et `panel.selectFinding(i)` en surbrillance une.
-
-Utilisez-le comme porte CI : `expect(auditScene(scene)).toEqual([])`.
-
-## Instantanés et différences
-
-```typescript
-import { captureSnapshot, diffSnapshots } from '@vectojs/devtools/headless';
-
-const before = captureSnapshot(scene); // arbre JSON déterministe
-// … effectuer une interaction …
-const diffs = diffSnapshots(before, captureSnapshot(scene));
-// -> [{ path: "root > GridEntity[0]", kind: "changed", changes: { x: {from,to} } }]
-```
-
-Les différences se basent sur des **chemins structurels** (chaînes `type[index]`), jamais sur des IDs d'entité — les IDs sont aléatoires par exécution. Les propriétés à valeur par défaut sont omises des instantanés, donc les différences restent silencieuses. Les paires d'instantanés permettent des assertions d'état golden précises dans les tests de smoke : au lieu de faire une capture d'écran, affirmez qu'une interaction a changé exactement les entités qu'elle aurait dû.
-
-## Utilitaires de modèle de bas niveau
-
-La logique de construction d'arbre et de sélection est exportée séparément si vous
-voulez construire une UI d'inspecteur personnalisée au lieu du panneau intégré :
-
-```typescript
-import {
-  buildTreeModel,
-  findEntityAt,
-  describeEntity,
-  inspectEntity,
-  entityPath,
-  pickInScene,
-} from '@vectojs/devtools';
-
-buildTreeModel(root: Entity): { nodes: TreeNode[]; index: Map<string, Entity> };
-findEntityAt(root: Entity, x: number, y: number): Entity | null; // point espace-scène → entité
-describeEntity(entity: Entity): string[]; // lignes d'état lisibles par un humain
-inspectEntity(entity: Entity): EntityInfo; // état structuré et JSON-safe
-entityPath(entity: Entity): string; // chaîne d'ascendance ("Scene > Card#<id> > Text#<id>", ids tronqués à 8 car.)
-pickInScene(scene: Scene, sceneX: number, sceneY: number): Entity | null; // sélection priorité overlay
-```
-
-`inspectEntity` est le frère structuré de `describeEntity` : limites et transformation monde, drapeaux d'interaction, `clipChildren`, nombre d'enfants, un aperçu de texte typé dynamiquement (`.text`/`.value`), et les attributs de projection d'accessibilité lorsqu'ils sont présents. `entityPath` génère la chaîne d'ascendance de l'entité (ex. `"Scene > Card#<id> > Text#<id>"`, IDs tronqués à 8 caractères).
-
-## Flux de travail de débogage
-
-La couche modèle de devtools répond aux questions de mise en page avec des chiffres — utilisez-la avant de recourir à une capture d'écran. Symptôme → outil :
-
-| Symptôme                                                             | Flux de travail                                                                                                                                                                                                                                                                 |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| « Quelle entité possède ce pixel ? »                                 | `pickInScene(scene, x, y)` → `inspectEntity(hit)` ; dans la page, le bouton **Pick** du panneau                                                                                                                                                                                 |
-| « Pourquoi cette entité a-t-elle une position/taille incorrecte ? »  | `inspectEntity` pour les limites monde + transformation, puis remontez `entityPath` — le premier ancêtre dont les limites sont erronées possède le bug                                                                                                                          |
-| « Quelque chose déborde/se chevauche mais je ne vois pas où »        | `auditScene(scene)` — chaque constatation inclut `entityPath`, les limites monde et les quantités de débordement par bord                                                                                                                                                       |
-| « Cette interaction a déplacé ce qu'elle n'aurait pas dû »           | `captureSnapshot` avant, interagir, `diffSnapshots` après — le diff liste exactement ce qui a changé                                                                                                                                                                            |
-| « Un clic/molette/touche va au mauvais endroit »                     | `createEventTrace(scene)` — chaque entrée montre la source (`canvas`/`a11y`/`content`/`document`), le chemin cible, les coordonnées et le `defaultPrevented` final                                                                                                              |
-| « La sélection par glissement ou la copie de texte est interceptée » | Trace d'événements avec `entry.source === 'content'` — l'événement navigateur a commencé sur une projection sélectionnable ; vérifiez `defaultPrevented` et le chemin cible                                                                                                     |
-| « Un glissement se bloque / ne se termine jamais »                   | Les traces de pointeur sont transactionnelles : attendez `pointerdown` → mouvements → exactement un `pointerup` (validation) **ou** `pointercancel` (annulation) ; une entrée terminale manquante signifie que l'entité n'a pas été projetée ou que la capture a été contournée |
-| « Est-ce une régression ? »                                          | Conservez un instantané validé (`captureSnapshot`) de la scène saine et exécutez `diffSnapshots` dessus dans le CI                                                                                                                                                              |
+---
 
 ## Notes de conception
 
-- Le panneau est construit avec `contentProjection: false` et `renderMode: 'onDemand'` — il ne
-  doit pas projeter son propre contenu DOM ni se repeindre à chaque image pendant l'inactivité.
-- L'état de sélection vit sur le panneau, pas sur l'hôte : `select()`/`armPick()` ne mutent
-  jamais la scène inspectée sauf pour l'entité de surbrillance d'overlay, qui est ajoutée
-  via `showOverlay()` et retirée sur `destroy()`.
-- Le rafraîchissement automatique est un simple intervalle, pas une animation Scène — il
-  fonctionne même quand la scène hôte est totalement inactive (`onDemand`, rien de sale).
-- Le dock (`position: fixed; right: 0; width: 320px` par défaut, hauteur totale du viewport) et son canvas ont `pointer-events: none`, reflétant comment le propre `a11yRoot` de la `Scene` principale se retire tandis que les éléments d'ombre interactifs individuels se réinscrivent via `auto` (`@vectojs/devtools@0.6.0+`). Cela signifie que les clics sur le fond/chrome vide du dock traversent vers tout contenu hôte situé en dessous — y compris les propres contrôles du bord droit de l'application hôte (boutons de fermeture d'onglet, boutons de barre d'outils) qui autrement se trouveraient dans la bande de 320px du dock. Seuls les contrôles projetés a11y du panneau lui-même (boutons, lignes d'arbre VMT) sont cliquables indépendamment, via leur propre réinscription `auto`.
+- La scène du panneau est construite avec `contentProjection: false` et `renderMode: 'onDemand'` — elle ne doit pas projeter son propre contenu DOM ou se repeindre chaque frame pendant l'inactivité.
+- L'état de sélection vit sur le panneau, pas sur l'hôte : `select()`/`armPick()` ne mutent jamais la scène inspectée sauf pour l'entité de surbrillance d'overlay, qui est ajoutée via `showOverlay()` et retirée sur `destroy()`.
+- Le rafraîchissement auto est un intervalle simple, pas une animation Scene — il fonctionne même quand la scène hôte est totalement inactive (`onDemand`, rien de sale).
+- Le dock (`position: fixed`, hauteur viewport complète) et son canvas sont `pointer-events: none`, miroir de comment la `Scene` principale a son `a11yRoot` qui s'exclut tandis que les éléments d'ombre interactifs individuels se réinscrivent via `auto`. Les clics sur le fond/chrome vide du dock traversent vers tout contenu hôte en dessous — y compris les propres contrôles du bord droit de l'app hôte (boutons de fermeture d'onglet, boutons de barre d'outils) qui sinon se trouveraient dans la bande du dock. Seuls les contrôles a11y-projetés du panneau lui-même, via leur propre `auto` opt-in, sont indépendamment cliquables.
+
+---
+
+[Inspecter](/reference/devtools-inspect/) · [Auditer](/reference/devtools-audit/) · [Performance](/reference/devtools-perf/) · [Pont et plugins](/reference/devtools-extend/)

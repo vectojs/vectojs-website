@@ -108,4 +108,4 @@ const trace = createEventTrace(scene, { capacity: 50 });
 - [ ] 在启用OS减少动效设置的情况下验证动画。
 - [ ] 如果启用了WebGL/WebGPU后端，同时也要测试Canvas2D回退路径。
 
-> **下一篇：** [调试工作流](/reference/devtools/#调试工作流)提供了此清单所依赖的数值工具，以及[流式传输与实时文本](/learn/streaming/)用于实时UI。
+> **下一篇：** [调试工作流](/reference/devtools-inspect/#调试工作流)提供了此清单所依赖的数值工具，以及[流式传输与实时文本](/learn/streaming/)用于实时UI。

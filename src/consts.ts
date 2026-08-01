@@ -139,5 +139,9 @@ export const REFERENCE_PAGES: DocPage[] = [
   { slug: 'graph3d-renderer', title: 'Graph3D: Graph3D & picking', group: 'graph3d' },
   { slug: 'video-exporter', title: '@vectojs/video-exporter', group: 'video-exporter' },
   { slug: 'devtools', title: '@vectojs/devtools', group: 'devtools' },
+  { slug: 'devtools-inspect', title: 'Devtools: inspecting', group: 'devtools' },
+  { slug: 'devtools-audit', title: 'Devtools: auditing', group: 'devtools' },
+  { slug: 'devtools-perf', title: 'Devtools: performance', group: 'devtools' },
+  { slug: 'devtools-extend', title: 'Devtools: bridge & plugins', group: 'devtools' },
   { slug: 'faq', title: 'FAQ', group: 'faq' },
 ];

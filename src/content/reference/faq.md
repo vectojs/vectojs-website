@@ -1,7 +1,7 @@
 ---
 title: 'FAQ'
 description: 'Frequently asked questions about VectoJS — architecture decisions, performance, accessibility, and troubleshooting.'
-order: 49
+order: 53
 ---
 
 # Frequently Asked Questions

@@ -160,6 +160,6 @@ For a UI that must look and behave identically everywhere:
 - [ ] Animations verified with OS reduced-motion enabled.
 - [ ] If WebGL/WebGPU backends are enabled, the Canvas2D fallback path is also tested.
 
-> **Next:** [Debugging workflows](/reference/devtools/#debugging-workflows)
+> **Next:** [Debugging workflows](/reference/devtools-inspect/#debugging-workflows)
 > for the numeric tools this checklist leans on, and
 > [Streaming & Real-Time Text](/learn/streaming/) for real-time UIs.
