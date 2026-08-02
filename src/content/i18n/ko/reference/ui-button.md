@@ -47,8 +47,17 @@ interface ButtonOptions {
   font?: string;
   padding?: number;
   radius?: number;
+  focusColor?: string;       // 2.7.0+ — focus-ring color, default '#00f0ff'
 }
 ```
+
+포커스 링은 `focusColor`로 2px 스트로크로 그려집니다. 시안 기본값이 조정된 어두운 기본 팔레트가 아닌 테마에서는 이를 설정하세요:
+
+```ts
+const save = new Button('Save', { bg: '#f43f5e', focusColor: '#60a5fa' });
+```
+
+포커스 링은 키보드 사용자가 없어서는 안 되는 유일한 어포던스이므로 단순히 존재하는 것에 그치지 않고 표면에서 명확히 읽혀야 합니다 — 3:1 비텍스트 대비 기준(WCAG SC 1.4.11)을 넘는 것을 목표로 하고, 액센트 색상과 구별되는 색조를 선호하여 포커스가 일반적인 강조로 오인되지 않게 하세요. 강제 색상 모드에서는 이를 무시하고 시스템 `Highlight` 색상을 사용하므로, 설정해도 고대비를 깨뜨릴 수 없습니다.
 
 ## 접근성 및 자동화
 

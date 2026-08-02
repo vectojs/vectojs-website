@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — コンポーネントリファレンス
 
 > VectoJS ゼロ DOM Canvas エンジン向けの再利用可能な高レベルコンポーネント。
-> ドキュメントバージョン：**2.6.0**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
+> ドキュメントバージョン：**2.8.0**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
 
 すべてのコンポーネントは、Virtual Math Tree（VMT）のリーフまたはコンテナです。ここにあるものは実際の DOM ではありません — コンポーネントは `IRenderer` を介して Canvas に自身を描画します。アクセシビリティ、エージェント自動化、クローラビリティは、並行する **A11y シャドウ DOM** から提供されます：コンポーネントが `interactive` の場合、`Scene` はコンポーネントのボックスの上に配置された単一の隠れた透明な実際の DOM ノードを投影します。これは `getA11yAttributes()` から構築されます。これが、`page.getByRole('button', { name })` / `fill()` / スクリーンリーダーが純粋な Canvas UI に対して機能する理由です。
 
@@ -299,10 +299,12 @@ interface ButtonOptions {
   font?: string;                   // デフォルト '600 16px sans-serif'
   padding?: number;                // デフォルト 12
   radius?: number;                 // デフォルト 8
+  focusColor?: string;             // focus-ring color (2.7.0+), default '#00f0ff'
+  disabled?: boolean;              // start disabled: drawn muted, projects `disabled`, no onClick
 }
 ```
 
-中央にラベルが配置された角丸矩形。`width` は `measureText(label, font) + 2·padding` に自動サイズ設定され、`height` は `fontSizePx(font) + 2·padding` に自動サイズ設定されます（px サイズは `font` から解析され、測定されたラベル幅ではありません）。`{ tag: 'button', role: 'button', label }` を投影 → `getByRole('button', { name })` で駆動。パブリック状態：`focused`（`#00f0ff` フォーカスリングを描画）、内部 `hovered`（`hoverBg` に切り替え）。
+中央にラベルが配置された角丸矩形。`width` は `measureText(label, font) + 2·padding` に自動サイズ設定され、`height` は `fontSizePx(font) + 2·padding` に自動サイズ設定されます（px サイズは `font` から解析され、測定されたラベル幅ではありません）。`{ tag: 'button', role: 'button', label }` を投影 → `getByRole('button', { name })` で駆動。パブリック状態：`focused`（`focusColor` で 2px のフォーカスリングを描画）、内部 `hovered`（`hoverBg` に切り替え）。**ライトまたはウォームテーマでは `focusColor` を設定してください**（2.7.0+）— デフォルトのシアンはダークのデフォルトパレットに合わせて調整されているため、他の場所ではブランドから外れて見えます。また、フォーカスリングはキーボードユーザーにとって欠かせない唯一のアフォーダンスです。強制カラーモードでは、リングは常にシステムの `Highlight` 色が代わりに使われます。
 
 ### `Link`
 
@@ -450,10 +452,11 @@ new Slider(props?: SliderProps)   // props は .d.ts で緩く型付け（any）
   trackColor?: string;     // デフォルト 'rgba(255, 255, 255, 0.15)'
   progressColor?: string;  // デフォルト '#00f0ff'
   handleColor?: string;    // デフォルト '#fff'
+  focusColor?: string;     // focus-ring color (2.7.0+), default '#00f0ff'
 }
 ```
 
-丸いサムを持つ水平スライダー。パブリック：`min`、`max`、`value`、`step`。ドラッグ（`pointerdown` → `pointermove` → `pointerup`）はポインター `localX` を値にマッピングし、**`min` を基準とした `step` グリッドにスナップ**（デフォルトで整数ステップ、`input[type=range]` セマンティクスに一致）し、`{ value }` を含む `change` イベントを発行します（`on('change', e => e.value)` で購読）。キーボード：`ArrowRight`/`ArrowUp` でステップアップ、`ArrowLeft`/`ArrowDown` でステップダウン、`Home`/`End` で `min`/`max` にジャンプ。A11y：`{ role: 'slider', value, valuemin, valuemax }`。古いプレ 1.0 の UI ビルドには整数のみの値とキーボードハンドリングがありませんでした。
+丸いサムを持つ水平スライダー。パブリック：`min`、`max`、`value`、`step`。ドラッグ（`pointerdown` → `pointermove` → `pointerup`）はポインター `localX` を値にマッピングし、**`min` を基準とした `step` グリッドにスナップ**（デフォルトで整数ステップ、`input[type=range]` セマンティクスに一致）し、`{ value }` を含む `change` イベントを発行します（`on('change', e => e.value)` で購読）。キーボード：`ArrowRight`/`ArrowUp` でステップアップ、`ArrowLeft`/`ArrowDown` でステップダウン、`Home`/`End` で `min`/`max` にジャンプ。パブリックの `focused` はキーボードフォーカスを追跡し、ハンドルの周囲に `focusColor` の 2px リングを描画します（2.7.0+。それ以前のリリースでは、スライダーはキーボード操作が可能だったにもかかわらず**フォーカスインジケータを一切描画していませんでした** — WCAG 2.4.7）。A11y：`{ role: 'slider', value, valuemin, valuemax }`。古いプレ 1.0 の UI ビルドには整数のみの値とキーボードハンドリングがありませんでした。
 
 ### `Dropdown`
 
@@ -465,16 +468,25 @@ new Dropdown(options: string[], props?: DropdownProps)  // props は緩く型付
   value?: string;   // 初期選択；デフォルト = options[0]
   width?: number;   // デフォルト 120
   height?: number;  // デフォルト 36
-  bg?: string;      // ボタン背景、デフォルト 'rgba(30, 41, 59, 0.85)'
+  bg?: string;      // 閉じたトリガー背景、デフォルト 'rgba(30, 41, 59, 0.85)'
   color?: string;   // デフォルト '#fff'
   radius?: number;  // デフォルト 8
   font?: string;    // デフォルト '14px sans-serif'
+
+  // Open-menu theming (2.7.0+) — see the note below
+  menuBg?: string;           // option row bg, default 'rgba(15, 23, 42, 0.95)'
+  menuColor?: string;        // option row text, default '#fff'
+  menuSelectedBg?: string;   // selected row, default 'rgba(0, 240, 255, 0.25)'
+  menuHighlightBg?: string;  // keyboard-highlighted row, default 'rgba(0, 240, 255, 0.4)'
+  focusColor?: string;       // focus ring, trigger + rows, default '#00f0ff'
 }
 ```
 
 コンボボックス：`Button` が現在の値を表示し、クリック（または `ArrowDown`/`ArrowUp`/`Enter`/`Space`）でオプション `Button` の `Stack` メニューと全画面透過背景を開きます。両方とも `scene.showOverlay(...)` でマウントされます。`Escape` または背景クリックで `scene.hideOverlay(...)` を介して閉じます。選択は `{ value }` を含む `change` イベントを発行します。キーボードナビゲーションはハイライトされたインデックスを追跡します。`activedescendant` とオプション ID（`${id}-opt-${i}`）は ARIA のために配線されています。
 
-ルートの A11y：`{ role: 'combobox', expanded, controls, haspopup: 'listbox', value, activedescendant }`。メニューは `role=\"listbox\"` を投影し、各オプションは `selected` を持つ `role=\"option\"` です。
+ルートの A11y：`{ role: 'combobox', expanded, controls, haspopup: 'listbox', value, activedescendant }`。メニューは `role="listbox"` を投影し、各オプションは `selected` を持つ `role="option"` です。
+
+**開いたメニューもトリガーと同様にテーマ設定してください**（2.7.0+）。これらのプロパティが存在する前は、トリガーの `bg`/`color` はオーバーライドできましたが、メニューの色はハードコードされていました。そのため、ライトまたはウォームパレット用にテーマ設定されたドロップダウンは、シアンの選択状態を持つダークスレートパネルを開きました — これはスタイルではなくレンダリングのバグのように見えます。`menuHighlightBg` と `menuSelectedBg` は同時に適用される可能性があり、メニューを開くと選択された行がハイライトされるため、ハイライトが 2 つのうちでより強い状態として読めるようにしてください。オプション行自体がフォーカス可能（`role="option"`）なため、`focusColor` リングはハイライトされた行の_上に_描画されます：リングと `menuHighlightBg` の間に十分なコントラストを確保し、3:1 の非テキスト下限（WCAG SC 1.4.11）を超えるようにしてください。
 
 ---
 
@@ -624,6 +636,7 @@ new RadioGroup(opts: RadioGroupOptions)
 interface RadioGroupOptions {
   options: RadioOption[];
   value?: string;
+  label?: string;  // accessible name for the GROUP (2.8.0+), default 'Radio group'
   direction?: 'horizontal' | 'vertical';
   gap?: number;
   size?: number;
@@ -641,7 +654,9 @@ interface RadioOption {
 }
 ```
 
-相互排他的なラジオ選択グループ。`{ role: 'radiogroup' }` で投影されます。アプリケーションは引き続きラベルとキーボード/フォーカス動作を確認する必要があります。標準化された `'change'` イベントペイロードは `{ value }` を運びます。
+相互排他的なラジオ選択グループ。`{ role: 'radiogroup', label }` で投影されます。標準化された `'change'` イベントペイロードは `{ value }` を運びます。
+
+**画面上に複数のグループがある場合は `label` を渡してください**（2.8.0+）。各オプションには独自の名前がありますが、_どの選択が行われているか_を示すのはグループの名前です。これがないと、すべてのグループが汎用のデフォルト `'Radio group'` としてアナウンスされ、ユーザーは "Radio group" を繰り返し聞くことになり、区別する方法がありません — グループを識別する視覚的な見出しがグループの一部ではなくキャンバス上に描かれている場合は、必ず設定してください（WCAG 4.1.2）。
 
 ---
 
@@ -653,6 +668,7 @@ new Tabs(opts: TabsOptions)
 interface TabsOptions {
   tabs: TabItem[];
   value?: string;
+  label?: string; // accessible name for the TAB BAR (2.8.0+), default 'Tab switching panel'
   width: number;
   height: number;
   tabHeight?: number;
@@ -675,7 +691,9 @@ interface TabItem {
 }
 ```
 
-タブ選択コンテナ。アクティブなタブのコンテンツビューを自動マウントし、残りのスペース内で変換します。アクセシビリティのために `{ role: 'tablist' }` を投影します。標準化された `'change'` イベントペイロードは `{ value }` を運びます。
+タブ選択コンテナ。アクティブなタブのコンテンツビューを自動マウントし、残りのスペース内で変換します。アクセシビリティのために `{ role: 'tablist', label }` を投影します。標準化された `'change'` イベントペイロードは `{ value }` を運びます。
+
+**画面上に複数のタブリストがある場合は `label` を渡してください**（2.8.0+）。理由は `RadioGroup.label` と同じです：各タブには名前がありますが、タブが_何の間を_切り替えるかを示すのはタブリストの名前です。デフォルトは `'Tab switching panel'` です。
 
 Tabs は固定の推奨 `tabWidth` を維持し、タブがオーバーフローすると縮小せずにバーが水平方向にスクロールします（ホイール、またはアクティブタブを表示するための自動スクロール）— 1.9.4 以降、`tabWidth` はバーがスクロールしていく目標値であり、引き伸ばして埋める幅ではありません（以前はワイドストリップで閉じるヒットが誤ってターゲットされていました）。`autoHideTabBar`（1.9.5）を使用すると、タブが 2 つ未満の間はバーとそのヒット領域が非表示になり、コンテンツが全高を占めます（Vim の `showtabline=1` セマンティクス）; `effectiveTabBarHeight` ゲッターはバーの現在の高さを報告し（非表示時は `0`）、コンテンツジオメトリは毎フレーム再同期されるため、`tabs` の再割り当てによって古くなったりずれたりしたコンテンツが残ることはありません。
 

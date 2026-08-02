@@ -45,6 +45,22 @@ const tabs = new Tabs({
 tabs.effectiveTabBarHeight; // 지금은 0, 두 번째 탭이 열리면 tabHeight
 ```
 
+`Tabs`는 `{ role: 'tablist', label }`을 프로젝션합니다. 2.8.0부터 탭 막대 자체의 접근 가능한 이름을 설정할 수 있으며, 기본값은 `'Tab switching panel'`입니다:
+
+```ts
+new Tabs({
+  label: 'Inspector sections',
+  width: 480,
+  height: 240,
+  tabs: [
+    { id: 'usage', label: 'Usage', content: usagePanel },
+    { id: 'api', label: 'API', content: apiPanel },
+  ],
+});
+```
+
+[`RadioGroup`](/reference/ui-radiogroup/)과 같은 이유입니다: 각 탭에는 이름이 있지만, 탭이_무엇 사이를_ 전환하는지 알려주는 것은 탭리스트의 이름입니다. 화면에 탭리스트가 두 개 이상 있거나, 탭 그룹을 식별하는 제목이 캔버스에 그려진 경우 반드시 설정하세요(WCAG 4.1.2).
+
 ## 유지보수 체크리스트
 
 - 탭 콘텐츠 크기를 컨테이너 크기와 동기화된 상태로 유지하세요.

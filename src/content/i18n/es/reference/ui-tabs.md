@@ -51,6 +51,22 @@ const tabs = new Tabs({
 tabs.effectiveTabBarHeight; // 0 ahora, tabHeight cuando se abra una segunda pestaña
 ```
 
+`Tabs` proyecta `{ role: 'tablist', label }`. Desde 2.8.0, el nombre accesible de la barra de pestañas es configurable, con `'Tab switching panel'` como predeterminado:
+
+```ts
+new Tabs({
+  label: 'Inspector sections',
+  width: 480,
+  height: 240,
+  tabs: [
+    { id: 'usage', label: 'Usage', content: usagePanel },
+    { id: 'api', label: 'API', content: apiPanel },
+  ],
+});
+```
+
+Mismo razonamiento que [`RadioGroup`](/reference/ui-radiogroup/): cada pestaña tiene nombre, pero es el nombre de la tablist el que dice _entre qué_ cambian las pestañas. Establécelo siempre que una pantalla tenga más de una tablist, o cuando el encabezado que identifica al grupo de pestañas se dibuje en el canvas (WCAG 4.1.2).
+
 ## Lista de verificación para mantenedores
 
 - Mantén el tamaño del contenido de las pestañas sincronizado con el tamaño del contenedor.

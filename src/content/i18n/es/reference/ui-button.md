@@ -48,8 +48,17 @@ interface ButtonOptions {
   font?: string;
   padding?: number;
   radius?: number;
+  focusColor?: string;       // 2.7.0+ — focus-ring color, default '#00f0ff'
 }
 ```
+
+El anillo de foco se traza con 2px en `focusColor`. Establécelo en cualquier tema que no sea la paleta oscura predeterminada para la que fue ajustado el cian predeterminado:
+
+```ts
+const save = new Button('Save', { bg: '#f43f5e', focusColor: '#60a5fa' });
+```
+
+Un anillo de foco es la única affordance de la que un usuario de teclado no puede prescindir, por lo que debe leerse con claridad sobre tu superficie en lugar de simplemente estar presente — apunta más allá del umbral de contraste no textual de 3:1 (WCAG SC 1.4.11) y prefiere un tono distinto de tu color de acento para que el foco nunca se lea como énfasis ordinario. El modo de colores forzados lo ignora en favor del color `Highlight` del sistema, por lo que establecerlo no puede romper el alto contraste.
 
 ## Accesibilidad y automatización
 

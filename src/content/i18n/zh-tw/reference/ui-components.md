@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — 元件參考
 
 > 適用於 VectoJS zero-DOM Canvas 引擎的可重複使用高層級元件。
-> 文件版本：**2.6.0**。事實來源：`dist/index.d.ts`（公開表面）和 `packages/ui/src/*`（行為）。
+> 文件版本：**2.8.0**。事實來源：`dist/index.d.ts`（公開表面）和 `packages/ui/src/*`（行為）。
 
 每個元件都是 Virtual Math Tree (VMT) 中的葉節點或容器。這裡沒有任何東西是真實的 DOM — 元件會透過 `IRenderer` 將自己繪製到 Canvas 上。無障礙、agent 自動化和可爬取性來自一個平行的 **A11y Shadow DOM**：當元件為 `interactive` 時，`Scene` 會投射一個單一隱藏、透明的真實 DOM 節點，定位在元件的方塊上方，根據 `getA11yAttributes()` 構建。這就是為什麼 `page.getByRole('button', { name })` / `fill()` / 螢幕閱讀器可以在純 Canvas UI 上運作的原因。
 
@@ -299,10 +299,12 @@ interface ButtonOptions {
   font?: string;                   // 預設 '600 16px sans-serif'
   padding?: number;                // 預設 12
   radius?: number;                 // 預設 8
+  focusColor?: string;             // focus-ring color (2.7.0+), default '#00f0ff'
+  disabled?: boolean;              // start disabled: drawn muted, projects `disabled`, no onClick
 }
 ```
 
-帶有居中標籤的圓角矩形。`width` 自動調整為 `measureText(label, font) + 2·padding`；`height` 調整為 `fontSizePx(font) + 2·padding`（從 `font` 解析的 px 大小，而非量測的標籤寬度）。投射 `{ tag: 'button', role: 'button', label }` → 由 `getByRole('button', { name })` 驅動。公開狀態：`focused`（繪製 `#00f0ff` 焦點環）、內部 `hovered`（切換到 `hoverBg`）。
+帶有居中標籤的圓角矩形。`width` 自動調整為 `measureText(label, font) + 2·padding`；`height` 調整為 `fontSizePx(font) + 2·padding`（從 `font` 解析的 px 大小，而非量測的標籤寬度）。投射 `{ tag: 'button', role: 'button', label }` → 由 `getByRole('button', { name })` 驅動。公開狀態：`focused`（以 `focusColor` 繪製 2px 焦點環）、內部 `hovered`（切換到 `hoverBg`）。**在淺色或暖色調主題上設定 `focusColor`**（2.7.0+）——預設青色是針對深色預設調色盤調校的，在其他地方會顯得偏離品牌風格，而焦點環是鍵盤使用者不可或缺的唯一提示。在強制色彩模式下，焦點環一律改用系統的 `Highlight` 顏色。
 
 ### `Link`
 
@@ -450,10 +452,11 @@ new Slider(props?: SliderProps)   // props 在 .d.ts 中為鬆散型別 (any)
   trackColor?: string;     // 預設 'rgba(255, 255, 255, 0.15)'
   progressColor?: string;  // 預設 '#00f0ff'
   handleColor?: string;    // 預設 '#fff'
+  focusColor?: string;     // focus-ring color (2.7.0+), default '#00f0ff'
 }
 ```
 
-帶有圓形拇指的水平滑桿。公開：`min`、`max`、`value`、`step`。拖曳（`pointerdown` → `pointermove` → `pointerup`）將指標 `localX` 對應到數值，**對齊到以 `min` 為錨點的 `step` 網格**（預設為整數步進，匹配 `input[type=range]` 語意），並觸發一個帶有 `{ value }` 的 `change` 事件（透過 `on('change', e => e.value)` 訂閱）。鍵盤：`ArrowRight`/`ArrowUp` 步進增加，`ArrowLeft`/`ArrowDown` 步進減少，`Home`/`End` 跳到 `min`/`max`。無障礙：`{ role: 'slider', value, valuemin, valuemax }`。較舊的 pre-1.0 UI 版本僅有整數值且無鍵盤處理。
+帶有圓形拇指的水平滑桿。公開：`min`、`max`、`value`、`step`。拖曳（`pointerdown` → `pointermove` → `pointerup`）將指標 `localX` 對應到數值，**對齊到以 `min` 為錨點的 `step` 網格**（預設為整數步進，匹配 `input[type=range]` 語意），並觸發一個帶有 `{ value }` 的 `change` 事件（透過 `on('change', e => e.value)` 訂閱）。鍵盤：`ArrowRight`/`ArrowUp` 步進增加，`ArrowLeft`/`ArrowDown` 步進減少，`Home`/`End` 跳到 `min`/`max`。公共 `focused` 追蹤鍵盤焦點，並以 `focusColor` 在手柄周圍繪製 2px 圓環（2.7.0+；在該版本之前，滑桿儘管可透過鍵盤操作，卻**完全沒有焦點指示器**——WCAG 2.4.7）。無障礙：`{ role: 'slider', value, valuemin, valuemax }`。較舊的 pre-1.0 UI 版本僅有整數值且無鍵盤處理。
 
 ### `Dropdown`
 
@@ -465,16 +468,25 @@ new Dropdown(options: string[], props?: DropdownProps)  // props 為鬆散型別
   value?: string;   // 初始選取；預設 = options[0]
   width?: number;   // 預設 120
   height?: number;  // 預設 36
-  bg?: string;      // 按鈕背景色，預設 'rgba(30, 41, 59, 0.85)'
+  bg?: string;      // 關閉觸發器背景色，預設 'rgba(30, 41, 59, 0.85)'
   color?: string;   // 預設 '#fff'
   radius?: number;  // 預設 8
   font?: string;    // 預設 '14px sans-serif'
+
+  // Open-menu theming (2.7.0+) — see the note below
+  menuBg?: string;           // option row bg, default 'rgba(15, 23, 42, 0.95)'
+  menuColor?: string;        // option row text, default '#fff'
+  menuSelectedBg?: string;   // selected row, default 'rgba(0, 240, 255, 0.25)'
+  menuHighlightBg?: string;  // keyboard-highlighted row, default 'rgba(0, 240, 255, 0.4)'
+  focusColor?: string;       // focus ring, trigger + rows, default '#00f0ff'
 }
 ```
 
 一個組合框：一個 `Button` 顯示當前值；點擊（或 `ArrowDown`/`ArrowUp`/`Enter`/`Space`）開啟一個包含選項 `Button` 的 `Stack` 選單，加上一個全螢幕透明背景，兩者都透過 `scene.showOverlay(...)` 掛載。`Escape` 或背景點擊透過 `scene.hideOverlay(...)` 關閉。選取會觸發帶有 `{ value }` 的 `change` 事件。鍵盤導航追蹤一個高亮索引；`activedescendant` 和選項 id（`${id}-opt-${i}`）已連接供 ARIA 使用。
 
 根節點的無障礙：`{ role: 'combobox', expanded, controls, haspopup: 'listbox', value, activedescendant }`。選單投射 `role="listbox"`，每個選項投射 `role="option"` 搭配 `selected`。
+
+**為開啟的選單設定主題，而不僅僅是觸發器**（2.7.0+）。在這些屬性出現之前，觸發器的 `bg`/`color` 可覆寫，而選單的顏色是硬編碼的，因此為淺色或暖色調調色盤設定主題的下拉式方塊會開啟一個帶有青色選取項的深色石板面板——這看起來像渲染錯誤，而不是樣式。請注意 `menuHighlightBg` 和 `menuSelectedBg` 可以同時生效，而且開啟選單會高亮選取的行，因此要讓高亮讀作兩者中較強的狀態。選項列本身可取得焦點（`role="option"`），因此 `focusColor` 焦點環繪製在_高亮的_列之上：讓焦點環與 `menuHighlightBg` 之間保持足夠的對比度，以超過 3:1 非文字下限（WCAG SC 1.4.11）。
 
 ---
 
@@ -624,6 +636,7 @@ new RadioGroup(opts: RadioGroupOptions)
 interface RadioGroupOptions {
   options: RadioOption[];
   value?: string;
+  label?: string;  // accessible name for the GROUP (2.8.0+), default 'Radio group'
   direction?: 'horizontal' | 'vertical';
   gap?: number;
   size?: number;
@@ -641,7 +654,9 @@ interface RadioOption {
 }
 ```
 
-一個互斥的選項按鈕群組，投射 `{ role: 'radiogroup' }`；應用程式仍應驗證標籤和鍵盤/焦點行為。標準化的 `'change'` 事件 payload 攜帶 `{ value }`。
+一個互斥的選項按鈕群組，投射 `{ role: 'radiogroup', label }`。標準化的 `'change'` 事件 payload 攜帶 `{ value }`。
+
+**當螢幕上不止一個群組時，請傳入 `label`**（2.8.0+）。每個選項都有自己的名稱，但群組的名稱才能說明_正在做出哪個選擇_。沒有它，每個群組都會以通用的預設 `'Radio group'` 播報，使用者會反覆聽到 "Radio group" 卻無法區分它們——只要識別群組的可視標題是繪製在 canvas 上而不是群組的一部分，就應該設定它（WCAG 4.1.2）。
 
 ---
 
@@ -653,6 +668,7 @@ new Tabs(opts: TabsOptions)
 interface TabsOptions {
   tabs: TabItem[];
   value?: string;
+  label?: string; // accessible name for the TAB BAR (2.8.0+), default 'Tab switching panel'
   width: number;
   height: number;
   tabHeight?: number;
@@ -675,7 +691,9 @@ interface TabItem {
 }
 ```
 
-一個標籤頁選取容器。自動掛載活躍標籤的內容檢視，並在剩餘空間內平移它。為無障礙投射 `{ role: 'tablist' }`。標準化的 `'change'` 事件 payload 攜帶 `{ value }`。
+一個標籤頁選取容器。自動掛載活躍標籤的內容檢視，並在剩餘空間內平移它。為無障礙投射 `{ role: 'tablist', label }`。標準化的 `'change'` 事件 payload 攜帶 `{ value }`。
+
+**當螢幕上不止一個分頁列時，請傳入 `label`**（2.8.0+），原因與 `RadioGroup.label` 相同：每個分頁都有名稱，但分頁列的名稱才能說明分頁在切換_什麼_。預設為 `'Tab switching panel'`。
 
 Tabs 保持固定的首選 `tabWidth`，分頁列在溢出時水平滾動（滾輪，或自動滾動以使作用中分頁可見），而不是縮成碎片——從 1.9.4 開始，`tabWidth` 是分頁列滾動的目標寬度，不是拉伸填滿的寬度（之前這會導致寬條上的關閉命中定位錯誤）。啟用 `autoHideTabBar`（1.9.5）後，當分頁少於兩個時，分頁列及其點擊區域消失，內容佔據全部高度（Vim `showtabline=1` 語意）；`effectiveTabBarHeight` 獲取器報告分頁列的當前高度（隱藏時為 `0`），並且內容幾何資訊每影格重新同步，因此重新指派 `tabs` 不會留下陳舊或偏移的內容。
 

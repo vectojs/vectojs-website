@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — 组件参考
 
 > 适用于 VectoJS zero-DOM Canvas 引擎的可复用高级组件。
-> 文档版本：**2.6.0**。权威来源：`dist/index.d.ts`（公共表面）和 `packages/ui/src/*`（行为）。
+> 文档版本：**2.8.0**。权威来源：`dist/index.d.ts`（公共表面）和 `packages/ui/src/*`（行为）。
 
 每个组件都是 Virtual Math Tree (VMT) 中的叶节点或容器节点。这里没有真正的 DOM——组件通过 `IRenderer` 在 Canvas 上绘制自身。可访问性、智能体自动化和可爬取性来自一个并行的 **A11y Shadow DOM**：当一个组件是 `interactive` 时，`Scene` 会投影一个位于组件框上方的、隐藏的透明真实 DOM 节点，该节点由 `getA11yAttributes()` 构建。这就是为什么 `page.getByRole('button', { name })` / `fill()` / 屏幕阅读器可以在纯 Canvas UI 上工作的原因。
 
@@ -300,10 +300,12 @@ interface ButtonOptions {
   font?: string;                   // 默认 '600 16px sans-serif'
   padding?: number;                // 默认 12
   radius?: number;                 // 默认 8
+  focusColor?: string;             // focus-ring color (2.7.0+), default '#00f0ff'
+  disabled?: boolean;              // start disabled: drawn muted, projects `disabled`, no onClick
 }
 ```
 
-带有居中标签的圆角矩形。`width` 自动计算为 `measureText(label, font) + 2·padding`；`height` 为 `fontSizePx(font) + 2·padding`（从 `font` 解析出的 px 尺寸，而非测量标签宽度）。投影 `{ tag: 'button', role: 'button', label }` → 由 `getByRole('button', { name })` 驱动。公共状态：`focused`（绘制 `#00f0ff` 聚焦环），内部 `hovered`（切换到 `hoverBg`）。
+带有居中标签的圆角矩形。`width` 自动计算为 `measureText(label, font) + 2·padding`；`height` 为 `fontSizePx(font) + 2·padding`（从 `font` 解析出的 px 尺寸，而非测量标签宽度）。投影 `{ tag: 'button', role: 'button', label }` → 由 `getByRole('button', { name })` 驱动。公共状态：`focused`（以 `focusColor` 绘制 2px 聚焦环），内部 `hovered`（切换到 `hoverBg`）。**在浅色或暖色调主题上设置 `focusColor`**（2.7.0+）——默认青色是针对深色默认调色板调校的，在其他地方会显得偏离品牌风格，而焦点环是键盘用户不可或缺的唯一提示。在强制颜色模式下，焦点环始终改用系统的 `Highlight` 颜色。
 
 ### `Link`
 
@@ -451,10 +453,11 @@ new Slider(props?: SliderProps)   // props 在 .d.ts 中是松散类型 (any)
   trackColor?: string;     // 默认 'rgba(255, 255, 255, 0.15)'
   progressColor?: string;  // 默认 '#00f0ff'
   handleColor?: string;    // 默认 '#fff'
+  focusColor?: string;     // focus-ring color (2.7.0+), default '#00f0ff'
 }
 ```
 
-水平滑块，带圆形拖动手柄。公共属性：`min`、`max`、`value`、`step`。拖动（`pointerdown` → `pointermove` → `pointerup`）将指针 `localX` 映射为值，**吸附到以 `min` 为锚点的 `step` 网格**（默认整数步长，与 `input[type=range]` 语义一致），并发出携带 `{ value }` 的 `change` 事件（通过 `on('change', e => e.value)` 订阅）。键盘：`ArrowRight`/`ArrowUp` 步进增加，`ArrowLeft`/`ArrowDown` 步进减少，`Home`/`End` 跳转到 `min`/`max`。A11y：`{ role: 'slider', value, valuemin, valuemax }`。旧版 1.0 之前的 UI 构建只有整数值且没有键盘处理。
+水平滑块，带圆形拖动手柄。公共属性：`min`、`max`、`value`、`step`。拖动（`pointerdown` → `pointermove` → `pointerup`）将指针 `localX` 映射为值，**吸附到以 `min` 为锚点的 `step` 网格**（默认整数步长，与 `input[type=range]` 语义一致），并发出携带 `{ value }` 的 `change` 事件（通过 `on('change', e => e.value)` 订阅）。键盘：`ArrowRight`/`ArrowUp` 步进增加，`ArrowLeft`/`ArrowDown` 步进减少，`Home`/`End` 跳转到 `min`/`max`。公共 `focused` 跟踪键盘焦点，并以 `focusColor` 在手柄周围绘制 2px 圆环（2.7.0+；在该版本之前，滑块尽管可通过键盘操作，却**完全没有焦点指示器**——WCAG 2.4.7）。A11y：`{ role: 'slider', value, valuemin, valuemax }`。旧版 1.0 之前的 UI 构建只有整数值且没有键盘处理。
 
 ### `Dropdown`
 
@@ -466,16 +469,25 @@ new Dropdown(options: string[], props?: DropdownProps)  // props 是松散类型
   value?: string;   // 初始选择；默认 = options[0]
   width?: number;   // 默认 120
   height?: number;  // 默认 36
-  bg?: string;      // 按钮背景色，默认 'rgba(30, 41, 59, 0.85)'
+  bg?: string;      // 关闭触发器背景色，默认 'rgba(30, 41, 59, 0.85)'
   color?: string;   // 默认 '#fff'
   radius?: number;  // 默认 8
   font?: string;    // 默认 '14px sans-serif'
+
+  // Open-menu theming (2.7.0+) — see the note below
+  menuBg?: string;           // option row bg, default 'rgba(15, 23, 42, 0.95)'
+  menuColor?: string;        // option row text, default '#fff'
+  menuSelectedBg?: string;   // selected row, default 'rgba(0, 240, 255, 0.25)'
+  menuHighlightBg?: string;  // keyboard-highlighted row, default 'rgba(0, 240, 255, 0.4)'
+  focusColor?: string;       // focus ring, trigger + rows, default '#00f0ff'
 }
 ```
 
 组合框：一个 `Button` 显示当前值；点击（或 `ArrowDown`/`ArrowUp`/`Enter`/`Space`）打开一个由选项 `Button` 组成的 `Stack` 菜单以及一个全屏透明背景，两者都通过 `scene.showOverlay(...)` 挂载。`Escape` 或点击背景通过 `scene.hideOverlay(...)` 关闭。选择会发出携带 `{ value }` 的 `change` 事件。键盘导航追踪高亮索引；`activedescendant` 和选项 id（`${id}-opt-${i}`）已为 ARIA 连接。
 
 A11y 根节点：`{ role: 'combobox', expanded, controls, haspopup: 'listbox', value, activedescendant }`。菜单投影 `role="listbox"`，每个选项投影 `role="option"` 并携带 `selected`。
+
+**为打开的菜单设置主题，而不仅仅是触发器**（2.7.0+）。在这些属性出现之前，触发器的 `bg`/`color` 可覆盖，而菜单的颜色是硬编码的，因此为浅色或暖色调调色板设置主题的下拉框会打开一个带有青色选中项的深色石板面板——这看起来像渲染错误，而不是样式。注意 `menuHighlightBg` 和 `menuSelectedBg` 可以同时生效，而且打开菜单会高亮选中的行，因此要让高亮读作两者中更强的状态。选项行本身可获得焦点（`role="option"`），因此 `focusColor` 焦点环绘制在_高亮的_行之上：让焦点环与 `menuHighlightBg` 之间保持足够的对比度，以超过 3:1 非文本下限（WCAG SC 1.4.11）。
 
 ---
 
@@ -625,6 +637,7 @@ new RadioGroup(opts: RadioGroupOptions)
 interface RadioGroupOptions {
   options: RadioOption[];
   value?: string;
+  label?: string;  // accessible name for the GROUP (2.8.0+), default 'Radio group'
   direction?: 'horizontal' | 'vertical';
   gap?: number;
   size?: number;
@@ -642,7 +655,9 @@ interface RadioOption {
 }
 ```
 
-一个互斥的 radio 选择组，投影 `{ role: 'radiogroup' }`；应用程序仍应验证标签和键盘/焦点行为。标准化的 `'change'` 事件负载携带 `{ value }`。
+一个互斥的 radio 选择组，投影 `{ role: 'radiogroup', label }`。标准化的 `'change'` 事件负载携带 `{ value }`。
+
+**当屏幕上不止一个组时，请传入 `label`**（2.8.0+）。每个选项都有自己的名称，但组的名称才能说明_正在做出哪个选择_。没有它，每个组都会以通用的默认 `'Radio group'` 播报，用户会反复听到 "Radio group" 却无法区分它们——只要标识组的可视标题是绘制在 canvas 上而不是组的一部分，就应该设置它（WCAG 4.1.2）。
 
 ---
 
@@ -654,6 +669,7 @@ new Tabs(opts: TabsOptions)
 interface TabsOptions {
   tabs: TabItem[];
   value?: string;
+  label?: string; // accessible name for the TAB BAR (2.8.0+), default 'Tab switching panel'
   width: number;
   height: number;
   tabHeight?: number;
@@ -676,7 +692,9 @@ interface TabItem {
 }
 ```
 
-选项卡选择容器。自动挂载活动选项卡的内容视图并在剩余空间内进行平移。为可访问性投影 `{ role: 'tablist' }`。标准化的 `'change'` 事件负载携带 `{ value }`。
+选项卡选择容器。自动挂载活动选项卡的内容视图并在剩余空间内进行平移。为可访问性投影 `{ role: 'tablist', label }`。标准化的 `'change'` 事件负载携带 `{ value }`。
+
+**当屏幕上不止一个标签栏时，请传入 `label`**（2.8.0+），原因与 `RadioGroup.label` 相同：每个标签都有名称，但标签栏的名称才能说明标签在切换_什么_。默认为 `'Tab switching panel'`。
 
 Tabs 保持固定的首选 `tabWidth`，标签栏在溢出时水平滚动（滚轮，或自动滚动以使活动标签可见），而不是缩成碎片——从 1.9.4 开始，`tabWidth` 是标签栏滚动的目标宽度，不是拉伸填充的宽度（之前这会导致宽条上的关闭命中定位错误）。启用 `autoHideTabBar`（1.9.5）后，当标签少于两个时，标签栏及其点击区域消失，内容占据全部高度（Vim `showtabline=1` 语义）；`effectiveTabBarHeight` 获取器报告标签栏的当前高度（隐藏时为 `0`），并且内容几何信息每帧重新同步，因此重新分配 `tabs` 不会留下陈旧或偏移的内容。
 

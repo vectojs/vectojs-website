@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Referencia de Componentes
 
 > Componentes reutilizables de alto nivel para el motor Canvas zero-DOM de VectoJS.
-> Versión documentada: **2.6.0**. Fuente de verdad: `dist/index.d.ts` (superficie pública) y `packages/ui/src/*` (comportamiento).
+> Versión documentada: **2.8.0**. Fuente de verdad: `dist/index.d.ts` (superficie pública) y `packages/ui/src/*` (comportamiento).
 
 Cada componente es una hoja o contenedor en el Virtual Math Tree (VMT). Nada aquí es DOM real — los componentes se dibujan a sí mismos en un Canvas mediante un `IRenderer`. La accesibilidad, la automatización de agentes y la capacidad de rastreo provienen de un **A11y Shadow DOM** paralelo: cuando un componente es `interactive`, la `Scene` proyecta un único nodo DOM real oculto y transparente posicionado sobre la caja del componente, construido a partir de `getA11yAttributes()`. Es por eso que `page.getByRole('button', { name })` / `fill()` / los lectores de pantalla funcionan contra una UI de Canvas puro.
 
@@ -300,10 +300,12 @@ interface ButtonOptions {
   font?: string;                   // por defecto '600 16px sans-serif'
   padding?: number;                // por defecto 12
   radius?: number;                 // por defecto 8
+  focusColor?: string;             // focus-ring color (2.7.0+), default '#00f0ff'
+  disabled?: boolean;              // start disabled: drawn muted, projects `disabled`, no onClick
 }
 ```
 
-Rectángulo redondeado con una etiqueta centrada. `width` se auto-dimensiona a `measureText(label, font) + 2·padding`; `height` a `fontSizePx(font) + 2·padding` (el tamaño en px analizado de `font`, no el ancho medido de la etiqueta). Proyecta `{ tag: 'button', role: 'button', label }` → manejado por `getByRole('button', { name })`. Estado público: `focused` (dibuja un anillo de foco `#00f0ff`), `hovered` interno (cambia a `hoverBg`).
+Rectángulo redondeado con una etiqueta centrada. `width` se auto-dimensiona a `measureText(label, font) + 2·padding`; `height` a `fontSizePx(font) + 2·padding` (el tamaño en px analizado de `font`, no el ancho medido de la etiqueta). Proyecta `{ tag: 'button', role: 'button', label }` → manejado por `getByRole('button', { name })`. Estado público: `focused` (dibuja un anillo de foco de 2px en `focusColor`), `hovered` interno (cambia a `hoverBg`). **Establece `focusColor` en un tema claro o cálido** (2.7.0+) — el cian predeterminado está ajustado para la paleta oscura predeterminada y se lee como fuera de marca en otros lugares, y un anillo de foco es la única affordance de la que un usuario de teclado no puede prescindir. En el modo de colores forzados, el anillo siempre usa el color `Highlight` del sistema en su lugar.
 
 ### `Link`
 
@@ -451,10 +453,11 @@ new Slider(props?: SliderProps)   // props está tipado libremente (any) en el .
   trackColor?: string;     // por defecto 'rgba(255, 255, 255, 0.15)'
   progressColor?: string;  // por defecto '#00f0ff'
   handleColor?: string;    // por defecto '#fff'
+  focusColor?: string;     // focus-ring color (2.7.0+), default '#00f0ff'
 }
 ```
 
-Deslizador horizontal con un pulgar circular. Público: `min`, `max`, `value`, `step`. Arrastrar (`pointerdown` → `pointermove` → `pointerup`) mapea el `localX` del puntero a un valor, **ajustado a la rejilla de `step` anclada en `min`** (pasos enteros por defecto, coincidiendo con la semántica de `input[type=range]`), y emite un evento `change` con `{ value }` (suscríbete mediante `on('change', e => e.value)`). Teclado: `ArrowRight`/`ArrowUp` aumentan el paso, `ArrowLeft`/`ArrowDown` disminuyen el paso, `Home`/`End` saltan a `min`/`max`. A11y: `{ role: 'slider', value, valuemin, valuemax }`. Las versiones anteriores a 1.0 de UI tenían valores solo enteros y no tenían manejo de teclado.
+Deslizador horizontal con un pulgar circular. Público: `min`, `max`, `value`, `step`. Arrastrar (`pointerdown` → `pointermove` → `pointerup`) mapea el `localX` del puntero a un valor, **ajustado a la rejilla de `step` anclada en `min`** (pasos enteros por defecto, coincidiendo con la semántica de `input[type=range]`), y emite un evento `change` con `{ value }` (suscríbete mediante `on('change', e => e.value)`). Teclado: `ArrowRight`/`ArrowUp` aumentan el paso, `ArrowLeft`/`ArrowDown` disminuyen el paso, `Home`/`End` saltan a `min`/`max`. El `focused` público rastrea el foco del teclado y dibuja un anillo de 2px en `focusColor` alrededor del pulgar (2.7.0+; antes de esa versión, el deslizador no dibujaba **ningún indicador de foco** a pesar de ser operable con teclado — WCAG 2.4.7). A11y: `{ role: 'slider', value, valuemin, valuemax }`. Las versiones anteriores a 1.0 de UI tenían valores solo enteros y no tenían manejo de teclado.
 
 ### `Dropdown`
 
@@ -466,16 +469,25 @@ new Dropdown(options: string[], props?: DropdownProps)  // props tipado libremen
   value?: string;   // selección inicial; por defecto = options[0]
   width?: number;   // por defecto 120
   height?: number;  // por defecto 36
-  bg?: string;      // fondo del botón, por defecto 'rgba(30, 41, 59, 0.85)'
+  bg?: string;      // fondo del gatillo cerrado, por defecto 'rgba(30, 41, 59, 0.85)'
   color?: string;   // por defecto '#fff'
   radius?: number;  // por defecto 8
   font?: string;    // por defecto '14px sans-serif'
+
+  // Open-menu theming (2.7.0+) — see the note below
+  menuBg?: string;           // option row bg, default 'rgba(15, 23, 42, 0.95)'
+  menuColor?: string;        // option row text, default '#fff'
+  menuSelectedBg?: string;   // selected row, default 'rgba(0, 240, 255, 0.25)'
+  menuHighlightBg?: string;  // keyboard-highlighted row, default 'rgba(0, 240, 255, 0.4)'
+  focusColor?: string;       // focus ring, trigger + rows, default '#00f0ff'
 }
 ```
 
 Un combobox: un `Button` muestra el valor actual; al hacer click (o `ArrowDown`/`ArrowUp`/`Enter`/`Space`) se abre un menú `Stack` de `Button`s de opción más un fondo transparente de pantalla completa, ambos montados mediante `scene.showOverlay(...)`. `Escape` o un click en el fondo cierra mediante `scene.hideOverlay(...)`. Seleccionar emite un evento `change` con `{ value }`. La navegación por teclado rastrea un índice resaltado; `activedescendant` y los ids de opción (`${id}-opt-${i}`) están conectados para ARIA.
 
-A11y en la raíz: `{ role: 'combobox', expanded, controls, haspopup: 'listbox', value, activedescendant }`. El menú proyecta `role=\"listbox\"`, cada opción `role=\"option\"` con `selected`.
+A11y en la raíz: `{ role: 'combobox', expanded, controls, haspopup: 'listbox', value, activedescendant }`. El menú proyecta `role="listbox"`, cada opción `role="option"` con `selected`.
+
+**Tematiza el menú abierto, no solo el gatillo** (2.7.0+). Antes de estas props, el `bg`/`color` del gatillo era sobreescribible pero los colores del menú estaban codificados, por lo que un desplegable tematizado para una paleta clara o cálida abría un panel oscuro con selección cian — lo que se lee como un bug de renderizado en lugar de un estilo. Ten en cuenta que `menuHighlightBg` y `menuSelectedBg` pueden aplicarse a la vez, y abrir el menú resalta la fila seleccionada, así que haz que el resaltado se lea como el más fuerte de los dos. Las filas de opción son enfocables (`role="option"`), por lo que el anillo `focusColor` se dibuja _sobre_ una fila resaltada: mantén suficiente contraste entre el anillo y `menuHighlightBg` para superar el mínimo no textual de 3:1 (WCAG SC 1.4.11).
 
 ---
 
@@ -625,6 +637,7 @@ new RadioGroup(opts: RadioGroupOptions)
 interface RadioGroupOptions {
   options: RadioOption[];
   value?: string;
+  label?: string;  // accessible name for the GROUP (2.8.0+), default 'Radio group'
   direction?: 'horizontal' | 'vertical';
   gap?: number;
   size?: number;
@@ -642,7 +655,9 @@ interface RadioOption {
 }
 ```
 
-Un grupo de opciones de radio mutuamente excluyentes proyectado con `{ role: 'radiogroup' }`; las aplicaciones deberían verificar las etiquetas y el comportamiento de teclado/foco. El payload del evento `'change'` estandarizado lleva `{ value }`.
+Un grupo de opciones de radio mutuamente excluyentes proyectado con `{ role: 'radiogroup', label }`. El payload del evento `'change'` estandarizado lleva `{ value }`.
+
+**Pasa `label` cuando una pantalla tenga más de un grupo** (2.8.0+). Cada opción lleva su propio nombre, pero es el nombre del grupo el que dice _qué elección se está haciendo_. Sin él, cada grupo se anuncia como el predeterminado genérico `'Radio group'`, por lo que un usuario escucha "Radio group" repetidamente sin forma de distinguirlos — establécelo siempre que el encabezado visual que identifica al grupo se dibuje en el canvas en lugar de ser parte del grupo (WCAG 4.1.2).
 
 ---
 
@@ -654,6 +669,7 @@ new Tabs(opts: TabsOptions)
 interface TabsOptions {
   tabs: TabItem[];
   value?: string;
+  label?: string; // accessible name for the TAB BAR (2.8.0+), default 'Tab switching panel'
   width: number;
   height: number;
   tabHeight?: number;
@@ -676,7 +692,9 @@ interface TabItem {
 }
 ```
 
-Un contenedor de selección por pestañas. Monta automáticamente la vista de contenido de la pestaña activa y la traslada dentro del espacio restante. Proyecta `{ role: 'tablist' }` para accesibilidad. El payload del evento `'change'` estandarizado lleva `{ value }`.
+Un contenedor de selección por pestañas. Monta automáticamente la vista de contenido de la pestaña activa y la traslada dentro del espacio restante. Proyecta `{ role: 'tablist', label }` para accesibilidad. El payload del evento `'change'` estandarizado lleva `{ value }`.
+
+**Pasa `label` cuando una pantalla tenga más de una tablist** (2.8.0+), por la misma razón que `RadioGroup.label`: cada pestaña tiene nombre, pero es el nombre de la tablist el que dice _entre qué_ cambian las pestañas. El predeterminado es `'Tab switching panel'`.
 
 Las pestañas mantienen un `tabWidth` preferido fijo y la barra se desplaza horizontalmente una vez que se desbordan (rueda, o desplazamiento automático para mantener visible la pestaña activa) en lugar de reducirse a tiras finas — a partir de 1.9.4, `tabWidth` es un objetivo más allá del cual la barra se desplaza, no un ancho que se estira para llenar (lo que antes desorientaba los clics de cierre en tiras anchas). Con `autoHideTabBar` (1.9.5), la barra y su región de impacto desaparecen mientras existan menos de dos pestañas y el contenido ocupa toda la altura (semántica `showtabline=1` de Vim); el getter `effectiveTabBarHeight` informa la altura actual de la barra (`0` cuando está oculta), y la geometría del contenido se re-sincroniza cada fotograma para que reasignar `tabs` no pueda dejar contenido obsoleto o desplazado.
 

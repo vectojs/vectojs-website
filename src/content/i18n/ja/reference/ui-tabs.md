@@ -45,6 +45,22 @@ const tabs = new Tabs({
 tabs.effectiveTabBarHeight; // 今は 0、2 つ目のタブが開くと tabHeight
 ```
 
+`Tabs` は `{ role: 'tablist', label }` を投影します。2.8.0 以降、タブバー自身のアクセシブルな名前を設定でき、デフォルトは `'Tab switching panel'` です：
+
+```ts
+new Tabs({
+  label: 'Inspector sections',
+  width: 480,
+  height: 240,
+  tabs: [
+    { id: 'usage', label: 'Usage', content: usagePanel },
+    { id: 'api', label: 'API', content: apiPanel },
+  ],
+});
+```
+
+[`RadioGroup`](/reference/ui-radiogroup/) と同じ理由です：各タブには名前がありますが、タブが_何の間を_切り替えるかを示すのはタブリストの名前です。画面上に複数のタブリストがある場合、またはタブのグループを識別する見出しがキャンバス上に描かれている場合は、必ず設定してください（WCAG 4.1.2）。
+
 ## メンテナー向けチェックリスト
 
 - タブコンテンツのサイズをコンテナサイズと同期させ続けます。

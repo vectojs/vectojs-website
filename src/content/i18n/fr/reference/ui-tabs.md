@@ -51,6 +51,22 @@ const tabs = new Tabs({
 tabs.effectiveTabBarHeight; // 0 maintenant, tabHeight dès qu'un second onglet s'ouvre
 ```
 
+`Tabs` projette `{ role: 'tablist', label }`. Depuis la 2.8.0, le nom accessible de la barre d'onglets est définissable, avec `'Tab switching panel'` par défaut :
+
+```ts
+new Tabs({
+  label: 'Inspector sections',
+  width: 480,
+  height: 240,
+  tabs: [
+    { id: 'usage', label: 'Usage', content: usagePanel },
+    { id: 'api', label: 'API', content: apiPanel },
+  ],
+});
+```
+
+Même raisonnement que [`RadioGroup`](/reference/ui-radiogroup/) : chaque onglet est nommé, mais c'est le nom de la tablist qui dit entre quoi les onglets basculent. Définissez-le dès qu'un écran a plus d'une tablist, ou lorsque le titre identifiant le groupe d'onglets est dessiné sur le canvas (WCAG 4.1.2).
+
 ## Liste de vérification pour les mainteneurs
 
 - Maintenez le dimensionnement du contenu des onglets synchronisé avec la taille du conteneur.

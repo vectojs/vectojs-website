@@ -47,9 +47,14 @@ new Slider({
   trackColor?: string;
   progressColor?: string;
   handleColor?: string;
+  focusColor?: string;       // 2.7.0+ — focus ring around the handle
   onChange?: (value: number) => void;
 })
 ```
+
+`focused`는 키보드 포커스를 추적하고 핸들 주위에 2px의 `focusColor` 링(기본값 `'#00f0ff'`)을 그립니다. `@vectojs/ui@2.7.0` 이전에는 슬라이더가 키보드로 완전히 조작 가능했음에도 **포커스 표시를 전혀 그리지 않았습니다** — 화살표 키, `Home`, `End` 모두 작동했지만 포커스가 어디 있는지 알려줄 화면 표시가 없었습니다(WCAG 2.4.7). 강제 색상 모드에서는 대신 시스템 `Highlight` 색상을 사용합니다.
+
+`Slider`를 서브클래스화하고 `render()`를 재구현하는 경우 링을 그대로 구현하세요. 또한 `focus`/`blur` 시 씬을 더티로 표시하지 않으면 `onDemand` 씬은 이를 표시하기 위해 다시 칠해지지 않습니다.
 
 > **`label`을 설정하세요.** 접근 가능한 이름이 없는 `role=\"slider\"`는 단순히 "슬라이더"로 읽히며, 스크린 리더 사용자에게 무엇을 제어하는지 전혀 알려주지 않습니다(WCAG 4.1.2). 캔버스에 그린 시각적 레이블은 의미론적 계층에 도달하지 않으므로 여기에도 전달하세요. `label`을 생략하면 값에서 이름을 파생하지 않고 `aria-label`이 설정되지 않은 상태로 남습니다 — 잘못된 이름은 없는 것보다 나쁩니다. `@vectojs/ui@2.2.0`부터 사용 가능합니다.
 
