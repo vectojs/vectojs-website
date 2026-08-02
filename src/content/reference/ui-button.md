@@ -50,8 +50,23 @@ interface ButtonOptions {
   font?: string;
   padding?: number;
   radius?: number;
+  focusColor?: string;       // 2.7.0+ — focus-ring color, default '#00f0ff'
 }
 ```
+
+The focus ring is stroked 2px in `focusColor`. Set it on any theme that is not
+the dark default palette the cyan default was tuned for:
+
+```ts
+const save = new Button('Save', { bg: '#f43f5e', focusColor: '#60a5fa' });
+```
+
+A focus ring is the one affordance a keyboard user cannot do without, so it
+should read clearly against your surface rather than merely being present — aim
+past the 3:1 non-text contrast floor (WCAG SC 1.4.11), and prefer a hue distinct
+from your accent color so focus never reads as ordinary emphasis. Forced-colors
+mode ignores it in favor of the system `Highlight` color, so setting it cannot
+break High Contrast.
 
 ## Accessibility and automation
 

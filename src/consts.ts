@@ -16,7 +16,7 @@ export const VERSIONS = {
   layout: '0.5.0',
   math: '0.1.1',
   animation: '0.1.1',
-  ui: '2.7.0',
+  ui: '2.8.0',
   markdown: '0.6.0',
   three: '0.1.8',
   graph3d: '0.3.0',

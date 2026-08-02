@@ -51,6 +51,26 @@ const tabs = new Tabs({
 tabs.effectiveTabBarHeight; // 0 now, tabHeight once a second tab opens
 ```
 
+`Tabs` projects `{ role: 'tablist', label }`. Since 2.8.0 the tab bar's own
+accessible name is settable, defaulting to `'Tab switching panel'`:
+
+```ts
+new Tabs({
+  label: 'Inspector sections',
+  width: 480,
+  height: 240,
+  tabs: [
+    { id: 'usage', label: 'Usage', content: usagePanel },
+    { id: 'api', label: 'API', content: apiPanel },
+  ],
+});
+```
+
+Same reasoning as [`RadioGroup`](/reference/ui-radiogroup/): each tab is named,
+but the tablist's name is what says what the tabs switch _between_. Set it
+whenever a screen has more than one tablist, or when the heading identifying the
+group of tabs is drawn on the canvas (WCAG 4.1.2).
+
 ## Maintainer checklist
 
 - Keep tab content sizing in sync with container size.
