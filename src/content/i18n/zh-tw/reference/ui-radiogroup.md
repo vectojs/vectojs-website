@@ -32,6 +32,20 @@ const renderer = new RadioGroup({
 });
 ```
 
+`RadioGroup` 投射 `{ role: 'radiogroup', label }`。自 2.8.0 起，群組的可存取名稱可設定，預設為通用的 `'Radio group'`：
+
+```ts
+new RadioGroup({
+  label: 'Render backend',
+  options: [
+    { value: 'canvas', label: 'Canvas' },
+    { value: 'webgl', label: 'WebGL' },
+  ],
+});
+```
+
+每個選項都有自己的名稱，但群組的名稱才能說明_正在做出哪個選擇_。當螢幕上不止一個群組時，預設值會讓螢幕閱讀器使用者反覆聽到 "Radio group"，卻無法區分它們——只要識別群組的可視標題是繪製在 canvas 上而不是群組的一部分，就應該設定它（WCAG 4.1.2）。它也可以在建構後作為公開欄位設定。
+
 ## 維護者檢查清單
 
 - 讓選取的視覺狀態和發出的值保持一致。

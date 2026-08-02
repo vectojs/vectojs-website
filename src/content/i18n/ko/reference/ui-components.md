@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — 컴포넌트 레퍼런스
 
 > VectoJS zero-DOM Canvas 엔진을 위한 재사용 가능한 고수준 컴포넌트입니다.
-> 문서 버전: **2.6.0**. 진실 공급원: `dist/index.d.ts`(공개 표면) 및 `packages/ui/src/*`(동작).
+> 문서 버전: **2.8.0**. 진실 공급원: `dist/index.d.ts`(공개 표면) 및 `packages/ui/src/*`(동작).
 
 모든 컴포넌트는 Virtual Math Tree(VMT)의 리프 또는 컨테이너입니다. 여기 있는 어떤 것도 실제 DOM이 아닙니다 — 컴포넌트는 `IRenderer`를 통해 Canvas에 자신을 그립니다. 접근성, 에이전트 자동화, 크롤링 가능성은 병렬 **A11y Shadow DOM**에서 제공됩니다: 컴포넌트가 `interactive`하면 `Scene`이 컴포넌트의 박스 위에 위치한 단일 숨겨진 투명한 실제 DOM 노드를 `getA11yAttributes()`에서 빌드하여 프로젝션합니다. 이것이 `page.getByRole('button', { name })` / `fill()` / 스크린 리더가 순수 Canvas UI에서 작동하는 이유입니다.
 
@@ -302,10 +302,12 @@ interface ButtonOptions {
   font?: string;                   // 기본값 '600 16px sans-serif'
   padding?: number;                // 기본값 12
   radius?: number;                 // 기본값 8
+  focusColor?: string;             // focus-ring color (2.7.0+), default '#00f0ff'
+  disabled?: boolean;              // start disabled: drawn muted, projects `disabled`, no onClick
 }
 ```
 
-중앙 레이블이 있는 둥근 사각형. `width`는 `measureText(label, font) + 2·padding`으로 자동 크기 조정; `height`는 `fontSizePx(font) + 2·padding`(font에서 구문 분석된 px 크기, 측정된 레이블 너비 아님). `{ tag: 'button', role: 'button', label }` 프로젝션 → `getByRole('button', { name })`으로 구동됨. 공개 상태: `focused`(`#00f0ff` 포커스 링 그리기), 내부 `hovered`(`hoverBg`로 전환).
+중앙 레이블이 있는 둥근 사각형. `width`는 `measureText(label, font) + 2·padding`으로 자동 크기 조정; `height`는 `fontSizePx(font) + 2·padding`(font에서 구문 분석된 px 크기, 측정된 레이블 너비 아님). `{ tag: 'button', role: 'button', label }` 프로젝션 → `getByRole('button', { name })`으로 구동됨. 공개 상태: `focused`(`focusColor`로 2px 포커스 링 그리기), 내부 `hovered`(`hoverBg`로 전환). **밝거나 따뜻한 테마에서는 `focusColor`를 설정하세요** (2.7.0+) — 기본 시안색은 어두운 기본 팔레트에 맞춰 조정되어 다른 곳에서는 브랜드에서 벗어난 것으로 보이며, 포커스 링은 키보드 사용자가 없어서는 안 되는 유일한 어포던스입니다. 강제 색상 모드에서는 링이 항상 대신 시스템 `Highlight` 색상을 사용합니다.
 
 ### `Link`
 
@@ -453,10 +455,11 @@ new Slider(props?: SliderProps)   // props는 .d.ts에서 느슨하게 타입됨
   trackColor?: string;     // 기본값 'rgba(255, 255, 255, 0.15)'
   progressColor?: string;  // 기본값 '#00f0ff'
   handleColor?: string;    // 기본값 '#fff'
+  focusColor?: string;     // focus-ring color (2.7.0+), default '#00f0ff'
 }
 ```
 
-원형 thumb이 있는 수평 슬라이더. 공개: `min`, `max`, `value`, `step`. 드래깅(`pointerdown` → `pointermove` → `pointerup`)은 포인터 `localX`를 값에 매핑하고, **`min`에 고정된 `step` 그리드에 스냅**(기본적으로 정수 단계, `input[type=range]` 의미와 일치)되며, `{ value }`와 함께 `change` 이벤트를 발생시킵니다(`on('change', e => e.value)`로 구독). 키보드: `ArrowRight`/`ArrowUp`이 한 단계 위로, `ArrowLeft`/`ArrowDown`이 한 단계 아래로, `Home`/`End`가 `min`/`max`로 이동. A11y: `{ role: 'slider', value, valuemin, valuemax }`. 이전 1.0 이전 UI 빌드는 정수 전용 값과 키보드 처리가 없었습니다.
+원형 thumb이 있는 수평 슬라이더. 공개: `min`, `max`, `value`, `step`. 드래깅(`pointerdown` → `pointermove` → `pointerup`)은 포인터 `localX`를 값에 매핑하고, **`min`에 고정된 `step` 그리드에 스냅**(기본적으로 정수 단계, `input[type=range]` 의미와 일치)되며, `{ value }`와 함께 `change` 이벤트를 발생시킵니다(`on('change', e => e.value)`로 구독). 키보드: `ArrowRight`/`ArrowUp`이 한 단계 위로, `ArrowLeft`/`ArrowDown`이 한 단계 아래로, `Home`/`End`가 `min`/`max`로 이동. 공개 `focused`는 키보드 포커스를 추적하고 핸들 주위에 `focusColor`의 2px 링을 그립니다(2.7.0+; 그 이전 릴리스에서는 슬라이더가 키보드로 조작 가능했음에도 **포커스 표시를 전혀 그리지 않았습니다** — WCAG 2.4.7). A11y: `{ role: 'slider', value, valuemin, valuemax }`. 이전 1.0 이전 UI 빌드는 정수 전용 값과 키보드 처리가 없었습니다.
 
 ### `Dropdown`
 
@@ -468,16 +471,25 @@ new Dropdown(options: string[], props?: DropdownProps)  // props는 느슨하게
   value?: string;   // 초기 선택; 기본값 = options[0]
   width?: number;   // 기본값 120
   height?: number;  // 기본값 36
-  bg?: string;      // 버튼 배경, 기본값 'rgba(30, 41, 59, 0.85)'
+  bg?: string;      // 닫힌 트리거 배경, 기본값 'rgba(30, 41, 59, 0.85)'
   color?: string;   // 기본값 '#fff'
   radius?: number;  // 기본값 8
   font?: string;    // 기본값 '14px sans-serif'
+
+  // Open-menu theming (2.7.0+) — see the note below
+  menuBg?: string;           // option row bg, default 'rgba(15, 23, 42, 0.95)'
+  menuColor?: string;        // option row text, default '#fff'
+  menuSelectedBg?: string;   // selected row, default 'rgba(0, 240, 255, 0.25)'
+  menuHighlightBg?: string;  // keyboard-highlighted row, default 'rgba(0, 240, 255, 0.4)'
+  focusColor?: string;       // focus ring, trigger + rows, default '#00f0ff'
 }
 ```
 
 콤보박스: `Button`이 현재 값을 표시하고; 클릭(또는 `ArrowDown`/`ArrowUp`/`Enter`/`Space`)하면 옵션 `Button`들의 `Stack` 메뉴와 전체 화면 투명 백드롭이 열리며, 둘 다 `scene.showOverlay(...)`를 통해 마운트됩니다. `Escape` 또는 백드롭 클릭이 `scene.hideOverlay(...)`)를 통해 닫습니다. 선택은 `{ value }`와 함께 `change` 이벤트를 발생시킵니다. 키보드 탐색은 강조 표시된 인덱스를 추적합니다; `activedescendant`와 옵션 id(`${id}-opt-${i}`)가 ARIA에 연결됩니다.
 
-루트의 A11y: `{ role: 'combobox', expanded, controls, haspopup: 'listbox', value, activedescendant }`. 메뉴는 `role=\"listbox\"`를, 각 옵션은 `selected`와 함께 `role=\"option\"`을 프로젝션합니다.
+루트의 A11y: `{ role: 'combobox', expanded, controls, haspopup: 'listbox', value, activedescendant }`. 메뉴는 `role="listbox"`를, 각 옵션은 `selected`와 함께 `role="option"`을 프로젝션합니다.
+
+**열린 메뉴에도 트리거처럼 테마를 지정하세요** (2.7.0+). 이러한 props가 존재하기 전에는 트리거의 `bg`/`color`만 재정의할 수 있었고 메뉴 색상은 하드코딩되어 있었으므로, 밝거나 따뜻한 팔레트용으로 테마가 지정된 드롭다운은 시안색 선택이 있는 어두운 슬레이트 패널을 열었습니다 — 이는 스타일이 아닌 렌더링 버그처럼 보입니다. `menuHighlightBg`와 `menuSelectedBg`는 동시에 적용될 수 있고 메뉴를 열면 선택된 행이 강조 표시되므로, 강조가 둘 중 더 강한 것으로 읽히게 하세요. 옵션 행 자체가 포커스 가능(`role="option"`)하므로 `focusColor` 링은 강조 표시된 행_위에_ 그려집니다: 링과 `menuHighlightBg` 사이에 충분한 대비를 유지하여 3:1 비텍스트 기준(WCAG SC 1.4.11)을 넘기세요.
 
 ---
 
@@ -630,6 +642,7 @@ new RadioGroup(opts: RadioGroupOptions)
 interface RadioGroupOptions {
   options: RadioOption[];
   value?: string;
+  label?: string;  // accessible name for the GROUP (2.8.0+), default 'Radio group'
   direction?: 'horizontal' | 'vertical';
   gap?: number;
   size?: number;
@@ -647,7 +660,9 @@ interface RadioOption {
 }
 ```
 
-`{ role: 'radiogroup' }`로 프로젝션된 상호 배타적인 라디오 선택 그룹; 애플리케이션은 여전히 레이블과 키보드/포커스 동작을 확인해야 합니다. 표준화된 `'change'` 이벤트 페이로드에는 `{ value }`가 포함됩니다.
+`{ role: 'radiogroup', label }`로 프로젝션된 상호 배타적인 라디오 선택 그룹. 표준화된 `'change'` 이벤트 페이로드에는 `{ value }`가 포함됩니다.
+
+**화면에 그룹이 두 개 이상 있는 경우 `label`을 전달하세요** (2.8.0+). 각 옵션은 고유한 이름을 가지지만, _어떤 선택이 이루어지는지_ 알려주는 것은 그룹의 이름입니다. 없으면 모든 그룹이 일반적인 기본값 `'Radio group'`으로 발표되므로 사용자는 "Radio group"을 반복적으로 듣게 되고 구분할 방법이 없습니다 — 그룹을 식별하는 시각적 제목이 그룹의 일부가 아니라 캔버스에 그려진 경우 반드시 설정하세요(WCAG 4.1.2).
 
 ---
 
@@ -659,6 +674,7 @@ new Tabs(opts: TabsOptions)
 interface TabsOptions {
   tabs: TabItem[];
   value?: string;
+  label?: string; // accessible name for the TAB BAR (2.8.0+), default 'Tab switching panel'
   width: number;
   height: number;
   tabHeight?: number;
@@ -681,7 +697,9 @@ interface TabItem {
 }
 ```
 
-탭 선택 컨테이너. 활성 탭의 콘텐츠 뷰를 자동으로 마운트하고 나머지 공간 내에서 변환합니다. 접근성을 위해 `{ role: 'tablist' }`를 프로젝션합니다. 표준화된 `'change'` 이벤트 페이로드에는 `{ value }`가 포함됩니다.
+탭 선택 컨테이너. 활성 탭의 콘텐츠 뷰를 자동으로 마운트하고 나머지 공간 내에서 변환합니다. 접근성을 위해 `{ role: 'tablist', label }`를 프로젝션합니다. 표준화된 `'change'` 이벤트 페이로드에는 `{ value }`가 포함됩니다.
+
+**화면에 탭리스트가 두 개 이상 있는 경우 `label`을 전달하세요** (2.8.0+), `RadioGroup.label`과 같은 이유입니다: 각 탭에는 이름이 있지만, 탭이_무엇 사이를_ 전환하는지 알려주는 것은 탭리스트의 이름입니다. 기본값은 `'Tab switching panel'`입니다.
 
 Tabs는 고정된 기본 설정 `tabWidth`를 유지하며 탭이 오버플로되면 줄어들지 않고 막대가 수평으로 스크롤됩니다(휠 또는 활성 탭을 계속 보기 위한 자동 스크롤) — 1.9.4부터 `tabWidth`는 막대가 지나치는 대상 너비이지 늘여서 채우는 너비가 아닙니다(이전에는 넓은 스트립에서 닫기 히트가 잘못 지정됨). `autoHideTabBar`(1.9.5)를 사용하면 탭이 2개 미만인 동안 막대와 히트 영역이 사라지고 콘텐츠가 전체 높이를 차지합니다(Vim `showtabline=1` 의미). `effectiveTabBarHeight` 게터는 막대의 현재 높이를 보고하며(숨겨졌을 때 `0`), 콘텐츠 지오메트리는 매 프레임 다시 동기화되므로 `tabs`를 재할당해도 오래되었거나 오프셋된 콘텐츠가 남을 수 없습니다.
 

@@ -48,9 +48,14 @@ new Slider({
   trackColor?: string;
   progressColor?: string;
   handleColor?: string;
+  focusColor?: string;       // 2.7.0+ — focus ring around the handle
   onChange?: (value: number) => void;
 })
 ```
+
+`focused` suit le focus clavier et dessine un anneau de 2px dans `focusColor` (défaut `'#00f0ff'`) autour du curseur. Avant `@vectojs/ui@2.7.0`, le slider ne dessinait **aucun indicateur de focus** alors qu'il était entièrement opérable au clavier — les flèches, `Home` et `End` fonctionnaient tous sans rien à l'écran pour indiquer où se trouvait le focus (WCAG 2.4.7). Le mode couleurs forcées utilise la couleur système `Highlight` à la place.
+
+Si vous sous-classez `Slider` et réimplémentez `render()`, reprenez l'anneau ; et marquez la scène comme sale lors de `focus`/`blur`, sinon une scène `onDemand` ne se repeint jamais pour l'afficher.
 
 > **Définissez `label`.** Un `role=\"slider\"` sans nom accessible est annoncé comme simple "slider", sans rien dire à l'utilisateur du lecteur d'écran sur ce qu'il contrôle (WCAG 4.1.2). Toute étiquette visuelle que vous dessinez sur le canvas n'atteint pas la couche sémantique, alors passez-la ici aussi. Omettre `label` laisse `aria-label` non défini plutôt que de dériver un nom de la valeur — un mauvais nom est pire que l'absence de nom. Disponible depuis `@vectojs/ui@2.2.0`.
 

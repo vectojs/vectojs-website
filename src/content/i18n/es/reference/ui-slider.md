@@ -48,9 +48,14 @@ new Slider({
   trackColor?: string;
   progressColor?: string;
   handleColor?: string;
+  focusColor?: string;       // 2.7.0+ — focus ring around the handle
   onChange?: (value: number) => void;
 })
 ```
+
+`focused` rastrea el foco del teclado y dibuja un anillo de 2px en `focusColor` (por defecto `'#00f0ff'`) alrededor del pulgar. Antes de `@vectojs/ui@2.7.0`, el deslizador no dibujaba **ningún indicador de foco** a pesar de ser completamente operable con teclado — las teclas de flecha, `Home` y `End` funcionaban sin nada en pantalla que indicara dónde estaba el foco (WCAG 2.4.7). El modo de colores forzados usa el color `Highlight` del sistema en su lugar.
+
+Si subclasificas `Slider` y reimplementas `render()`, mantén el anillo; y marca la escena como sucia en `focus`/`blur`, o una escena `onDemand` nunca se repintará para mostrarlo.
 
 > **Establece `label`.** Un `role=\"slider\"` sin nombre accesible se anuncia como simple "slider", sin decirle al usuario del lector de pantalla nada sobre lo que controla (WCAG 4.1.2). Cualquier etiqueta visual que dibujes en el canvas no llega a la capa semántica, así que pásala aquí también. Omitir `label` deja `aria-label` sin establecer en lugar de derivar un nombre del valor — un nombre incorrecto es peor que uno ausente. Disponible desde `@vectojs/ui@2.2.0`.
 

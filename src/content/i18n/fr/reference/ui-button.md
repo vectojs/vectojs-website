@@ -48,8 +48,17 @@ interface ButtonOptions {
   font?: string;
   padding?: number;
   radius?: number;
+  focusColor?: string;       // 2.7.0+ — focus-ring color, default '#00f0ff'
 }
 ```
+
+L'anneau de focus est tracé sur 2px dans `focusColor`. Définissez-le sur tout thème qui n'est pas la palette sombre par défaut pour laquelle le cyan par défaut a été réglé :
+
+```ts
+const save = new Button('Save', { bg: '#f43f5e', focusColor: '#60a5fa' });
+```
+
+Un anneau de focus est la seule affordance dont un utilisateur clavier ne peut pas se passer, il doit donc se lire clairement sur votre surface plutôt que d'être simplement présent — visez au-delà du seuil de contraste non textuel de 3:1 (WCAG SC 1.4.11), et préférez une teinte distincte de votre couleur d'accent pour que le focus ne soit jamais lu comme une simple emphase. Le mode couleurs forcées l'ignore au profit de la couleur système `Highlight`, donc le définir ne peut pas casser le contraste élevé.
 
 ## Accessibilité et automatisation
 

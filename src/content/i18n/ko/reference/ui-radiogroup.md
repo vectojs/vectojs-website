@@ -32,6 +32,20 @@ const renderer = new RadioGroup({
 });
 ```
 
+`RadioGroup`는 `{ role: 'radiogroup', label }`을 프로젝션합니다. 2.8.0부터 그룹 자체의 접근 가능한 이름을 설정할 수 있으며, 기본값은 일반적인 `'Radio group'`입니다:
+
+```ts
+new RadioGroup({
+  label: 'Render backend',
+  options: [
+    { value: 'canvas', label: 'Canvas' },
+    { value: 'webgl', label: 'WebGL' },
+  ],
+});
+```
+
+각 옵션은 고유한 이름을 가지지만, _어떤 선택이 이루어지는지_ 알려주는 것은 그룹의 이름입니다. 화면에 그룹이 두 개 이상 있는 경우 기본값으로는 스크린 리더 사용자가 "Radio group"을 반복적으로 듣게 되고 구분할 방법이 없습니다 — 그룹을 식별하는 시각적 제목이 그룹의 일부가 아니라 캔버스에 그려진 경우에는 반드시 설정하세요(WCAG 4.1.2). 또한 생성 후 공개 필드로 설정할 수도 있습니다.
+
 ## 유지보수 체크리스트
 
 - 선택된 시각적 상태와 방출된 값을 일치시키세요.

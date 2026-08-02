@@ -30,6 +30,37 @@ const backend = new Dropdown(['Canvas', 'WebGL', 'WebGPU'], {
 
 > **Establece `label`.** Un `role=\"combobox\"` sin nombre accesible se anuncia como simple "combobox" (WCAG 4.1.2); el valor seleccionado por sí solo no dice para qué sirve el control. Cualquier etiqueta visual dibujada en canvas no llega a la capa semántica, así que pásala aquí también. Disponible desde `@vectojs/ui@2.2.0`.
 
+El gatillo cerrado toma `bg`/`color`; las filas de opción del menú abierto toman sus cinco props propias, todas añadidas en 2.7.0:
+
+| Prop              | Predeterminado              | Se aplica a                      |
+| ----------------- | --------------------------- | -------------------------------- |
+| `menuBg`          | `'rgba(15, 23, 42, 0.95)'`  | cada fila de opción              |
+| `menuColor`       | `'#fff'`                    | el texto de las filas de opción  |
+| `menuSelectedBg`  | `'rgba(0, 240, 255, 0.25)'` | la fila seleccionada             |
+| `menuHighlightBg` | `'rgba(0, 240, 255, 0.4)'`  | la fila resaltada por teclado    |
+| `focusColor`      | `'#00f0ff'`                 | el gatillo y las filas de opción |
+
+```ts
+new Dropdown(['1x', '1.5x', '2x'], {
+  label: 'Playback rate',
+  bg: 'rgba(18, 23, 34, 0.98)',
+  menuBg: 'rgba(18, 23, 34, 0.98)',
+  menuColor: '#e2e8f0',
+  menuSelectedBg: 'rgba(244, 63, 94, 0.30)',
+  menuHighlightBg: 'rgba(244, 63, 94, 0.55)',
+  focusColor: '#60a5fa',
+});
+```
+
+Antes de que existieran, el gatillo era tematizable pero el menú no, por lo que un desplegable estilizado para una paleta clara o cálida abría un panel oscuro con selección cian — lo que se lee como un bug de renderizado en lugar de una elección de estilo.
+
+Dos cosas que vale la pena saber al elegir valores:
+
+- **Ambos estados de fila pueden aplicarse a la vez**, y abrir el menú resalta la fila seleccionada, por lo que `menuHighlightBg` debe leerse como el más fuerte de los dos.
+- **Las filas de opción son enfocables** (`role="option"`), por lo que el anillo `focusColor` se dibuja _sobre_ una fila resaltada. Mantén el anillo separado de `menuHighlightBg` por al menos 3:1 (WCAG SC 1.4.11) — subir el alfa del resaltado lo suficiente para separarlo de `menuSelectedBg` puede llevar silenciosamente el anillo por debajo de ese mínimo.
+
+Los fondos de menú casi opacos suelen ser lo correcto: un menú translúcido sobre contenido de canvas en movimiento sigue siendo legible por contraste pero se percibe como ruido.
+
 ## Lista de verificación para mantenedores
 
 - Mantén los metadatos `expanded`, `controls` y `activedescendant` sincronizados.

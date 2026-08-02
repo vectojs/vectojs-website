@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Référence des composants
 
 > Composants réutilisables de haut niveau pour le moteur Canvas zero-DOM VectoJS.
-> Version documentée : **2.6.0**. Source de vérité : `dist/index.d.ts` (surface publique) et `packages/ui/src/*` (comportement).
+> Version documentée : **2.8.0**. Source de vérité : `dist/index.d.ts` (surface publique) et `packages/ui/src/*` (comportement).
 
 Chaque composant est une feuille ou un conteneur dans l'Arbre Mathématique Virtuel (VMT). Rien ici n'est du vrai DOM — les composants se dessinent eux-mêmes sur un Canvas via un `IRenderer`. L'accessibilité, l'automatisation par agent et la crawlabilité proviennent d'un **A11y Shadow DOM** parallèle : lorsqu'un composant est `interactive`, la `Scene` projette un seul nœud DOM réel caché et transparent positionné au-dessus de la boîte du composant, construit à partir de `getA11yAttributes()`. C'est pourquoi `page.getByRole('button', { name })` / `fill()` / les lecteurs d'écran fonctionnent sur une UI pure-Canvas.
 
@@ -300,10 +300,12 @@ interface ButtonOptions {
   font?: string;                   // défaut '600 16px sans-serif'
   padding?: number;                // défaut 12
   radius?: number;                 // défaut 8
+  focusColor?: string;             // focus-ring color (2.7.0+), default '#00f0ff'
+  disabled?: boolean;              // start disabled: drawn muted, projects `disabled`, no onClick
 }
 ```
 
-Rectangle arrondi avec un libellé centré. `width` s'auto-dimensionne à `measureText(label, font) + 2·padding` ; `height` à `fontSizePx(font) + 2·padding` (la taille px analysée depuis `font`, pas la largeur mesurée du libellé). Projette `{ tag: 'button', role: 'button', label }` → piloté par `getByRole('button', { name })`. État public : `focused` (dessine un anneau de focus `#00f0ff`), `hovered` interne (passe à `hoverBg`).
+Rectangle arrondi avec un libellé centré. `width` s'auto-dimensionne à `measureText(label, font) + 2·padding` ; `height` à `fontSizePx(font) + 2·padding` (la taille px analysée depuis `font`, pas la largeur mesurée du libellé). Projette `{ tag: 'button', role: 'button', label }` → piloté par `getByRole('button', { name })`. État public : `focused` (dessine un anneau de focus de 2px dans `focusColor`), `hovered` interne (passe à `hoverBg`). **Définissez `focusColor` sur un thème clair ou chaud** (2.7.0+) — le cyan par défaut est réglé pour la palette sombre par défaut et semble hors de la marque ailleurs, et un anneau de focus est la seule affordance dont un utilisateur clavier ne peut pas se passer. En mode couleurs forcées, l'anneau utilise toujours la couleur système `Highlight` à la place.
 
 ### `Link`
 
@@ -451,10 +453,11 @@ new Slider(props?: SliderProps)   // props est faiblement typé (any) dans le .d
   trackColor?: string;     // défaut 'rgba(255, 255, 255, 0.15)'
   progressColor?: string;  // défaut '#00f0ff'
   handleColor?: string;    // défaut '#fff'
+  focusColor?: string;     // focus-ring color (2.7.0+), default '#00f0ff'
 }
 ```
 
-Curseur horizontal avec un pouce circulaire. Public : `min`, `max`, `value`, `step`. Le glissement (`pointerdown` → `pointermove` → `pointerup`) mappe `localX` du pointeur à une valeur, **arrêtée sur la grille de `step` ancrée à `min`** (paliers entiers par défaut, correspondant à la sémantique de `input[type=range]`), et émet un événement `change` avec `{ value }` (abonnez-vous via `on('change', e => e.value)`). Clavier : `ArrowRight`/`ArrowUp` augmentent, `ArrowLeft`/`ArrowDown` diminuent, `Home`/`End` sautent à `min`/`max`. A11y : `{ role: 'slider', value, valuemin, valuemax }`. Les anciennes versions pré-1.0 avaient des valeurs entières seulement et pas de gestion clavier.
+Curseur horizontal avec un pouce circulaire. Public : `min`, `max`, `value`, `step`. Le glissement (`pointerdown` → `pointermove` → `pointerup`) mappe `localX` du pointeur à une valeur, **arrêtée sur la grille de `step` ancrée à `min`** (paliers entiers par défaut, correspondant à la sémantique de `input[type=range]`), et émet un événement `change` avec `{ value }` (abonnez-vous via `on('change', e => e.value)`). Clavier : `ArrowRight`/`ArrowUp` augmentent, `ArrowLeft`/`ArrowDown` diminuent, `Home`/`End` sautent à `min`/`max`. Le `focused` public suit le focus clavier et dessine un anneau de 2px dans `focusColor` autour du curseur (2.7.0+ ; avant cette version, le slider ne dessinait **aucun indicateur de focus** malgré son opérabilité clavier — WCAG 2.4.7). A11y : `{ role: 'slider', value, valuemin, valuemax }`. Les anciennes versions pré-1.0 avaient des valeurs entières seulement et pas de gestion clavier.
 
 ### `Dropdown`
 
@@ -466,16 +469,25 @@ new Dropdown(options: string[], props?: DropdownProps)  // props faiblement typ�
   value?: string;   // sélection initiale ; défaut = options[0]
   width?: number;   // défaut 120
   height?: number;  // défaut 36
-  bg?: string;      // fond du bouton, défaut 'rgba(30, 41, 59, 0.85)'
+  bg?: string;      // fond du déclencheur fermé, défaut 'rgba(30, 41, 59, 0.85)'
   color?: string;   // défaut '#fff'
   radius?: number;  // défaut 8
   font?: string;    // défaut '14px sans-serif'
+
+  // Open-menu theming (2.7.0+) — see the note below
+  menuBg?: string;           // option row bg, default 'rgba(15, 23, 42, 0.95)'
+  menuColor?: string;        // option row text, default '#fff'
+  menuSelectedBg?: string;   // selected row, default 'rgba(0, 240, 255, 0.25)'
+  menuHighlightBg?: string;  // keyboard-highlighted row, default 'rgba(0, 240, 255, 0.4)'
+  focusColor?: string;       // focus ring, trigger + rows, default '#00f0ff'
 }
 ```
 
 Une boîte combo : un `Button` affiche la valeur courante ; cliquer (ou `ArrowDown`/`ArrowUp`/`Enter`/`Space`) ouvre un menu `Stack` d'options `Button` plus un fond d'écran transparent plein écran, tous deux montés via `scene.showOverlay(...)`. `Escape` ou un clic sur le fond d'écran ferme via `scene.hideOverlay(...)`. La sélection émet un événement `change` avec `{ value }`. La navigation clavier suit un index surligné ; `activedescendant` et les ids d'option (`${id}-opt-${i}`) sont câblés pour ARIA.
 
-A11y sur la racine : `{ role: 'combobox', expanded, controls, haspopup: 'listbox', value, activedescendant }`. Le menu projette `role=\"listbox\"`, chaque option `role=\"option\"` avec `selected`.
+A11y sur la racine : `{ role: 'combobox', expanded, controls, haspopup: 'listbox', value, activedescendant }`. Le menu projette `role="listbox"`, chaque option `role="option"` avec `selected`.
+
+**Thématisez le menu ouvert, pas seulement le déclencheur** (2.7.0+). Avant ces props, le `bg`/`color` du déclencheur était surchargeable mais les couleurs du menu étaient codées en dur, donc une liste déroulante thématisée pour une palette claire ou chaude ouvrait un panneau ardoise sombre avec une sélection cyan — ce qui ressemble à un bug de rendu plutôt qu'à un style. Notez que `menuHighlightBg` et `menuSelectedBg` peuvent s'appliquer en même temps, et ouvrir le menu surligne la ligne sélectionnée, donc faites en sorte que le surlignage se lise comme le plus fort des deux. Les lignes d'option sont elles-mêmes focusables (`role="option"`), donc l'anneau `focusColor` est dessiné _sur_ une ligne surlignée : gardez assez de contraste entre l'anneau et `menuHighlightBg` pour dépasser le seuil non textuel de 3:1 (WCAG SC 1.4.11).
 
 ---
 
@@ -625,6 +637,7 @@ new RadioGroup(opts: RadioGroupOptions)
 interface RadioGroupOptions {
   options: RadioOption[];
   value?: string;
+  label?: string;  // accessible name for the GROUP (2.8.0+), default 'Radio group'
   direction?: 'horizontal' | 'vertical';
   gap?: number;
   size?: number;
@@ -642,7 +655,9 @@ interface RadioOption {
 }
 ```
 
-Un groupe mutuellement exclusif de choix radio projeté avec `{ role: 'radiogroup' }` ; les applications doivent encore vérifier les libellés et le comportement clavier/focus. La charge utile standardisée de l'événement `'change'` contient `{ value }`.
+Un groupe mutuellement exclusif de choix radio projeté avec `{ role: 'radiogroup', label }`. La charge utile standardisée de l'événement `'change'` contient `{ value }`.
+
+**Passez `label` quand un écran a plus d'un groupe** (2.8.0+). Chaque option porte son propre nom, mais c'est le nom du groupe qui dit _quel choix est fait_. Sans lui, chaque groupe s'annonce comme le défaut générique `'Radio group'`, donc un utilisateur entend "Radio group" à répétition sans moyen de les distinguer — définissez-le dès que le titre visuel identifiant le groupe est dessiné sur le canvas plutôt que de faire partie du groupe (WCAG 4.1.2).
 
 ---
 
@@ -654,6 +669,7 @@ new Tabs(opts: TabsOptions)
 interface TabsOptions {
   tabs: TabItem[];
   value?: string;
+  label?: string; // accessible name for the TAB BAR (2.8.0+), default 'Tab switching panel'
   width: number;
   height: number;
   tabHeight?: number;
@@ -676,7 +692,9 @@ interface TabItem {
 }
 ```
 
-Un conteneur de sélection par onglets. Monte automatiquement la vue de contenu de l'onglet actif et la translate dans l'espace restant. Projette `{ role: 'tablist' }` pour l'accessibilité. La charge utile standardisée de l'événement `'change'` contient `{ value }`.
+Un conteneur de sélection par onglets. Monte automatiquement la vue de contenu de l'onglet actif et la translate dans l'espace restant. Projette `{ role: 'tablist', label }` pour l'accessibilité. La charge utile standardisée de l'événement `'change'` contient `{ value }`.
+
+**Passez `label` quand un écran a plus d'une tablist** (2.8.0+), pour la même raison que `RadioGroup.label` : chaque onglet est nommé, mais c'est le nom de la tablist qui dit entre quoi les onglets basculent. Le défaut est `'Tab switching panel'`.
 
 Les onglets conservent une `tabWidth` préférée fixe et la barre défile horizontalement une fois qu'ils débordent (molette, ou défilement automatique pour garder l'onglet actif visible) plutôt que de rétrécir en lamelles — depuis la 1.9.4, `tabWidth` est une cible au-delà de laquelle la barre défile, pas une largeur à étirer pour remplir (ce qui désorientait auparavant les clics de fermeture sur les larges bandes). Avec `autoHideTabBar` (1.9.5), la barre et sa zone d'impact disparaissent lorsqu'il y a moins de deux onglets et le contenu occupe toute la hauteur (sémantique `showtabline=1` de Vim) ; l'accesseur `effectiveTabBarHeight` indique la hauteur actuelle de la barre (`0` quand elle est masquée), et la géométrie du contenu se re-synchronise à chaque trame pour que la réaffectation de `tabs` ne puisse pas laisser de contenu obsolète ou décalé.
 

@@ -47,9 +47,14 @@ new Slider({
   trackColor?: string;
   progressColor?: string;
   handleColor?: string;
+  focusColor?: string;       // 2.7.0+ — focus ring around the handle
   onChange?: (value: number) => void;
 })
 ```
+
+`focused` 跟踪键盘焦点，并在手柄周围绘制一个 2px 的 `focusColor` 圆环（默认 `'#00f0ff'`）。在 `@vectojs/ui@2.7.0` 之前，滑块虽然完全支持键盘操作，却**根本没有焦点指示器**——方向键、`Home` 和 `End` 都能正常工作，但屏幕上没有任何提示焦点在哪（WCAG 2.4.7）。强制颜色模式改用系统的 `Highlight` 颜色。
+
+如果你继承 `Slider` 并重新实现 `render()`，请保留焦点环；并且在 `focus`/`blur` 时将场景标记为脏，否则 `onDemand` 场景永远不会重绘来显示它。
 
 > **设置 `label`。** 没有可访问名称的 `role=\"slider\"` 会被读作单纯的"slider"，让屏幕阅读器用户完全不知道它控制什么（WCAG 4.1.2）。你在 canvas 上绘制的任何可视标签都不会传递到语义层，所以也要在此传入。省略 `label` 会使 `aria-label` 保持未设置，而不是从值推导名称 —— 错误的名称比没有更糟。自 `@vectojs/ui@2.2.0` 起可用。
 

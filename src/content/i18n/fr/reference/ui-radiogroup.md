@@ -32,6 +32,20 @@ const renderer = new RadioGroup({
 });
 ```
 
+`RadioGroup` projette `{ role: 'radiogroup', label }`. Depuis la 2.8.0, le nom accessible du groupe lui-même est définissable, avec `'Radio group'` par défaut :
+
+```ts
+new RadioGroup({
+  label: 'Render backend',
+  options: [
+    { value: 'canvas', label: 'Canvas' },
+    { value: 'webgl', label: 'WebGL' },
+  ],
+});
+```
+
+Chaque option porte son propre nom, mais c'est le nom du groupe qui dit _quel choix est fait_. Sur un écran avec plus d'un groupe, le défaut laisse l'utilisateur de lecteur d'écran entendre "Radio group" à répétition sans moyen de les distinguer — définissez-le dès que le titre visuel identifiant le groupe est dessiné sur le canvas plutôt que de faire partie du groupe (WCAG 4.1.2). Il est aussi définissable après construction comme champ public.
+
 ## Liste de vérification pour les mainteneurs
 
 - Maintenez lʼétat visuel sélectionné et la valeur émise alignés.

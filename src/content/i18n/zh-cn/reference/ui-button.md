@@ -47,8 +47,17 @@ interface ButtonOptions {
   font?: string;
   padding?: number;
   radius?: number;
+  focusColor?: string;       // 2.7.0+ — focus-ring color, default '#00f0ff'
 }
 ```
+
+焦点环以 2px 描边绘制，颜色为 `focusColor`。在任何不是青色默认值所针对的深色默认调色板的主题上设置它：
+
+```ts
+const save = new Button('Save', { bg: '#f43f5e', focusColor: '#60a5fa' });
+```
+
+焦点环是键盘用户不可或缺的唯一提示，因此它应在你的表面上清晰可辨，而不只是存在——目标应超过 3:1 非文本对比度下限（WCAG SC 1.4.11），并选择与强调色不同的色相，使焦点永远不会被误读为普通的强调效果。强制颜色模式会忽略它而使用系统的 `Highlight` 颜色，因此设置它不会破坏高对比度。
 
 ## 无障碍与自动化
 

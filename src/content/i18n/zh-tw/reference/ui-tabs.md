@@ -45,6 +45,22 @@ const tabs = new Tabs({
 tabs.effectiveTabBarHeight; // 0 now, tabHeight once a second tab opens
 ```
 
+`Tabs` 投射 `{ role: 'tablist', label }`。自 2.8.0 起，分頁列的可存取名稱可設定，預設為 `'Tab switching panel'`：
+
+```ts
+new Tabs({
+  label: 'Inspector sections',
+  width: 480,
+  height: 240,
+  tabs: [
+    { id: 'usage', label: 'Usage', content: usagePanel },
+    { id: 'api', label: 'API', content: apiPanel },
+  ],
+});
+```
+
+理由與 [`RadioGroup`](/reference/ui-radiogroup/) 相同：每個分頁都有自己的名稱，但分頁列的名稱才能說明分頁_在切換什麼_。只要螢幕上有不止一個分頁列，或者識別分頁組的標題繪製在 canvas 上，就應該設定它（WCAG 4.1.2）。
+
 ## 維護者檢查清單
 
 - 讓分頁內容尺寸與容器尺寸保持同步。

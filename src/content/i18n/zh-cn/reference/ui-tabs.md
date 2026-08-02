@@ -45,6 +45,22 @@ const tabs = new Tabs({
 tabs.effectiveTabBarHeight; // 0 now, tabHeight once a second tab opens
 ```
 
+`Tabs` 投影 `{ role: 'tablist', label }`。自 2.8.0 起，标签栏的可访问名称可设置，默认为 `'Tab switching panel'`：
+
+```ts
+new Tabs({
+  label: 'Inspector sections',
+  width: 480,
+  height: 240,
+  tabs: [
+    { id: 'usage', label: 'Usage', content: usagePanel },
+    { id: 'api', label: 'API', content: apiPanel },
+  ],
+});
+```
+
+理由与 [`RadioGroup`](/reference/ui-radiogroup/) 相同：每个标签都有自己的名称，但标签栏的名称才能说明标签_在切换什么_。只要屏幕上有不止一个标签栏，或者标识标签组的标题绘制在 canvas 上，就应该设置它（WCAG 4.1.2）。
+
 ## 维护者检查清单
 
 - 保持选项卡内容尺寸与容器尺寸同步。
