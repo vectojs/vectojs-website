@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Component Reference
 
 > Reusable high-level components for the VectoJS zero-DOM Canvas engine.
-> Version documented: **2.7.0**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
+> Version documented: **2.8.0**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
 
 Every component is a leaf or container in the Virtual Math Tree (VMT). Nothing here is real DOM — components draw themselves to a Canvas via an `IRenderer`. Accessibility, agent automation, and crawlability come from a parallel **A11y Shadow DOM**: when a component is `interactive`, the `Scene` projects a single hidden, transparent real DOM node positioned over the component's box, built from `getA11yAttributes()`. That is why `page.getByRole('button', { name })` / `fill()` / screen readers work against a pure-Canvas UI.
 
@@ -307,10 +307,12 @@ interface ButtonOptions {
   font?: string;                   // default '600 16px sans-serif'
   padding?: number;                // default 12
   radius?: number;                 // default 8
+  focusColor?: string;             // focus-ring color (2.7.0+), default '#00f0ff'
+  disabled?: boolean;              // start disabled: drawn muted, projects `disabled`, no onClick
 }
 ```
 
-Rounded rectangle with a centered label. `width` auto-sizes to `measureText(label, font) + 2·padding`; `height` to `fontSizePx(font) + 2·padding` (the px size parsed from `font`, not the measured label width). Projects `{ tag: 'button', role: 'button', label }` → driven by `getByRole('button', { name })`. Public state: `focused` (draws a `#00f0ff` focus ring), internal `hovered` (swaps to `hoverBg`).
+Rounded rectangle with a centered label. `width` auto-sizes to `measureText(label, font) + 2·padding`; `height` to `fontSizePx(font) + 2·padding` (the px size parsed from `font`, not the measured label width). Projects `{ tag: 'button', role: 'button', label }` → driven by `getByRole('button', { name })`. Public state: `focused` (draws a 2px focus ring in `focusColor`), internal `hovered` (swaps to `hoverBg`). **Set `focusColor` on a light or warm theme** (2.7.0+) — the default cyan is tuned for the dark default palette and reads as off-brand elsewhere, and a focus ring is the one affordance a keyboard user cannot do without. Under forced-colors mode the ring always uses the system `Highlight` color instead.
 
 ### `Link`
 
@@ -459,10 +461,11 @@ new Slider(props?: SliderProps)   // props is loosely typed (any) in the .d.ts
   trackColor?: string;     // default 'rgba(255, 255, 255, 0.15)'
   progressColor?: string;  // default '#00f0ff'
   handleColor?: string;    // default '#fff'
+  focusColor?: string;     // focus-ring color (2.7.0+), default '#00f0ff'
 }
 ```
 
-Horizontal slider with a circular thumb. Public: `min`, `max`, `value`, `step`. Dragging (`pointerdown` → `pointermove` → `pointerup`) maps pointer `localX` to a value, **snapped to the `step` grid anchored at `min`** (integer steps by default, matching `input[type=range]` semantics), and emits a `change` event with `{ value }` (subscribe via `on('change', e => e.value)`). Keyboard: `ArrowRight`/`ArrowUp` step up, `ArrowLeft`/`ArrowDown` step down, `Home`/`End` jump to `min`/`max`. A11y: `{ role: 'slider', label, value, valuemin, valuemax }`. **Pass `label`** (2.2.0+) — before it existed the projected node had no accessible name and was announced as bare "slider" (WCAG 4.1.2). Older pre-1.0 UI builds had integer-only values and no keyboard handling.
+Horizontal slider with a circular thumb. Public: `min`, `max`, `value`, `step`. Dragging (`pointerdown` → `pointermove` → `pointerup`) maps pointer `localX` to a value, **snapped to the `step` grid anchored at `min`** (integer steps by default, matching `input[type=range]` semantics), and emits a `change` event with `{ value }` (subscribe via `on('change', e => e.value)`). Keyboard: `ArrowRight`/`ArrowUp` step up, `ArrowLeft`/`ArrowDown` step down, `Home`/`End` jump to `min`/`max`. Public `focused` tracks keyboard focus and draws a 2px ring in `focusColor` around the handle (2.7.0+; before that release the slider drew **no focus indicator at all** despite being keyboard-operable — WCAG 2.4.7). A11y: `{ role: 'slider', label, value, valuemin, valuemax }`. **Pass `label`** (2.2.0+) — before it existed the projected node had no accessible name and was announced as bare "slider" (WCAG 4.1.2). Older pre-1.0 UI builds had integer-only values and no keyboard handling.
 
 ### `Dropdown`
 
@@ -475,16 +478,25 @@ new Dropdown(options: string[], props?: DropdownProps)  // props loosely typed (
   value?: string;   // initial selection; default = options[0]
   width?: number;   // default 120
   height?: number;  // default 36
-  bg?: string;      // button bg, default 'rgba(30, 41, 59, 0.85)'
+  bg?: string;      // closed trigger bg, default 'rgba(30, 41, 59, 0.85)'
   color?: string;   // default '#fff'
   radius?: number;  // default 8
   font?: string;    // default '14px sans-serif'
+
+  // Open-menu theming (2.7.0+) — see the note below
+  menuBg?: string;           // option row bg, default 'rgba(15, 23, 42, 0.95)'
+  menuColor?: string;        // option row text, default '#fff'
+  menuSelectedBg?: string;   // selected row, default 'rgba(0, 240, 255, 0.25)'
+  menuHighlightBg?: string;  // keyboard-highlighted row, default 'rgba(0, 240, 255, 0.4)'
+  focusColor?: string;       // focus ring, trigger + rows, default '#00f0ff'
 }
 ```
 
 A combobox: a `Button` shows the current value; clicking (or `ArrowDown`/`ArrowUp`/`Enter`/`Space`) opens a `Stack` menu of option `Button`s plus a full-screen transparent backdrop, both mounted via `scene.showOverlay(...)`. `Escape` or a backdrop click closes via `scene.hideOverlay(...)`. Selecting emits a `change` event with `{ value }`. Keyboard navigation tracks a highlighted index; `activedescendant` and option ids (`${id}-opt-${i}`) are wired for ARIA.
 
 A11y on the root: `{ role: 'combobox', expanded, controls, haspopup: 'listbox', value, activedescendant }`. The menu projects `role="listbox"`, each option `role="option"` with `selected`.
+
+**Theme the open menu, not just the trigger** (2.7.0+). Before these props the trigger's `bg`/`color` were overridable while the menu's colors were hardcoded, so a dropdown themed for a light or warm palette opened a dark slate panel with cyan selection — which reads as a rendering bug rather than a style. Note that `menuHighlightBg` and `menuSelectedBg` can apply at once, and opening the menu highlights the selected row, so make the highlight read as the stronger of the two. Option rows are themselves focusable (`role="option"`), so the `focusColor` ring is drawn _on_ a highlighted row: keep enough contrast between the ring and `menuHighlightBg` to clear the 3:1 non-text floor (WCAG SC 1.4.11).
 
 ---
 
@@ -637,6 +649,7 @@ new RadioGroup(opts: RadioGroupOptions)
 interface RadioGroupOptions {
   options: RadioOption[];
   value?: string;
+  label?: string;  // accessible name for the GROUP (2.8.0+), default 'Radio group'
   direction?: 'horizontal' | 'vertical';
   gap?: number;
   size?: number;
@@ -654,7 +667,9 @@ interface RadioOption {
 }
 ```
 
-A mutually exclusive group of radio choices projected with `{ role: 'radiogroup' }`; applications should still verify labels and keyboard/focus behavior. Standardized `'change'` event payload carries `{ value }`.
+A mutually exclusive group of radio choices projected with `{ role: 'radiogroup', label }`. Standardized `'change'` event payload carries `{ value }`.
+
+**Pass `label` when a screen has more than one group** (2.8.0+). Each option carries its own name, but the group's name is what says _which choice is being made_. Without it every group announces as the generic default `'Radio group'`, so a user hears "Radio group" repeatedly with no way to tell them apart — set it whenever the visual heading identifying the group is drawn on the canvas rather than being part of the group (WCAG 4.1.2).
 
 ---
 
@@ -677,6 +692,7 @@ interface TabsOptions {
   tabWidth?: number; // preferred px width; bar scrolls on overflow (default 160)
   minTabWidth?: number; // lower bound before scrolling kicks in (default 96)
   autoHideTabBar?: boolean; // hide the bar while < 2 tabs (default false; 1.9.5)
+  label?: string; // accessible name for the TAB BAR (2.8.0+), default 'Tab switching panel'
   onChange?: (value: string) => void;
   onClose?: (value: string) => void;
 }
@@ -688,7 +704,9 @@ interface TabItem {
 }
 ```
 
-A tab selection container. Auto-mounts the active tab's content view and translates it inside the remaining space. Projects `{ role: 'tablist' }` for accessibility. Standardized `'change'` event payload carries `{ value }`.
+A tab selection container. Auto-mounts the active tab's content view and translates it inside the remaining space. Projects `{ role: 'tablist', label }` for accessibility. Standardized `'change'` event payload carries `{ value }`.
+
+**Pass `label` when a screen has more than one tablist** (2.8.0+), for the same reason as `RadioGroup.label`: each tab is named, but the tablist's name is what says what the tabs switch _between_. The default is `'Tab switching panel'`.
 
 Tabs keep a fixed preferred `tabWidth` and the bar scrolls horizontally once they overflow (wheel, or auto-scroll to keep the active tab visible) rather than shrinking to slivers — as of 1.9.4, `tabWidth` is a target the bar scrolls past, not a stretch-to-fill width (which previously mis-targeted close hits on wide strips). With `autoHideTabBar` (1.9.5), the bar and its hit region disappear while fewer than two tabs exist and the content takes the full height (Vim `showtabline=1` semantics); the `effectiveTabBarHeight` getter reports the bar's current height (`0` when hidden), and content geometry re-syncs every frame so reassigning `tabs` can't leave stale or offset content.
 

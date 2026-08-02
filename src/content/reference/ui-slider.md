@@ -48,9 +48,20 @@ new Slider({
   trackColor?: string;
   progressColor?: string;
   handleColor?: string;
+  focusColor?: string;       // 2.7.0+ — focus ring around the handle
   onChange?: (value: number) => void;
 })
 ```
+
+`focused` tracks keyboard focus and draws a 2px ring in `focusColor` (default
+`'#00f0ff'`) around the handle. Before `@vectojs/ui@2.7.0` the slider drew **no
+focus indicator at all** despite being fully keyboard-operable — arrow keys,
+`Home`, and `End` all worked with nothing on screen to say where focus was
+(WCAG 2.4.7). Forced-colors mode uses the system `Highlight` color instead.
+
+If you subclass `Slider` and reimplement `render()`, carry the ring over; and
+mark the scene dirty on `focus`/`blur`, or an `onDemand` scene never repaints to
+show it.
 
 > **Set `label`.** A `role="slider"` with no accessible name is announced as bare
 > "slider", telling a screen-reader user nothing about what it controls (WCAG
