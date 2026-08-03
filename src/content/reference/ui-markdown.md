@@ -242,10 +242,20 @@ What each call actually costs, so streaming code can be reasoned about:
   token diff and entity updates apply when the parse returns. Environments
   without `Worker` (some test runners, SSR) fall back to synchronous lexing —
   same result, main-thread cost.
-- **Lexing is O(document) per append**, not O(chunk): the whole accumulated
-  source is re-tokenized each call. Use `createStream()` to batch per frame and
-  segment long transcripts into one `Markdown` entity per message so the live
-  document stays small.
+- **Lexing is incremental as of `0.8.1`.** `appendMarkdown` re-tokenizes only
+  from the last settled block boundary — a blank line outside any open
+  construct — and splices the result onto the already-stable token prefix, so
+  cost tracks the unstable tail rather than the document. Measured on a
+  200-section document (25 070 chars, 784 chunks): 5.81 ms Chrome 150 /
+  9.20 ms Firefox 153, against 428.07 / 451.76 ms for the previous
+  whole-document strategy, with the scaling exponent 0.99 / 1.23 instead of
+  1.94 / 2.01. Two constructs fall back to whole-document lexing because they
+  can rewrite already-emitted tokens: a link definition (`[x]: url`, whose
+  label map is consulted after all block tokens exist) and a line-start `$$`
+  math opener. A document built mostly of those streams at roughly the old
+  cost. `createStream()` is still worth using to batch per frame, and
+  segmenting a long transcript into one `Markdown` entity per message still
+  helps render and layout, but it is no longer needed to keep lexing cheap.
 - **Finished blocks are reused, not rebuilt.** `appendMarkdown` prefix-matches
   the new token list against the old one by raw source; every already-rendered
   block keeps its entity instance. The common streaming case — the last
