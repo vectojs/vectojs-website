@@ -41,3 +41,25 @@ Lorsquʼune composition IME est active, le composant dessine un soulignement sou
 - Le textarea natif transparent hérite de la police du canvas, de la hauteur de ligne,
   du padding et du contrat `border-box`, donc le clic-à-curseur et les lignes de sélection utilisent
   la même géométrie que le miroir canvas visible.
+
+## Défilement
+
+Le canvas suit le `scrollTop` de l'**élément natif** (2.10.0+). Le miroir est
+l'autorité en matière de défilement et le navigateur l'a déjà fait défiler, donc il
+n'y a aucun gestionnaire de molette — en ajouter un appliquerait le geste deux fois.
+
+Avant 2.10.0, la position de défilement du canvas était uniquement pilotée par le
+curseur, mise à jour quand `selectionStart` bougeait et jamais par la vue. Deux
+défauts en découlaient. Un geste de molette déplaçait l'élément réel tandis que le
+canvas restait sur place, si bien que le texte ne défilait pas du tout. Et comme
+`selectionStart` est initialisé à `value.length`, une TextArea fraîchement montée
+peignait le _bas_ de son contenu alors que l'élément natif se trouvait en haut —
+32,6 lignes de désaccord mesurées sur un document de 60 lignes, ce qui plaçait le
+curseur de chaque clic sur la mauvaise ligne.
+
+Le suivi du curseur est conservé comme repli lorsqu'aucun miroir n'existe. Le
+miroir définit aussi `scrollbar-width: none` : la gouttière d'une barre de
+défilement native réduit `clientWidth` en dessous de la largeur du canvas, si bien
+que les deux passent à la ligne à des endroits différents. Mesuré dans Firefox en
+2.9.0, une TextArea de 516px de large avait une gouttière de 12px, de sorte que
+l'élément natif passait à la ligne à 480px tandis que le canvas le faisait à 492px.

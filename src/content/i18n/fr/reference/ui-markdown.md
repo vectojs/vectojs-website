@@ -50,6 +50,7 @@ interface MarkdownOptions {
   theme?: MarkdownTheme;
   onLinkClick?: (href: string) => void;
   selectable?: boolean; // default true
+  userTiming?: boolean; // emit a `vecto:markdown:parse` measure, default false
 }
 ```
 
@@ -64,6 +65,56 @@ code délimité à travers la grille préparée partagée, de sorte que les list
 arabe/RTL enveloppé et le code conservent un ordre de copie logique à DPR et zoom fractionnaires.
 Lorsquʼune application gère le dimensionnement du conteneur ou le zoom CSS, notifiez la Scene avec
 `scene.resize(width, height)` afin que Firefox puisse recalibrer les métriques natives Range.
+
+## Couverture GFM
+
+Au-delà des paragraphes, titres, listes, code délimité et tableaux :
+
+| Construction        | Rendu sous forme de                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `~~strikethrough~~` | Un texte barré — un seul trait par suite fusionnée, dont l'épaisseur suit la taille de police (`0.8.0+`)           |
+| `- [ ]` / `- [x]`   | Un glyphe ☐ ou ☑ suivi d'une espace, qui remplace la puce ; `1.` puis le glyphe dans une liste ordonnée (`0.8.0+`) |
+| `\|:--\|--:\|:-:\|` | L'alignement des colonnes, transmis à `Table.align` (`0.8.0+`)                                                     |
+| `$…$` / ` ```math ` | Une formule composée par MathJax (en ligne / en bloc), convertie seulement une fois le délimiteur fermé            |
+
+## En-tête de métadonnées (Front matter)
+
+Un bloc YAML délimité par `---` en tête de document est une métadonnée, pas du
+contenu (`0.8.0+`) :
+
+```ts
+const md = new Markdown('---\ntitle: Release notes\ndate: 2026-08-03\n---\n# Body');
+
+md.frontMatter; // 'title: Release notes\ndate: 2026-08-03\n'
+md.frontMatterFields; // { title: 'Release notes', date: '2026-08-03' }
+```
+
+Avant `0.8.0`, ce bloc était rendu comme du contenu : `marked` n'a aucune notion
+d'en-tête de métadonnées, donc le `---` ouvrant déclenchait la règle du filet
+horizontal et le `---` fermant **soulignait les clés comme un titre setext**. Un
+document doté de métadonnées peignait donc un filet horizontal suivi d'un titre
+gras de 28px composé de ses propres clés.
+
+`frontMatterFields` est une commodité étroite, pas du YAML — les lignes indentées
+sont ignorées, de sorte que les mappages et séquences imbriqués ne débordent
+jamais sous forme de clés de premier niveau (la clé parente est présente avec une
+valeur vide). Pour tout besoin plus riche, confiez `md.frontMatter` à un véritable
+analyseur. `scanFrontMatter(text, complete)` et `parseFrontMatterFields(raw)` sont
+tous deux exportés pour être utilisés sur du texte brut.
+
+La reconnaissance est délibérément conservatrice, car un faux positif supprime
+silencieusement le début d'un document. Un `---` en tête n'est un en-tête de
+métadonnées que si la ligne suivante est une entrée de mappage YAML — `key: value`,
+avec une espace après le deux-points comme YAML l'exige — **et** qu'un `---` ou
+`...` fermant suit. Ainsi `---\n\n# Title`, `---\n# Title\n---`,
+`----\nkey: v\n----` et `---\n- a\n---` continuent tous de rendre un filet
+horizontal.
+
+Pendant le streaming, un fragment qui atterrit à l'intérieur d'un bloc non fermé
+est retenu plutôt qu'analysé lexicalement, afin que le document ne peigne pas un
+filet que le délimiteur fermant devrait ensuite démolir. Un bloc encore ouvert à
+la fermeture du flux est libéré comme contenu, et la retenue est bornée, si bien
+qu'un filet horizontal en tête d'un long document ne peut pas le bloquer.
 
 ## Flux en continu
 

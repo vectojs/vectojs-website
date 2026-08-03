@@ -44,10 +44,41 @@ interface MarkdownOptions {
   theme?: MarkdownTheme;
   onLinkClick?: (href: string) => void;
   selectable?: boolean; // default true
+  userTiming?: boolean; // emit a `vecto:markdown:parse` measure, default false
 }
 ```
 
 `selectable` 传播到当前和未来的标题、散文、列表、围栏代码和表格单元格。在运行时用 `markdown.setSelectable(false)` 更改它。浏览器拥有拖拽选择、Ctrl/Command+C 和页面内查找；VMT 实体仍然拥有布局和像素。有序和无序列表项使用可选择的 `RichText`；每个 GFM 表格单元格拥有一个可选择的投影。逻辑源顺序和硬/软分隔符在嵌套的 Markdown 输出中保持完整。Core 1.8 将变换后的散文通过二维光标几何路由，并将围栏代码通过共享的预备网格路由，因此列表、GFM 表格、换行的阿拉伯文/RTL 文本和代码在分数 DPR 和缩放下保留逻辑复制顺序。当应用拥有容器尺寸或 CSS 缩放时，用 `scene.resize(width, height)` 通知 Scene，以便 Firefox 可以重新校准原生 Range 度量。
+
+## GFM 覆盖范围
+
+除了段落、标题、列表、围栏代码和表格之外：
+
+| 结构                | 渲染为                                                                       |
+| ------------------- | ---------------------------------------------------------------------------- |
+| `~~strikethrough~~` | 带删除线的文本 —— 每个合并的文本段一道线，线宽按字号缩放（`0.8.0+`）         |
+| `- [ ]` / `- [x]`   | 用 ☐ 或 ☑ 字形加一个空格替换项目符号；有序列表时为 `1.` 加该字形（`0.8.0+`） |
+| `\|:--\|--:\|:-:\|` | 列对齐，转发给 `Table.align`（`0.8.0+`）                                     |
+| `$…$` / ` ```math ` | 由 MathJax 排版的公式（内联 / 块级），仅在定界符闭合后才转换                 |
+
+## 前置元数据（Front matter）
+
+文档开头由 `---` 界定的 YAML 块是元数据，而非内容（`0.8.0+`）：
+
+```ts
+const md = new Markdown('---\ntitle: Release notes\ndate: 2026-08-03\n---\n# Body');
+
+md.frontMatter; // 'title: Release notes\ndate: 2026-08-03\n'
+md.frontMatterFields; // { title: 'Release notes', date: '2026-08-03' }
+```
+
+在 `0.8.0` 之前，该块会作为内容渲染：`marked` 没有前置元数据的概念，因此开头的 `---` 命中了分隔线规则，而结尾的那个则**把这些键当作 setext 标题来加下划线**。于是带元数据的文档会绘制出一条水平分隔线，加上一个由其自身键构成的 28px 粗体标题。
+
+`frontMatterFields` 是一个狭义的便利功能，而非 YAML —— 缩进行会被跳过，因此嵌套的映射和序列绝不会作为顶级键泄漏出来（父键会存在，但值为空）。若需要更丰富的能力，请把 `md.frontMatter` 交给一个真正的解析器。`scanFrontMatter(text, complete)` 和 `parseFrontMatterFields(raw)` 都已导出，可用于原始文本。
+
+识别是有意保守的，因为一次误判会静默地删掉文档的开头部分。开头的 `---` 只有在下一行是一个 YAML 映射条目（`key: value`，且按 YAML 的要求在冒号后带空白字符）**并且**后面跟着一个结尾的 `---` 或 `...` 时，才是前置元数据。因此 `---\n\n# Title`、`---\n# Title\n---`、`----\nkey: v\n----` 和 `---\n- a\n---` 都仍然渲染为一条分隔线。
+
+在流式传输过程中，落在未闭合块内部的分块会被暂存而不是被词法分析，这样文档就不会先绘制出一条分隔线、再由结尾定界符把它拆掉。当流关闭时仍然处于打开状态的块会被释放为内容，而暂存是有界的，因此一篇长文档开头的一条分隔线无法让它停滞。
 
 ## 流式传输
 
