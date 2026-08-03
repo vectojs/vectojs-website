@@ -13,7 +13,7 @@ out.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Modal</span></div>
-  <iframe src="/sandbox/ui/component.html?name=modal&v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Modal live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=modal&v=core-1.28.0-ui-2.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Modal live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Open the modal, then close it with the canvas-rendered close button.</figcaption>
 </figure>
 

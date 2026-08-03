@@ -36,9 +36,13 @@ layoutTextIntoBuffer(text, fontAtlas, fontSize, buffer, exclusionMask?): void
   so re-preparing growing text (e.g. an LLM token stream) only measures new
   paragraphs.
 - **Rich text.** `StyledSpan = { text, style?: TextStyle }`; `TextStyle =
-{ fontSize?, color?, bold?, italic?, href? }`. A mid-word style change is
-  honored per-glyph. `fontSize` affects measured width + line height; the rest is
-  render metadata carried to the nodes (`PreparedGlyph.style` → `LayoutNode.style`).
+{ fontSize?, color?, bold?, italic?, fontFamily?, lineThrough?, href? }`. A
+  mid-word style change is honored per-glyph. `fontSize` and `fontFamily` affect
+  measured width + line height; the rest is render metadata carried to the nodes
+  (`PreparedGlyph.style` → `LayoutNode.style`). `lineThrough` (0.6.0+) is stroked
+  once per coalesced run rather than per glyph, with the weight scaled to the run's
+  size; there is no `underline` counterpart, since a link's underline is implied by
+  `href`.
 - **Exclusions (exclusion shapes).** `computeLineSegments(top, bottom, maxWidth,
 exclusions: ExclusionRect[]): LineSegment[]` is the pure, testable core: the
   free `[x0,x1)` intervals on a line band after subtracting overlapping rects.

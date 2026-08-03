@@ -41,3 +41,25 @@ Cuando una composición IME está activa, el componente dibuja un subrayado bajo
 - El textarea nativo transparente hereda la fuente del canvas, la altura de línea,
   el padding y el contrato `border-box`, por lo que el clic-para-cursor y las filas de selección usan
   la misma geometría que el espejo visible del canvas.
+
+## Desplazamiento
+
+El canvas sigue el `scrollTop` del **elemento nativo** (2.10.0+). El espejo es la
+autoridad del desplazamiento y el navegador ya lo ha desplazado, así que no hay
+ningún manejador de rueda — añadir uno aplicaría el gesto dos veces.
+
+Antes de 2.10.0 la posición de desplazamiento del canvas la dirigía solo el cursor,
+actualizándose cuando `selectionStart` se movía y nunca por la vista. De ahí se
+derivaban dos defectos. Un gesto de rueda movía el elemento real mientras el canvas
+se quedaba quieto, así que el texto no se desplazaba en absoluto. Y como
+`selectionStart` se inicializa a `value.length`, una TextArea recién montada pintaba
+la parte _inferior_ de su contenido mientras el elemento nativo permanecía arriba —
+32,6 filas de discrepancia medidas en un documento de 60 líneas, lo que dejaba el
+cursor de cada clic en la línea equivocada.
+
+El seguimiento del cursor se conserva como repliegue para cuando no existe ningún
+espejo. El espejo también establece `scrollbar-width: none`: el hueco de una barra
+de desplazamiento nativa reduce `clientWidth` por debajo del ancho del canvas, así
+que ambos ajustan el texto en puntos distintos. Medido en Firefox en 2.9.0, una
+TextArea de 516px de ancho tenía un hueco de 12px, así que el elemento nativo
+ajustaba a 480px mientras el canvas lo hacía a 492px.

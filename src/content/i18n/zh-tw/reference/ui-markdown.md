@@ -44,10 +44,41 @@ interface MarkdownOptions {
   theme?: MarkdownTheme;
   onLinkClick?: (href: string) => void;
   selectable?: boolean; // default true
+  userTiming?: boolean; // emit a `vecto:markdown:parse` measure, default false
 }
 ```
 
 `selectable` 會傳播到當前和未來的標題、文章、列表、圍欄程式碼和表格儲存格。在執行階段使用 `markdown.setSelectable(false)` 變更它。瀏覽器擁有拖曳選取、Ctrl/Command+C 和頁面內尋找；VMT entity 仍擁有布局和像素。有序和無序列表項目使用可選取的 `RichText`；每個 GFM 表格儲存格擁有一個可選取的投射。邏輯來源順序和硬/軟分隔符在巢狀的 Markdown 輸出中維持完整。Core 1.8 透過二維游標幾何路由變換過的文章，並透過共用的預備網格路由圍欄程式碼，因此列表、GFM 表格、換行的阿拉伯文/RTL 文字和程式碼在分數 DPR 和縮放下保留邏輯複製順序。當應用程式擁有容器尺寸或 CSS 縮放時，使用 `scene.resize(width, height)` 通知 Scene，讓 Firefox 可以重新校準原生 Range 度量。
+
+## GFM 覆蓋範圍
+
+除了段落、標題、列表、圍欄程式碼和表格之外：
+
+| 建構式              | 渲染為                                                                       |
+| ------------------- | ---------------------------------------------------------------------------- |
+| `~~strikethrough~~` | 帶刪除線的文字 — 每個合併的文字段一道線，線寬按字級縮放（`0.8.0+`）          |
+| `- [ ]` / `- [x]`   | 用 ☐ 或 ☑ 字形加一個空格取代項目符號；有序列表時為 `1.` 加該字形（`0.8.0+`） |
+| `\|:--\|--:\|:-:\|` | 欄對齊，轉發給 `Table.align`（`0.8.0+`）                                     |
+| `$…$` / ` ```math ` | 由 MathJax 排版的公式（行內 / 區塊），僅在定界符閉合後才轉換                 |
+
+## 前置元資料（Front matter）
+
+文件開頭由 `---` 界定的 YAML 區塊是元資料，而非內容（`0.8.0+`）：
+
+```ts
+const md = new Markdown('---\ntitle: Release notes\ndate: 2026-08-03\n---\n# Body');
+
+md.frontMatter; // 'title: Release notes\ndate: 2026-08-03\n'
+md.frontMatterFields; // { title: 'Release notes', date: '2026-08-03' }
+```
+
+在 `0.8.0` 之前，該區塊會作為內容渲染：`marked` 沒有前置元資料的概念，因此開頭的 `---` 命中了分隔線規則，而結尾的那個則**把這些鍵當作 setext 標題來加底線**。於是帶元資料的文件會繪製出一條水平分隔線，加上一個由其自身鍵構成的 28px 粗體標題。
+
+`frontMatterFields` 是一個狹義的便利功能，而非 YAML — 縮排行會被跳過，因此巢狀的映射和序列絕不會作為頂層鍵洩漏出來（父鍵會存在，但值為空）。若需要更豐富的能力，請把 `md.frontMatter` 交給一個真正的解析器。`scanFrontMatter(text, complete)` 和 `parseFrontMatterFields(raw)` 都已匯出，可用於原始文字。
+
+識別是刻意保守的，因為一次誤判會靜默地刪掉文件的開頭部分。開頭的 `---` 只有在下一行是一個 YAML 映射條目（`key: value`，且按 YAML 的要求在冒號後帶空白字元）**並且**後面跟著一個結尾的 `---` 或 `...` 時，才是前置元資料。因此 `---\n\n# Title`、`---\n# Title\n---`、`----\nkey: v\n----` 和 `---\n- a\n---` 都仍然渲染為一條分隔線。
+
+在串流過程中，落在未閉合區塊內部的區塊會被暫存而不是被詞法分析，這樣文件就不會先繪製出一條分隔線、再由結尾定界符把它拆掉。當串流關閉時仍然處於開啟狀態的區塊會被釋放為內容，而暫存是有界的，因此一篇長文件開頭的一條分隔線無法讓它停滯。
 
 ## 串流
 

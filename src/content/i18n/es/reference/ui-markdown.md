@@ -50,6 +50,7 @@ interface MarkdownOptions {
   theme?: MarkdownTheme;
   onLinkClick?: (href: string) => void;
   selectable?: boolean; // default true
+  userTiming?: boolean; // emit a `vecto:markdown:parse` measure, default false
 }
 ```
 
@@ -64,6 +65,56 @@ el código de bloque a través de la cuadrícula preparada compartida, por lo qu
 árabe/RTL con ajuste y código mantienen el orden de copia lógico a DPR y zoom fraccionarios.
 Cuando una aplicación controla el tamaño del contenedor o el zoom CSS, notifica a la Scene con
 `scene.resize(width, height)` para que Firefox pueda recalibrar las métricas nativas de Range.
+
+## Cobertura de GFM
+
+Más allá de párrafos, encabezados, listas, código de bloque y tablas:
+
+| Constructo          | Se renderiza como                                                                                                  |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `~~strikethrough~~` | Texto tachado — un solo trazo por tramo fusionado, con grosor escalado al tamaño de la fuente (`0.8.0+`)           |
+| `- [ ]` / `- [x]`   | Un glifo ☐ o ☑ seguido de un espacio, que reemplaza la viñeta; `1.` y luego el glifo cuando es ordenada (`0.8.0+`) |
+| `\|:--\|--:\|:-:\|` | La alineación de columnas, reenviada a `Table.align` (`0.8.0+`)                                                    |
+| `$…$` / ` ```math ` | Una fórmula compuesta por MathJax (en línea / en bloque), convertida solo una vez que el delimitador cierra        |
+
+## Metadatos iniciales (Front matter)
+
+Un bloque YAML delimitado por `---` al inicio del documento es metadato, no
+contenido (`0.8.0+`):
+
+```ts
+const md = new Markdown('---\ntitle: Release notes\ndate: 2026-08-03\n---\n# Body');
+
+md.frontMatter; // 'title: Release notes\ndate: 2026-08-03\n'
+md.frontMatterFields; // { title: 'Release notes', date: '2026-08-03' }
+```
+
+Antes de `0.8.0` el bloque se renderizaba como contenido: `marked` no tiene noción
+de metadatos iniciales, así que el `---` de apertura activaba la regla de la línea
+divisoria y el de cierre **subrayaba las claves como un encabezado setext**. Un
+documento con metadatos pintaba por tanto una línea horizontal más un encabezado
+en negrita de 28px formado por sus propias claves.
+
+`frontMatterFields` es una comodidad limitada, no YAML — las líneas indentadas se
+omiten, así que los mapeos y secuencias anidados nunca se filtran como claves de
+nivel superior (la clave padre está presente con un valor vacío). Para cualquier
+necesidad más rica, entrega `md.frontMatter` a un analizador de verdad. Tanto
+`scanFrontMatter(text, complete)` como `parseFrontMatterFields(raw)` se exportan
+para usarse sobre texto sin procesar.
+
+El reconocimiento es deliberadamente conservador, porque un falso positivo borra
+en silencio el inicio de un documento. Un `---` inicial es metadato solo cuando la
+línea siguiente es una entrada de mapeo YAML — `key: value`, con un espacio tras
+los dos puntos como YAML exige — **y** le sigue un `---` o `...` de cierre. Así que
+`---\n\n# Title`, `---\n# Title\n---`, `----\nkey: v\n----` y `---\n- a\n---` todos
+siguen renderizando una línea divisoria.
+
+Durante el streaming, un fragmento que aterriza dentro de un bloque sin cerrar se
+retiene en lugar de analizarse léxicamente, de modo que el documento no pinta una
+línea que el delimitador de cierre tendría luego que derribar. Un bloque que sigue
+abierto cuando el flujo se cierra se libera como contenido, y la retención está
+acotada, así que una línea divisoria al inicio de un documento largo no puede
+estancarlo.
 
 ## Transmisión por streaming
 

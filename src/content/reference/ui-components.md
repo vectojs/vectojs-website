@@ -7,7 +7,7 @@ order: 11
 # `@vectojs/ui` — Component Reference
 
 > Reusable high-level components for the VectoJS zero-DOM Canvas engine.
-> Version documented: **2.8.0**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
+> Version documented: **2.10.0**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
 
 Every component is a leaf or container in the Virtual Math Tree (VMT). Nothing here is real DOM — components draw themselves to a Canvas via an `IRenderer`. Accessibility, agent automation, and crawlability come from a parallel **A11y Shadow DOM**: when a component is `interactive`, the `Scene` projects a single hidden, transparent real DOM node positioned over the component's box, built from `getA11yAttributes()`. That is why `page.getByRole('button', { name })` / `fill()` / screen readers work against a pure-Canvas UI.
 
@@ -625,8 +625,10 @@ interface TableOptions {
   headers: (string | Entity)[];     // required; Entity instances must be unique
   rows: (string | Entity)[][];      // required (2D row × col)
   colWidths?: number[];       // per-column px; must match headers.length, else evenly distributed
+  align?: ColumnAlign[];      // per-column 'left' | 'center' | 'right' | null (null = left)
   width?: number;             // total width, default 600
   rowHeight?: number;         // default 36
+  viewportHeight?: number;    // virtualize: fix height, pin header, scroll body
   bg?: string;                // default 'rgba(15, 15, 25, 0.4)'
   headerBg?: string;          // default 'rgba(255, 255, 255, 0.08)'
   borderColor?: string;       // default 'rgba(255, 255, 255, 0.15)'
@@ -636,6 +638,8 @@ interface TableOptions {
   selectable?: boolean;       // native cell-text selection, default true
 }
 ```
+
+Column alignment is applied by **positioning the cell entity**, not by a text-alignment property — `setTextAlign` accepts only `'left' | 'justify'`. For a wrapped multi-line cell that aligns the block rather than each line within it.
 
 Canvas-native data grid: string cells become Text child entities, Entity cells are constrained through public `setMaxWidth()`, and `layout()` resolves wrapping, row heights, and positions before the draw-only `render()` pass. Call `layout()` after changing external cell content. Each cell owns one content projection. A11y: projects `{ role: 'grid', label: 'Data table with N columns and M rows.' }` for assistive tech. Also the renderer for GFM tables inside `Markdown`.
 

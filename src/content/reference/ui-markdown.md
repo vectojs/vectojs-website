@@ -20,7 +20,7 @@ Paragraphs and headings become `RichText`, fenced code becomes `CodeBlock`, and 
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.28.0-ui-2.10.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>The sample keeps prose, links, inline code and a fenced block in one focused viewport so layout defects are visible.</figcaption>
 </figure>
 
@@ -50,8 +50,55 @@ interface MarkdownOptions {
   theme?: MarkdownTheme;
   onLinkClick?: (href: string) => void;
   selectable?: boolean; // default true
+  userTiming?: boolean; // emit a `vecto:markdown:parse` measure, default false
 }
 ```
+
+## GFM coverage
+
+Beyond paragraphs, headings, lists, fenced code and tables:
+
+| Construct           | Renders as                                                                                     |
+| ------------------- | ---------------------------------------------------------------------------------------------- |
+| `~~strikethrough~~` | A struck run — one stroke per coalesced run, weight scaled to size (`0.8.0+`)                  |
+| `- [ ]` / `- [x]`   | A ☐ or ☑ glyph plus a space, replacing the bullet; `1.` then the glyph when ordered (`0.8.0+`) |
+| `\|:--\|--:\|:-:\|` | Column alignment, forwarded to `Table.align` (`0.8.0+`)                                        |
+| `$…$` / ` ```math ` | MathJax-typeset formula (inline / block), converted only once the delimiter closes             |
+
+## Front matter
+
+A leading `---`-delimited YAML block is metadata, not content (`0.8.0+`):
+
+```ts
+const md = new Markdown('---\ntitle: Release notes\ndate: 2026-08-03\n---\n# Body');
+
+md.frontMatter; // 'title: Release notes\ndate: 2026-08-03\n'
+md.frontMatterFields; // { title: 'Release notes', date: '2026-08-03' }
+```
+
+Before `0.8.0` the block rendered as content: `marked` has no notion of front
+matter, so the opening `---` hit the thematic-break rule and the closing one
+**underlined the keys as a setext heading**. A document with metadata therefore
+painted a horizontal rule plus a 28px bold heading made of its own keys.
+
+`frontMatterFields` is a narrow convenience, not YAML — indented lines are
+skipped, so nested mappings and sequences never leak out as top-level keys (the
+parent key is present with an empty value). For anything richer, hand
+`md.frontMatter` to a real parser. Both `scanFrontMatter(text, complete)` and
+`parseFrontMatterFields(raw)` are exported for use on raw text.
+
+Recognition is deliberately conservative, because a false positive silently
+deletes the top of a document. A leading `---` is front matter only when the next
+line is a YAML mapping entry — `key: value`, with whitespace after the colon as
+YAML requires — **and** a closing `---` or `...` follows. So `---\n\n# Title`,
+`---\n# Title\n---`, `----\nkey: v\n----` and `---\n- a\n---` all keep rendering a
+thematic break.
+
+While streaming, a chunk landing inside an unclosed block is held rather than
+lexed, so the document does not paint a rule that the closing delimiter then has
+to tear down. A block still open when the stream closes is released as content,
+and the hold is bounded, so a thematic break at the top of a long document cannot
+stall it.
 
 `selectable` propagates to current and future headings, prose, lists, fenced
 code, and table cells. Change it at runtime with `markdown.setSelectable(false)`.
