@@ -12,7 +12,7 @@ order: 37
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Tooltip</span></div>
-  <iframe src="/sandbox/ui/component.html?name=tooltip&v=core-1.28.0-ui-2.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Tooltip live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=tooltip&v=core-1.28.1-ui-2.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Tooltip live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Hover the target to verify placement and dismissal.</figcaption>
 </figure>
 

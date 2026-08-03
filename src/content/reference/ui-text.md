@@ -15,7 +15,7 @@ paragraphs, so native selection, copy, find-in-page, and translation do not inhe
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Text</span></div>
-  <iframe src="/sandbox/ui/component.html?name=text&v=core-1.28.0-ui-2.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Text live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=text&v=core-1.28.1-ui-2.10.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Text live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Resize the page to inspect hot `maxWidth` reflow in a focused viewport.</figcaption>
 </figure>
 
