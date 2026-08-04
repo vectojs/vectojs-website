@@ -49,6 +49,33 @@ const scene = new Scene(canvas, { pointBackend: 'webgl', maxDPR: 2 });
 
 `maxDPR: 2` 保持顯示視網膜清晰（2× 已經超過大多數眼睛在正常觀看距離下的分辨能力），同時限制了後備儲存像素數量——在 DPR 3 下大約減半，因為 `2² / 3² ≈ 0.44×` 像素。在此選項出現之前，唯一的解決方法是在建構 Scene 之前猴子補丁 `window.devicePixelRatio`；現在首選 `maxDPR`——它在每次調整大小時正確重新套用，而一次性 `Object.defineProperty` 補丁則做不到。
 
+### 兩個投影邊距
+
+內容投影有兩個獨立的層級，從 `1.31.0` 起每層都有自己的邊距：
+
+- **語意層**（`contentSemanticMargin`）—— 這個區塊是否有_任何_ DOM？擁有 DOM 的區塊會把它的文字提供給瀏覽器原生的頁內尋找、複製以及螢幕閱讀器的預讀。
+- **互動層**（`contentProjectionMargin`）—— 是否建構該區塊的_逐行載體_？載體為瀏覽器提供逐行的選取幾何資訊。
+
+在拆分之前，一個純量同時控制兩者，因此只存在兩種配置：有限值會完全釋放螢幕外的區塊，使螢幕外文字無法被尋找；而 `Infinity` 會同時實體化文件中的每一個載體。
+
+將兩者分開後，就得到了真正有用的中間狀態：
+
+```ts
+const scene = new Scene(canvas, {
+  // Every block keeps its text, so find-in-page sees the whole document.
+  contentSemanticMargin: Infinity,
+  // Carriers stay bounded by the viewport, so cost scales with what is visible.
+  contentProjectionMargin: scene.height,
+});
+```
+
+> [!IMPORTANT]
+> `Infinity` 對 `contentSemanticMargin` 是安全的，對 `contentProjectionMargin` **不是**。使其不受支援的成本來自未加視窗化的載體帶，而不是常駐文字。
+
+位於互動邊距之外但在語意邊距之內的區塊，會把它的完整文字投影為單個節點，且**沒有**載體子節點。它可被尋找和複製；僅缺少逐行的選取幾何資訊，而在把它捲動進視口之前本來也無法觸及那部分。
+
+值得了解一次性成本：常駐層級在首次同步時為每個區塊實體化一個元素，實測約為每個新建節點 13 µs —— 在 1000 個區塊時約 47 ms。穩定狀態很便宜，因為能標記自身內容的實體讓 Scene 可以完全跳過未變更區塊的重新投影。所以這是文件開啟時的成本，而不是每一影格的成本。
+
 ## 公開欄位
 
 ```ts

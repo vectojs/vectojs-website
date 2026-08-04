@@ -55,6 +55,33 @@ const scene = new Scene(canvas, { pointBackend: 'webgl', maxDPR: 2 });
 
 `maxDPR: 2`는 디스플레이를 레티나 선명도로 유지하면서(2배는 일반 시청 거리에서 대부분의 눈이 해결할 수 있는 한계를 초과), 백킹 스토어 픽셀 수를 제한합니다 — DPR 3에서 `2² / 3² ≈ 0.44×`의 픽셀로 약 절반입니다. 이 옵션이 존재하기 전에는 Scene 구축 전에 `window.devicePixelRatio`를 몽키패치하는 것만이 해결책이었습니다. 이제는 `maxDPR`를 사용하세요 — 모든 리사이즈에서 올바르게 재적용되며, 일회성 `Object.defineProperty` 패치로는 불가능합니다.
 
+### 두 개의 투영 마진
+
+콘텐츠 투영에는 두 개의 독립적인 계층이 있으며, `1.31.0` 이후 각 계층은 자체 마진을 가집니다:
+
+- **시맨틱**(`contentSemanticMargin`) — 이 블록에 _어떤_ DOM이라도 있는가? DOM을 가진 블록은 네이티브 페이지 내 검색, 복사, 스크린 리더의 미리 읽기에 자신의 텍스트를 제공합니다.
+- **인터랙션**(`contentProjectionMargin`) — 해당 블록의 _행 단위 캐리어_를 구축하는가? 캐리어는 브라우저에 선택을 위한 행 단위 기하 정보를 제공합니다.
+
+분할 전에는 하나의 스칼라가 둘 다를 제어했기 때문에 두 가지 구성만 존재했습니다. 유한한 마진은 화면 밖 블록을 완전히 해제하여 화면 밖 텍스트를 검색할 수 없게 만들었고, `Infinity`는 문서의 모든 캐리어까지 실체화했습니다.
+
+둘을 분리하면 유용한 중간 지점이 생깁니다:
+
+```ts
+const scene = new Scene(canvas, {
+  // Every block keeps its text, so find-in-page sees the whole document.
+  contentSemanticMargin: Infinity,
+  // Carriers stay bounded by the viewport, so cost scales with what is visible.
+  contentProjectionMargin: scene.height,
+});
+```
+
+> [!IMPORTANT]
+> `Infinity`는 `contentSemanticMargin`에서는 안전하지만 `contentProjectionMargin`에서는 **안전하지 않습니다**. 지원되지 않는 이유가 되는 비용은 상주 텍스트가 아니라 윈도우 처리되지 않은 캐리어 대역에서 발생합니다.
+
+인터랙션 마진 밖이지만 시맨틱 마진 안에 있는 블록은 전체 텍스트를 단일 노드로 투영하며 캐리어 자식을 **가지지 않습니다**. 검색과 복사가 가능하고, 없는 것은 행 단위 선택 기하 정보뿐인데 그것은 뷰포트로 스크롤하지 않으면 어차피 접근할 수 없습니다.
+
+일회성 비용은 알아둘 만합니다. 상주 계층은 첫 동기화에서 블록당 하나의 요소를 실체화하며, 생성된 노드당 약 13 µs로 측정되었습니다 — 1000개 블록에서 약 47 ms입니다. 정상 상태는 저렴합니다. 자신의 콘텐츠를 스탬프할 수 있는 엔티티 덕분에 Scene이 변경되지 않은 블록의 재투영을 완전히 건너뛸 수 있기 때문입니다. 따라서 이것은 문서를 열 때의 비용이며 프레임당 비용이 아닙니다.
+
 ## 공개 필드
 
 ```ts

@@ -67,6 +67,52 @@ pixels. Avant que cette option n'existe, la seule solution était de monkey-patc
 maintenant — il est réappliqué correctement à chaque redimensionnement, ce qu'un
 `Object.defineProperty` ponctuel ne fait pas.
 
+### Deux marges de projection
+
+La projection de contenu comporte deux niveaux indépendants, et depuis `1.31.0`
+chacun possède sa propre marge :
+
+- **sémantique** (`contentSemanticMargin`) — ce bloc a-t-il _un quelconque_ DOM ?
+  Un bloc doté de DOM fournit son texte à la recherche native dans la page, à la
+  copie et à la lecture anticipée des lecteurs d'écran.
+- **interaction** (`contentProjectionMargin`) — les _porteurs par ligne_ de ce
+  bloc sont-ils construits ? Les porteurs donnent au navigateur la géométrie
+  ligne par ligne nécessaire à la sélection.
+
+Avant la séparation, un seul scalaire armait les deux, de sorte qu'il n'existait
+que deux configurations : une marge finie libérait entièrement les blocs hors
+écran, rendant le texte hors écran introuvable, tandis qu'`Infinity` matérialisait
+aussi tous les porteurs du document.
+
+Les séparer offre le juste milieu utile :
+
+```ts
+const scene = new Scene(canvas, {
+  // Every block keeps its text, so find-in-page sees the whole document.
+  contentSemanticMargin: Infinity,
+  // Carriers stay bounded by the viewport, so cost scales with what is visible.
+  contentProjectionMargin: scene.height,
+});
+```
+
+> [!IMPORTANT]
+> `Infinity` est sûr pour `contentSemanticMargin` et **ne l'est pas** pour
+> `contentProjectionMargin`. Le coût qui le rend non pris en charge provient
+> d'une bande de porteurs non fenêtrée, non du texte résident.
+
+Un bloc situé hors de la marge d'interaction mais dans la marge sémantique
+projette son texte complet sous forme d'un nœud unique, **sans** porteur enfant.
+Il reste trouvable et copiable ; seule la géométrie de sélection par ligne est
+absente, et celle-ci est de toute façon inaccessible sans le faire défiler dans
+la vue.
+
+Le coût unique mérite d'être connu : un niveau résident matérialise un élément par
+bloc lors de la première synchronisation, mesuré à environ 13 µs par nœud créé —
+soit environ 47 ms pour 1000 blocs. Le régime stable est peu coûteux, car une
+entité qui estampille son propre contenu permet à Scene d'ignorer entièrement la
+reprojection d'un bloc inchangé. Il s'agit donc d'un coût à l'ouverture du
+document, et non d'un coût par image.
+
 ## Champs publics
 
 ```ts

@@ -253,11 +253,19 @@ The materialized window is published as `data-vecto-projection-window` on the
 mirror, so tooling can tell "this line is not here" from "this line does not
 exist".
 
-How far beyond the viewport to keep lines and entities is
-`contentProjectionMargin` (see [`SceneOptions`](/reference/core-scene/#sceneoptions)),
-defaulting to one viewport height. `Infinity` disables windowing and materializes
-everything, which is occasionally useful for a test that wants the whole document
-in the DOM.
+How far beyond the viewport to keep **lines** is `contentProjectionMargin`, and
+how far to keep the **entities** themselves is `contentSemanticMargin` (both under
+[`SceneOptions`](/reference/core-scene/#sceneoptions)); each defaults to one
+viewport height. They are separate tiers since `1.31.0`: `contentSemanticMargin:
+Infinity` keeps the whole document's text in the DOM — findable and copyable —
+while a finite `contentProjectionMargin` keeps the per-line carriers bounded by
+the viewport. See
+[Two projection margins](/reference/core-scene/#two-projection-margins).
+
+> [!IMPORTANT]
+> `Infinity` is unsupported for `contentProjectionMargin` specifically: it
+> unwindows every carrier in the document, which is O(total document glyphs).
+> Use `contentSemanticMargin` when the goal is whole-document findability.
 
 Core calibrates the retained carriers after fonts load and routes pointer
 selection in local grid space. Firefox font substitution, DPR, browser zoom,
