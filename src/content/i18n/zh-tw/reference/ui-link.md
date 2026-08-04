@@ -12,7 +12,7 @@ order: 18
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Link</span></div>
-  <iframe src="/sandbox/ui/component.html?name=link&v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Link live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=link&v=core-1.30.0-ui-2.12.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Link live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>可見文字是 canvas；自動化和輔助技術會看到一個真實的錨點。</figcaption>
 </figure>
 

@@ -178,6 +178,47 @@ getContentProjection() {
 }
 ```
 
+### Ventaneo por línea con `ContentProjectionHint` (`1.30.0+`)
+
+Las entidades fuera del viewport se omiten por completo, pero una entidad **más alta que el viewport** siempre pasa ese filtro, y antes espejaba luego cada una de sus líneas. Un documento largo producía un nodo DOM por línea visual para todo el documento (medido: 14,8 k elementos para un documento Markdown de 346 KB).
+
+Scene ahora pasa una pista que describe la banda vertical, local a la entidad, que merece la pena proyectar, y solo espeja las líneas que caen dentro:
+
+```ts
+interface ContentProjectionHint {
+  minY?: number; // entity-local top of the band worth projecting
+  maxY?: number; // entity-local bottom
+}
+```
+
+Respetarla es opcional: ignora el argumento y todo sigue funcionando, solo sin el ahorro. Medido en un documento de 4.000 líneas:
+
+|           | antes         | después         |
+| --------- | ------------- | --------------- |
+| Chrome    | 4.21 ms/frame | 0.20 ms (21.1x) |
+| Firefox   | 4.83 ms/frame | 0.14 ms (34.5x) |
+| Hijos DOM | 36.000        | 1.026 (35x)     |
+
+El coste proyectado es entonces **plano** en un rango de 20x de tamaños de documento, porque sigue al viewport y no al documento.
+
+Usa `contentLineInHint(hint, y, height)` para que toda implementación redondee el límite de forma idéntica:
+
+```ts
+getContentProjection(hint?: ContentProjectionHint) {
+  const lines = this.allLines.filter((l) => contentLineInHint(hint, l.y, l.lineHeight));
+  return { text: this.text, selectable: true, lines };
+}
+```
+
+> [!IMPORTANT]
+> Emite una serie **contigua** de líneas, y nunca una vacía mientras `text` no esté vacío. El orden del DOM es el que recorre el navegador al extender una selección o serializar una copia, así que un hueco permite que un arrastre que lo cruce omita en silencio las líneas intermedias. Un `lines` vacío con un `text` no vacío hace que Scene recurra a proyectar un único nodo de texto para todo el documento.
+
+Una proyección en cuadrícula es distinta: mantén `lines` **disperso y alineado por índice** con el documento, porque Scene lo indexa por número de fila absoluto. Compactarlo entrega la geometría de la fila 20 a la fila 0 y coloca mal cada portador, sin ningún error, solo con una geometría de selección equivocada.
+
+La ventana materializada se publica como `data-vecto-projection-window` en el espejo, de modo que las herramientas puedan distinguir «esta línea no está aquí» de «esta línea no existe».
+
+Cuánto más allá del viewport conservar líneas y entidades lo determina `contentProjectionMargin` (véase [`SceneOptions`](/reference/core-scene/#sceneoptions)), cuyo valor predeterminado es una altura de viewport. `Infinity` desactiva el ventaneo y materializa todo, lo que resulta útil de vez en cuando para una prueba que quiere todo el documento en el DOM.
+
 Core calibra los portadores retenidos después de que las fuentes cargan y enruta la selección
 de puntero en espacio de cuadrícula local. La sustitución de fuentes de Firefox, DPR, zoom del navegador,
 rotación, transformaciones de espejo y escalado no uniforme utilizan por lo tanto un único plan

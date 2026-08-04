@@ -115,6 +115,63 @@ con colores del sistema CSS (`ButtonFace`, `ButtonText`, `Highlight`, `Canvas`,
 `CanvasText`); la escena se repinta automáticamente cuando la configuración cambia.
 `Button` ya hace esto.
 
+## Coste de la proyección con muchas entidades (`1.30.0+`)
+
+Cada entidad interactiva que tiene una caja obtiene un nodo sombra mientras siga siendo interactiva. Eso es correcto para un botón e incorrecto para miles de entidades efímeras e individualmente insignificantes — partículas, comentarios danmaku, nodos de un grafo — donde produce un nodo DOM por entidad, en cada frame.
+
+Medido con 5.000 entidades interactivas en movimiento:
+
+|                              | Chrome        | Firefox        |
+| ---------------------------- | ------------- | -------------- |
+| toda entidad interactiva     | 66.4 ms/frame | 114.7 ms/frame |
+| `a11yProjection: 'onDemand'` | 2.23 ms       | 1.69 ms        |
+| ningún nodo sombra           | 1.35 ms       | 1.75 ms        |
+
+Ambas filas eager no alcanzan ni un presupuesto de 60 Hz. `'onDemand'` se sitúa en el suelo de no proyectar nada, mientras cada entidad sigue siendo alcanzable individualmente.
+
+`Entity.a11yProjection` selecciona cuándo se materializa el nodo:
+
+```ts
+particle.a11yProjection = 'onDemand';
+```
+
+- **`'eager'`** (predeterminado): existe un nodo mientras la entidad sea interactiva y tenga caja. Comportamiento sin cambios; déjalo así para controles ordinarios.
+- **`'onDemand'`**: existe un nodo solo mientras la entidad está _en uso_. Úsalo para entidades interactivas de alta cardinalidad.
+- **`'never'`**: ningún nodo. Prefiere `interactive = false` a menos que la entidad realmente necesite eventos de puntero sin presencia semántica.
+
+### Qué cuenta como en uso
+
+Tres señales, cualquiera de ellas basta. Deliberadamente **no** el hover en solitario: una persona que usa teclado o lector de pantalla no genera eventos de puntero, así que un nodo condicionado al hover se les negaría precisamente a los usuarios para los que existe.
+
+- **El foco.** Un nodo enfocado nunca se poda, así que el foco no puede arrancarse a alguien en mitad de una interacción.
+- **Que el puntero esté dentro de la entidad.**
+- **Una petición explícita**: véase más abajo.
+
+La entidad sigue siendo comprobable por impacto en el canvas todo el tiempo, así que un clic siempre la alcanza y la promueve.
+
+```ts
+// Keep the selected item projected for as long as it is selected.
+scene.requestA11yProjection(selected);
+scene.releaseA11yProjection(previous);
+```
+
+Ambas aceptan una `Entity` o una cadena de id y son idempotentes. Liberar no elimina el nodo de inmediato: sobrevive mientras tenga el foco o esté bajo el puntero, y se poda en la siguiente sincronización que lo encuentre sin uso. Ambas no hacen nada para una entidad `'eager'`, que siempre se proyecta.
+
+Usa una petición explícita para cualquier cosa cuya importancia solo conoce la aplicación: una selección, un resultado de búsqueda, un elemento recién anunciado en una región activa.
+
+> [!IMPORTANT]
+> Una entidad que proyecta su propio **texto seleccionable** nunca es promovida por el puntero. Su nodo sombra lleva `pointer-events: auto` y se apila sobre el espejo de texto transparente, así que materializar uno bajo el puntero se traga el `mousedown` y la selección nativa por arrastre nunca comienza. El foco y las peticiones explícitas siguen alcanzándola. Es el mismo conflicto que hace que [`Text`](/reference/ui-text/) y `RichText` no sean interactivos por defecto.
+
+La cardinalidad no es por sí sola el criterio para recurrir a `'onDemand'`, y este es el caso que más fácilmente se juzga mal:
+
+> [!WARNING]
+> **No apliques `'onDemand'` al cuerpo de texto por analogía con las partículas.** Para un botón o un nodo de grafo, la entidad del canvas es el sujeto y el nodo sombra es un proxy semántico temporal, así que retenerlo hasta que esté en uso no pierde nada. Para prosa, Markdown o una transcripción de chat, el bitmap del canvas no es legible en absoluto por un lector de pantalla, y _leer es la interacción principal_ para una persona no vidente en lugar de un acto ocasional. Las entidades de texto no son interactivas por defecto y es su [proyección de contenido](/reference/core-renderer/#entitygetcontentprojection) — no un nodo sombra — la que porta su semántica; esa proyección se virtualiza por línea y permanece residente.
+
+Ser alcanzable individualmente tampoco es lo mismo que ser comprendido:
+
+> [!NOTE]
+> `'onDemand'` no es por sí solo una historia de accesibilidad completa. Mil danmaku alcanzables individualmente siguen sin decir nada en conjunto. Combínalo con una única región activa agregada (`role: 'status'`, `a11yFullViewport`) más un pequeño grupo de puntos calientes persistentes para la selección actual, de modo que el número de nodos DOM se mantenga constante en lugar de escalar con el número de entidades.
+
 ## Controles y problemas
 
 - `data-vecto-id` en cada nodo sombra refleja el `id` de la entidad — el identificador estable

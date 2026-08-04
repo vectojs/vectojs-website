@@ -13,7 +13,7 @@ exposing `role="slider"` with `valuemin`, `valuemax`, and live `value` metadata.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Slider</span></div>
-  <iframe src="/sandbox/ui/slider.html?v=core-1.29.0-ui-2.11.0" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Slider live demo" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/slider.html?v=core-1.30.0-ui-2.12.0" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Slider live demo" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Drag the thumb and watch the label and progress bar update from the same change event.</figcaption>
 </figure>
 

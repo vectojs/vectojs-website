@@ -181,6 +181,47 @@ getContentProjection() {
 }
 ```
 
+### Fenêtrage par ligne avec `ContentProjectionHint` (`1.30.0+`)
+
+Les entités hors viewport sont entièrement ignorées, mais une entité **plus haute que le viewport** passe toujours ce filtre — et elle miroitait ensuite chacune de ses lignes. Un long document produisait un nœud DOM par ligne visuelle pour l'ensemble du document (mesuré : 14,8 k éléments pour un document Markdown de 346 Ko).
+
+Scene passe désormais une indication décrivant la bande verticale, locale à l'entité, qui vaut la peine d'être projetée, et ne miroite que les lignes qui s'y trouvent :
+
+```ts
+interface ContentProjectionHint {
+  minY?: number; // entity-local top of the band worth projecting
+  maxY?: number; // entity-local bottom
+}
+```
+
+L'honorer est facultatif — ignorez l'argument et tout fonctionne encore, simplement sans l'économie. Mesuré sur un document de 4 000 lignes :
+
+|             | avant         | après           |
+| ----------- | ------------- | --------------- |
+| Chrome      | 4.21 ms/frame | 0.20 ms (21.1x) |
+| Firefox     | 4.83 ms/frame | 0.14 ms (34.5x) |
+| Enfants DOM | 36 000        | 1 026 (35x)     |
+
+Le coût projeté est alors **plat** sur une plage de tailles de document de 20x, parce qu'il suit le viewport et non le document.
+
+Utilisez `contentLineInHint(hint, y, height)` afin que chaque implémentation arrondisse la limite de façon identique :
+
+```ts
+getContentProjection(hint?: ContentProjectionHint) {
+  const lines = this.allLines.filter((l) => contentLineInHint(hint, l.y, l.lineHeight));
+  return { text: this.text, selectable: true, lines };
+}
+```
+
+> [!IMPORTANT]
+> Émettez une suite **contiguë** de lignes, et jamais une suite vide tant que `text` n'est pas vide. L'ordre du DOM est celui que le navigateur parcourt pour étendre une sélection ou sérialiser une copie, donc un trou laisse un glissement qui le traverse omettre silencieusement les lignes intermédiaires. Un `lines` vide avec un `text` non vide fait retomber Scene sur la projection d'un seul nœud de texte pour tout le document.
+
+Une projection en grille est différente : gardez `lines` **creux et aligné sur les index** du document, car Scene l'indexe par numéro de ligne absolu. Le compacter donne la géométrie de la ligne 20 à la ligne 0 et déplace mal chaque porteur — sans aucune erreur, juste une géométrie de sélection fausse.
+
+La fenêtre matérialisée est publiée sous forme de `data-vecto-projection-window` sur le miroir, afin que l'outillage puisse distinguer « cette ligne n'est pas ici » de « cette ligne n'existe pas ».
+
+Jusqu'où au-delà du viewport conserver lignes et entités est déterminé par `contentProjectionMargin` (voir [`SceneOptions`](/reference/core-scene/#sceneoptions)), qui vaut par défaut une hauteur de viewport. `Infinity` désactive le fenêtrage et matérialise tout, ce qui est parfois utile pour un test qui veut tout le document dans le DOM.
+
 Core calibre les porteurs retenus après le chargement des polices et achemine la
 sélection du pointeur dans l'espace local de la grille. La substitution de police
 Firefox, le DPR, le zoom du navigateur, les transformations de rotation, miroir

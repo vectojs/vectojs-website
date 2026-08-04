@@ -158,6 +158,47 @@ getContentProjection() {
 }
 ```
 
+### `ContentProjectionHint`를 사용한 행 윈도잉 (`1.30.0+`)
+
+뷰포트 밖의 entity는 전부 건너뛰지만, **뷰포트보다 높은** entity는 항상 그 관문을 통과하며 — 예전에는 그 뒤에 모든 행을 미러링했습니다. 긴 문서는 문서 전체에 대해 시각적 행마다 DOM 노드 하나를 만들었습니다(측정값: 346 KB Markdown 문서에서 14.8k 개 요소).
+
+이제 Scene은 투영할 가치가 있는 entity 로컬 수직 대역을 설명하는 힌트를 전달하고, 그 안의 행만 미러링합니다:
+
+```ts
+interface ContentProjectionHint {
+  minY?: number; // entity-local top of the band worth projecting
+  maxY?: number; // entity-local bottom
+}
+```
+
+이를 존중하는 것은 선택 사항입니다 — 인자를 무시해도 모든 것이 계속 동작하며, 다만 절약이 없을 뿐입니다. 4,000행 문서에서 측정:
+
+|          | 이전          | 이후            |
+| -------- | ------------- | --------------- |
+| Chrome   | 4.21 ms/frame | 0.20 ms (21.1x) |
+| Firefox  | 4.83 ms/frame | 0.14 ms (34.5x) |
+| DOM 자식 | 36,000        | 1,026 (35x)     |
+
+그 결과 투영 비용은 문서 크기의 20배 범위에 걸쳐 **평탄**해집니다. 문서가 아니라 뷰포트를 따라가기 때문입니다.
+
+모든 구현이 경계를 동일하게 반올림하도록 `contentLineInHint(hint, y, height)`를 사용하세요:
+
+```ts
+getContentProjection(hint?: ContentProjectionHint) {
+  const lines = this.allLines.filter((l) => contentLineInHint(hint, l.y, l.lineHeight));
+  return { text: this.text, selectable: true, lines };
+}
+```
+
+> [!IMPORTANT]
+> **연속된** 행 구간을 내보내고, `text`가 비어 있지 않은 동안에는 절대 빈 구간을 내보내지 마세요. DOM 순서는 브라우저가 선택을 확장하거나 복사를 직렬화할 때 따라가는 순서이므로, 구멍이 있으면 그 위를 지나는 드래그가 사이의 행들을 조용히 빠뜨립니다. `text`가 비어 있지 않은데 `lines`가 비어 있으면 Scene은 문서 전체에 대해 텍스트 노드 하나를 투영하는 폴백으로 되돌아갑니다.
+
+그리드 투영은 다릅니다: Scene이 절대 행 번호로 색인하므로 `lines`를 문서에 대해 **희소하고 인덱스가 정렬된** 상태로 유지하세요. 이를 압축하면 20번째 행의 기하가 0번째 행에 넘겨지고 모든 캐리어가 잘못 배치됩니다 — 오류 없이, 선택 기하만 틀립니다.
+
+구체화된 윈도는 미러에 `data-vecto-projection-window`로 게시되므로, 도구가 "이 행은 여기 없다"와 "이 행은 존재하지 않는다"를 구별할 수 있습니다.
+
+뷰포트 밖으로 행과 entity를 얼마나 더 유지할지는 `contentProjectionMargin`([`SceneOptions`](/reference/core-scene/#sceneoptions) 참조)이 결정하며, 기본값은 뷰포트 높이 하나입니다. `Infinity`는 윈도잉을 비활성화하고 전부 구체화하는데, 문서 전체를 DOM에 두고 싶은 테스트에서 이따금 유용합니다.
+
 Core는 폰트 로드 후 보유 캐리어를 보정하고 로컬 그리드 공간에서 포인터 선택을 라우팅합니다.
 Firefox 폰트 대체, DPR, 브라우저 줌,
 회전, 미러 변환 및 비균일 스케일링은 따라서 하나의 지오메트리 계획을 사용합니다.

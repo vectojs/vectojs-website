@@ -12,7 +12,7 @@ order: 28
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · RadioGroup</span></div>
-  <iframe src="/sandbox/ui/component.html?name=radiogroup&v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de RadioGroup" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=radiogroup&v=core-1.30.0-ui-2.12.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de RadioGroup" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>La démo bascule entre une disposition horizontale et verticale sur les largeurs étroites.</figcaption>
 </figure>
 

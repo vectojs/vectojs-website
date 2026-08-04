@@ -12,7 +12,7 @@ order: 25
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Checkbox</span></div>
-  <iframe src="/sandbox/ui/component.html?name=checkbox&v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de Checkbox" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=checkbox&v=core-1.30.0-ui-2.12.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de Checkbox" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Les clics sur le canvas et les changements de lʼentrée native partagent le même chemin `change`.</figcaption>
 </figure>
 

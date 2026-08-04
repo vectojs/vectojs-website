@@ -84,6 +84,63 @@ order: 10
 
 canvas 是不透明像素，因此瀏覽器的 `forced-colors` 重新對應永遠不會觸及 VectoJS 繪製的內容——在 Windows 高對比度下，主題控制項會保持不可讀，除非元件重新繪製自身。請參見 [`Scene.forcedColors`](/reference/core-scene/#無障礙與外觀) 並使用 CSS 系統顏色（`ButtonFace`、`ButtonText`、`Highlight`、`Canvas`、`CanvasText`）繪製；當設定切換時場景會自動重繪。`Button` 已經這樣做了。
 
+## 高實體數量下的投影開銷（`1.30.0+`）
+
+每個擁有 box 的可互動 entity 只要維持可互動，就會取得一個陰影節點。這對按鈕是正確的，但對成千上萬個轉瞬即逝、單獨看毫無意義的 entity——粒子、彈幕留言、圖節點——就是錯的：它每一格都為每個 entity 產生一個 DOM 節點。
+
+在 5,000 個運動中的可互動 entity 上測得：
+
+|                              | Chrome        | Firefox        |
+| ---------------------------- | ------------- | -------------- |
+| 每個 entity 都可互動         | 66.4 ms/frame | 114.7 ms/frame |
+| `a11yProjection: 'onDemand'` | 2.23 ms       | 1.69 ms        |
+| 完全沒有陰影節點             | 1.35 ms       | 1.75 ms        |
+
+兩個 eager 列連 60 Hz 的預算都達不到。`'onDemand'` 落在「什麼都不投影」的下限上，同時每個 entity 仍可被單獨觸及。
+
+`Entity.a11yProjection` 選擇節點何時被具體化：
+
+```ts
+particle.a11yProjection = 'onDemand';
+```
+
+- **`'eager'`**（預設）——entity 處於可互動且有 box 時，節點即存在。行為不變；一般控制項請保持原樣。
+- **`'onDemand'`**——只在 entity **被使用**時才存在節點。用於高基數的可互動 entity。
+- **`'never'`**——完全沒有節點。除非 entity 確實需要指標事件而不需要語意存在，否則優先使用 `interactive = false`。
+
+### 什麼算是被使用
+
+三個信號，任一滿足即可。刻意**不**採用單獨的 hover：鍵盤或螢幕閱讀器使用者不產生指標事件，因此以 hover 為門檻的節點會恰好對它本該服務的使用者被扣留。
+
+- **焦點。** 已取得焦點的節點永不被修剪，因此不會在互動過程中把焦點從使用者手中抽走。
+- **指標位於 entity 內部。**
+- **一次明確的請求**——見下文。
+
+entity 在整個過程中始終維持可在 canvas 上進行命中測試，因此點擊總能到達它並將其提升。
+
+```ts
+// Keep the selected item projected for as long as it is selected.
+scene.requestA11yProjection(selected);
+scene.releaseA11yProjection(previous);
+```
+
+兩者都接受一個 `Entity` 或 id 字串，且具備幂等性。釋放不會立即移除節點——只要它仍處於焦點中或指標之下就會留存，並在下一次發現它未被使用的同步中被修剪。對 `'eager'` 的 entity 兩者都是空操作，因為它總是被投影。
+
+對於只有應用程式自己知道其重要性的東西，請使用明確的請求：一個選取項、一個搜尋命中項、一個剛在即時區域中被播報的元素。
+
+> [!IMPORTANT]
+> 自身投影**可選取文字**的 entity 永遠不會被指標提升。它的陰影節點帶有 `pointer-events: auto` 並疊放在透明的文字鏡像之上，因此在指標下具體化一個節點會吞掉 `mousedown`，原生拖曳選取將永遠不會開始。焦點與明確請求仍然能到達它。這與使 [`Text`](/reference/ui-text/) 和 `RichText` 預設不可互動的衝突是同一個。
+
+基數本身並不是動用 `'onDemand'` 的判準，而下面這種情形最容易被弄錯：
+
+> [!WARNING]
+> **不要因為與粒子類比就把 `'onDemand'` 用在正文文字上。** 對於按鈕或圖節點，canvas entity 是主體，陰影節點是暫時的語意代理，因此在被使用前扣留它不會損失什麼。而對於散文、Markdown 或聊天記錄，canvas 點陣圖對螢幕閱讀器**完全不可讀**，並且對非視覺使用者而言**閱讀就是首要互動**，而非偶爾為之的操作。文字 entity 預設不可互動，承載其語意的是[內容投影](/reference/core-renderer/#entitygetcontentprojection)——而不是陰影節點；該投影按行虛擬化，並保持常駐。
+
+另外，能被單獨觸及與能被理解並不是同一件事：
+
+> [!NOTE]
+> `'onDemand'` 本身並不構成完整的無障礙方案。一千條可被單獨觸及的彈幕，合起來仍然什麼也沒說。請把它與一個聚合的即時區域（`role: 'status'`、`a11yFullViewport`）以及一小池用於當前選取的常駐熱點搭配使用，這樣 DOM 節點數會維持恆定，而不是隨 entity 數量增長。
+
 ## 控制項與注意事項
 
 - 每個陰影節點上的 `data-vecto-id` 鏡射 entity `id` — 是自動化選擇器的穩定控制柄。
