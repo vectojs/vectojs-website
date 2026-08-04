@@ -53,8 +53,8 @@ const scene = new Scene(canvas, { pointBackend: 'webgl', maxDPR: 2 });
 
 內容投影有兩個獨立的層級，從 `1.31.0` 起每層都有自己的邊距：
 
-- **語意層**（`contentSemanticMargin`）—— 這個區塊是否有*任何* DOM？擁有 DOM 的區塊會把它的文字提供給瀏覽器原生的頁內尋找、複製以及螢幕閱讀器的預讀。
-- **互動層**（`contentProjectionMargin`）—— 是否建構該區塊的*逐行載體*？載體為瀏覽器提供逐行的選取幾何資訊。
+- **語意層**（`contentSemanticMargin`）—— 這個區塊是否有_任何_ DOM？擁有 DOM 的區塊會把它的文字提供給瀏覽器原生的頁內尋找、複製以及螢幕閱讀器的預讀。
+- **互動層**（`contentProjectionMargin`）—— 是否建構該區塊的_逐行載體_？載體為瀏覽器提供逐行的選取幾何資訊。
 
 在拆分之前，一個純量同時控制兩者，因此只存在兩種配置：有限值會完全釋放螢幕外的區塊，使螢幕外文字無法被尋找；而 `Infinity` 會同時實體化文件中的每一個載體。
 
@@ -97,7 +97,7 @@ scene.forcedColors: boolean             // getter — OS is in a forced-colors m
 ## renderMode、maxFPS 和閒置自動節流
 
 - **`renderMode: 'always'`（預設）** — 每幀重新渲染，受有效 FPS 上限限制。
-- **`renderMode: 'onDemand'`** — 只在場景為 *dirty*（見 `markDirty()`）或有動畫/過渡驅動器待處理時才繪製。靜態 rAF 滴答仍會檢查樹以查找待處理的動作，但會略過 entity 更新/渲染和 GPU 提交。適合靜態 / 事件驅動的 UI。
+- **`renderMode: 'onDemand'`** — 只在場景為 _dirty_（見 `markDirty()`）或有動畫/過渡驅動器待處理時才繪製。靜態 rAF 滴答仍會檢查樹以查找待處理的動作，但會略過 entity 更新/渲染和 GPU 提交。適合靜態 / 事件驅動的 UI。
 
 **閒置自動節流（關鍵注意事項）。** 當場景不是 dirty 且主/覆蓋層樹中沒有節點有待處理的 `animate()` 補間時，該場景被視為**靜態**。在 `maxFPS > 0` 的 `'always'` 模式下，靜態場景會被節流到 **~2 fps** 以節省電池/GPU。`dirty` 旗標在每個渲染幀結束時（渲染後）重設為 `false`，因此：
 
