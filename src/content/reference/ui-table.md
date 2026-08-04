@@ -49,6 +49,24 @@ hotspots capture pointer events from cell projections — they all set
 `pointerEvents: 'none'` precisely so the cell's selectable text keeps the mouse. This leaf ownership is what keeps cross-cell drag selection,
 Ctrl/Command+C, and find-in-page aligned with the VMT text exactly once.
 
+## Responsive width: `setWidth()`
+
+```ts
+table.setWidth(width: number): this
+```
+
+Changes the total width, rescales columns proportionally, and re-lays out
+(`2.11.0+`). Use it instead of assigning `width`, which is not enough on its own:
+`colWidths` is resolved **once in the constructor** from the width given there,
+and every cell's wrap width, position, and alignment derives from those
+per-column figures rather than from `width`. A table whose `width` was reassigned
+therefore paints its chrome at the new size while its cells stay laid out for the
+old one.
+
+Columns keep their relative proportions, so an explicit `colWidths` ratio
+survives a resize rather than being re-split equally on the first call. It
+no-ops on an unchanged width, clamps to a minimum of 1, and returns `this`.
+
 ## Accessibility & keyboard
 
 The projected tree is a real ARIA grid: a pinned header `row` of `columnheader`s

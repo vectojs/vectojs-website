@@ -46,6 +46,25 @@ La sombra estructural `role="grid"` no captura eventos de puntero de las proyecc
 de celda. Esta propiedad de hoja es lo que mantiene la selección por arrastre entre celdas,
 Ctrl/Comando+C y búsqueda en página alineados con el texto VMT exactamente una vez.
 
+## Ancho adaptable: `setWidth()`
+
+```ts
+table.setWidth(width: number): this
+```
+
+Cambia el ancho total, reescala las columnas proporcionalmente y vuelve a
+maquetar (`2.11.0+`). Úsalo en lugar de asignar `width`, que no basta por sí
+solo: `colWidths` se resuelve **una única vez en el constructor** a partir del
+ancho indicado allí, y el ancho de ajuste de línea, la posición y la alineación
+de cada celda derivan de esas cifras **por columna** en vez de `width`. Por eso
+una tabla cuyo `width` se reasignó pinta su marco al nuevo tamaño mientras sus
+celdas siguen maquetadas para el anterior.
+
+Las columnas conservan sus proporciones relativas, así que una razón
+`colWidths` explícita sobrevive a un cambio de tamaño en lugar de repartirse a
+partes iguales en la primera llamada. Si el ancho no cambia no hace nada, se
+acota a un mínimo de 1 y devuelve `this`.
+
 ## Accesibilidad y teclado
 
 El árbol proyectado es una cuadrícula ARIA real: una fila fija de `columnheader`s más un `row` por cada fila **visible** del cuerpo (consciente de la virtualización), cada celda un `gridcell` hotspot enfocable. Exactamente una celda posee el **tabindex flotante**, por lo que toda la cuadrícula es una parada de tabulación.

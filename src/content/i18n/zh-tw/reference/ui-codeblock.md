@@ -31,10 +31,23 @@ const md = new Markdown('```ts\nscene.markDirty();\n```', { maxWidth: 520 });
 
 UI 1.9 對語法著色的 Canvas 繪製和語意載體皆使用 Core 1.8 的保留式預備內容網格。因此 tab、emoji/ZWJ、寬 CJK、阿拉伯文塑形、混合方向執行段和精確的 CR/LF/CRLF 來源邊界共用一個計畫。校準是一次冷路徑的字型載入傳遞；穩定的投射同步不會讀取 Range 幾何或替換儲存格載體。
 
+## 寬度：`setWidth()`
+
+```ts
+codeBlock.setWidth(width: number): this
+```
+
+變更盒子寬度（`0.9.0+`）。它刻意**不**重建網格或重新執行語法高亮，因為程式碼不會重排：行位於固定的等寬網格上、位置為 `col × cellWidth`，過長的行會溢出而不是換行，因此 `height` 僅是行**數**的函式，寬度只決定圓角背景的尺寸。
+
+任何會改變字形幾何的變更——原始碼、語言、字型——都要經過 `setCode()`，它會在那裡使網格失效。寬度未變時它是空操作，並回傳 `this`。
+
+`Markdown.setMaxWidth()` 會為它擁有的每個圍欄程式碼區塊呼叫本方法，因此只有當你自行建構 `CodeBlock` 時才需要直接呼叫。
+
 ## 維護者檢查清單
 
 - 讓圍欄程式碼保持為一個葉 entity。
 - 使用 `setCode()` 進行即時更新。
+- 僅變更寬度時使用 `setWidth()`；它會跳過 `setCode()` 執行的網格重建。
 - 讓內容投射與精確的來源、字型和行高保持同步。
 - 為 Canvas 繪製、指標游標、複製和尋找重複使用一個預備網格。
 - 在分數 DPR/縮放下驗證 Chromium 和 Firefox，包括替換字型和變換過的區塊。

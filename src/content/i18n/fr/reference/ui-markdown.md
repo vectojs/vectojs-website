@@ -66,6 +66,63 @@ arabe/RTL enveloppé et le code conservent un ordre de copie logique à DPR et z
 Lorsquʼune application gère le dimensionnement du conteneur ou le zoom CSS, notifiez la Scene avec
 `scene.resize(width, height)` afin que Firefox puisse recalibrer les métriques natives Range.
 
+## Largeur responsive : `setMaxWidth()`
+
+```ts
+markdown.setMaxWidth(width: number): this
+```
+
+Ré-enroule chaque bloc déjà rendu à une nouvelle largeur (`0.9.0+`). Appelez-la
+lors d'un redimensionnement au lieu d'affecter `maxWidth`, qui définit le champ
+sans rien changer de visible : la largeur est lue au moment où chaque bloc est
+**construit**, donc une affectation laisse les blocs existants mesurés à
+l'ancienne largeur.
+
+```ts
+window.addEventListener('resize', () => {
+  scene.resize(window.innerWidth, window.innerHeight);
+  markdown.setMaxWidth(window.innerWidth - INSET * 2);
+});
+```
+
+Elle refait la mise en page sur place plutôt que de reconstruire, ce qui la rend
+utilisable en pleine diffusion :
+
+- les mêmes **instances** d'entités de bloc survivent, donc tout ce qui détient
+  une référence à l'une d'elles (une ancre de défilement, une cible de clic, une
+  sélection devtools) continue de fonctionner ;
+- un rédacteur [`createStream()`](#flux-en-continu) ouvert n'est pas touché et continue
+  d'ajouter du contenu ;
+- rien n'est ré-analysé lexicalement.
+
+Mesuré sur un document de cinq blocs dans les deux moteurs : 520 → 260 px a fait
+passer le nombre de lignes projetées de 2 à 4 et la hauteur de 88 à 160 sur les
+deux mêmes instances de paragraphe, le rédacteur restant `open` et **zéro**
+caractère supplémentaire transmis à l'analyseur lexical.
+
+Sans changement de largeur, l'appel ne fait rien : un redimensionnement en
+hauteur seule ne coûte donc rien et l'appelant n'a pas besoin de garde. Une
+largeur négative est bornée à 0.
+
+> [!NOTE]
+> Avant `0.9.0`, le seul contournement correct était une reconstruction
+> complète — libérer le flux, rejouer la source révélée via `setContent()`,
+> ouvrir un nouveau rédacteur et reporter le décalage de défilement à la main.
+> Cela reproduit correctement le document, ce qui explique qu'on le conservait
+> facilement : une reconstruction produit aussi une géométrie correcte. Son coût
+> était une réanalyse lexicale de tout le document et la perte de chaque
+> instance d'entité, à chaque redimensionnement.
+
+Les formules en display gardent volontairement leur propre largeur : MathJax
+dimensionne une boîte composée à partir de métriques relatives à `ex` et non de
+la largeur disponible, donc l'étirer déformerait la formule. Le code délimité
+n'est pas ré-enroulé non plus — il a une grille monospace fixe et les lignes
+longues débordent par conception — seul son arrière-plan est redimensionné.
+
+L'appeler depuis un rappel [`onStable`](#achèvement-unique--onstable) lève une exception, pour la
+même raison que `setContent()` : ce rappel s'exécute à l'intérieur du commit
+qu'il invaliderait.
+
 ## Couverture GFM
 
 Au-delà des paragraphes, titres, listes, code délimité et tableaux :

@@ -14,6 +14,8 @@ Superficie de dibujo agnóstica al backend que recibe cada `Entity.render`.
 
 ```ts
 interface IRenderer {
+  readonly pixelRatio?: number; // device px per CSS px of the backing store (1.29.0+)
+
   clear(): void;
   save(): void;
   restore(): void;
@@ -43,6 +45,38 @@ interface IRenderer {
   dispose?(): void; // limpieza idempotente de backend; Scene.destroy() lo llama
 }
 ```
+
+### `pixelRatio`: rasterizar píxeles que se van a blitear
+
+Píxeles de dispositivo por píxel CSS de la proporción **ya aplicada** al
+contexto de dibujo (`1.29.0+`). Léelo en lugar de `window.devicePixelRatio`
+siempre que rasterices una textura que se va a blitear en el renderer, e indexa
+cualquier caché de esas texturas por este valor.
+
+Ambos valores difieren, de dos formas que corrompen un blit:
+
+- un backend **acota** el valor (`CanvasRenderer.maxDPR`,
+  `SceneOptions.maxDPR`), así que rasterizar con la proporción de la ventana
+  produce una textura que el contexto escalado vuelve a muestrear;
+- `window.devicePixelRatio` cambia en el instante en que se aplica un zoom,
+  mientras que el búfer de dibujo solo se reasigna cuando algo llama a
+  `resize()`. Una lectura en vivo durante ese intervalo informa de la proporción
+  **futura**, así que una caché indexada por ella rasteriza para una escala que
+  el contexto todavía no ha adoptado: el mismo defecto invertido.
+
+Un valor capturado una sola vez en el ámbito del módulo es peor que ambos: no
+puede seguir ni un zoom ni un cambio de monitor. Ese es el defecto que esta
+propiedad existe para hacer corregible, y el grupo de atlas de glifos de código
+de `Markdown` es su consumidor dentro del repositorio: indexa por este valor un
+LRU acotado de instancias `GlyphRasterAtlas`, que es lo que evita que el código
+se vea borroso tras un zoom del navegador.
+
+Es opcional y una lectura **en vivo**, no una instantánea: un backend sin búfer
+de dibujo propio lo omite, y quien lo consume trata su ausencia como `1`.
+`CanvasRenderer` registra la proporción que aplicó realmente en los tres puntos
+que escalan el contexto —la construcción, `resize()` y la recuperación por
+`contextrestored`—, de modo que el valor sigue siendo veraz incluso tras un
+reinicio de GPU que caiga a horcajadas de un zoom.
 
 ### Sobrevivir a la pérdida del contexto GPU
 

@@ -14,6 +14,8 @@ order: 5
 
 ```ts
 interface IRenderer {
+  readonly pixelRatio?: number; // device px per CSS px of the backing store (1.29.0+)
+
   clear(): void;
   save(): void;
   restore(): void;
@@ -47,6 +49,19 @@ interface IRenderer {
   onContextRestored?(cb: () => void): void; // Scene repaints the cleared surface
 }
 ```
+
+### `pixelRatio`——为将被 blit 的像素做栅格化
+
+已经**应用到**绘图上下文的比例，即每个 CSS 像素对应的设备像素数（`1.29.0+`）。当你栅格化一张随后会被 blit 进渲染器的纹理时，请读取它而不是 `window.devicePixelRatio`，并用它作为这类纹理缓存的键。
+
+这两个值会有差异，而且两种差异都会破坏 blit：
+
+- 后端会**钳制**（`CanvasRenderer.maxDPR`、`SceneOptions.maxDPR`），因此按窗口的比例栅格化会产出一张被缩放后的上下文再次重采样的纹理；
+- `window.devicePixelRatio` 在缩放生效的瞬间就改变，而后备存储只有在某处调用 `resize()` 时才重新分配。在这段窗口期内的实时读取报告的是**未来**的比例，因此以它为键的缓存会为上下文尚未采用的缩放做栅格化——同一个缺陷的反面。
+
+在模块作用域里捕获一次的值比上述两者都更糟：它根本无法跟随缩放或显示器切换。这正是本属性存在的意义所在——让那个缺陷可被修复；而 `Markdown` 的代码字形图集池就是仓库内的消费方：它以此值为键维护一个有界 LRU 的 `GlyphRasterAtlas` 实例，这就是浏览器缩放后代码不再模糊的原因。
+
+它是可选的，且是**实时**读取而非快照：自身没有后备存储的后端会省略它，调用方将其缺失视为 `1`。`CanvasRenderer` 会在所有三个缩放上下文的位置记录它实际应用的比例——构造、`resize()` 以及 `contextrestored` 恢复——因此即使发生跨越一次缩放的 GPU 重置，该值依然真实。
 
 ### 应对 GPU 上下文丢失
 

@@ -14,6 +14,8 @@ Surface de dessin indépendante du backend que chaque `Entity.render` reçoit.
 
 ```ts
 interface IRenderer {
+  readonly pixelRatio?: number; // device px per CSS px of the backing store (1.29.0+)
+
   clear(): void;
   save(): void;
   restore(): void;
@@ -43,6 +45,38 @@ interface IRenderer {
   dispose?(): void; // nettoyage idempotent du backend ; Scene.destroy() l'appelle
 }
 ```
+
+### `pixelRatio` — rastériser des pixels qui seront blittés
+
+Pixels physiques par pixel CSS du ratio **déjà appliqué** au contexte de dessin
+(`1.29.0+`). Lisez-le plutôt que `window.devicePixelRatio` dès que vous
+rastérisez une texture qui sera blittée dans le renderer, et indexez tout cache
+de telles textures sur cette valeur.
+
+Les deux valeurs diffèrent, de deux façons qui corrompent chacune un blit :
+
+- un backend **borne** la valeur (`CanvasRenderer.maxDPR`,
+  `SceneOptions.maxDPR`), donc rastériser au ratio de la fenêtre produit une
+  texture que le contexte mis à l'échelle ré-échantillonne ensuite ;
+- `window.devicePixelRatio` change à l'instant où un zoom est appliqué, alors
+  que le tampon de rendu n'est réalloué que lorsque quelque chose appelle
+  `resize()`. Une lecture en direct pendant cet intervalle rapporte le ratio
+  **futur** : un cache indexé dessus rastérise donc pour une échelle que le
+  contexte n'a pas encore adoptée — le même défaut inversé.
+
+Une valeur capturée une seule fois à la portée du module est pire que les deux :
+elle ne peut suivre ni un zoom ni un changement d'écran. C'est le défaut que
+cette propriété existe pour rendre corrigible, et le pool d'atlas de glyphes de
+code de `Markdown` en est le consommateur interne : il indexe sur cette valeur un
+LRU borné d'instances `GlyphRasterAtlas`, ce qui empêche le code de devenir flou
+après un zoom du navigateur.
+
+Elle est optionnelle et constitue une lecture **en direct**, non un instantané :
+un backend sans tampon de rendu propre l'omet, et l'appelant traite son absence
+comme `1`. `CanvasRenderer` enregistre le ratio réellement appliqué aux trois
+endroits qui mettent le contexte à l'échelle — la construction, `resize()` et la
+reprise sur `contextrestored` — de sorte que la valeur reste fidèle même après
+une réinitialisation GPU survenant à cheval sur un zoom.
 
 ### Survivre à la perte du contexte GPU
 

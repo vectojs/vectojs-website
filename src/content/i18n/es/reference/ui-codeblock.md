@@ -45,10 +45,31 @@ CJK ancho, forma árabe, direcciones mixtas y límites exactos de fuente CR/LF/C
 comparten un solo plan. La calibración es una pasada de carga de fuente en frío; la sincronización
 de proyección estable no lee geometría de Range ni reemplaza portadores de celda.
 
+## Ancho: `setWidth()`
+
+```ts
+codeBlock.setWidth(width: number): this
+```
+
+Cambia el ancho de la caja (`0.9.0+`). Deliberadamente **no** reconstruye la
+rejilla ni vuelve a ejecutar el resaltado, porque el código no se reajusta: las
+líneas se sitúan en una rejilla monoespaciada fija en `col × cellWidth` y una
+línea larga se desborda en vez de ajustarse, así que `height` depende solo del
+**número** de líneas y el ancho únicamente dimensiona el fondo redondeado.
+
+Todo lo que cambiaría la geometría de los glifos —el código, el lenguaje, la
+fuente— pasa por `setCode()`, que invalida la rejilla allí. Si el ancho no
+cambia no hace nada y devuelve `this`.
+
+`Markdown.setMaxWidth()` lo llama por cada bloque de código delimitado que
+posee, así que solo necesitas invocarlo directamente si construyes un
+`CodeBlock` por tu cuenta.
+
 ## Lista de verificación para mantenedores
 
 - Mantén el código de bloque como una sola entidad hoja.
 - Usa `setCode()` para actualizaciones en vivo.
+- Usa `setWidth()` para un cambio solo de ancho; omite la reconstrucción de rejilla que hace `setCode()`.
 - Mantén la proyección de contenido sincronizada con la fuente exacta, la fuente y la altura de línea.
 - Reutiliza una cuadrícula preparada para la pintura en Canvas, cursores de puntero, copia y búsqueda.
 - Verifica en Chromium y Firefox con DPR/zoom fraccionario, incluyendo fuentes sustituidas y bloques transformados.

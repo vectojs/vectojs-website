@@ -45,10 +45,31 @@ le façonnage arabe, les directions mixtes et les limites exactes de source CR/L
 un seul plan. Lʼétalonnage est un passage de chargement à froid de la police ; la synchronisation stable de la projection
 ne lit pas la géométrie Range ni ne remplace les porteurs de cellules.
 
+## Largeur : `setWidth()`
+
+```ts
+codeBlock.setWidth(width: number): this
+```
+
+Change la largeur de la boîte (`0.9.0+`). Elle ne reconstruit **pas** la grille
+et ne relance pas la coloration, volontairement : le code ne se ré-enroule pas.
+Les lignes occupent une grille monospace fixe à `col × cellWidth` et une ligne
+longue déborde au lieu de passer à la ligne, donc `height` ne dépend que du
+**nombre** de lignes et la largeur ne dimensionne que l'arrière-plan arrondi.
+
+Tout ce qui changerait la géométrie des glyphes — la source, le langage, la
+police — passe par `setCode()`, qui y invalide la grille. Sans changement de
+largeur, l'appel ne fait rien et renvoie `this`.
+
+`Markdown.setMaxWidth()` l'appelle pour chaque bloc de code délimité qu'il
+possède ; un appel direct n'est donc nécessaire que si vous construisez
+vous-même un `CodeBlock`.
+
 ## Liste de vérification pour les mainteneurs
 
 - Gardez le code délimité comme une seule entité feuille.
 - Utilisez `setCode()` pour les mises à jour en direct.
+- Utilisez `setWidth()` pour un changement de largeur seul ; il évite la reconstruction de grille que fait `setCode()`.
 - Maintenez la projection de contenu synchronisée avec la source exacte, la police et la hauteur de ligne.
 - Réutilisez une grille préparée pour la peinture Canvas, les curseurs de pointeur, la copie et la recherche.
 - Vérifiez Chromium et Firefox à DPR/zoom fractionnaires, y compris les polices substituées et les blocs transformés.
