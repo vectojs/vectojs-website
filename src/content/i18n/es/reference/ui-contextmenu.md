@@ -14,7 +14,7 @@ Las versiones UI 1.11.1–1.11.3 hacen seguro el ciclo de vida de las cadenas an
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ContextMenu</span></div>
-  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.30.0-ui-2.12.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de ContextMenu" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.31.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de ContextMenu" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Haz clic en el lanzador para abrir el menú dentro de un viewport limitado.</figcaption>
 </figure>
 
