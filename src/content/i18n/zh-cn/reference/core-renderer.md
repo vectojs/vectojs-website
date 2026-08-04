@@ -133,6 +133,47 @@ getContentProjection() {
 }
 ```
 
+### 使用 `ContentProjectionHint` 的行窗口化（`1.30.0+`）
+
+视口外的实体会被整体跳过，但**比视口更高**的实体总是能通过那道闸门——而且过去会接着镜像它的每一行。一份长文档会为整篇文档的每个视觉行产生一个 DOM 节点（实测：一份 346 KB 的 Markdown 文档产生 14.8k 个元素）。
+
+Scene 现在会传入一个提示，描述值得投影的实体局部垂直带，并只镜像其中的行：
+
+```ts
+interface ContentProjectionHint {
+  minY?: number; // entity-local top of the band worth projecting
+  maxY?: number; // entity-local bottom
+}
+```
+
+遵循它是可选的——忽略该参数一切仍然照常工作，只是没有这份节省。在一份 4,000 行的文档上测得：
+
+|            | 之前          | 之后            |
+| ---------- | ------------- | --------------- |
+| Chrome     | 4.21 ms/frame | 0.20 ms (21.1x) |
+| Firefox    | 4.83 ms/frame | 0.14 ms (34.5x) |
+| DOM 子节点 | 36,000        | 1,026 (35x)     |
+
+此后投影开销在 20 倍的文档尺寸范围内保持**平坦**，因为它跟随视口而不是文档。
+
+请使用 `contentLineInHint(hint, y, height)`，使每个实现对边界的取整方式完全一致：
+
+```ts
+getContentProjection(hint?: ContentProjectionHint) {
+  const lines = this.allLines.filter((l) => contentLineInHint(hint, l.y, l.lineHeight));
+  return { text: this.text, selectable: true, lines };
+}
+```
+
+> [!IMPORTANT]
+> 请发出**连续**的一段行，并且在 `text` 非空时永不发出空的一段。DOM 顺序正是浏览器在扩展选择或序列化复制时所走的顺序，因此一个空隙会让跨越它的拖拽悄悄漏掉中间那些行。`lines` 为空而 `text` 非空会使 Scene 回退为对整篇文档投影一个文本节点。
+
+网格投影不同：请让 `lines` 保持**稀疏且与文档索引对齐**，因为 Scene 是按绝对行号索引它的。把它压紧会把第 20 行的几何交给第 0 行，并错置每一个载体——不会报错，只是选择几何是错的。
+
+被物化的窗口会作为 `data-vecto-projection-window` 发布在镜像上，因此工具可以区分“这一行不在这里”和“这一行不存在”。
+
+在视口之外还要保留多少行和实体，由 `contentProjectionMargin` 决定（参见 [`SceneOptions`](/reference/core-scene/#sceneoptions)），默认为一个视口高度。`Infinity` 会禁用窗口化并物化全部内容，这对于希望整篇文档都在 DOM 中的测试偶尔有用。
+
 Core 在字体加载后校准保留的载体，并在局部网格空间中路由指针选择。因此 Firefox 字体替换、DPR、浏览器缩放、旋转、镜像变换和非均匀缩放使用一个几何方案。校准探测继承投影的缩放上下文并考虑 Firefox 缺失字形的回退度量；自定义调整大小/缩放的所有者必须调用 `scene.resize()` 以使保留的校准失效。普通的 `lines` 投影和无行的自定义投影也使用变换后的二维字素光标几何。
 
 `present()` 由 Scene 在每个渲染过程结束时恰好调用**一次**。一次提交整帧的保留式后端（例如来自 [`@vectojs/three`](/reference/three-renderer/#gpu-上下文丢失与运行时-dpr) 的 `ThreeRenderer`）应在此处进行其单次昂贵的提交，并保持 `flush()` 廉价 —— Scene 在每个非批处理节点周围调用 `flush()`，因此昂贵的 `flush()` 会使帧成本随实体数量呈平方增长。

@@ -122,7 +122,7 @@ each sibling group and each frame, preserving painter's order.
 ## `Entity.getContentProjection()`
 
 ```ts
-getContentProjection(): ContentProjection | null // default null
+getContentProjection(hint?: ContentProjectionHint): ContentProjection | null // default null
 // ContentProjection: {
 //   text: string; font?: string; lineHeight?: number; selectable?: boolean;
 //   contentX?: number; contentY?: number; baseline?: number;
@@ -197,6 +197,67 @@ getContentProjection() {
   return { text: source, selectable: true, grid };
 }
 ```
+
+### Line windowing with `ContentProjectionHint` (`1.30.0+`)
+
+Off-viewport entities are skipped entirely, but an entity **taller than the
+viewport** always passes that gate — and used to then mirror every one of its
+lines. A long document produced a DOM node per visual line for the whole thing
+(measured: 14.8k elements for a 346 KB Markdown document).
+
+Scene now passes a hint describing the entity-local vertical band worth
+projecting, and mirrors only the lines inside it:
+
+```ts
+interface ContentProjectionHint {
+  minY?: number; // entity-local top of the band worth projecting
+  maxY?: number; // entity-local bottom
+}
+```
+
+Honoring it is optional — ignore the argument and everything still works, just
+without the saving. Measured on a 4,000-line document:
+
+|              | before        | after           |
+| ------------ | ------------- | --------------- |
+| Chrome       | 4.21 ms/frame | 0.20 ms (21.1x) |
+| Firefox      | 4.83 ms/frame | 0.14 ms (34.5x) |
+| DOM children | 36,000        | 1,026 (35x)     |
+
+Projected cost is then **flat** across a 20x range of document sizes, because it
+tracks the viewport rather than the document.
+
+Use `contentLineInHint(hint, y, height)` so every implementation rounds the
+boundary identically:
+
+```ts
+getContentProjection(hint?: ContentProjectionHint) {
+  const lines = this.allLines.filter((l) => contentLineInHint(hint, l.y, l.lineHeight));
+  return { text: this.text, selectable: true, lines };
+}
+```
+
+> [!IMPORTANT]
+> Emit a **contiguous** run of lines, and never an empty one while `text` is
+> non-empty. DOM order is what the browser walks when extending a selection or
+> serializing a copy, so a gap lets a drag across it silently omit the lines in
+> between. An empty `lines` with non-empty `text` makes Scene fall back to
+> projecting one text node for the whole document.
+
+A grid projection is different: keep `lines` **sparse and index-aligned** to the
+document, because Scene indexes it by absolute row. Compacting it hands row 20's
+geometry to row 0 and mispositions every carrier — with no error, just wrong
+selection geometry.
+
+The materialized window is published as `data-vecto-projection-window` on the
+mirror, so tooling can tell "this line is not here" from "this line does not
+exist".
+
+How far beyond the viewport to keep lines and entities is
+`contentProjectionMargin` (see [`SceneOptions`](/reference/core-scene/#sceneoptions)),
+defaulting to one viewport height. `Infinity` disables windowing and materializes
+everything, which is occasionally useful for a test that wants the whole document
+in the DOM.
 
 Core calibrates the retained carriers after fonts load and routes pointer
 selection in local grid space. Firefox font substitution, DPR, browser zoom,

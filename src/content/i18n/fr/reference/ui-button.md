@@ -13,7 +13,7 @@ la même zone. Les utilisateurs voient les pixels du canvas ; les lecteurs dʼé
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Button</span></div>
-  <iframe src="/sandbox/ui/button.html?v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame" loading="eager" title="Démonstration live du bouton" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/button.html?v=core-1.30.0-ui-2.12.0" class="sandbox-frame component-demo-frame" loading="eager" title="Démonstration live du bouton" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Le survol change lʼétat peint. Les clics passent par le même rôle button que Playwright peut détecter.</figcaption>
 </figure>
 

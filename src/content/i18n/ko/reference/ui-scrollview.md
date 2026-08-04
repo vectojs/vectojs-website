@@ -12,7 +12,7 @@ order: 32
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ScrollView</span></div>
-  <iframe src="/sandbox/ui/component.html?name=scrollview&v=core-1.25.0-ui-2.6.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ScrollView 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=scrollview&v=core-1.30.0-ui-2.12.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ScrollView 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>뷰포트 내에서 휠 또는 드래그; 중첩된 경쟁 스크롤 소유자를 피하세요.</figcaption>
 </figure>
 

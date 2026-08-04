@@ -123,6 +123,96 @@ with CSS system colors (`ButtonFace`, `ButtonText`, `Highlight`, `Canvas`,
 `CanvasText`); the scene repaints automatically when the setting toggles.
 `Button` already does this.
 
+## Projection cost at high entity counts (`1.30.0+`)
+
+Every interactive entity with a box gets a shadow node for as long as it stays
+interactive. That is right for a button and wrong for thousands of ephemeral,
+individually-meaningless entities — particles, danmaku comments, graph nodes —
+where it produces one DOM node per entity, every frame.
+
+Measured on 5,000 moving interactive entities:
+
+|                              | Chrome        | Firefox        |
+| ---------------------------- | ------------- | -------------- |
+| every entity interactive     | 66.4 ms/frame | 114.7 ms/frame |
+| `a11yProjection: 'onDemand'` | 2.23 ms       | 1.69 ms        |
+| no shadow nodes at all       | 1.35 ms       | 1.75 ms        |
+
+Both eager rows miss even a 60 Hz budget. `'onDemand'` lands at the floor of
+projecting nothing, while every entity stays individually reachable.
+
+`Entity.a11yProjection` selects when the node is materialized:
+
+```ts
+particle.a11yProjection = 'onDemand';
+```
+
+- **`'eager'`** (default) — a node exists while the entity is interactive with a
+  box. Unchanged behavior; leave it alone for ordinary controls.
+- **`'onDemand'`** — a node exists only while the entity is _engaged_. Use for
+  high-cardinality interactive entities.
+- **`'never'`** — no node at all. Prefer `interactive = false` unless the entity
+  genuinely needs pointer events without semantic presence.
+
+### What counts as engaged
+
+Three signals, any of which is enough. Deliberately **not** hover alone: a
+keyboard or screen-reader user generates no pointer events, so a hover-gated node
+would be withheld from exactly the users it exists for.
+
+- **Focus.** A focused node is never pruned, so focus cannot be yanked out from
+  under someone mid-interaction.
+- **The pointer being inside the entity.**
+- **An explicit request** — see below.
+
+The entity stays hit-testable on canvas throughout, so a click always reaches it
+and promotes it.
+
+```ts
+// Keep the selected item projected for as long as it is selected.
+scene.requestA11yProjection(selected);
+scene.releaseA11yProjection(previous);
+```
+
+Both accept an `Entity` or an id string and are idempotent. Releasing does not
+remove the node immediately — it survives while focused or under the pointer, and
+is pruned on the next sync that finds it unengaged. Both are no-ops for an
+`'eager'` entity, which is always projected.
+
+Use an explicit request for anything only the application knows is significant: a
+selection, a search hit, an element just announced in a live region.
+
+> [!IMPORTANT]
+> An entity that projects **selectable text** of its own is never promoted by the
+> pointer. Its shadow node carries `pointer-events: auto` and stacks above the
+> transparent text mirror, so materializing one under the pointer swallows the
+> `mousedown` and native drag-selection never starts. Focus and explicit requests
+> still reach it. This is the same conflict that makes
+> [`Text`](/reference/ui-text/) and `RichText` non-interactive by default.
+
+Cardinality is not on its own the criterion for reaching for `'onDemand'`, and
+this is the case most likely to be got wrong:
+
+> [!WARNING]
+> **Do not apply `'onDemand'` to body text by analogy with particles.** For a
+> button or a graph node, the canvas entity is the subject and the shadow node is a
+> temporary semantic proxy, so withholding it until engaged loses nothing. For
+> prose, Markdown, or a chat transcript the canvas bitmap is not readable by a
+> screen reader at all, and _reading is the primary interaction_ for a non-visual
+> user rather than an occasional one. Text entities are non-interactive by default
+> and their [content projection](/reference/core-renderer/#entitygetcontentprojection)
+> — not a shadow node — is what carries their semantics; that projection is
+> virtualized per line and stays resident.
+
+Individual reachability is also not the same thing as comprehension:
+
+> [!NOTE]
+> `'onDemand'` is not a complete accessibility story on its own. A thousand
+> individually reachable danmaku still say nothing collectively. Pair it with one
+> aggregate live region (`role: 'status'`, `a11yFullViewport`) plus a small pool of
+> persistent hotspots for the current selection, so the DOM node count stays
+> constant instead of scaling with entity count.
+
 ## Controls & gotchas
 
 - `data-vecto-id` on each shadow node mirrors the entity `id` — the stable handle

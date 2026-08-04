@@ -156,6 +156,47 @@ getContentProjection() {
 }
 ```
 
+### 使用 `ContentProjectionHint` 的行視窗化（`1.30.0+`）
+
+視口外的 entity 會被整體略過，但**比視口更高**的 entity 總是能通過那道閘門——而且過去會接著鏡像它的每一行。一份長文件會為整份文件的每個視覺行產生一個 DOM 節點（實測：一份 346 KB 的 Markdown 文件產生 14.8k 個元素）。
+
+Scene 現在會傳入一個提示，描述值得投影的 entity 局部垂直帶，並只鏡像其中的行：
+
+```ts
+interface ContentProjectionHint {
+  minY?: number; // entity-local top of the band worth projecting
+  maxY?: number; // entity-local bottom
+}
+```
+
+遵循它是選擇性的——忽略該參數一切仍然照常運作，只是沒有這份節省。在一份 4,000 行的文件上測得：
+
+|            | 之前          | 之後            |
+| ---------- | ------------- | --------------- |
+| Chrome     | 4.21 ms/frame | 0.20 ms (21.1x) |
+| Firefox    | 4.83 ms/frame | 0.14 ms (34.5x) |
+| DOM 子節點 | 36,000        | 1,026 (35x)     |
+
+此後投影開銷在 20 倍的文件尺寸範圍內維持**平坦**，因為它跟隨視口而不是文件。
+
+請使用 `contentLineInHint(hint, y, height)`，使每個實作對邊界的取整方式完全一致：
+
+```ts
+getContentProjection(hint?: ContentProjectionHint) {
+  const lines = this.allLines.filter((l) => contentLineInHint(hint, l.y, l.lineHeight));
+  return { text: this.text, selectable: true, lines };
+}
+```
+
+> [!IMPORTANT]
+> 請發出**連續**的一段行，並且在 `text` 非空時永不發出空的一段。DOM 順序正是瀏覽器在擴展選取或序列化複製時所走的順序，因此一個空隙會讓跨越它的拖曳悄悄漏掉中間那些行。`lines` 為空而 `text` 非空會使 Scene 回退為對整份文件投影一個文字節點。
+
+網格投影不同：請讓 `lines` 維持**稀疏且與文件索引對齊**，因為 Scene 是按絕對列號索引它的。把它壓緊會把第 20 列的幾何交給第 0 列，並錯置每一個載體——不會報錯，只是選取幾何是錯的。
+
+被具體化的視窗會作為 `data-vecto-projection-window` 發布在鏡像上，因此工具可以區分「這一行不在這裡」和「這一行不存在」。
+
+在視口之外還要保留多少行與 entity，由 `contentProjectionMargin` 決定（參見 [`SceneOptions`](/reference/core-scene/#sceneoptions)），預設為一個視口高度。`Infinity` 會停用視窗化並具體化全部內容，這對於希望整份文件都在 DOM 中的測試偶爾有用。
+
 Core 會在字型載入後校準保留的載體，並在本地網格空間中路由指標
 選取。Firefox 字型替代、DPR、瀏覽器縮放、
 旋轉、鏡像變換和非均勻縮放因此使用同一個幾何
