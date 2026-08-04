@@ -31,19 +31,22 @@ first, or every glyph advance is a flat `0.5em` guess. See
 
 ## SceneOptions
 
-| Option                 | Type                          | Default          | Effect                                                                                                                                                                                                                                                                                         |
-| ---------------------- | ----------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pointBackend`         | `'canvas' \| 'webgl'`         | `'canvas'`       | Backend for representable `getBatchCircle()`/`getBatchRect()` leaves. `'webgl'` stacks a WebGL2 canvas (`z-index:5`) and batches those primitives; unavailable WebGL2 falls back to Canvas. The GL layer composites above 2D content, so cross-layer painter order does not interleave.        |
-| `particleBackend`      | `'auto' \| 'webgpu' \| 'cpu'` | `'auto'`         | [`ComputeParticleEntity`](/reference/core-particles/) backend. `'auto'` tries WebGPU and warns before falling back to CPU. `'webgpu'` explicitly requests WebGPU but currently logs an error and still falls back if initialization fails. `'cpu'` forces the CPU sim (sets `webgpuDisabled`). |
-| `maxFPS`               | `number`                      | `60`             | Frame-rate cap. `0` = uncapped (native refresh). Continuous animations still run, just less often. (Internally `0` under `NODE_ENV=test`/`VITEST`.) Also settable live via `scene.maxFPS`.                                                                                                     |
-| `respectReducedMotion` | `boolean`                     | `true`           | When the OS requests `prefers-reduced-motion`, cap to `REDUCED_MOTION_FPS` (30) — or the lower of that and `maxFPS`. `false` ignores the OS setting.                                                                                                                                           |
-| `readingDirection`     | `'ltr' \| 'rtl'`              | `'ltr'`          | Reading direction for the a11y/automation shadow tree, so keyboard **tab order** and screen-reader traversal follow the _visual_ reading order rather than scene-graph insertion order. `'rtl'` reverses the inline order within each row. Live via `scene.readingDirection`.                  |
-| `a11ySyncInterval`     | `number`                      | `0`              | Throttle the a11y shadow-DOM sync to at most once per N ms. `0` = sync every rendered frame. A small value (e.g. `100`) keeps the a11y layer eventually consistent during heavy animation while sparing per-frame DOM writes. Also live via `scene.a11ySyncInterval`.                          |
-| `debugA11y`            | `boolean`                     | `false`          | Render shadow nodes with a blue dashed outline (dev aid) instead of `opacity:0`. They stay clickable by automation either way.                                                                                                                                                                 |
-| `renderer`             | `IRenderer`                   | `CanvasRenderer` | Custom renderer (e.g. `ThreeRenderer` from [`@vectojs/three`](/reference/three-renderer/)).                                                                                                                                                                                                    |
-| `disableWindowResize`  | `boolean`                     | `false`          | Skip the auto `window` resize listener. Use inside a custom layout container / offscreen canvas, then drive size with `resize(w, h)`.                                                                                                                                                          |
-| `maxDPR`               | `number`                      | `undefined`      | Cap the device pixel ratio used to size the Canvas2D and `pointBackend: 'webgl'` backing stores. `undefined` reads the real, uncapped `devicePixelRatio`. Re-applied on every `resize()` call, not just at construction. See "Capping render DPR" below.                                       |
-| `renderMode`           | `'always' \| 'onDemand'`      | `'always'`       | Since `1.27.0` (`1.26.0` shipped the option; see below). Also settable live via `scene.renderMode`, which stays writable. Applying it as an option, not a post-construction assignment, means an `onDemand` scene skips the initial always-on frames too.                                      |
+| Option                    | Type                          | Default                           | Effect                                                                                                                                                                                                                                                                                         |
+| ------------------------- | ----------------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pointBackend`            | `'canvas' \| 'webgl'`         | `'canvas'`                        | Backend for representable `getBatchCircle()`/`getBatchRect()` leaves. `'webgl'` stacks a WebGL2 canvas (`z-index:5`) and batches those primitives; unavailable WebGL2 falls back to Canvas. The GL layer composites above 2D content, so cross-layer painter order does not interleave.        |
+| `particleBackend`         | `'auto' \| 'webgpu' \| 'cpu'` | `'auto'`                          | [`ComputeParticleEntity`](/reference/core-particles/) backend. `'auto'` tries WebGPU and warns before falling back to CPU. `'webgpu'` explicitly requests WebGPU but currently logs an error and still falls back if initialization fails. `'cpu'` forces the CPU sim (sets `webgpuDisabled`). |
+| `maxFPS`                  | `number`                      | `60`                              | Frame-rate cap. `0` = uncapped (native refresh). Continuous animations still run, just less often. (Internally `0` under `NODE_ENV=test`/`VITEST`.) Also settable live via `scene.maxFPS`.                                                                                                     |
+| `respectReducedMotion`    | `boolean`                     | `true`                            | When the OS requests `prefers-reduced-motion`, cap to `REDUCED_MOTION_FPS` (30) — or the lower of that and `maxFPS`. `false` ignores the OS setting.                                                                                                                                           |
+| `readingDirection`        | `'ltr' \| 'rtl'`              | `'ltr'`                           | Reading direction for the a11y/automation shadow tree, so keyboard **tab order** and screen-reader traversal follow the _visual_ reading order rather than scene-graph insertion order. `'rtl'` reverses the inline order within each row. Live via `scene.readingDirection`.                  |
+| `a11ySyncInterval`        | `number`                      | `0`                               | Throttle the a11y shadow-DOM sync to at most once per N ms. `0` = sync every rendered frame. A small value (e.g. `100`) keeps the a11y layer eventually consistent during heavy animation while sparing per-frame DOM writes. Also live via `scene.a11ySyncInterval`.                          |
+| `debugA11y`               | `boolean`                     | `false`                           | Render shadow nodes with a blue dashed outline (dev aid) instead of `opacity:0`. They stay clickable by automation either way.                                                                                                                                                                 |
+| `contentProjection`       | `boolean`                     | `true`                            | Project text-bearing entities into the a11y mirror at all, so native find-in-page, selection and copy work. `false` disables the whole content tier (the canvas still paints).                                                                                                                 |
+| `contentProjectionMargin` | `number`                      | one viewport height               | How far beyond the viewport an entity's **per-line carriers** are materialized — the _interaction_ tier. `Infinity` is unsupported: it unwindows every carrier, which is O(total document glyphs). See "Two projection margins" below.                                                         |
+| `contentSemanticMargin`   | `number`                      | same as `contentProjectionMargin` | Since `1.31.0`. How far beyond the viewport an entity keeps **any** projected DOM — the _semantic_ tier. `Infinity` keeps the whole document's text findable while carriers stay windowed. See "Two projection margins" below.                                                                 |
+| `renderer`                | `IRenderer`                   | `CanvasRenderer`                  | Custom renderer (e.g. `ThreeRenderer` from [`@vectojs/three`](/reference/three-renderer/)).                                                                                                                                                                                                    |
+| `disableWindowResize`     | `boolean`                     | `false`                           | Skip the auto `window` resize listener. Use inside a custom layout container / offscreen canvas, then drive size with `resize(w, h)`.                                                                                                                                                          |
+| `maxDPR`                  | `number`                      | `undefined`                       | Cap the device pixel ratio used to size the Canvas2D and `pointBackend: 'webgl'` backing stores. `undefined` reads the real, uncapped `devicePixelRatio`. Re-applied on every `resize()` call, not just at construction. See "Capping render DPR" below.                                       |
+| `renderMode`              | `'always' \| 'onDemand'`      | `'always'`                        | Since `1.27.0` (`1.26.0` shipped the option; see below). Also settable live via `scene.renderMode`, which stays writable. Applying it as an option, not a post-construction assignment, means an `onDemand` scene skips the initial always-on frames too.                                      |
 
 > [!NOTE]
 > Before `@vectojs/core@1.26.0`, `renderMode` was a **field only** — passing it
@@ -82,6 +85,49 @@ pixels. Before this option existed, the only workaround was monkey-patching
 `window.devicePixelRatio` before constructing the Scene; prefer `maxDPR`
 now — it's re-applied correctly on every resize, which a one-time
 `Object.defineProperty` patch is not.
+
+### Two projection margins
+
+Content projection has two independent tiers, and since `1.31.0` each has its own
+margin:
+
+- **semantic** (`contentSemanticMargin`) — does this block have _any_ DOM? A block
+  with DOM contributes its text to native find-in-page, copy and screen-reader
+  read-ahead.
+- **interaction** (`contentProjectionMargin`) — are that block's _per-line
+  carriers_ built? Carriers are what give the browser per-line geometry for
+  selection.
+
+Before the split one scalar armed both, so only two configurations existed: a
+finite margin freed off-screen blocks entirely, making off-screen text
+unfindable, while `Infinity` also materialized every carrier in the document.
+
+Setting them apart gives the useful middle ground:
+
+```ts
+const scene = new Scene(canvas, {
+  // Every block keeps its text, so find-in-page sees the whole document.
+  contentSemanticMargin: Infinity,
+  // Carriers stay bounded by the viewport, so cost scales with what is visible.
+  contentProjectionMargin: scene.height,
+});
+```
+
+> [!IMPORTANT]
+> `Infinity` is safe for `contentSemanticMargin` and **not** for
+> `contentProjectionMargin`. The cost that makes it unsupported comes from an
+> unwindowed carrier band, not from resident text.
+
+A block outside the interaction margin but inside the semantic margin projects
+its full text as a single node with **no** carrier children. It is findable and
+copyable; only per-line selection geometry is absent, and that is unreachable
+without scrolling it into view anyway.
+
+The one-time cost is worth knowing: a resident tier materializes one element per
+block on the first sync, measured at roughly 13 µs per node created — about 47 ms
+at 1000 blocks. Steady state is cheap, because an entity that stamps its own
+content lets Scene skip re-projecting an unchanged block entirely. So this is a
+document-open cost, not a per-frame one.
 
 ## Public fields
 

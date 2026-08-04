@@ -67,6 +67,51 @@ píxeles. Antes de que existiera esta opción, la única solución era monkey-pa
 ahora — se reaplica correctamente en cada resize, cosa que un
 `Object.defineProperty` puntual no hace.
 
+### Dos márgenes de proyección
+
+La proyección de contenido tiene dos niveles independientes y, desde `1.31.0`,
+cada uno tiene su propio margen:
+
+- **semántico** (`contentSemanticMargin`) — ¿este bloque tiene _algún_ DOM? Un
+  bloque con DOM aporta su texto a la búsqueda nativa en la página, a la copia y
+  a la lectura anticipada de los lectores de pantalla.
+- **interacción** (`contentProjectionMargin`) — ¿se construyen los _portadores
+  por línea_ de ese bloque? Los portadores dan al navegador la geometría línea a
+  línea necesaria para la selección.
+
+Antes de la división, un único escalar armaba ambos, por lo que solo existían dos
+configuraciones: un margen finito liberaba por completo los bloques fuera de
+pantalla, dejando el texto fuera de pantalla imposible de encontrar, mientras que
+`Infinity` también materializaba todos los portadores del documento.
+
+Separarlos ofrece el punto medio útil:
+
+```ts
+const scene = new Scene(canvas, {
+  // Every block keeps its text, so find-in-page sees the whole document.
+  contentSemanticMargin: Infinity,
+  // Carriers stay bounded by the viewport, so cost scales with what is visible.
+  contentProjectionMargin: scene.height,
+});
+```
+
+> [!IMPORTANT]
+> `Infinity` es seguro para `contentSemanticMargin` y **no** lo es para
+> `contentProjectionMargin`. El coste que lo hace no admitido proviene de una
+> banda de portadores sin ventana, no del texto residente.
+
+Un bloque fuera del margen de interacción pero dentro del margen semántico
+proyecta su texto completo como un único nodo, **sin** portadores hijos. Es
+localizable y copiable; solo falta la geometría de selección por línea, y esa es
+inalcanzable de todos modos sin desplazarlo a la vista.
+
+Vale la pena conocer el coste único: un nivel residente materializa un elemento
+por bloque en la primera sincronización, medido en torno a 13 µs por nodo creado
+— unos 47 ms con 1000 bloques. El estado estable es barato, porque una entidad
+que estampa su propio contenido permite a Scene omitir por completo la
+reproyección de un bloque sin cambios. Por tanto, este es un coste de apertura del
+documento, no un coste por fotograma.
+
 ## Campos públicos
 
 ```ts
