@@ -45,10 +45,30 @@ shaping, mixed-direction runs, and exact CR/LF/CRLF source boundaries therefore
 share one plan. Calibration is a cold font-loading pass; steady projection sync
 does not read Range geometry or replace cell carriers.
 
+## Width: `setWidth()`
+
+```ts
+codeBlock.setWidth(width: number): this
+```
+
+Changes the box width (`0.9.0+`). It deliberately does **not** rebuild the grid
+or re-run the highlight, because code does not reflow: lines sit on a fixed
+monospace grid at `col × cellWidth` and a long line overflows rather than
+wrapping, so `height` is a function of line **count** alone and the width only
+sizes the rounded background.
+
+Anything that would change glyph geometry — the source, the language, the font —
+goes through `setCode()`, which invalidates the grid there. It no-ops on an
+unchanged width and returns `this`.
+
+`Markdown.setMaxWidth()` calls this for you on every fenced block it owns, so a
+direct call is only needed when you construct a `CodeBlock` yourself.
+
 ## Maintainer checklist
 
 - Keep fenced code as one leaf entity.
 - Use `setCode()` for live updates.
+- Use `setWidth()` for a width-only change; it skips the grid rebuild `setCode()` performs.
 - Keep the content projection synchronized with exact source, font, and line height.
 - Reuse one prepared grid for Canvas paint, pointer carets, copy, and find.
 - Verify Chromium and Firefox at fractional DPR/zoom, including substituted fonts and transformed blocks.

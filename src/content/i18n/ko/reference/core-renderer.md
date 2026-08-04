@@ -14,6 +14,8 @@ order: 5
 
 ```ts
 interface IRenderer {
+  readonly pixelRatio?: number; // device px per CSS px of the backing store (1.29.0+)
+
   clear(): void;
   save(): void;
   restore(): void;
@@ -43,6 +45,19 @@ interface IRenderer {
   dispose?(): void; // 멱등성 백엔드 정리; Scene.destroy()가 호출
 }
 ```
+
+### `pixelRatio` — blit될 픽셀을 래스터화하기
+
+드로잉 컨텍스트에 **이미 적용된** 비율, 즉 CSS 픽셀당 디바이스 픽셀 수입니다(`1.29.0+`). 렌더러로 blit될 텍스처를 래스터화할 때는 `window.devicePixelRatio` 대신 이 값을 읽고, 그런 텍스처의 캐시는 이 값으로 키를 잡으세요.
+
+두 값은 어긋나며, 두 가지 어긋남 모두 blit를 망칩니다:
+
+- 백엔드가 값을 **클램프**합니다(`CanvasRenderer.maxDPR`, `SceneOptions.maxDPR`). 그래서 윈도우의 비율로 래스터화하면 스케일된 컨텍스트가 다시 리샘플링하는 텍스처가 만들어집니다;
+- `window.devicePixelRatio`는 줌이 적용되는 순간 바뀌지만, 백킹 스토어는 무언가가 `resize()`를 호출할 때만 재할당됩니다. 그 구간의 실시간 읽기는 **미래**의 비율을 알려주므로, 이를 키로 삼은 캐시는 컨텍스트가 아직 채택하지 않은 스케일에 맞춰 래스터화합니다 — 같은 결함의 뒤집힌 형태입니다.
+
+모듈 스코프에서 한 번 캡처한 값은 둘보다 더 나쁩니다: 줌도 모니터 이동도 전혀 따라갈 수 없습니다. 바로 그 결함을 고칠 수 있게 만들기 위해 이 속성이 존재하며, `Markdown`의 코드 글리프 아틀라스 풀이 저장소 내 소비자입니다. 이 값으로 키를 잡아 `GlyphRasterAtlas` 인스턴스의 유한 LRU를 유지하고, 그것이 브라우저 줌 이후 코드가 흐려지지 않게 하는 이유입니다.
+
+선택 사항이며 스냅샷이 아닌 **실시간** 읽기입니다: 자체 백킹 스토어가 없는 백엔드는 이를 생략하고, 호출자는 그 부재를 `1`로 취급합니다. `CanvasRenderer`는 컨텍스트를 스케일하는 세 지점 모두 — 생성, `resize()`, 그리고 `contextrestored` 복구 — 에서 실제로 적용한 비율을 기록하므로, 줌을 가로지르는 GPU 리셋 이후에도 값은 참을 유지합니다.
 
 ### GPU 컨텍스트 손실에서 살아남기
 

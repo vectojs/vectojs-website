@@ -14,6 +14,8 @@ Backend-agnostic drawing surface every `Entity.render` receives.
 
 ```ts
 interface IRenderer {
+  readonly pixelRatio?: number; // device px per CSS px of the backing store (1.29.0+)
+
   clear(): void;
   save(): void;
   restore(): void;
@@ -66,6 +68,35 @@ deliberately no `globalAlpha`, `strokeStyle`, `lineWidth`, `fillStyle`, or
 > with the same `Scene.devMode` / `globalThis.__DEV__` /
 > `NODE_ENV=development` detection used for the `SceneOptions` warning above;
 > production pays nothing.
+
+### `pixelRatio` — rasterizing pixels that get blitted
+
+Device pixels per CSS pixel of the ratio **already applied** to the drawing
+context (`1.29.0+`). Read it instead of `window.devicePixelRatio` whenever you
+rasterize a texture that will be blitted into the renderer, and key any cache of
+such textures on it.
+
+The two values differ, in two ways that both corrupt a blit:
+
+- a backend **clamps** (`CanvasRenderer.maxDPR`, `SceneOptions.maxDPR`), so
+  rasterizing at the window's ratio produces a texture the scaled context then
+  resamples;
+- `window.devicePixelRatio` changes the instant a zoom lands, while the backing
+  store is only reallocated when something calls `resize()`. A live read during
+  that window reports the **future** ratio, so a cache keyed on it rasterizes for
+  a scale the context has not adopted yet — the same defect inverted.
+
+A value captured once at module scope is worse than either: it cannot follow a
+zoom or a monitor move at all. That is the defect this property exists to make
+fixable, and `Markdown`'s code-glyph atlas pool is the in-repo consumer — it keys
+a bounded LRU of `GlyphRasterAtlas` instances on this value, which is what stops
+code from blurring after a browser zoom.
+
+It is optional and a **live** read rather than a snapshot: a backend with no
+backing store of its own omits it, and a caller treats the absence as `1`.
+`CanvasRenderer` records the ratio it actually applied at all three points that
+scale the context — construction, `resize()`, and `contextrestored` recovery — so
+the value stays truthful even after a GPU reset that lands across a zoom.
 
 ### Surviving GPU context loss
 

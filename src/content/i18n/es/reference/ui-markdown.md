@@ -66,6 +66,63 @@ el código de bloque a través de la cuadrícula preparada compartida, por lo qu
 Cuando una aplicación controla el tamaño del contenedor o el zoom CSS, notifica a la Scene con
 `scene.resize(width, height)` para que Firefox pueda recalibrar las métricas nativas de Range.
 
+## Ancho adaptable: `setMaxWidth()`
+
+```ts
+markdown.setMaxWidth(width: number): this
+```
+
+Reajusta el salto de línea de todos los bloques ya renderizados a un ancho nuevo
+(`0.9.0+`). Llámalo al redimensionar en lugar de asignar `maxWidth`, que
+establece el campo sin cambiar nada visible: el ancho se lee cuando cada bloque
+se **construye**, así que una asignación deja los bloques existentes medidos con
+el ancho anterior.
+
+```ts
+window.addEventListener('resize', () => {
+  scene.resize(window.innerWidth, window.innerHeight);
+  markdown.setMaxWidth(window.innerWidth - INSET * 2);
+});
+```
+
+Reajusta la maquetación en el sitio en vez de reconstruir, y eso es lo que lo
+hace utilizable a mitad de una transmisión:
+
+- sobreviven las mismas **instancias** de entidad de bloque, así que cualquier
+  cosa que mantenga una referencia a una de ellas (un ancla de desplazamiento, un
+  objetivo de clic, una selección de devtools) sigue funcionando;
+- un escritor [`createStream()`](#transmisión-por-streaming) abierto queda intacto y continúa
+  añadiendo;
+- no se vuelve a analizar léxicamente nada.
+
+Medido en un documento de cinco bloques en ambos motores: 520 → 260 px llevó el
+número de líneas proyectadas de 2 a 4 y la altura de 88 a 160 sobre las mismas
+dos instancias de párrafo, con el escritor todavía en `open` y **cero**
+caracteres adicionales entregados al analizador léxico.
+
+Si el ancho no cambia no hace nada, de modo que un redimensionado solo en altura
+no cuesta nada y quien llama no necesita una guarda. Un ancho negativo se acota
+a 0.
+
+> [!NOTE]
+> Antes de `0.9.0` el único apaño correcto era una reconstrucción completa:
+> liberar el flujo, reproducir la fuente ya revelada mediante `setContent()`,
+> abrir un escritor nuevo y trasladar a mano el desplazamiento. Eso reproduce el
+> documento correctamente, y por eso era fácil conservarlo: una reconstrucción
+> también produce una geometría correcta. Lo que costaba era un reanálisis
+> léxico de todo el documento y cada instancia de entidad, en cada
+> redimensionado.
+
+Las fórmulas en display conservan a propósito su propio ancho: MathJax
+dimensiona una caja compuesta a partir de métricas relativas a `ex` y no del
+ancho disponible, así que estirarla distorsionaría la fórmula. El código
+delimitado tampoco se reajusta —tiene una rejilla monoespaciada fija y las
+líneas largas se desbordan por diseño—, solo se redimensiona su fondo.
+
+Llamarlo desde una retrollamada [`onStable`](#finalización-de-un-solo-uso-onstable) lanza una excepción, por
+la misma razón que `setContent()`: esa retrollamada se ejecuta dentro del commit
+que invalidaría.
+
 ## Cobertura de GFM
 
 Más allá de párrafos, encabezados, listas, código de bloque y tablas:

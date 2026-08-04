@@ -54,6 +54,58 @@ interface MarkdownOptions {
 }
 ```
 
+## Responsive width: `setMaxWidth()`
+
+```ts
+markdown.setMaxWidth(width: number): this
+```
+
+Re-wraps every already-rendered block at a new width (`0.9.0+`). Call this on a
+resize instead of assigning `maxWidth`, which sets the field and changes nothing
+visible: the width is read when each block is **built**, so an assignment leaves
+existing blocks measured at the old width.
+
+```ts
+window.addEventListener('resize', () => {
+  scene.resize(window.innerWidth, window.innerHeight);
+  markdown.setMaxWidth(window.innerWidth - INSET * 2);
+});
+```
+
+It reflows in place rather than rebuilding, which is what makes it usable
+mid-stream:
+
+- the same block entity **instances** survive, so anything holding a reference to
+  one (a scroll anchor, a hit target, a devtools selection) keeps working;
+- an open [`createStream()`](#streaming) writer is untouched and keeps appending;
+- nothing is re-lexed.
+
+Measured on a five-block document in both engines: 520 → 260 px took the
+projected line count 2 → 4 and the height 88 → 160 on the same two paragraph
+instances, with the writer still `open` and **zero** additional characters handed
+to the lexer.
+
+It no-ops on an unchanged width, so a height-only resize costs nothing and a
+caller does not need to guard the call. A negative width clamps to 0.
+
+> [!NOTE]
+> Before `0.9.0` the only correct workaround was a full rebuild — release the
+> stream, replay the revealed source through `setContent()`, open a fresh writer,
+> and carry the scroll offset across by hand. That reproduces the document
+> correctly, which is why it was easy to keep: a rebuild also produces correct
+> geometry. What it cost was a whole-document re-lex and every entity instance,
+> on every resize.
+
+Display math is deliberately left at its own width: MathJax sizes a typeset box
+from `ex`-relative metrics rather than from the available width, so stretching it
+would distort the formula. Fenced code is also not re-wrapped — code has a fixed
+monospace grid and long lines overflow by design — only its background is
+resized.
+
+Calling it from an
+[`onStable`](#one-shot-completion-onstable) callback throws, for the same reason
+`setContent()` does: that callback runs inside the commit it would invalidate.
+
 ## GFM coverage
 
 Beyond paragraphs, headings, lists, fenced code and tables:

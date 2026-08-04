@@ -46,6 +46,26 @@ Lʼombre structurelle `role="grid"` ne capture pas les événements de pointeur 
 de cellules. Cette propriété de feuille est ce qui maintient la sélection par glissement entre cellules,
 Ctrl/Commande+C et la recherche dans la page alignés avec le texte VMT exactement une fois.
 
+## Largeur responsive : `setWidth()`
+
+```ts
+table.setWidth(width: number): this
+```
+
+Change la largeur totale, redimensionne les colonnes proportionnellement et
+relance la mise en page (`2.11.0+`). Utilisez-la au lieu d'affecter `width`, ce
+qui ne suffit pas : `colWidths` est résolu **une seule fois dans le
+constructeur** à partir de la largeur qui y est fournie, et la largeur de
+retour à la ligne, la position et l'alignement de chaque cellule dérivent de
+ces valeurs **par colonne** plutôt que de `width`. Un tableau dont le `width` a
+été réaffecté dessine donc son cadre à la nouvelle taille alors que ses
+cellules restent disposées pour l'ancienne.
+
+Les colonnes conservent leurs proportions relatives, de sorte qu'un ratio
+`colWidths` explicite survit à un redimensionnement au lieu d'être redivisé
+équitablement au premier appel. Sans changement de largeur, l'appel ne fait
+rien ; la valeur est bornée à un minimum de 1 et `this` est renvoyé.
+
 ## Accessibilité et clavier
 
 Lʼarbre projeté est une vraie grille ARIA : une rangée épinglée de `columnheader`s plus un `row` pour chaque rangée **visible** du corps (conscient de la virtualisation), chaque cellule un hotspot `gridcell` recevant le focus. Exactement une cellule détient le **tabindex tournant**, donc la grille entière est un seul arrêt de tabulation.
