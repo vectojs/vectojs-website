@@ -13,7 +13,7 @@ LʼIME, le presse-papier, la sélection et lʼautomatisation restent natifs.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Input</span></div>
-  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.30.0-ui-2.12.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live dʼInput" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.31.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live dʼInput" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Remplissez la zone de texte via la saisie au clavier ou lʼautomatisation basée sur les rôles.</figcaption>
 </figure>
 
