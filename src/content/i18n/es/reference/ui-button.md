@@ -13,7 +13,7 @@ misma caja. Los usuarios ven píxeles del canvas; los lectores de pantalla y her
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Button</span></div>
-  <iframe src="/sandbox/ui/button.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame" loading="eager" title="Demostración en vivo de Button" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/button.html?v=core-1.32.2-ui-2.13.1" class="sandbox-frame component-demo-frame" loading="eager" title="Demostración en vivo de Button" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Al pasar el ratón cambia el estado pintado. Los clics se enrutan a través del mismo rol de botón que Playwright puede encontrar.</figcaption>
 </figure>
 

@@ -12,7 +12,7 @@ order: 15
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Overlay</span></div>
-  <iframe src="/sandbox/ui/overlay.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Overlay live demo" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/overlay.html?v=core-1.32.2-ui-2.13.1" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Overlay live demo" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>ランチャーにホバーまたはクリックします。PopoverとContextMenuは、巨大なギャラリーでは捉えにくいオーバーフローの欠陥を避けるように配置されています。</figcaption>
 </figure>
 
