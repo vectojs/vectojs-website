@@ -6,10 +6,10 @@
       "name": "vecto-website",
       "dependencies": {
         "@astrojs/sitemap": "^3.7.3",
-        "@vectojs/core": "1.32.0",
+        "@vectojs/core": "1.32.2",
         "@vectojs/graph3d": "0.3.0",
         "@vectojs/three": "0.1.8",
-        "@vectojs/ui": "2.13.0",
+        "@vectojs/ui": "2.13.1",
         "astro": "^7.0.3",
         "three": "^0.160.0",
       },
@@ -478,7 +478,7 @@
 
     "@vectojs/animation": ["@vectojs/animation@0.1.1", "", { "dependencies": { "@vectojs/math": "^0.1.1" } }, "sha512-XmQjh2vhJUpmui61HiAZKcYRVV2W3qH9afIHza4Ls69Uq6tURBaOiE9Of0lQqszfi2y/HqbJ2KPKdeqh1pO4fQ=="],
 
-    "@vectojs/core": ["@vectojs/core@1.32.0", "", { "dependencies": { "@vectojs/animation": "^0.1.1", "@vectojs/layout": "^0.6.0", "@vectojs/math": "^0.1.1", "@vectojs/text": "^0.3.0" } }, "sha512-t4MAwy777l/pBB1dX9xTJfztUr6WMfzJLE7YyTbwfOreHQkdRNg1Enqf3XJ3lJnCDKZ4POOz94PbjVY+LhEAlA=="],
+    "@vectojs/core": ["@vectojs/core@1.32.2", "", { "dependencies": { "@vectojs/animation": "^0.1.1", "@vectojs/layout": "^0.6.0", "@vectojs/math": "^0.1.1", "@vectojs/text": "^0.3.0" } }, "sha512-+4FAYXcCHIXzufAMlNOG59/YRO8f4wps4IekBSmTYK477LrEaf3AA7WOFro1K/EHIVIYtfvrgySBwDnjNuiQ8g=="],
 
     "@vectojs/graph3d": ["@vectojs/graph3d@0.3.0", "", { "dependencies": { "d3-force-3d": "^3.0.6" }, "peerDependencies": { "three": "^0.160.0" } }, "sha512-/MWYrB3YjEsGfD+gwJ4dBZuDLsox7XoEemPHqorLETONqtXQAF00qM/GFjYwpQnrztxS29F00zD63uKCyQOYOg=="],
 
@@ -490,7 +490,7 @@
 
     "@vectojs/three": ["@vectojs/three@0.1.8", "", { "peerDependencies": { "@vectojs/core": ">=1.0.0 <2.0.0", "three": "^0.160.0" } }, "sha512-ChM5dJduwK7/ocnre3u7HOJpxCz2Thq0flm3qGuk/7v8abOenASqMBIZdgCHhVfAMcMZakMS3fxkEDigfT0sxA=="],
 
-    "@vectojs/ui": ["@vectojs/ui@2.13.0", "", { "peerDependencies": { "@vectojs/core": ">=1.25.0 <2.0.0" } }, "sha512-hr+lYw6tFIXIkHQFp0j3gFKMBC+H51MyZ8DyPEuXmXrWdIbqPCgoBYKdOivsg/DCfEsB4IjzyYr69KsZ92BGFA=="],
+    "@vectojs/ui": ["@vectojs/ui@2.13.1", "", { "peerDependencies": { "@vectojs/core": ">=1.25.0 <2.0.0" } }, "sha512-oc3f5j+B6wa1uqRrRidGLL90mZAzXMbPr8g1Y0ClWvJHht2XLT7rmg8yaOrhDjqieOAHfyyUHpuRo6dOvxTngA=="],
 
     "@volar/kit": ["@volar/kit@2.4.28", "", { "dependencies": { "@volar/language-service": "2.4.28", "@volar/typescript": "2.4.28", "typesafe-path": "^0.2.2", "vscode-languageserver-textdocument": "^1.0.11", "vscode-uri": "^3.0.8" }, "peerDependencies": { "typescript": "*" } }, "sha512-cKX4vK9dtZvDRaAzeoUdaAJEew6IdxHNCRrdp5Kvcl6zZOqb6jTOfk3kXkIkG3T7oTFXguEMt5+9ptyqYR84Pg=="],
 

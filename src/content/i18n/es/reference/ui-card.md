@@ -13,7 +13,7 @@ pasar `label` lo convierte en un grupo semántico.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Card</span></div>
-  <iframe src="/sandbox/ui/component.html?name=card&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Card" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=card&v=core-1.32.2-ui-2.13.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Card" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Las Cards poseen el fondo y el borde; los hijos se posicionan en el espacio local de la card.</figcaption>
 </figure>
 
