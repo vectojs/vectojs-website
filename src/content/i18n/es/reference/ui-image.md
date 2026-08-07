@@ -12,7 +12,7 @@ order: 19
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Image</span></div>
-  <iframe src="/sandbox/ui/component.html?name=image&v=core-1.32.2-ui-2.13.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Image" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=image&v=core-1.32.3-ui-2.13.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Image" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>El placeholder se pinta hasta que la devolución de llamada de carga de la imagen marca la escena como sucia.</figcaption>
 </figure>
 
