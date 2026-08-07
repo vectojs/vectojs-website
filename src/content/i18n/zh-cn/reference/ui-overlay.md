@@ -12,7 +12,7 @@ overlay 家族在正常实体树之上渲染临时 UI。覆盖层通过 `scene.o
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Overlay</span></div>
-  <iframe src="/sandbox/ui/overlay.html?v=core-1.32.2-ui-2.13.1" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Overlay live demo" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/overlay.html?v=core-1.32.3-ui-2.13.1" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Overlay live demo" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>悬停或点击启动器。Popover 和 ContextMenu 经过定位以避免在大型画廊中难以捕捉的溢出缺陷。</figcaption>
 </figure>
 
