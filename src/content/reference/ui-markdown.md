@@ -116,6 +116,30 @@ Beyond paragraphs, headings, lists, fenced code and tables:
 | `- [ ]` / `- [x]`   | A ☐ or ☑ glyph plus a space, replacing the bullet; `1.` then the glyph when ordered (`0.8.0+`) |
 | `\|:--\|--:\|:-:\|` | Column alignment, forwarded to `Table.align` (`0.8.0+`)                                        |
 | `$…$` / ` ```math ` | MathJax-typeset formula (inline / block), converted only once the delimiter closes             |
+| `[^1]` / `[^1]: …`  | A small tinted `[1]` marker, and the definition as its own block (`0.16.0+`)                   |
+| `~subscript~`       | Literal source, unstruck — **not** subscript, and no longer struck through (`0.16.1+`)         |
+
+Footnote definitions render **where they stand**, not collected into a document
+footer, and a marker prints its label as written rather than renumbering — so a
+reference renders before its definition has arrived while streaming. A marker
+carries no `href`: it refers to a sibling block, not a URL, so it is not
+underlined and never reaches `onLinkClick`. Definitions are single-line; an
+indented continuation line becomes an ordinary indented code block, and inline
+markup inside a note body renders literally.
+
+Two theme keys control the appearance: `footnoteColor` (defaults to
+`linkColor`, so recolouring links recolours markers too) and
+`footnoteMarkerScale` (default `0.75`, a multiple of the size of the run the
+marker sits in — so a marker in a heading scales with the heading).
+
+A **single**-tilde run is not subscript and is not strikethrough. `marked`'s GFM
+tokenizer emits the same `del` token for `~x~` as for `~~x~~`, so before `0.16.1`
+`H~2~O` painted the `2` with a strikethrough: a reader saw H2̶O with no way to
+tell subscript had been meant. It now renders as its literal source, `H~2~O`,
+unstruck — inner markup still renders, so `~*em*~` keeps its emphasis. True
+subscript needs a baseline-shift text style, which does not exist yet. `~~x~~` is
+unaffected, including a single-tilde run nested inside one: `~~a ~b~ c~~` is
+struck throughout.
 
 ## Front matter
 
