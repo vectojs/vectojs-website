@@ -163,7 +163,11 @@ interface RichTextOptions {
 }
 ```
 
-Multi-style inline text: bold / italic / colored / differently-sized runs flow and wrap on shared baselines. Layout uses the core `LayoutEngine.prepareRich`; each glyph draws with its run's color/weight/slant.
+Multi-style inline text: bold / italic / colored / differently-sized /
+baseline-shifted (superscript, subscript) runs flow and wrap on shared
+baselines. Layout uses the core `LayoutEngine.prepareRich`; each glyph draws
+with its run's color/weight/slant and on its own baseline when
+`TextStyle.baselineShift` is set (0.8.0+).
 
 - `setSpans(spans): this` — replace runs and re-layout.
 - `appendSpans(spans): this` — **streaming** path; the rich paragraph memo reuses untouched leading paragraphs, so a token stream re-prepares in O(changed paragraph), not O(document).

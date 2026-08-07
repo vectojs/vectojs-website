@@ -128,11 +128,13 @@ interface TextStyle {
   italic?: boolean;
   color?: string;
   fontSize?: number; // overrides base font size for this run
+  lineThrough?: boolean; // strike this run (0.6.0+)
+  baselineShift?: number; // vertical baseline offset, px, positive = up (0.8.0+)
   href?: string; // makes the run a link
 }
 ```
 
-> [!NOTE] > `bold` and `italic` affect rendering only, not measured width (bold strokes extend beyond the advance width slightly). `fontSize` **does** affect both measured width and line height, so mixing sizes on one line works correctly — each line's height is determined by its tallest glyph.
+> [!NOTE] > `bold` and `italic` affect rendering only, not measured width (bold strokes extend beyond the advance width slightly). `fontSize` **does** affect both measured width and line height, so mixing sizes on one line works correctly — each line's height is determined by its tallest glyph. `baselineShift` moves a run's baseline (superscript = positive, subscript = negative) and affects line height but not width: a shift large enough that the run's glyph box would leave the line box grows the line, the same way a tall inline object does.
 
 ### Streaming `appendSpans()`
 

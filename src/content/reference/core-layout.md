@@ -36,9 +36,13 @@ layoutTextIntoBuffer(text, fontAtlas, fontSize, buffer, exclusionMask?): void
   so re-preparing growing text (e.g. an LLM token stream) only measures new
   paragraphs.
 - **Rich text.** `StyledSpan = { text, style?: TextStyle }`; `TextStyle =
-{ fontSize?, color?, bold?, italic?, fontFamily?, lineThrough?, href? }`. A
+{ fontSize?, color?, bold?, italic?, fontFamily?, lineThrough?, baselineShift?, href? }`. A
   mid-word style change is honored per-glyph. `fontSize` and `fontFamily` affect
-  measured width + line height; the rest is render metadata carried to the nodes
+  measured width + line height; `baselineShift` (0.8.0+) shifts a run's baseline
+  vertically in px (positive = up, the CSS `vertical-align` sense) and affects
+  line height but not width — a run shifted far enough that its glyph box would
+  leave the line box grows the line, exactly like a tall inline object; the rest
+  is render metadata carried to the nodes
   (`PreparedGlyph.style` → `LayoutNode.style`). `lineThrough` (0.6.0+) is stroked
   once per coalesced run rather than per glyph, with the weight scaled to the run's
   size; there is no `underline` counterpart, since a link's underline is implied by
@@ -58,8 +62,9 @@ exclusions: ExclusionRect[]): LineSegment[]` is the pure, testable core: the
 - `PreparedText` → `PreparedParagraph[]` → `PreparedWord[]` → `PreparedGlyph[]`.
 - `LayoutResult` — `{ nodes: LayoutNode[], totalWidth, totalHeight,
 fallbackToCanvas? }`; `LayoutNode` is one positioned glyph.
-- `LayoutResultBuffer` — flat typed-array result (`xs/ys/ws/hs`, `chars`,
-  `levels`, `count`, `CAPACITY = 16384`); `reset()` before reuse, `toLayoutResult()` to
+- `LayoutResultBuffer` — flat typed-array result (`xs/ys/ws/hs`,
+  `baselineShifts`, `chars`, `levels`, `count`, `CAPACITY = 16384`); `reset()`
+  before reuse, `toLayoutResult()` to
   materialize. `levels` is the per-glyph resolved BiDi embedding level (even =
   LTR, odd = RTL), so a consumer can tell a glyph's direction; the buffer path
   uses it to reorder each line to visual order. Glyphs come out in **visual**
