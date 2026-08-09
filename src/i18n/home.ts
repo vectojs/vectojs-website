@@ -106,7 +106,7 @@ const en: HomeStrings = {
       {
         icon: FEATURE_ICONS[5],
         title: 'Streaming-first Markdown',
-        body: '<code>appendMarkdown(delta)</code> re-lexes the source but reuses unchanged rendered entities. Tables, code fences, images, math (MathJax), Mermaid, and ABC notation are supported for LLM chat and live feeds.',
+        body: '<code>appendMarkdown(delta)</code> re-lexes the source but reuses unchanged rendered entities. Tables, code fences, images, math (<code>@vectojs/tex</code>), Mermaid, and ABC notation are supported for LLM chat and live feeds.',
       },
       {
         icon: FEATURE_ICONS[6],
