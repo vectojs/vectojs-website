@@ -8,7 +8,7 @@ order: 14
 
 `Markdown` y `CodeBlock` viven en el paquete independiente **`@vectojs/markdown`**
 (a partir de `@vectojs/ui@2.2.0` ya no forman parte de `@vectojs/ui`, así que las
-dependencias `marked` + MathJax solo se cargan cuando renderizas Markdown). Compone
+dependencias `marked` + `@vectojs/tex` solo se cargan cuando renderizas Markdown). Compone
 componentes de `@vectojs/ui`, así que instálalo junto a `@vectojs/ui` y `@vectojs/core`:
 `bun add @vectojs/markdown @vectojs/ui @vectojs/core`.
 
@@ -113,7 +113,7 @@ a 0.
 > léxico de todo el documento y cada instancia de entidad, en cada
 > redimensionado.
 
-Las fórmulas en display conservan a propósito su propio ancho: MathJax
+Las fórmulas en display conservan a propósito su propio ancho: `@vectojs/tex`
 dimensiona una caja compuesta a partir de métricas relativas a `ex` y no del
 ancho disponible, así que estirarla distorsionaría la fórmula. El código
 delimitado tampoco se reajusta —tiene una rejilla monoespaciada fija y las
@@ -132,7 +132,7 @@ Más allá de párrafos, encabezados, listas, código de bloque y tablas:
 | `~~strikethrough~~` | Texto tachado — un solo trazo por tramo fusionado, con grosor escalado al tamaño de la fuente (`0.8.0+`)           |
 | `- [ ]` / `- [x]`   | Un glifo ☐ o ☑ seguido de un espacio, que reemplaza la viñeta; `1.` y luego el glifo cuando es ordenada (`0.8.0+`) |
 | `\|:--\|--:\|:-:\|` | La alineación de columnas, reenviada a `Table.align` (`0.8.0+`)                                                    |
-| `$…$` / ` ```math ` | Una fórmula compuesta por MathJax (en línea / en bloque), convertida solo una vez que el delimitador cierra        |
+| `$…$` / ` ```math ` | Una fórmula compuesta por `@vectojs/tex` (en línea / en bloque), convertida solo una vez que el delimitador cierra |
 
 ## Metadatos iniciales (Front matter)
 

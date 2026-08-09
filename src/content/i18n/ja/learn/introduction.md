@@ -49,7 +49,7 @@ order: 1
 | `@vectojs/math`           | スタンドアロンの空間/物理数学：`SpatialHashGrid`のブロードフェーズと`SpringPhysics`                                                                           |
 | `@vectojs/animation`      | スタンドアロンのイージングライブラリと`TweenDriver`・`SpringDriver`の値ドライバー                                                                             |
 | `@vectojs/ui`             | 高レベルコンポーネント：`Button`、`Input`、`Toggle`、`ScrollView`、`Dropdown`、`Table`、その他。ランタイム依存ゼロ。                                          |
-| `@vectojs/markdown`       | `Markdown` + `CodeBlock`エンティティ（`marked`でパースし、TeX数式をMathJaxでレンダリング）、`@vectojs/ui`の上に構築                                           |
+| `@vectojs/markdown`       | `Markdown` + `CodeBlock`エンティティ（`marked`でパースし、TeX数式を`@vectojs/tex`でレンダリング）、`@vectojs/ui`の上に構築                                    |
 | `@vectojs/three`          | VectoJSシーンをThree.jsのテクスチャに投影し、レイキャスト入力を2Dへ戻してルーティングする                                                                     |
 | `@vectojs/devtools`       | ページ内のVirtual Math Treeインスペクター：エンティティツリー、クリックで選択、ジオメトリのライブ表示                                                         |
 | `@vectojs/graph3d`        | 3Dフォースディレクテッドグラフの可視化（インスタンス化されたThree.jsレンダラー）                                                                              |

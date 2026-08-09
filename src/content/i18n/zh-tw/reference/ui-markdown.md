@@ -6,7 +6,7 @@ order: 14
 
 # `Markdown` — `@vectojs/markdown`
 
-`Markdown` 和 `CodeBlock` 位於獨立的 **`@vectojs/markdown`** 套件中（自 `@vectojs/ui@2.2.0` 起，它們不再是 `@vectojs/ui` 的一部分，因此 `marked` + MathJax 依賴只在你渲染 Markdown 時才載入）。它組合了 `@vectojs/ui` 元件，因此請將它與 `@vectojs/ui` 和 `@vectojs/core` 一起安裝：`bun add @vectojs/markdown @vectojs/ui @vectojs/core`。
+`Markdown` 和 `CodeBlock` 位於獨立的 **`@vectojs/markdown`** 套件中（自 `@vectojs/ui@2.2.0` 起，它們不再是 `@vectojs/ui` 的一部分，因此 `marked` + `@vectojs/tex` 依賴只在你渲染 Markdown 時才載入）。它組合了 `@vectojs/ui` 元件，因此請將它與 `@vectojs/ui` 和 `@vectojs/core` 一起安裝：`bun add @vectojs/markdown @vectojs/ui @vectojs/core`。
 
 `Markdown` 使用 `marked` 解析 Markdown，並將結果渲染為 VectoJS entity 子樹。段落和標題成為 `RichText`，圍欄程式碼成為 `CodeBlock`，而 GFM 表格成為 `Table`。
 
@@ -78,7 +78,7 @@ window.addEventListener('resize', () => {
 > [!NOTE]
 > 在 `0.9.0` 之前，唯一正確的替代做法是完整重建——釋放串流、把已揭示的原始碼透過 `setContent()` 重播、開啟一個新的寫入器，並手工把捲動偏移搬過去。它確實能正確複現文件，這也正是它容易被保留下來的原因：重建同樣會產出正確的幾何。它的代價是每次調整尺寸都要對整篇文件重新做詞法分析，並丟棄每一個實體實例。
 
-展示型公式被刻意保留其自身寬度：MathJax 是依據相對於 `ex` 的度量而非可用寬度來決定排版盒子的尺寸，因此拉伸它會使公式變形。圍欄程式碼同樣不會被重新排布——程式碼使用固定的等寬網格，過長的行按設計溢出——只有它的背景會被調整尺寸。
+展示型公式被刻意保留其自身寬度：`@vectojs/tex` 是依據相對於 `ex` 的度量而非可用寬度來決定排版盒子的尺寸，因此拉伸它會使公式變形。圍欄程式碼同樣不會被重新排布——程式碼使用固定的等寬網格，過長的行按設計溢出——只有它的背景會被調整尺寸。
 
 從 [`onStable`](#單次完成onstable) 回呼中呼叫它會擲出例外，原因與 `setContent()` 相同：該回呼執行在它將要使之失效的那次提交內部。
 
@@ -91,7 +91,7 @@ window.addEventListener('resize', () => {
 | `~~strikethrough~~` | 帶刪除線的文字 — 每個合併的文字段一道線，線寬按字級縮放（`0.8.0+`）          |
 | `- [ ]` / `- [x]`   | 用 ☐ 或 ☑ 字形加一個空格取代項目符號；有序列表時為 `1.` 加該字形（`0.8.0+`） |
 | `\|:--\|--:\|:-:\|` | 欄對齊，轉發給 `Table.align`（`0.8.0+`）                                     |
-| `$…$` / ` ```math ` | 由 MathJax 排版的公式（行內 / 區塊），僅在定界符閉合後才轉換                 |
+| `$…$` / ` ```math ` | 由 `@vectojs/tex` 排版的公式（行內 / 區塊），僅在定界符閉合後才轉換          |
 
 ## 前置元資料（Front matter）
 

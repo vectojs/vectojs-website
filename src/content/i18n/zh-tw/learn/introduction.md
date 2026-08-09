@@ -49,7 +49,7 @@ order: 1
 | `@vectojs/math`           | 獨立的空間/物理數學：`SpatialHashGrid` 粗篩階段與 `SpringPhysics`                                                            |
 | `@vectojs/animation`      | 獨立的緩動函式庫，加上 `TweenDriver` 與 `SpringDriver` 值驅動器                                                              |
 | `@vectojs/ui`             | 高階元件：`Button`、`Input`、`Toggle`、`ScrollView`、`Dropdown`、`Table` 等。零執行期依賴。                                  |
-| `@vectojs/markdown`       | `Markdown` + `CodeBlock` 實體（以 `marked` 解析，以 MathJax 渲染 TeX 數學），建構於 `@vectojs/ui` 之上                       |
+| `@vectojs/markdown`       | `Markdown` + `CodeBlock` 實體（以 `marked` 解析，以 `@vectojs/tex` 渲染 TeX 數學），建構於 `@vectojs/ui` 之上                |
 | `@vectojs/three`          | 將 VectoJS 場景投射到 Three.js 紋理上，並將光線投射輸入路由回 2D                                                             |
 | `@vectojs/devtools`       | 頁內虛擬數學樹檢視器：實體樹、點擊挑選、即時幾何讀數                                                                         |
 | `@vectojs/graph3d`        | 3D 力導向圖形視覺化（實例化的 Three.js 渲染器）                                                                              |

@@ -7,11 +7,11 @@ order: 11
 # `@vectojs/ui` — 元件參考
 
 > 適用於 VectoJS zero-DOM Canvas 引擎的可重複使用高層級元件。
-> 文件版本：**2.8.0**。事實來源：`dist/index.d.ts`（公開表面）和 `packages/ui/src/*`（行為）。
+> 文件版本：**2.15.1**。事實來源：`dist/index.d.ts`（公開表面）和 `packages/ui/src/*`（行為）。
 
 每個元件都是 Virtual Math Tree (VMT) 中的葉節點或容器。這裡沒有任何東西是真實的 DOM — 元件會透過 `IRenderer` 將自己繪製到 Canvas 上。無障礙、agent 自動化和可爬取性來自一個平行的 **A11y Shadow DOM**：當元件為 `interactive` 時，`Scene` 會投射一個單一隱藏、透明的真實 DOM 節點，定位在元件的方塊上方，根據 `getA11yAttributes()` 構建。這就是為什麼 `page.getByRole('button', { name })` / `fill()` / 螢幕閱讀器可以在純 Canvas UI 上運作的原因。
 
-純文字應用程式可以從 `@vectojs/ui/text` 匯入 `Text`。這個輕量級入口點排除 Markdown 和 MathJax 以減少啟動圖；在組合多個元件系列時使用根 `@vectojs/ui` 入口點。
+純文字應用程式可以從 `@vectojs/ui/text` 匯入 `Text`。這個輕量級入口點排除 Markdown 和 `@vectojs/tex` 以減少啟動圖；在組合多個元件系列時使用根 `@vectojs/ui` 入口點。
 
 ## 即時元件展示
 

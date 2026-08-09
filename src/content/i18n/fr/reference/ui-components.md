@@ -7,11 +7,11 @@ order: 11
 # `@vectojs/ui` — Référence des composants
 
 > Composants réutilisables de haut niveau pour le moteur Canvas zero-DOM VectoJS.
-> Version documentée : **2.8.0**. Source de vérité : `dist/index.d.ts` (surface publique) et `packages/ui/src/*` (comportement).
+> Version documentée : **2.15.1**. Source de vérité : `dist/index.d.ts` (surface publique) et `packages/ui/src/*` (comportement).
 
 Chaque composant est une feuille ou un conteneur dans l'Arbre Mathématique Virtuel (VMT). Rien ici n'est du vrai DOM — les composants se dessinent eux-mêmes sur un Canvas via un `IRenderer`. L'accessibilité, l'automatisation par agent et la crawlabilité proviennent d'un **A11y Shadow DOM** parallèle : lorsqu'un composant est `interactive`, la `Scene` projette un seul nœud DOM réel caché et transparent positionné au-dessus de la boîte du composant, construit à partir de `getA11yAttributes()`. C'est pourquoi `page.getByRole('button', { name })` / `fill()` / les lecteurs d'écran fonctionnent sur une UI pure-Canvas.
 
-Les surfaces d'application ne contenant que du texte peuvent importer `Text` depuis `@vectojs/ui/text`. Cette entrée légère exclut Markdown et MathJax du graphe de démarrage ; utilisez l'entrée racine `@vectojs/ui` lorsque vous composez plusieurs familles de composants.
+Les surfaces d'application ne contenant que du texte peuvent importer `Text` depuis `@vectojs/ui/text`. Cette entrée légère exclut Markdown et `@vectojs/tex` du graphe de démarrage ; utilisez l'entrée racine `@vectojs/ui` lorsque vous composez plusieurs familles de composants.
 
 ## Galerie de composants live
 

@@ -49,7 +49,7 @@ order: 1
 | `@vectojs/math`           | 독립형 공간/물리 수학: `SpatialHashGrid` 광역 단계(broad-phase)와 `SpringPhysics`                                                                            |
 | `@vectojs/animation`      | 독립형 이징 라이브러리와 `TweenDriver` 및 `SpringDriver` 값 드라이버                                                                                         |
 | `@vectojs/ui`             | 고수준 컴포넌트: `Button`, `Input`, `Toggle`, `ScrollView`, `Dropdown`, `Table` 등. 런타임 의존성 제로.                                                      |
-| `@vectojs/markdown`       | `Markdown` + `CodeBlock` 엔티티(`marked`로 파싱하고 MathJax로 TeX 수식 렌더링), `@vectojs/ui` 위에 구축                                                      |
+| `@vectojs/markdown`       | `Markdown` + `CodeBlock` 엔티티(`marked`로 파싱하고 `@vectojs/tex`로 TeX 수식 렌더링), `@vectojs/ui` 위에 구축                                               |
 | `@vectojs/three`          | VectoJS 씬을 Three.js 텍스처에 투영하고 광선캐스트 입력을 다시 2D로 라우팅                                                                                   |
 | `@vectojs/devtools`       | 인-페이지 Virtual Math Tree 인스펙터: 엔티티 트리, 클릭-투-픽, 실시간 지오메트리 판독                                                                        |
 | `@vectojs/graph3d`        | 3D 힘-지향(force-directed) 그래프 시각화(인스턴스형 Three.js 렌더러)                                                                                         |

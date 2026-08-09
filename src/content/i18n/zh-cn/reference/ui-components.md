@@ -7,11 +7,11 @@ order: 11
 # `@vectojs/ui` — 组件参考
 
 > 适用于 VectoJS zero-DOM Canvas 引擎的可复用高级组件。
-> 文档版本：**2.8.0**。权威来源：`dist/index.d.ts`（公共表面）和 `packages/ui/src/*`（行为）。
+> 文档版本：**2.15.1**。权威来源：`dist/index.d.ts`（公共表面）和 `packages/ui/src/*`（行为）。
 
 每个组件都是 Virtual Math Tree (VMT) 中的叶节点或容器节点。这里没有真正的 DOM——组件通过 `IRenderer` 在 Canvas 上绘制自身。可访问性、智能体自动化和可爬取性来自一个并行的 **A11y Shadow DOM**：当一个组件是 `interactive` 时，`Scene` 会投影一个位于组件框上方的、隐藏的透明真实 DOM 节点，该节点由 `getA11yAttributes()` 构建。这就是为什么 `page.getByRole('button', { name })` / `fill()` / 屏幕阅读器可以在纯 Canvas UI 上工作的原因。
 
-纯文本应用可以通过 `@vectojs/ui/text` 导入 `Text`。这个轻量级入口点将 Markdown 和 MathJax 排除在启动图之外；在组合多个组件族时使用根 `@vectojs/ui` 入口。
+纯文本应用可以通过 `@vectojs/ui/text` 导入 `Text`。这个轻量级入口点将 Markdown 和 `@vectojs/tex` 排除在启动图之外；在组合多个组件族时使用根 `@vectojs/ui` 入口。
 
 ## 在线组件画廊
 

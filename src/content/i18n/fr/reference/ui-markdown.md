@@ -8,7 +8,7 @@ order: 14
 
 `Markdown` et `CodeBlock` vivent dans le paquet autonome **`@vectojs/markdown`**
 (depuis `@vectojs/ui@2.2.0` ils ne font plus partie de `@vectojs/ui`, de sorte que
-les dépendances `marked` + MathJax ne se chargent que lorsque vous rendez du
+les dépendances `marked` + `@vectojs/tex` ne se chargent que lorsque vous rendez du
 Markdown). Il compose des composants `@vectojs/ui`, alors installez-le aux côtés de
 `@vectojs/ui` et `@vectojs/core` : `bun add @vectojs/markdown @vectojs/ui @vectojs/core`.
 
@@ -113,7 +113,7 @@ largeur négative est bornée à 0.
 > était une réanalyse lexicale de tout le document et la perte de chaque
 > instance d'entité, à chaque redimensionnement.
 
-Les formules en display gardent volontairement leur propre largeur : MathJax
+Les formules en display gardent volontairement leur propre largeur : `@vectojs/tex`
 dimensionne une boîte composée à partir de métriques relatives à `ex` et non de
 la largeur disponible, donc l'étirer déformerait la formule. Le code délimité
 n'est pas ré-enroulé non plus — il a une grille monospace fixe et les lignes
@@ -132,7 +132,7 @@ Au-delà des paragraphes, titres, listes, code délimité et tableaux :
 | `~~strikethrough~~` | Un texte barré — un seul trait par suite fusionnée, dont l'épaisseur suit la taille de police (`0.8.0+`)           |
 | `- [ ]` / `- [x]`   | Un glyphe ☐ ou ☑ suivi d'une espace, qui remplace la puce ; `1.` puis le glyphe dans une liste ordonnée (`0.8.0+`) |
 | `\|:--\|--:\|:-:\|` | L'alignement des colonnes, transmis à `Table.align` (`0.8.0+`)                                                     |
-| `$…$` / ` ```math ` | Une formule composée par MathJax (en ligne / en bloc), convertie seulement une fois le délimiteur fermé            |
+| `$…$` / ` ```math ` | Une formule composée par `@vectojs/tex` (en ligne / en bloc), convertie seulement une fois le délimiteur fermé     |
 
 ## En-tête de métadonnées (Front matter)
 

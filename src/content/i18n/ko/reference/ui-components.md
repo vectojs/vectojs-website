@@ -7,12 +7,12 @@ order: 11
 # `@vectojs/ui` — 컴포넌트 레퍼런스
 
 > VectoJS zero-DOM Canvas 엔진을 위한 재사용 가능한 고수준 컴포넌트입니다.
-> 문서 버전: **2.8.0**. 진실 공급원: `dist/index.d.ts`(공개 표면) 및 `packages/ui/src/*`(동작).
+> 문서 버전: **2.15.1**. 진실 공급원: `dist/index.d.ts`(공개 표면) 및 `packages/ui/src/*`(동작).
 
 모든 컴포넌트는 Virtual Math Tree(VMT)의 리프 또는 컨테이너입니다. 여기 있는 어떤 것도 실제 DOM이 아닙니다 — 컴포넌트는 `IRenderer`를 통해 Canvas에 자신을 그립니다. 접근성, 에이전트 자동화, 크롤링 가능성은 병렬 **A11y Shadow DOM**에서 제공됩니다: 컴포넌트가 `interactive`하면 `Scene`이 컴포넌트의 박스 위에 위치한 단일 숨겨진 투명한 실제 DOM 노드를 `getA11yAttributes()`에서 빌드하여 프로젝션합니다. 이것이 `page.getByRole('button', { name })` / `fill()` / 스크린 리더가 순수 Canvas UI에서 작동하는 이유입니다.
 
 텍스트 전용 애플리케이션 표면은 `@vectojs/ui/text`에서 `Text`를 임포트할 수 있습니다. 이
-경량 진입점은 Markdown과 MathJax를 시작 그래프에서 제외합니다; 여러 컴포넌트
+경량 진입점은 Markdown과 `@vectojs/tex`를 시작 그래프에서 제외합니다; 여러 컴포넌트
 패밀리를 구성할 때는 루트 `@vectojs/ui` 진입점을 사용하세요.
 
 ## 라이브 컴포넌트 갤러리

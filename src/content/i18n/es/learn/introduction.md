@@ -49,7 +49,7 @@ Prefiere HTML/CSS convencional cuando estés construyendo un sitio orientado a d
 | `@vectojs/math`           | Matemática espacial/física independiente: broad-phase con `SpatialHashGrid` y `SpringPhysics`                                                                            |
 | `@vectojs/animation`      | Biblioteca de easing independiente más los value drivers `TweenDriver` y `SpringDriver`                                                                                  |
 | `@vectojs/ui`             | Componentes de alto nivel: `Button`, `Input`, `Toggle`, `ScrollView`, `Dropdown`, `Table` y más. Cero dependencias en runtime.                                           |
-| `@vectojs/markdown`       | Entidades `Markdown` + `CodeBlock` (parsean con `marked`, renderizan matemática TeX con MathJax), construidas sobre `@vectojs/ui`                                        |
+| `@vectojs/markdown`       | Entidades `Markdown` + `CodeBlock` (parsean con `marked`, renderizan matemática TeX con `@vectojs/tex`), construidas sobre `@vectojs/ui`                                 |
 | `@vectojs/three`          | Proyecta una escena de VectoJS sobre una textura de Three.js y enruta la entrada de raycast de vuelta a 2D                                                               |
 | `@vectojs/devtools`       | Inspector del Virtual Math Tree en la página: árbol de entidades, clic para seleccionar, lectura de geometría en vivo                                                    |
 | `@vectojs/graph3d`        | Visualización de grafos 3D dirigidos por fuerzas (renderer de Three.js con instanciación)                                                                                |
