@@ -1,6 +1,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import { LEARN_PAGES, REFERENCE_PAGES, VERSIONS } from '../src/consts';
+import { PREFIXED_LOCALES } from '../src/i18n/config';
 
 const root = new URL('..', import.meta.url).pathname;
 const failures: string[] = [];
@@ -91,6 +92,31 @@ for (const [relativePath, expectedVersion] of Object.entries(documentedReference
     failures.push(
       `${relativePath} documents ${match[1]} but the site version is ${expectedVersion}`,
     );
+  }
+
+  // The localized copies carry the same banner with a translated label, so the
+  // label text cannot be matched. The version is the first bold semver in the
+  // frontmatter-plus-intro block; pin that instead. Without this the locale
+  // banners drift silently — all six sat at 2.8.0 while English read 2.15.1.
+  for (const locale of PREFIXED_LOCALES) {
+    const localePath = `i18n/${locale}/${relativePath}`;
+    let localeContent: string;
+    try {
+      localeContent = await readFile(join(contentRoot, localePath), 'utf8');
+    } catch {
+      continue; // Untranslated pages fall back to English by design.
+    }
+    const localeMatch = localeContent
+      .split('\n')
+      .slice(0, 20)
+      .join('\n')
+      .match(/\*\*([0-9]+\.[0-9]+\.[0-9]+)\*\*/);
+    if (!localeMatch) failures.push(`${localePath} is missing a documented version`);
+    else if (localeMatch[1] !== expectedVersion) {
+      failures.push(
+        `${localePath} documents ${localeMatch[1]} but the site version is ${expectedVersion}`,
+      );
+    }
   }
 }
 
