@@ -8,7 +8,7 @@ order: 14
 
 `Markdown` and `CodeBlock` live in the standalone **`@vectojs/markdown`** package
 (as of `@vectojs/ui@2.0.0` they are no longer part of `@vectojs/ui`, so the
-`marked` + MathJax dependencies only load when you render Markdown). It composes
+`marked` + `@vectojs/tex` dependencies only load when you render Markdown). It composes
 `@vectojs/ui` components, so install it alongside `@vectojs/ui` and `@vectojs/core`:
 `bun add @vectojs/markdown @vectojs/ui @vectojs/core`.
 
@@ -20,7 +20,7 @@ Paragraphs and headings become `RichText`, fenced code becomes `CodeBlock`, and 
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.32.6-ui-2.15.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>The sample keeps prose, links, inline code and a fenced block in one focused viewport so layout defects are visible.</figcaption>
 </figure>
 
@@ -96,7 +96,7 @@ caller does not need to guard the call. A negative width clamps to 0.
 > geometry. What it cost was a whole-document re-lex and every entity instance,
 > on every resize.
 
-Display math is deliberately left at its own width: MathJax sizes a typeset box
+Display math is deliberately left at its own width: `@vectojs/tex` sizes a typeset box
 from `ex`-relative metrics rather than from the available width, so stretching it
 would distort the formula. Fenced code is also not re-wrapped — code has a fixed
 monospace grid and long lines overflow by design — only its background is
@@ -115,7 +115,7 @@ Beyond paragraphs, headings, lists, fenced code and tables:
 | `~~strikethrough~~` | A struck run — one stroke per coalesced run, weight scaled to size (`0.8.0+`)                  |
 | `- [ ]` / `- [x]`   | A ☐ or ☑ glyph plus a space, replacing the bullet; `1.` then the glyph when ordered (`0.8.0+`) |
 | `\|:--\|--:\|:-:\|` | Column alignment, forwarded to `Table.align` (`0.8.0+`)                                        |
-| `$…$` / ` ```math ` | MathJax-typeset formula (inline / block), converted only once the delimiter closes             |
+| `$…$` / ` ```math ` | `@vectojs/tex`-typeset formula (inline / block), converted only once the delimiter closes      |
 | `[^1]` / `[^1]: …`  | A small tinted `[1]` marker, and the definition as its own block (`0.16.0+`)                   |
 | `~subscript~`       | Literal source, unstruck — **not** subscript, and no longer struck through (`0.16.1+`)         |
 
@@ -322,8 +322,8 @@ What each call actually costs, so streaming code can be reasoned about:
   from the last settled block boundary — a blank line outside any open
   construct — and splices the result onto the already-stable token prefix, so
   cost tracks the unstable tail rather than the document. Measured on a
-  200-section document (25 070 chars, 784 chunks): 5.81 ms Chrome 150 /
-  9.20 ms Firefox 153, against 428.07 / 451.76 ms for the previous
+  200-section document (26 760 chars, math+prose): 3.66 ms Chrome 151 /
+  5.98 ms Firefox 153, against 562.19 / 628.44 ms for the previous
   whole-document strategy, with the scaling exponent 0.99 / 1.23 instead of
   1.94 / 2.01. Two constructs fall back to whole-document lexing because they
   can rewrite already-emitted tokens: a link definition (`[x]: url`, whose

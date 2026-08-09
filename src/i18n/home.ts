@@ -126,34 +126,34 @@ const en: HomeStrings = {
       'Every number below is a before/after on the same workload, measured in a real browser on a real GPU — never headless, and quoted for both engines because V8 and SpiderMonkey diverge.',
     items: [
       {
-        value: '149\u00d7',
+        value: '117\u2013251\u00d7',
         label: 'Table virtualization',
-        detail: '5,000 rows: 41.1ms \u2192 0.275ms per frame (Chrome 150)',
+        detail: '5,000 rows, virtualized vs classic render pass (Chrome 151 / Firefox 153)',
       },
       {
-        value: '27\u00d7',
+        value: '34\u00d7',
         label: 'Content-projection gate',
-        detail: '1,600 blocks / 384k glyphs: 23.95ms \u2192 0.87ms (Chrome 150)',
+        detail: '1,600 blocks / 384k glyphs: 23.3ms \u2192 0.69ms per frame (Chrome 151)',
       },
       {
-        value: '171\u2013451\u00d7',
+        value: '306\u2013442\u00d7',
         label: 'Virtualized scroll math',
-        detail: 'Fenwick vs linear scan, 100k rows (Chrome 150 / Firefox 153)',
+        detail: 'Fenwick vs linear scan, 100k rows (Chrome 151 / Firefox 153)',
       },
       {
-        value: '4.2\u20137.2\u00d7',
+        value: '4.8\u20137.9\u00d7',
         label: 'Force-directed layout vs d3',
-        detail: '5,000 nodes: 36.2ms \u2192 5.0ms per tick (Chrome 150)',
+        detail: '5,000 nodes: 36.3ms \u2192 4.9ms per tick (Chrome 151 / Firefox 153)',
       },
       {
-        value: '2.7\u20134.2\u00d7',
+        value: '1.4\u20133.1\u00d7',
         label: 'WASM transform kernel',
-        detail: '100k entities, world AABB pass (Chrome 150); JS stays the fallback',
+        detail: '100k entities, world AABB pass (Chrome 151 / Firefox 153); JS stays the fallback',
       },
       {
-        value: '12\u201318M',
+        value: '14\u201332M',
         label: 'MSDF glyphs per second',
-        detail: 'chars/s at 28.5k chars (Chrome 150 / Firefox 153)',
+        detail: 'chars/s at 5.7k chars (Chrome 151 / Firefox 153)',
       },
     ],
     footnote:

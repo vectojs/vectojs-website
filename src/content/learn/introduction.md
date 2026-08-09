@@ -49,7 +49,7 @@ Prefer regular HTML/CSS when you are building a document-first site, SEO-heavy p
 | `@vectojs/math`           | Standalone spatial/physics math: `SpatialHashGrid` broad-phase and `SpringPhysics`                                                                                  |
 | `@vectojs/animation`      | Standalone easing library plus `TweenDriver` and `SpringDriver` value drivers                                                                                       |
 | `@vectojs/ui`             | High-level components: `Button`, `Input`, `Toggle`, `ScrollView`, `Dropdown`, `Table`, and more. Zero runtime dependencies.                                         |
-| `@vectojs/markdown`       | `Markdown` + `CodeBlock` entities (parse with `marked`, render TeX math with MathJax), built on `@vectojs/ui`                                                       |
+| `@vectojs/markdown`       | `Markdown` + `CodeBlock` entities (parse with `marked`, render TeX math with `@vectojs/tex`), built on `@vectojs/ui`                                                |
 | `@vectojs/three`          | Project a VectoJS scene onto a Three.js texture and route raycast input back to 2D                                                                                  |
 | `@vectojs/devtools`       | In-page Virtual Math Tree inspector: entity tree, click-to-pick, live geometry readout                                                                              |
 | `@vectojs/graph3d`        | 3D force-directed graph visualization (instanced Three.js renderer)                                                                                                 |
