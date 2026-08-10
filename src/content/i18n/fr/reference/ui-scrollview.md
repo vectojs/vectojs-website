@@ -13,7 +13,7 @@ visible.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ScrollView</span></div>
-  <iframe src="/sandbox/ui/component.html?name=scrollview&v=core-1.32.6-ui-2.15.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de ScrollView" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=scrollview&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de ScrollView" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Molette ou glissement à lʼintérieur de la zone dʼaffichage ; évitez les propriétaires de défilement concurrents imbriqués.</figcaption>
 </figure>
 
