@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
-    "@vectojs/core": "1.32.7",
+    "@vectojs/core": "1.34.0",
     "@vectojs/graph3d": "0.3.1",
     "@vectojs/three": "0.1.8",
     "@vectojs/ui": "2.15.1",

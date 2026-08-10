@@ -11,14 +11,14 @@
 export const BUILD_ID = Date.now().toString(36);
 
 export const VERSIONS = {
-  core: '1.32.7',
+  core: '1.34.0',
   text: '0.3.0',
   layout: '0.9.0',
   math: '0.1.1',
   animation: '0.1.1',
   tex: '0.1.0',
   ui: '2.15.1',
-  markdown: '0.18.0',
+  markdown: '0.19.0',
   three: '0.1.8',
   graph3d: '0.3.1',
   videoExporter: '0.2.2',
