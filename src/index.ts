@@ -26,7 +26,6 @@ let currentPageData: any = null;
 let scrollListenersAttached = false;
 let currentMainScroll: Container | null = null;
 let lastDpr = typeof window !== 'undefined' ? window.devicePixelRatio : 1;
-let dprQuery: MediaQueryList | null = null;
 
 class Container extends Entity {
   public isPointInside(_globalX: number, _globalY: number): boolean {
@@ -348,25 +347,6 @@ async function handleUrlRoute(url: string) {
 }
 
 // ─── Responsive Layout Handling ───────────────────────────────────────────────
-
-/** React to a devicePixelRatio change (browser zoom, monitor move, emulation). */
-function handleDprChange() {
-  lastDpr = window.devicePixelRatio;
-  armDprWatch();
-  // The ResizeObserver will detect the DPR change via its own dprChanged check
-  // and trigger the full rebuild with the correct new window.innerWidth.
-  // Calling scene.resize() here with the OLD scene.width would prevent text reflow.
-}
-
-/** Arm a media query for the CURRENT DPR; re-arm after every change. */
-function armDprWatch(): void {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
-  if (dprQuery) {
-    dprQuery.removeEventListener?.('change', handleDprChange);
-  }
-  dprQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
-  dprQuery.addEventListener?.('change', handleDprChange);
-}
 
 async function handleResize() {
   // Save scroll position and ratio for proportional restore
@@ -744,15 +724,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   resizeObserver.observe(canvas);
 
-  // Initialize DPR monitoring (browser zoom, monitor move, CDP emulation)
+  // DPR monitoring. A browser-zoom change also changes the CSS-px viewport, so the
+  // ResizeObserver above already catches it; this poll only covers a DPR change with
+  // no size change (monitor move, CDP emulation). It must NOT use
+  // matchMedia('(resolution: Ndppx)') re-armed on every change: registering a fresh
+  // query fires it immediately, and at fractional zoom (110% reports
+  // devicePixelRatio 1.1000000685) the value jitters below the query's own
+  // resolution, so re-arming re-triggers itself and the page flickers continuously.
   lastDpr = window.devicePixelRatio;
-  armDprWatch();
-
-  // Fallback polling for CDP emulation (doesn't fire media query events)
   setInterval(() => {
-    if (window.devicePixelRatio !== lastDpr) {
-      handleDprChange();
-    }
+    const newDpr = window.devicePixelRatio;
+    // Same epsilon as the ResizeObserver: ignore sub-0.001 float jitter.
+    if (Math.abs(newDpr - lastDpr) <= 0.001) return;
+    lastDpr = newDpr;
+    void handleResize();
   }, 1000);
 
   window.addEventListener('popstate', async () => {
