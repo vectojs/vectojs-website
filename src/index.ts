@@ -1,7 +1,11 @@
-import { Scene, Entity, type IRenderer, type A11yAttributes, VectoJSEvent } from '@vectojs/core';
-import { Text, RichText, Card } from '@vectojs/ui';
+import { Scene } from '@vectojs/core';
+import { Text, RichText } from '@vectojs/ui';
 import { createArticleMarkdown } from './article';
 import { withWholeLineProjection } from './text-utils';
+import { Container, DividerLine, ReadingProgressBar, PageContainer } from './entities';
+import { resolveThemeColors, resolveLayoutMetrics } from './theme';
+import { TocSidebar, MobileToc, type TocEntry } from './toc';
+import { navigateTo, handleUrlRoute, setPageDataCallback } from './router';
 
 // withWholeLineProjection MUST be applied to every Text/RichText entity.
 //
@@ -20,335 +24,17 @@ import { withWholeLineProjection } from './text-utils';
 // Cost: selection rectangles may drift 1-2px over a very long line in Firefox.
 // That is the intended trade-off, and is exactly what xuepoo-blog uses throughout.
 
-// Global state
+// ─── Global State ──────────────────────────────────────────────────────────────
+
 let currentScene: Scene | null = null;
-let currentPageData: any = null;
+let currentPageData: unknown = null;
 let scrollListenersAttached = false;
 let currentMainScroll: Container | null = null;
 let lastDpr = typeof window !== 'undefined' ? window.devicePixelRatio : 1;
 
-class Container extends Entity {
-  public isPointInside(_globalX: number, _globalY: number): boolean {
-    return false;
-  }
-  public render(_r: any): void {}
-}
+// ─── Responsive Layout ─────────────────────────────────────────────────────────
 
-class DividerLine extends Entity {
-  public isPointInside(_globalX: number, _globalY: number): boolean {
-    return false;
-  }
-  private color: string;
-  constructor(width: number, color: string = '#e5e7eb') {
-    super();
-    this.width = width;
-    this.height = 1;
-    this.color = color;
-  }
-  public render(r: any): void {
-    r.beginPath();
-    r.moveTo(0, 0);
-    r.lineTo(this.width, 0);
-    r.stroke(this.color, 1);
-  }
-}
-
-// ─── Table of Contents ─────────────────────────────────────────────────────────
-
-interface TocEntry {
-  title: string;
-  permalink: string;
-  children?: TocEntry[];
-}
-
-class TocLinkRow extends Entity {
-  public isPointInside(globalX: number, globalY: number): boolean {
-    const local = this.worldToLocal(globalX, globalY);
-    if (!local) return false;
-    return local.x >= 0 && local.x <= this.width && local.y >= 0 && local.y <= this.height;
-  }
-  constructor(
-    private readonly title: string,
-    width: number,
-    private readonly onActivate: () => void,
-  ) {
-    super();
-    this.interactive = true;
-    const label = withWholeLineProjection(
-      new RichText([{ text: title, style: { color: '#6b7280' } }], {
-        font: '14px system-ui, sans-serif',
-        maxWidth: width,
-      }),
-    );
-    this.add(label);
-    this.width = width;
-    this.height = label.height;
-    this.on('click', () => this.onActivate());
-    this.on('keydown', (e: VectoJSEvent<KeyboardEvent>) => {
-      if (e.nativeEvent?.key === 'Enter' || e.nativeEvent?.key === ' ') this.onActivate();
-    });
-  }
-  public override getA11yAttributes(): A11yAttributes {
-    return { role: 'link', label: this.title, tabIndex: 0 };
-  }
-  public render(_r: IRenderer): void {}
-}
-
-function buildTocRow(
-  entry: TocEntry,
-  indent: number,
-  width: number,
-  onActivate: () => void,
-): TocLinkRow {
-  const row = new TocLinkRow(entry.title, width - indent, onActivate);
-  row.setPosition(indent, 0);
-  return row;
-}
-
-function layoutTocRows(
-  container: Entity,
-  toc: TocEntry[],
-  width: number,
-  onNavigate: (flatIndex: number) => void,
-): number {
-  let y = 0;
-  let flatIndex = 0;
-  for (const h1 of toc) {
-    const index = flatIndex++;
-    const row = buildTocRow(h1, 0, width, () => onNavigate(index));
-    row.setPosition(0, y);
-    container.add(row);
-    y += row.height + 8;
-    for (const h2 of h1.children ?? []) {
-      const childIndex = flatIndex++;
-      const child = buildTocRow(h2, 16, width, () => onNavigate(childIndex));
-      child.setPosition(16, y);
-      container.add(child);
-      y += child.height + 8;
-    }
-  }
-  return Math.max(0, y - 8);
-}
-
-class TocSidebar extends Entity {
-  public isPointInside(_globalX: number, _globalY: number): boolean {
-    return false;
-  }
-  constructor(toc: TocEntry[], width: number, onNavigate: (flatIndex: number) => void) {
-    super();
-    this.width = width;
-
-    const title = withWholeLineProjection(
-      new Text('On this page', {
-        font: '600 14px system-ui, sans-serif',
-        color: '#111827',
-      }),
-    );
-    this.add(title);
-
-    const list = new Container();
-    list.setPosition(0, title.height + 12);
-    this.add(list);
-
-    this.height = title.height + 12 + layoutTocRows(list, toc, width, onNavigate);
-    this.clipChildren = true;
-  }
-  public render(_r: IRenderer): void {}
-}
-
-class MobileToc extends Entity {
-  public isPointInside(_globalX: number, _globalY: number): boolean {
-    return false;
-  }
-  private expanded = false;
-  private header: Card;
-  private headerLabel: RichText;
-  private list: Container | null = null;
-  private readonly collapsedHeight = 40;
-  private readonly toc: TocEntry[];
-  private readonly onNavigate: (flatIndex: number) => void;
-  public onToggle?: () => void;
-
-  constructor(toc: TocEntry[], width: number, onNavigate: (flatIndex: number) => void) {
-    super();
-    this.width = width;
-    this.toc = toc;
-    this.onNavigate = onNavigate;
-
-    this.header = new Card({
-      width,
-      height: this.collapsedHeight,
-      bg: '#f9fafb',
-      border: '#e5e7eb',
-      radius: 6,
-      label: 'Table of Contents',
-      onClick: () => this.toggle(),
-    });
-    this.headerLabel = withWholeLineProjection(
-      new RichText([{ text: '▸ Table of Contents' }], {
-        font: 'bold 14px system-ui, sans-serif',
-        color: '#111827',
-      }),
-    );
-    this.headerLabel.setPosition(12, 11);
-    this.header.add(this.headerLabel);
-    this.add(this.header);
-
-    this.height = this.collapsedHeight;
-  }
-
-  private toggle(): void {
-    this.expanded = !this.expanded;
-    this.headerLabel.setSpans([
-      {
-        text: this.expanded ? '▾ Table of Contents' : '▸ Table of Contents',
-      },
-    ]);
-
-    if (this.expanded) {
-      this.list = new Container();
-      this.list.setPosition(12, this.collapsedHeight + 12);
-      this.add(this.list);
-      const listHeight = layoutTocRows(this.list, this.toc, this.width - 24, this.onNavigate);
-      this.header.height = this.collapsedHeight + 12 + listHeight + 16;
-      this.height = this.header.height;
-    } else if (this.list) {
-      this.remove(this.list);
-      this.list = null;
-      this.header.height = this.collapsedHeight;
-      this.height = this.collapsedHeight;
-    }
-
-    this.onToggle?.();
-    this.scene?.markDirty();
-  }
-
-  public render(_r: IRenderer): void {}
-}
-
-// ─── Reading Progress Bar ──────────────────────────────────────────────────────
-
-class ReadingProgressBar extends Entity {
-  public isPointInside(_globalX: number, _globalY: number): boolean {
-    return false;
-  }
-  private scrollRef: Container;
-  private displayProgress = 0;
-  private barColor: string;
-
-  constructor(scrollRef: Container, width: number, barColor: string = '#6366f1') {
-    super();
-    this.scrollRef = scrollRef;
-    this.width = width;
-    this.height = 3;
-    this.barColor = barColor;
-  }
-
-  public override update(dt: number, time: number): void {
-    super.update(dt, time);
-    const scrollY = typeof window !== 'undefined' ? window.scrollY : 0;
-    const maxScroll = Math.max(1, this.scrollRef.height - window.innerHeight);
-    const target = Math.min(1, Math.max(0, scrollY / maxScroll));
-
-    const diff = target - this.displayProgress;
-    if (Math.abs(diff) > 0.001) {
-      this.displayProgress += diff * (1 - Math.exp(-18 * (dt / 1000)));
-      this.scene?.markDirty();
-    } else {
-      this.displayProgress = target;
-    }
-  }
-
-  public render(r: any): void {
-    if (this.displayProgress <= 0) return;
-    r.save();
-    r.beginPath();
-    r.roundRect(0, 0, this.width, this.height, 0);
-    r.fill(`${this.barColor}1a`); // 10% opacity background
-
-    r.beginPath();
-    r.roundRect(0, 0, this.width * this.displayProgress, this.height, 0);
-    r.fill(this.barColor);
-    r.restore();
-  }
-}
-
-// ─── Page Container with Fade-in ───────────────────────────────────────────────
-
-class PageContainer extends Entity {
-  public isPointInside(_globalX: number, _globalY: number): boolean {
-    return false;
-  }
-  constructor() {
-    super();
-    this.opacity = 0;
-    this.setTransition({
-      opacity: { duration: 340, easing: 'easeOutCubic' },
-    });
-    Promise.resolve().then(() => {
-      this.opacity = 1;
-      this.scene?.markDirty();
-    });
-  }
-
-  public render(_r: any): void {}
-}
-
-// ─── Router & Navigation ───────────────────────────────────────────────────────
-
-function isSameOrigin(parsedUrl: URL): boolean {
-  const host = parsedUrl.hostname;
-  const currentHost = window.location.hostname;
-  if (host === currentHost) return true;
-  const domains = ['vectojs.org', 'localhost', '127.0.0.1'];
-  const isTarget = domains.includes(host) || host.endsWith('vectojs.pages.dev');
-  const isCurrent = domains.includes(currentHost) || currentHost.endsWith('vectojs.pages.dev');
-  return isTarget && isCurrent;
-}
-
-async function navigateTo(url: string) {
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    try {
-      const parsed = new URL(url);
-      if (!isSameOrigin(parsed)) {
-        window.location.href = url;
-        return;
-      }
-      const targetUrl = parsed.pathname + parsed.search + parsed.hash;
-      window.history.pushState({}, '', targetUrl);
-      await handleUrlRoute(targetUrl);
-      return;
-    } catch (e) {
-      console.warn('Failed to parse URL in navigateTo:', e);
-    }
-  }
-  window.history.pushState({}, '', url);
-  await handleUrlRoute(url);
-}
-
-async function handleUrlRoute(url: string) {
-  try {
-    const res = await fetch(url);
-    const html = await res.text();
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const dataElement = doc.getElementById('page-data');
-    if (dataElement) {
-      const raw = dataElement.textContent || '';
-      currentPageData = JSON.parse(raw);
-      if (currentPageData && currentScene) {
-        renderApp();
-      }
-    }
-  } catch (e) {
-    console.error('SPA Navigation failed, reloading page...', e);
-    window.location.href = url;
-  }
-}
-
-// ─── Responsive Layout Handling ───────────────────────────────────────────────
-
-async function handleResize() {
+async function handleResize(): Promise<void> {
   // Save scroll position and ratio for proportional restore
   const prevScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
   const maxScrollY =
@@ -382,12 +68,12 @@ async function handleResize() {
 
 // ─── Main Render ───────────────────────────────────────────────────────────────
 
-async function renderApp() {
+async function renderApp(): Promise<void> {
   if (!currentScene || !currentPageData) return;
 
   // Clear existing entities
   const root = (currentScene as any).root;
-  if (root && root.children) {
+  if (root?.children) {
     const kids = [...root.children];
     for (const kid of kids) {
       currentScene.remove(kid);
@@ -402,28 +88,8 @@ async function renderApp() {
     }
   }
 
-  const width = window.innerWidth;
-  const contentWidth = Math.min(1024, width - 40);
-  const isMobile = contentWidth < 768;
-  const originX = (width - contentWidth) / 2;
-
-  // Theme-aware colors — respect the inline theme script in base.html
-  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-  const colors = {
-    bg: isDark ? '#0b0f19' : '#f8fafc',
-    text: isDark ? '#e2e8f0' : '#111827',
-    heading: isDark ? '#f1f5f9' : '#111827',
-    muted: isDark ? '#64748b' : '#6b7280',
-    divider: isDark ? '#1e293b' : '#e5e7eb',
-    codeBg: isDark ? '#1e293b' : '#f9fafb',
-    codeText: isDark ? '#7c85ff' : '#4f46e5',
-    quoteBorder: isDark ? '#6366f1' : '#4f46e5',
-    syntaxKeyword: isDark ? '#f87171' : '#dc2626',
-    syntaxString: isDark ? '#34d399' : '#059669',
-    syntaxComment: isDark ? '#64748b' : '#9ca3af',
-    syntaxNumber: isDark ? '#fbbf24' : '#d97706',
-    progressBar: isDark ? '#6366f1' : '#4f46e5',
-  };
+  const { width, contentWidth, originX, isMobile } = resolveLayoutMetrics(window.innerWidth);
+  const colors = resolveThemeColors();
 
   const mainScroll = new Container();
   currentMainScroll = mainScroll;
@@ -467,8 +133,10 @@ async function renderApp() {
   const headerContainer = new Container();
   headerContainer.setPosition(originX, currentY);
 
+  const payload = currentPageData as any;
+
   const titleText = withWholeLineProjection(
-    new RichText([{ text: currentPageData.config.title || 'VectoJS', style: { href: '/' } }], {
+    new RichText([{ text: payload.config?.title || 'VectoJS', style: { href: '/' } }], {
       font: '600 24px system-ui, sans-serif',
       color: colors.heading,
       onLinkClick: () => navigateTo('/'),
@@ -492,16 +160,14 @@ async function renderApp() {
   mainScroll.add(page);
   let footerContainer: Container | null = null;
 
-  const payload = currentPageData.data;
-
-  if (payload.type === 'page') {
+  if (payload.data?.type === 'page') {
     let detailY = 0;
 
     const pageTitle = withWholeLineProjection(
       new RichText(
         [
           {
-            text: payload.title || 'Untitled',
+            text: payload.data.title || 'Untitled',
           },
         ],
         {
@@ -516,7 +182,7 @@ async function renderApp() {
 
     detailY += pageTitle.height + 24;
 
-    const toc: TocEntry[] = payload.toc || [];
+    const toc: TocEntry[] = payload.data.toc || [];
     const showToc = toc.length > 0;
     const tocSidebarWidth = 240;
     const showDesktopToc = showToc && !isMobile && originX >= tocSidebarWidth + 40;
@@ -534,7 +200,7 @@ async function renderApp() {
 
     // raw_content is the full .md file loaded via Zola's load_data(); frontmatter
     // stripping happens inside createArticleMarkdown (article.ts).
-    const md = await createArticleMarkdown(payload.raw_content || '', {
+    const md = await createArticleMarkdown(payload.data.raw_content || '', {
       maxWidth: contentWidth,
       theme: {
         bodyFont: 'system-ui, sans-serif',
@@ -633,6 +299,12 @@ async function renderApp() {
   currentScene.render(currentScene.getRenderer(), 0, performance.now());
 }
 
+async function renderPage(): Promise<void> {
+  if (currentPageData) {
+    await renderApp();
+  }
+}
+
 // ─── Entry Point ───────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -643,7 +315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   canvas.addEventListener(
     'touchstart',
     (e: TouchEvent) => {
-      if (e.touches && e.touches[0]) {
+      if (e.touches?.[0]) {
         touchStartY = e.touches[0].clientY;
       }
     },
@@ -653,7 +325,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   canvas.addEventListener(
     'touchmove',
     (e: TouchEvent) => {
-      if (e.touches && e.touches[0]) {
+      if (e.touches?.[0]) {
         const touchY = e.touches[0].clientY;
         const deltaY = touchStartY - touchY;
         touchStartY = touchY;
@@ -674,6 +346,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (dataElement) {
     currentPageData = JSON.parse(dataElement.textContent || '');
   }
+
+  // Register the callback so the router can trigger renders without circular import
+  setPageDataCallback((data) => {
+    currentPageData = data;
+    void renderApp();
+  });
 
   await renderPage();
 
@@ -750,9 +428,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 });
-
-async function renderPage() {
-  if (currentPageData) {
-    await renderApp();
-  }
-}
