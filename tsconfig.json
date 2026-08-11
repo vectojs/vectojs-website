@@ -1,10 +1,22 @@
 {
-  "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
-    "strictNullChecks": true,
-    "types": ["astro/client"]
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "checkJs": false,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["bun-types"]
   },
-  "include": [".astro/types.d.ts", "**/*"],
-  "comment:exclude": "Test files use bun:test; scripts/ is a Bun build script with its own runtime. Neither is type-checked by astro check.",
-  "exclude": ["dist", "scripts", "src/**/*.test.ts"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }

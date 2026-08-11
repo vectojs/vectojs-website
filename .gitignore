@@ -1,7 +1,6 @@
 dist/
 build/
 node_modules/
-.astro/
 .DS_Store
 *.swp
 *.swo
@@ -9,10 +8,12 @@ node_modules/
 .env
 .env.*
 .wrangler/
-# Demo media is fetched at build time (scripts/fetch-assets.ts), not tracked.
-public/demos/*.mp4
-.obsidian/
-.claude/worktrees/
+
+# Zola build output
+public/
+
+# Bun build output
+static/js/
 
 # Agent scratchpad
 tmp/
