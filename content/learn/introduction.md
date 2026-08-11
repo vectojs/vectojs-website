@@ -9,65 +9,72 @@ order = 1
 
 # Introduction to VectoJS
 
-VectoJS is a **canvas-native UI runtime** that renders interfaces directly on HTML5 Canvas using a Virtual Math Tree (VMT) architecture.
+**VectoJS** is a canvas-native UI runtime for interfaces whose visual or interactive complexity does not fit the “one DOM element per thing” model. It keeps the visible tree in a JavaScript entity graph — the **Virtual Math Tree** — and paints the result to canvas-backed layers.
 
-## Why VectoJS?
+Interactive components can still project real semantic DOM nodes (`<button>`, `<input>`, `<a>`, etc.) over the canvas. That projection is what keeps VectoJS controls accessible, native-input capable, and testable through role-based automation.
 
-Traditional web UIs rely on the DOM — a tree of HTML elements styled with CSS and manipulated with JavaScript. This works well for documents, but introduces overhead for:
+<figure>
+  <img src="/images/intro-runtime-map.svg" alt="VectoJS runtime map showing application state flowing into the Virtual Math Tree, then into layout, hit testing, canvas or GPU rendering, and semantic DOM projection." class="diagram" />
+  <figcaption>Application state updates one retained scene graph; the graph then drives pixels, layout, events, and semantics.</figcaption>
+</figure>
 
-- **High-frequency updates** (animations, real-time data)
-- **Large entity counts** (thousands of UI elements)
-- **Complex layouts** (custom positioning, physics-based motion)
+## What you should read next
 
-VectoJS bypasses the DOM entirely, rendering everything on a single `<canvas>` element while maintaining full accessibility through semantic projection.
+The old single-page introduction has been split into focused chapters:
 
-## Core Concepts
+| If you want to understand…                                         | Read                                                 |
+| ------------------------------------------------------------------ | ---------------------------------------------------- |
+| Why VectoJS exists and when the DOM becomes the wrong tool         | [Why VectoJS](/learn/why-vectojs/)                   |
+| How the runtime, render loop, and semantic projection fit together | [Runtime Architecture](/learn/runtime-architecture/) |
+| The eight core math/engine ideas behind the implementation         | [Engine Concepts](/learn/engine-concepts/)           |
+| Which product categories are a good fit, and which are not         | [Use Cases](/learn/use-cases/)                       |
+| How to build the first running scene                               | [Getting Started](/learn/getting-started/)           |
 
-### Scene and Entity
+## The short version
 
-Every VectoJS app starts with a `Scene` attached to a `<canvas>`:
+Use VectoJS when you need:
 
-```typescript
-import { Scene } from '@vectojs/core';
+- thousands of visual entities without thousands of styled DOM nodes;
+- precise transforms, curves, hit-testing, and mathematical layout;
+- canvas-scale visuals with role-based accessibility and automation;
+- high-volume data, streaming UI, games, diagrams, or WebXR panels;
+- deterministic stepping for tests, simulation, and video export.
 
-const canvas = document.getElementById('app') as HTMLCanvasElement;
-const scene = new Scene(canvas, { maxFPS: 60 });
-scene.renderMode = 'onDemand';
-scene.start();
-```
+Prefer regular HTML/CSS when you are building a document-first site, SEO-heavy prose, ordinary forms, or UI that does not need custom layout math.
 
-### Text and RichText
+## Package map
 
-```typescript
-import { Text, RichText } from '@vectojs/ui';
+| Package                   | Purpose                                                                                                                                                             |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@vectojs/core`           | `Scene`, `Entity`, renderers, events, hit-testing, a11y projection. Depends on and re-exports the engines below, so you can import everything from `@vectojs/core`. |
+| `@vectojs/text`           | Standalone text-shaping primitives: BiDi resolution, Arabic shaping, CSS-parity typography, MSDF fonts, prepared content grids                                      |
+| `@vectojs/layout`         | Standalone layout engine: line breaking, BiDi-aware inline layout, exclusion flow, off-thread layout worker                                                         |
+| `@vectojs/math`           | Standalone spatial/physics math: `SpatialHashGrid` broad-phase and `SpringPhysics`                                                                                  |
+| `@vectojs/animation`      | Standalone easing library plus `TweenDriver` and `SpringDriver` value drivers                                                                                       |
+| `@vectojs/styles`         | Declarative style layer: CSS-property-name objects mapped to entity fields, `var()` token themes with `setTheme` switching, `css()` merging                         |
+| `@vectojs/ui`             | High-level components: `Button`, `Input`, `Toggle`, `ScrollView`, `Dropdown`, `Table`, and more. Zero runtime dependencies.                                         |
+| `@vectojs/markdown`       | `Markdown` + `CodeBlock` entities (parse with `marked`, render TeX math with `@vectojs/tex`), built on `@vectojs/ui`                                                |
+| `@vectojs/tex`            | Zero-DOM TeX typesetting (vendored KaTeX kernel + SVG emit). **Phase-1 / not for production use** — not wired into `Markdown`; API may change without notice.       |
+| `@vectojs/three`          | Project a VectoJS scene onto a Three.js texture and route raycast input back to 2D                                                                                  |
+| `@vectojs/devtools`       | In-page Virtual Math Tree inspector: entity tree, click-to-pick, live geometry readout                                                                              |
+| `@vectojs/graph3d`        | 3D force-directed graph visualization (instanced Three.js renderer)                                                                                                 |
+| `@vectojs/video-exporter` | Fixed-step Chromium + FFmpeg H.264 export for VectoJS scenes                                                                                                        |
 
-// Plain text
-const label = new Text('Hello, world!', {
-  font: '16px system-ui, sans-serif',
-  color: '#111827',
-});
+The layout, text, math, and animation engines are published as their own packages so they can be consumed without the scene-graph runtime. `@vectojs/core` depends on and re-exports all of them, so existing `import { … } from '@vectojs/core'` code keeps working unchanged — reach for the standalone packages only when you want a smaller dependency surface.
 
-// Mixed bold/italic/link
-const rich = new RichText(
-  [
-    { text: 'VectoJS is ' },
-    { text: 'fast', style: { bold: true } },
-    { text: ' and ' },
-    { text: 'accessible', style: { italic: true } },
-  ],
-  { font: '16px system-ui, sans-serif' },
-);
-```
+## Mental model
 
-### Inline code
+VectoJS is not a React replacement, not an ECS, and not a claim of zero allocation. It is a retained-mode canvas UI runtime:
 
-Use `scene.markDirty()` to request a repaint, `scene.resize(w, h)` after viewport changes,
-and `entity.setPosition(x, y)` to move any entity. Arabic: مرحبا. Emoji: 🎨 🚀 ✅.
+1. application state updates entities;
+2. entities compute layout, transforms, hit tests, and semantics;
+3. dirty scenes render through the selected backend;
+4. projected DOM nodes expose the interactive surface to assistive tech and agents.
 
-### Arabic and bidirectional text
+The rest of this guide walks through those tradeoffs in detail.
 
-```typescript
-// RTL paragraphs need readingDirection on the Scene
-scene.readingDirection = 'rtl';
-const arabic = new Text('مرحبا بالعالم', { font: '18px system-ui, sans-serif' });
-```
+## Next steps
+
+- [Why VectoJS](/learn/why-vectojs/) — the problem space and tradeoffs.
+- [Getting Started](/learn/getting-started/) — install and create your first scene.
+- [Core Scene](/learn/core-scene/) — the render loop, entities, and transforms in depth.

@@ -6,6 +6,10 @@ compile_sass = false
 minify_html = false
 build_search_index = true
 generate_feeds = false
+skip_content_templating = ["**/*.md"]
+
+[link_checker]
+internal_level = "warn"
 
 [markdown]
 smart_punctuation = false
