@@ -19,3 +19,6 @@ static/js/
 tmp/
 .carryctx/config.local.toml
 .worktrees/
+
+.astro/
+src/content/
