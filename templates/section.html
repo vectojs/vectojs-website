@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}{{ section.title }} · {{ config.title }}{% endblock title %}
+
+{% block page_data %}{
+  "type": "section",
+  "lang": "{{ lang }}",
+  "title": {{ section.title | json_encode() | safe }},
+  "path": "{{ section.path }}",
+  "pages": [
+    {% for page in section.pages %}
+    {
+      "title": {{ page.title | json_encode() | safe }},
+      "description": {{ page.description | default(value="") | json_encode() | safe }},
+      "path": "{{ page.path }}",
+      "date": {% if page.date %}"{{ page.date | date(format='%Y-%m-%d') }}"{% else %}""{% endif %},
+      "word_count": {{ page.word_count | default(value=0) }},
+      "reading_time": {{ page.reading_time | default(value=0) }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}{% endblock page_data %}

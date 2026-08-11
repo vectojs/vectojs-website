@@ -1,0 +1,44 @@
+base_url = "https://vectojs.org"
+title = "VectoJS"
+description = "Canvas-native UI runtime with Virtual Math Tree"
+default_language = "en"
+compile_sass = false
+minify_html = false
+build_search_index = true
+generate_feeds = false
+
+[markdown]
+smart_punctuation = false
+external_links_target_blank = true
+external_links_no_follow = false
+external_links_no_referrer = false
+
+
+
+[languages.zh-cn]
+title = "VectoJS"
+build_search_index = false
+
+[languages.zh-tw]
+title = "VectoJS"
+build_search_index = false
+
+[languages.ja]
+title = "VectoJS"
+build_search_index = false
+
+[languages.fr]
+title = "VectoJS"
+build_search_index = false
+
+[languages.es]
+title = "VectoJS"
+build_search_index = false
+
+[languages.ko]
+title = "VectoJS"
+build_search_index = false
+
+[extra]
+github = "https://github.com/vectojs/vectojs"
+gallery = "https://gallery.vectojs.org"

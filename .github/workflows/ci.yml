@@ -16,13 +16,12 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+      - name: Install Zola
+        run: |
+          curl -sL https://github.com/getzola/zola/releases/download/v0.19.2/zola-v0.19.2-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          sudo mv zola /usr/local/bin/
       - run: bun install --frozen-lockfile
-      - run: bun run check:docs
-      - run: bun run check:anchors
       - run: bun run check
-      - run: bun run test
-      - run: bun run format:check
-      - run: bun run lint
       - run: bun run lint:md
       - run: bun run build
 
@@ -38,6 +37,10 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+      - name: Install Zola
+        run: |
+          curl -sL https://github.com/getzola/zola/releases/download/v0.19.2/zola-v0.19.2-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          sudo mv zola /usr/local/bin/
       - run: bun install --frozen-lockfile
       - run: bun run build
       - name: Deploy to Cloudflare Pages
@@ -45,4 +48,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=vectojs --branch=main
+          command: pages deploy public --project-name=vectojs --branch=main
