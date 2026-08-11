@@ -8,15 +8,16 @@ date(format='%Y-%m-%d') }}"{% else %}""{% endif %}, "slug": "{{ page.slug }}",
 "path": "{{ page.path }}", "word_count": {{ page.word_count | default(value=0)
 }}, "reading_time": {{ page.reading_time | default(value=0) }}, "section": "{{
 page.path | split(pat='/') | nth(n=1) | default(value='') }}", "raw_content": {{
-load_data(path="content/" ~ page.relative_path, format="plain") | split(pat="\n+++\n") | nth(n=1) | trim_start | json_encode() | safe}}", to="}}") | json_encode() |
-safe }}, "toc": [ {% for h1 in page.toc %} { "title": {{ h1.title |
-json_encode() | safe }}, "permalink": "{{ h1.permalink }}", "children": [ {% for
-h2 in h1.children %} { "title": {{ h2.title | json_encode() | safe }},
-"permalink": "{{ h2.permalink }}" }{% if not loop.last %},{% endif %} {% endfor
-%} ] }{% if not loop.last %},{% endif %} {% endfor %} ], "translations": {{
-page.translations | default(value=[]) | json_encode() | safe }}, "navigation": {
-"earlier": {% if page.earlier %}{ "title": {{ page.earlier.title | json_encode()
-| safe }}, "path": "{{ page.earlier.path }}" }{% else %}null{% endif %},
-"later": {% if page.later %}{ "title": {{ page.later.title | json_encode() |
-safe }}, "path": "{{ page.later.path }}" }{% else %}null{% endif %} } }{%
-endblock page_data %}
+load_data(path="content/" ~ page.relative_path, format="plain") |
+split(pat="\n+++\n") | nth(n=1) | trim_start | json_encode() | safe |
+replace(from="<", to="\\u003c") | replace(from=">", to="\\u003e") | safe }},
+"toc": [ {% for h1 in page.toc %} { "title": {{ h1.title | json_encode() | safe
+}}, "permalink": "{{ h1.permalink }}", "children": [ {% for h2 in h1.children %}
+{ "title": {{ h2.title | json_encode() | safe }}, "permalink": "{{ h2.permalink
+}}" }{% if not loop.last %},{% endif %} {% endfor %} ] }{% if not loop.last
+%},{% endif %} {% endfor %} ], "translations": {{ page.translations |
+default(value=[]) | json_encode() | safe }}, "navigation": { "earlier": {% if
+page.earlier %}{ "title": {{ page.earlier.title | json_encode() | safe }},
+"path": "{{ page.earlier.path }}" }{% else %}null{% endif %}, "later": {% if
+page.later %}{ "title": {{ page.later.title | json_encode() | safe }}, "path":
+"{{ page.later.path }}" }{% else %}null{% endif %} } }{% endblock page_data %}
