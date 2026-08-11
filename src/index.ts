@@ -1,9 +1,15 @@
 import { Scene } from '@vectojs/core';
 import { Text, RichText } from '@vectojs/ui';
+import { applyStyle, style } from '@vectojs/styles';
 import { createArticleMarkdown } from './article';
 import { withWholeLineProjection } from './text-utils';
 import { Container, DividerLine, ReadingProgressBar, PageContainer } from './entities';
-import { resolveThemeColors, resolveLayoutMetrics } from './theme';
+import {
+  applyWebsiteTheme,
+  resolveThemeColors,
+  resolveLayoutMetrics,
+  websiteThemeName,
+} from './theme';
 import { TocSidebar, MobileToc, type TocEntry } from './toc';
 import { navigateTo, handleUrlRoute, setPageDataCallback } from './router';
 
@@ -138,10 +144,10 @@ async function renderApp(): Promise<void> {
   const titleText = withWholeLineProjection(
     new RichText([{ text: payload.config?.title || 'VectoJS', style: { href: '/' } }], {
       font: '600 24px system-ui, sans-serif',
-      color: colors.heading,
       onLinkClick: () => navigateTo('/'),
     }),
   );
+  applyStyle(titleText, style({ color: 'var(--heading)' }));
   headerContainer.add(titleText);
 
   mainScroll.add(headerContainer);
@@ -172,11 +178,11 @@ async function renderApp(): Promise<void> {
         ],
         {
           font: `bold ${isMobile ? 32 : 44}px system-ui, sans-serif`,
-          color: colors.heading,
           maxWidth: contentWidth,
         },
       ),
     );
+    applyStyle(pageTitle, style({ color: 'var(--heading)' }));
     pageTitle.setPosition(0, detailY);
     page.add(pageTitle);
 
@@ -281,9 +287,9 @@ async function renderApp(): Promise<void> {
   const footerText = withWholeLineProjection(
     new Text(`© ${new Date().getFullYear()} VectoJS. Built with VectoJS.`, {
       font: '14px system-ui, sans-serif',
-      color: colors.muted,
     }),
   );
+  applyStyle(footerText, style({ color: 'var(--muted)' }));
   footerText.setPosition(0, 0);
   footerContainer.add(footerText);
 
@@ -338,6 +344,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   currentScene = new Scene(canvas, { maxFPS: 60 });
   currentScene.renderMode = 'onDemand';
   currentScene.start();
+
+  // The styles layer must own the active theme before any var(--…) resolves.
+  applyWebsiteTheme(websiteThemeName());
+
+  if (typeof location !== 'undefined' && location.search.includes('debug')) {
+    const { attachDevtools } = await import('@vectojs/devtools');
+    attachDevtools(currentScene, { defaultTab: 'tree', showPerf: true });
+  }
 
   // Initial resize to set up canvas backing store
   currentScene.resize(window.innerWidth, window.innerHeight);
