@@ -2,9 +2,6 @@
 title = "文字與排版"
 description = "VectoJS 的文字系統：冷/熱 LayoutEngine 分離、LLM 輸出串流、混合樣式豐富文字、MSDF 字型、阿拉伯文/BiDi 和排除形狀。"
 weight = 14
-
-[extra]
-order = 14
 +++
 
 # 文字與排版

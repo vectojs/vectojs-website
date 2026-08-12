@@ -2,9 +2,6 @@
 title = "核心場景架構"
 description = "深入探討虛擬數學樹、Scene 生命週期、Entity 系統、命中測試和渲染管線。"
 weight = 8
-
-[extra]
-order = 8
 +++
 
 # 核心場景架構

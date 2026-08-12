@@ -2,9 +2,6 @@
 title = "Scene"
 description = "The top-level VectoJS orchestrator: constructor options, the render loop, renderMode/maxFPS and the idle auto-throttle, lifecycle methods, and the pluggable WebGL/WebGPU backend registry."
 weight = 2
-
-[extra]
-order = 2
 +++
 
 # `Scene`
@@ -277,6 +274,46 @@ animation/physics exactly `dt` ms with no wall clock. Unit tests, the
 [`@vectojs/video-exporter`](/reference/video-exporter/) pipeline, and any
 headless harness drive scenes with it; `renderMode: 'onDemand'` scenes only
 draw when `step` finds pending motion.
+
+## User Timing instrumentation
+
+The Scene can emit [`User Timing`](https://developer.mozilla.org/en-US/docs/Web/API/User_Timing_API)
+marks/measures around render phases, so a profiler capture shows exactly where
+a frame spends its time. Off by default; enable with the `userTiming` option or
+live via `scene.setUserTiming(true)`:
+
+```ts
+const scene = new Scene(canvas, { userTiming: true });
+// or
+scene.setUserTiming(true); // runtime toggle
+scene.userTiming; // read the current state
+```
+
+The stable measure names are exported as `VECTO_USER_TIMING`:
+
+```ts
+VECTO_USER_TIMING.scene; // { transform, drawWalk, entityPaint, flush, a11ySync }
+VECTO_USER_TIMING.markdown; // { parse }
+// e.g. 'vecto:scene:transform', 'vecto:markdown:parse'
+```
+
+`@vectojs/core` also exports the low-level helpers the engine uses internally
+(and that a custom renderer or instrumented component can use to add its own
+phases):
+
+```ts
+beginVectoUserTiming(name: string): VectoUserTimingSpan | null
+endVectoUserTiming(span: VectoUserTimingSpan | null): void
+measureVectoUserTiming(name: string, durationMs: number): void
+```
+
+`beginVectoUserTiming` returns `null` (and `measureVectoUserTiming` no-ops)
+when the host does not implement marks/measures, so optional profiling is never
+a runtime requirement. Spans use uniquely named start/end marks that are
+released on `endVectoUserTiming`. `measureVectoUserTiming` emits one measure
+anchored at the current time for a duration accumulated from disjoint calls —
+the path that reports per-frame entity-paint totals without instrumenting every
+entity.
 
 ### WASM accelerator backends
 

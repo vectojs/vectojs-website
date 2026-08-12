@@ -2,9 +2,6 @@
 title = "Styles (@vectojs/styles)"
 description = "CSS-property-name style objects over the numeric Virtual Math Tree: token themes (var() + setTheme), css() merging, and font composition — no parser, no cascade, no selector."
 weight = 55
-
-[extra]
-order = 55
 +++
 
 # `@vectojs/styles`
@@ -56,6 +53,11 @@ applyStyle(stack, style({ flexDirection: 'row', gap: '8px', alignItems: 'center'
 - `PRESET_THEMES` — `light` (the default theme), `dark`, `github`,
   `dracula` token sets.
 - `Style` — the style interface. All keys optional.
+- `composeFont(current, changes)` — recompose a CSS font shorthand string
+  (see [Font composition](#font-composition)).
+- `ThemeTokenSet` — `Record<string, string | number>`; the type of a
+  `tokens()` set and of `Theme.tokens`.
+- `Theme` — `{ readonly tokens: ThemeTokenSet }`, created by `tokens()`.
 
 The package depends only on `@vectojs/core`.
 
@@ -117,6 +119,19 @@ applyStyle(text, style({ fontFamily: 'ui-monospace' })); // -> "700 20px ui-mono
 
 An entity with an empty font starts from `16px`; a missing family falls back
 to `sans-serif`. On entities without a `font` field these keys are skipped.
+
+The underlying string helper is exported for direct use:
+
+```ts
+composeFont(
+  current: string,                                       // e.g. "700 16px Inter"
+  changes: { fontFamily?: string; fontSize?: string; fontWeight?: string },
+): string                                               // -> "700 20px ui-monospace"
+```
+
+`composeFont` parses a CSS font shorthand, replaces only the segments present
+in `changes`, and recomposes; a missing size/family is filled with `16px` /
+`sans-serif` so the result is always a valid canvas font string.
 
 ## Semantics
 

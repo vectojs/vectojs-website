@@ -2,9 +2,6 @@
 title = "UI: Popover"
 description = "點擊觸發的覆蓋層面板，可包含任意 VectoJS 子項目。"
 weight = 38
-
-[extra]
-order = 38
 +++
 
 # `Popover`
@@ -15,7 +12,7 @@ order = 38
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Popover</span></div>
-  <iframe src="/sandbox/ui/component.html?name=popover&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Popover live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=popover&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Popover live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>點擊目標兩次以開啟和關閉 popover。</figcaption>
 </figure>
 

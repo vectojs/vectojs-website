@@ -2,9 +2,6 @@
 title = "UI: Stack"
 description = "垂直または水平の子配置のための構造的レイアウトコンテナ。"
 weight = 21
-
-[extra]
-order = 21
 +++
 
 # `Stack`
@@ -15,7 +12,7 @@ order = 21
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Stack</span></div>
-  <iframe src="/sandbox/ui/component.html?name=stack&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Stack live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=stack&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Stack live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>子要素は自身のサイズを保ちます。`Stack` はそれらのローカルな `x` と `y` を書き込むだけです。</figcaption>
 </figure>
 

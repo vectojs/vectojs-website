@@ -2,9 +2,6 @@
 title = "UI: Toggle"
 description = "Control de interruptor con semántica role=switch y movimiento de muelle del pulsador."
 weight = 26
-
-[extra]
-order = 26
 +++
 
 # `Toggle`
@@ -16,7 +13,7 @@ el sistema de animación compartido.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Toggle</span></div>
-  <iframe src="/sandbox/ui/component.html?name=toggle&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Toggle" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=toggle&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Toggle" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>El pulsador se reorienta suavemente mientras el estado semántico `checked` se mantiene actual.</figcaption>
 </figure>
 

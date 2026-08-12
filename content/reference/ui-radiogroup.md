@@ -2,9 +2,6 @@
 title = "UI: RadioGroup"
 description = "Mutually exclusive radio choices rendered as one canvas component."
 weight = 28
-
-[extra]
-order = 28
 +++
 
 # `RadioGroup`

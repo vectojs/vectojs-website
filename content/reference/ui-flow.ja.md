@@ -2,9 +2,6 @@
 title = "UI: Flow"
 description = "チップ、タグ、レスポンシブなツールバーのための水平方向の折り返しレイアウトコンテナ。"
 weight = 22
-
-[extra]
-order = 22
 +++
 
 # `Flow`
@@ -15,7 +12,7 @@ order = 22
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Flow</span></div>
-  <iframe src="/sandbox/ui/component.html?name=flow&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Flow live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=flow&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Flow live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>`maxWidth` を使用して、子要素が次の行に折り返される位置を定義します。</figcaption>
 </figure>
 

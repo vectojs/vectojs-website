@@ -2,9 +2,6 @@
 title = "사용 사례"
 description = "VectoJS가 가장 적합한 분야: 대시보드, 스트리밍 UI, 무한 캔버스, 게임, 에디터, WebXR 및 고급 인터랙티브 웹사이트"
 weight = 5
-
-[extra]
-order = 5
 +++
 
 # 사용 사례

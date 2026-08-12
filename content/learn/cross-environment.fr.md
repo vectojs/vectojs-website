@@ -2,9 +2,6 @@
 title = "Cohérence entre environnements"
 description = "Garder une UI canvas identique entre systèmes d'exploitation, navigateurs, niveaux de zoom et densités de pixels — et maintenir la sélection de texte alignée avec le rendu affiché."
 weight = 19
-
-[extra]
-order = 19
 +++
 
 # Cohérence entre environnements

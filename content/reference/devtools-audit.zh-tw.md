@@ -2,9 +2,6 @@
 title = "Devtools：稽核"
 description = "斷言 VectoJS 場景正確無誤 — 回傳結構化發現項的佈局、無障礙、文字塑形與選取稽核，加上用於迴歸測試的快照與差異。"
 weight = 50
-
-[extra]
-order = 50
 +++
 
 # Devtools：稽核

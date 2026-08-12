@@ -2,9 +2,6 @@
 title = "Markdown"
 description = "Moteur de rendu Markdown natif sur canvas avec texte enrichi, blocs de code, tableaux, ajout en flux et callbacks de lien — le paquet autonome @vectojs/markdown."
 weight = 14
-
-[extra]
-order = 14
 +++
 
 # `Markdown` — `@vectojs/markdown`
@@ -23,7 +20,7 @@ Les paragraphes et titres deviennent des `RichText`, le code délimité devient 
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Démonstration live de Markdown" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Démonstration live de Markdown" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Lʼéchantillon conserve prose, liens, code en ligne et un bloc délimité dans une seule zone dʼaffichage ciblée afin que les défauts de mise en page soient visibles.</figcaption>
 </figure>
 
@@ -54,6 +51,11 @@ interface MarkdownOptions {
   onLinkClick?: (href: string) => void;
   selectable?: boolean; // default true
   userTiming?: boolean; // emit a `vecto:markdown:parse` measure, default false
+  blockAffordances?: boolean; // copy/download controls on code blocks + tables, default false
+  affordances?: BlockAffordanceConfig; // which controls + labels, e.g. { download: false }
+  showCodeLanguage?: boolean; // fence language in a header band per code block, default false
+  writeClipboard?: (text: string) => void; // injectable clipboard write (jsdom/tests)
+  saveFile?: (filename: string, content: string, mimeType: string) => void; // injectable download
 }
 ```
 
@@ -68,6 +70,24 @@ code délimité à travers la grille préparée partagée, de sorte que les list
 arabe/RTL enveloppé et le code conservent un ordre de copie logique à DPR et zoom fractionnaires.
 Lorsquʼune application gère le dimensionnement du conteneur ou le zoom CSS, notifiez la Scene avec
 `scene.resize(width, height)` afin que Firefox puisse recalibrer les métriques natives Range.
+
+### Affordances de bloc (contrôles copier / télécharger)
+
+`blockAffordances: true` dessine des contrôles de copie + téléchargement dans le coin supérieur droit des blocs de code et des tableaux. C'est volontairement un choix d'activation : chaque contrôle est un arrêt focalisable dans l'ordre de tabulation, et un document avec beaucoup de blocs délimités serait fastidieux à coller au clavier (et un lecteur sans permissions de presse-papiers/système de fichiers n'y gagne rien). `affordances` réduit ou ré-étiquette l'ensemble — les libellés sont du texte visible et c'est ce que le lecteur d'écran annonce, utilisez-le donc pour les documents non anglophones. `writeClipboard` et `saveFile` sont tous deux injectables car les chemins de plateforme sont absents dans jsdom. `showCodeLanguage` réserve une bande d'en-tête qui empêche aussi les contrôles de chevaucher la première ligne de code — activez-le quand vous combinez les deux.
+
+Remplacements par type (`0.20.x+`) : `affordances.code` / `affordances.table` désactivent la copie/téléchargement pour un type de bloc sans toucher à l'autre — un tableau qui propose déjà la copie dans sa propre UI n'a plus besoin de deux contrôles superposés :
+
+```ts
+markdown.setOptions({
+  blockAffordances: true,
+  affordances: {
+    table: { copy: false, download: false }, // keep code-block controls only
+    code: { download: false }, // per-kind, inherits top-level defaults
+  },
+});
+```
+
+Une clé par type omise hérite du `copy`/`download` de niveau supérieur, qui héritent à leur tour de `true`. Les blocs de code peuvent en outre être entourés d'une bordure en définissant `theme.codeBorderColor` (facultatif ; non défini conserve le rendu précédent sans bordure) — utile sur des fonds de page clairs où le remplissage du code se fond.
 
 ## Largeur responsive : `setMaxWidth()`
 
@@ -308,9 +328,28 @@ Ce que coûte réellement chaque appel, afin que le code de streaming puisse êt
 
 ## Point d'extension
 
-`renderToken(token)` est protégé, de sorte que des renderers personnalisés peuvent
-sous-classer `Markdown` pour des blocs spécifiques à l'application tout en déléguant
-les tokens normaux au renderer intégré.
+Deux surfaces d'extension existent :
+
+- **`renderToken(token)`** est protégé, de sorte que des renderers personnalisés peuvent sous-classer `Markdown` pour des blocs spécifiques à l'application tout en déléguant les tokens normaux au renderer intégré.
+- **Registre de blocs délimités (Fenced block registry)** — rendu enfichable pour les blocs de code clé par chaîne d'information (code, math, mermaid, graphviz, …). Un renderer se charge paresseusement au premier `render()` et met en cache ; `'error'` retombe sur le renderer de bloc de code par défaut.
+
+```ts
+import { FencedBlockRegistry } from '@vectojs/markdown';
+
+FencedBlockRegistry.register('mermaid', {
+  async load() {
+    const mermaid = await import('mermaid');
+    return (source, lang, options) => {
+      /* render → Entity */
+    };
+  },
+});
+FencedBlockRegistry.unregister('mermaid');
+```
+
+`FencedBlockRenderOptions` porte `{ theme, availableWidth, selectable }`. Exportations liées : `isFencedBlockRendererReady`, `renderFencedBlock`, plus `PRESET_THEMES` / `resolvePresetTheme` / `isPresetName` pour la résolution des thèmes, et les helpers `tableToCsv` / `tableToMarkdown` / `extensionForLanguage` / `mimeForLanguage` (les internes des affordances et de l'exportation).
+
+Surface utilitaire supplémentaire : `Markdown.setUserTiming(on)` (bascule à l'exécution de la mesure de parse), `codeAtlas` / `codeAtlasStats` / `highlightedLanguages` (diagnostics d'atlas), et `MathBlock` / `preloadMathJax()` / `isMathJaxReady` pour le renderer de mathématiques TeX optionnel (chargé paresseusement, non inclus par défaut).
 
 ## Liste de vérification pour les mainteneurs
 

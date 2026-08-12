@@ -2,9 +2,6 @@
 title = "UI: Input"
 description = "ネイティブの編集動作をcanvasにミラーリングした1行テキスト入力。"
 weight = 23
-
-[extra]
-order = 23
 +++
 
 # `Input`
@@ -15,7 +12,7 @@ order = 23
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Input</span></div>
-  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>キーボード入力またはロールベースの自動化を通じてテキストボックスを埋めます。</figcaption>
 </figure>
 

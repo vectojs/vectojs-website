@@ -2,9 +2,6 @@
 title = "無障礙與自動化"
 description = "VectoJS 如何將語意 DOM 控制項投射到畫布內容上方，以支援螢幕閱讀器、鍵盤使用者和 Playwright 自動化。"
 weight = 15
-
-[extra]
-order = 15
 +++
 
 # 無障礙與自動化
@@ -284,7 +281,7 @@ const scene = new Scene(canvas, { a11ySyncInterval: 100 });
 - **只投影可觸及的內容。** 虛擬化 `TreeView`/`Table` 使用的池化模式將熱點池大小調整為可見行而不是整個資料集，因此投影保持 O(視埠)。參見[複合小工具](#複合小工具一個-tab-停駐點方向鍵在內部操作)。
 - **當實體停止可操作時，呼叫 `scene.detachA11y(entity)`。** 在別處記錄為洩漏避免，它同樣是一個成本槓桿：每幀同步建立和更新但從不修剪。
 
-> 一個每實體的 `a11yProjection` 模式（`'eager' | 'onDemand' | 'never'`），僅在懸停/焦點上實體化一個節點，已設計但**尚未實現**。請注意它不能基於"是否存在螢幕閱讀器"來決定鍵控 —— 這出於設計（W3C TAG 設計原則 2.7）是故意不可偵測的，並且 AOM 虛擬無障礙節點在每個引擎中因隱私原因被阻止。
+每個實體的 `a11yProjection` 模式（`'eager' | 'onDemand' | 'never'`，預設為 `'eager'`）控制實體的陰影節點何時被具體化；相關量測資料和 API 在 [`core-a11y`](/reference/core-a11y/#projection-cost-at-high-entity-counts-1300) 中有文件說明。請注意，它無法以"是否存在螢幕閱讀器"為依據 —— 這出於設計（W3C TAG 設計原則 2.7）是刻意無法偵測的，而且出於隱私原因，AOM 虛擬無障礙節點在所有引擎中都被封鎖。
 
 ## 程式化檢查陰影樹
 

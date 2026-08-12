@@ -2,9 +2,6 @@
 title = "UI: CodeBlock"
 description = "Bloc de code canvas à feuille unique utilisé par Markdown pour le code délimité."
 weight = 40
-
-[extra]
-order = 40
 +++
 
 # `CodeBlock`
@@ -17,7 +14,7 @@ order = 40
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · CodeBlock</span></div>
-  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de CodeBlock" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de CodeBlock" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Utilisez ceci directement uniquement pour les moteurs de rendu personnalisés ; la documentation normale devrait passer par `Markdown`.</figcaption>
 </figure>
 
@@ -67,6 +64,19 @@ largeur, l'appel ne fait rien et renvoie `this`.
 `Markdown.setMaxWidth()` l'appelle pour chaque bloc de code délimité qu'il
 possède ; un appel direct n'est donc nécessaire que si vous construisez
 vous-même un `CodeBlock`.
+
+## Options et défilement horizontal
+
+```ts
+new CodeBlock(source, language, width, options?: CodeBlockOptions)
+// options: { showLanguage?: boolean }  // header band with the language name, default false
+codeBlock.showLanguage: boolean
+codeBlock.scrollX: number       // current horizontal scroll (clamped to maxScrollX)
+codeBlock.maxScrollX: number    // widest line's overflow past the padded box; 0 = everything fits
+codeBlock.setScrollX(x: number): this // scroll horizontally, clamped to [0, maxScrollX]
+```
+
+Les lignes longues débordent au lieu de passer à la ligne, donc les blocs larges sont défilables horizontalement. `maxScrollX` est mémorisé par rapport à la grille qui l'a produit — `scrollX` est lu à chaque image synchronisée —, donc c'est le cache qui évite qu'un long bloc paie un balayage O(lines) par image.
 
 ## Liste de vérification pour les mainteneurs
 

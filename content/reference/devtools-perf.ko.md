@@ -2,9 +2,6 @@
 title = "Devtools: 성능"
 description = "VectoJS 프레임 비용을 귀인합니다 — GPU 및 Canvas2D 드로우 카운터, WASM 가속기 상태, 더티 리페인트 귀인, Markdown 스트리밍 재사용 메트릭."
 weight = 51
-
-[extra]
-order = 51
 +++
 
 # Devtools: 성능

@@ -2,9 +2,6 @@
 title = "GraphLayout & D3ForceLayout"
 description = "The graph data model and the worker-friendly GraphLayout contract, plus its D3ForceLayout implementation over d3-force-3d."
 weight = 45
-
-[extra]
-order = 45
 +++
 
 # `GraphLayout` & `D3ForceLayout`

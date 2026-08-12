@@ -2,9 +2,6 @@
 title = "Devtools : pont et plugins"
 description = "Piloter une scène VectoJS depuis un autre document via un pont JSON-RPC, et étendre l'inspecteur avec vos propres onglets, audits et commandes."
 weight = 52
-
-[extra]
-order = 52
 +++
 
 # Devtools : pont et plugins

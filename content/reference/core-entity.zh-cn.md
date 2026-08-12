@@ -2,9 +2,6 @@
 title = "Entity"
 description = "每个 Virtual Math Tree 节点的抽象基类：变换、动画系统、捕获/冒泡事件，以及自定义 Entity 可以覆盖的 a11y/批处理钩子。"
 weight = 3
-
-[extra]
-order = 3
 +++
 
 # `Entity`（抽象）
@@ -93,8 +90,8 @@ springTo(props: Partial<Record<AnimatableProp, number>>, cfg?: SpringConfig): Pr
 
 ```ts
 type VectoEvent =
-  | 'click' | 'hover' | 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'pointerleave'
-  | 'change' | 'focus' | 'blur' | 'wheel' | 'keydown' | 'keyup';
+  | 'click' | 'dblclick' | 'hover' | 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'pointerleave'
+  | 'change' | 'focus' | 'blur' | 'wheel' | 'keydown' | 'keyup' | 'scroll';
 
 on(event: VectoEvent, cb: (e: any) => void, options?: { capture?: boolean }): this
 off(event: VectoEvent, cb: (e: any) => void, options?: { capture?: boolean }): this
@@ -105,6 +102,8 @@ dispatchEvent(event: VectoJSEvent): void             // DOM-style capture (root�
 - `on`/`off` 默认为**冒泡**阶段；传递 `{ capture: true }` 以使用捕获阶段。冒泡监听器也会为旧的 `emit()` 路径触发。
 - `VectoJSEvent<N>` 包装一个 `nativeEvent`，并添加 `target`、`currentTarget`、`bubbles`、`stopPropagation()`、`stopImmediatePropagation()`、`preventDefault()`、视口 `clientX/Y`、逻辑 `sceneX/Y`、当前目标 `localX/Y`、修饰键，以及透传（`deltaX/Y`、`key`、`defaultPrevented`）。局部坐标反转完整的嵌套仿射变换。非冒泡事件仍然运行捕获阶段，但只在冒泡阶段触发其目标。
 - 来自表单控件影子 `<input>` 的 `'change'` 携带 `{ value, checked, selectionStart, selectionEnd, composition }`，其中 `composition` 对活动的 IME 预编辑是 `{ start, length } | null`。`'wheel'` 携带原生 `WheelEvent`（调用 `preventDefault()` 以停止页面滚动）。
+- `'dblclick'` 在双击时触发（原生 `detail === 2`）。
+- `'scroll'` 携带一个 `ScrollEventPayload` —— 这是实体观察其影子镜像滚动偏移量的唯一方式：`{ scrollTop, scrollLeft, deltaY, deltaX, maxScrollTop }`。当浏览器滚动可滚动的内容镜像（例如 `ScrollView` 影子节点）时触发。
 
 参见[事件与命中测试](/learn/events/)了解用法。
 
@@ -116,6 +115,8 @@ getBatchCircle(): BatchCircle | null         // { radius, color } → renderer f
 getBatchRect(): BatchRect | null             // { width, height, color } → GPU indexed-quad batch (WebGL pointBackend only)
 update(dt: number, time: number): void       // optional override; dt is MILLISECONDS, time is performance.now(); default advances queued tweens
 ```
+
+`entity.a11yRegion: boolean`（默认 `false`）将实体标记为 a11y **分组区域**：后代投影到共享容器中，而不是独立嵌套，因此纯分组容器（例如 `width: 0`）仍然会分组 —— 最近的封闭区域获胜，区域可以嵌套。它是声明式的，从不被几何体查询。
 
 `getBatchCircle`/`getBatchRect` **每帧**读取（动画的颜色/半径得到尊重）。一个可表示的批处理叶子跳过其自己的 `save/translate/scale/rotate/render/restore`；Canvas 模式或不受支持的累积仿射变换使用实体的正常 `render()` 回退。
 

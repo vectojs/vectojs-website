@@ -2,9 +2,6 @@
 title = "Events & Hit-Testing"
 description = "ポインターとキーボードのイベントがVectoJSエンティティツリーをどう流れるか：キャプチャ、バブル、VectoJSEvent、フォーム変更ペイロード、findEntityAt。"
 weight = 10
-
-[extra]
-order = 10
 +++
 
 # Events & Hit-Testing

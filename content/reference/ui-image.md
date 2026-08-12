@@ -2,9 +2,6 @@
 title = "UI: Image"
 description = "Canvas image component with placeholder rendering and semantic img projection."
 weight = 19
-
-[extra]
-order = 19
 +++
 
 # `Image`

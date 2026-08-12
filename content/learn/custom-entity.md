@@ -2,9 +2,6 @@
 title = "Building Custom Entities"
 description = "Learn how to subclass Entity to build your own canvas components: transforms, rendering, hit-testing, animation, batching, and accessibility."
 weight = 9
-
-[extra]
-order = 9
 +++
 
 # Building Custom Entities

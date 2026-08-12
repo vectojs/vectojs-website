@@ -2,9 +2,6 @@
 title = "UI: RichText"
 description = "Componente de texto en línea con múltiples estilos, hotspots de enlace y soporte para transmisión por streaming."
 weight = 17
-
-[extra]
-order = 17
 +++
 
 # `RichText`
@@ -17,7 +14,7 @@ exacto del portapapeles a través de tamaños de fuente mixtos, ligaduras, texto
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · RichText</span></div>
-  <iframe src="/sandbox/ui/component.html?name=richtext&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de RichText" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=richtext&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de RichText" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>El enlace en línea es un hotspot de ancla transparente sobre el texto del canvas.</figcaption>
 </figure>
 

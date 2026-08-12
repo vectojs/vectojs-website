@@ -2,9 +2,6 @@
 title = "@vectojs/video-exporter"
 description = "用於逐幀步進 VectoJS 場景並將其 canvas 輸出編碼為 H.264 MP4 的 CLI 和函式庫，使用 Chromium 和 FFmpeg。"
 weight = 47
-
-[extra]
-order = 47
 +++
 
 # `@vectojs/video-exporter`

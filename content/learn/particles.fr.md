@@ -2,9 +2,6 @@
 title = "Systèmes de particules"
 description = "ComputeParticleEntity : particules de calcul WebGPU, repli CPU, la disposition mémoire à 8 float, l'interaction souris, et triggerExplosion."
 weight = 12
-
-[extra]
-order = 12
 +++
 
 # Systèmes de particules

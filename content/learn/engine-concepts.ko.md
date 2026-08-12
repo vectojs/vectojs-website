@@ -2,9 +2,6 @@
 title = "엔진 개념"
 description = "VectoJS의 기반이 되는 여덟 가지 수학적, 아키텍처적 아이디어."
 weight = 4
-
-[extra]
-order = 4
 +++
 
 # 엔진 개념

@@ -2,9 +2,6 @@
 title = "エンジンコンセプト"
 description = "VectoJSの背後にある8つの数学的およびアーキテクチャ的アイデア。"
 weight = 4
-
-[extra]
-order = 4
 +++
 
 # エンジンコンセプト

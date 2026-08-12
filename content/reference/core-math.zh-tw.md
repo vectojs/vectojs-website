@@ -2,9 +2,6 @@
 title = "Math utilities"
 description = "用於 O(1) 平均寬相位空間查詢的 SpatialHashGrid，以及用於單一數值臨界可調彈簧的 SpringPhysics — 獨立的 @vectojs/math 套件，由 @vectojs/core 重新匯出。"
 weight = 9
-
-[extra]
-order = 9
 +++
 
 # Math utilities — `@vectojs/math`

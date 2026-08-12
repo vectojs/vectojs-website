@@ -2,9 +2,6 @@
 title = "UI：Text"
 description = "带换行、热态 max-width 重排和语义标签的 canvas 文本组件。"
 weight = 16
-
-[extra]
-order = 16
 +++
 
 # `Text`
@@ -15,7 +12,7 @@ order = 16
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Text</span></div>
-  <iframe src="/sandbox/ui/component.html?name=text&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Text live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=text&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Text live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>调整页面大小，在聚焦的视口中查看热态 `maxWidth` 重排。</figcaption>
 </figure>
 

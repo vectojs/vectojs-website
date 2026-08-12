@@ -2,9 +2,6 @@
 title = "UI: TreeView"
 description = "즉시 또는 지연 자식 로딩이 있는 계층적 트리 컴포넌트"
 weight = 34
-
-[extra]
-order = 34
 +++
 
 # `TreeView`
@@ -15,7 +12,7 @@ order = 34
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · TreeView</span></div>
-  <iframe src="/sandbox/ui/component.html?name=treeview&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="TreeView 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=treeview&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="TreeView 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>부모 행을 클릭하여 확장하거나 축소하세요.</figcaption>
 </figure>
 

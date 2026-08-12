@@ -2,9 +2,6 @@
 title = "UI 元件"
 description = "@vectojs/ui 元件庫概覽：表單、布局容器、覆蓋層和豐富內容。"
 weight = 16
-
-[extra]
-order = 16
 +++
 
 # UI 元件
@@ -166,14 +163,14 @@ import { RadioGroup } from '@vectojs/ui';
 
 const radio = new RadioGroup({
   options: [
-    { value: 'light', label: '淺色模式' },
-    { value: 'dark', label: '深色模式', disabled: false },
-    { value: 'system', label: '系統預設' },
+    { value: 'light', label: 'Light Mode' },
+    { value: 'dark', label: 'Dark Mode', disabled: false },
+    { value: 'system', label: 'System Default' },
   ],
-  value: 'dark', // 初始選取的值
-  gap: 28, // 選項之間的垂直間距，預設 28
-  color: '#e2e8f0', // 標籤文字顏色
-  accent: '#00f0ff', // 所選圓圈的填充顏色
+  value: 'dark', // initially selected value
+  gap: 12, // vertical spacing between options, default 12
+  color: '#e2e8f0', // label text color
+  accent: '#2563eb', // fill color for the selected circle
   onChange: (val) => setTheme(val),
 });
 scene.add(radio.setPosition(40, 40));
@@ -185,11 +182,11 @@ scene.add(radio.setPosition(40, 40));
 | ---------- | --------------------- | ----------- | ---------------------------------- |
 | `options`  | `RadioOption[]`       | —           | `{ value, label, disabled? }` 陣列 |
 | `value`    | `string`              | `''`        | 初始選取的值                       |
-| `gap`      | `number`              | `28`        | 行之間的垂直間距                   |
-| `accent`   | `string`              | `'#00f0ff'` | 所選圓圈填充                       |
+| `gap`      | `number`              | `12`        | 行之間的垂直間距                   |
+| `accent`   | `string`              | `'#2563eb'` | 所選圓圈填充                       |
 | `onChange` | `(v: string) => void` | —           | 選取變更時的回呼                   |
 
-隨時呼叫 `radio.setValue(val)` 以程式化地變更選取。投射 `role="radiogroup"`，每個選項帶有獨立的 `role="radio"` + `aria-checked`。
+隨時呼叫 `radio.selectByValue(val, focusIt?)` 以程式化地變更選取。投射 `role="radiogroup"`，每個選項帶有獨立的 `role="radio"` + `aria-checked`。
 
 ### `Tabs`
 
@@ -205,18 +202,18 @@ const tabs = new Tabs({
   width: 500,
   height: 360,
   tabs: [
-    { id: 'settings', label: '設定', content: settingsPane },
-    { id: 'preview', label: '預覽', content: previewPane },
+    { id: 'settings', label: 'Settings', content: settingsPane },
+    { id: 'preview', label: 'Preview', content: previewPane },
   ],
-  activeTabId: 'settings', // 預設：第一個頁籤
-  tabHeight: 36, // 頁籤列高度，預設 36
-  selectedColor: '#00f0ff', // 活動頁籤底線/文字顏色
-  onChange: (tabId) => console.log('活動頁籤:', tabId),
+  value: 'settings', // default: first tab
+  tabHeight: 40, // height of the tab bar, default 40
+  selectedColor: '#00f0ff', // active tab underline / text color
+  onChange: (tabId) => console.log('Active tab:', tabId),
 });
 scene.add(tabs.setPosition(20, 20));
 
-// 程式化切換頁籤：
-tabs.setActiveTab('preview');
+// Rename a tab label programmatically:
+tabs.setLabel('settings', 'Configuration');
 ```
 
 關鍵選項：
@@ -224,8 +221,8 @@ tabs.setActiveTab('preview');
 | 選項            | 類型                   | 預設值      | 描述                             |
 | --------------- | ---------------------- | ----------- | -------------------------------- |
 | `tabs`          | `TabItem[]`            | —           | `{ id, label, content: Entity }` |
-| `activeTabId`   | `string`               | 第一個頁籤  | 初始可見的頁籤                   |
-| `tabHeight`     | `number`               | `36`        | 頁籤列的像素高度                 |
+| `value`         | `string`               | 第一個頁籤  | 初始可見的頁籤                   |
+| `tabHeight`     | `number`               | `40`        | 頁籤列的像素高度                 |
 | `selectedColor` | `string`               | `'#00f0ff'` | 活動頁籤強調色                   |
 | `onChange`      | `(id: string) => void` | —           | 頁籤切換時觸發                   |
 
@@ -303,11 +300,9 @@ const rich = new RichText(
 ```typescript
 import { Overlay } from '@vectojs/ui';
 
-const overlay = new Overlay({
-  target: button,
-  content: popoverCard,
-  placement: 'bottom-start',
-});
+const overlay = new Overlay({ width: 240, height: 120 });
+overlay.showAt(button, 'bottom-start'); // or overlay.showAtPoint(x, y)
+overlay.add(popoverCard);
 ```
 
 ### `Tooltip`
@@ -365,8 +360,10 @@ import { VirtualList } from '@vectojs/ui';
 const list = new VirtualList({
   width: 300,
   height: 500,
-  itemHeight: (idx) => measuredHeights[idx], // 或固定高度的數字
-  itemRenderer: (idx) => createListItemEntity(idx),
+  items: myData,
+  renderItem: (item, index) => createListItemEntity(item, index),
+  estimatedRowHeight: 24, // exact value for fixed heights; measured per row otherwise
+  keyForItem: (item) => item.id, // stable identity: keeps heights + scroll anchor across setItems()
 });
 ```
 

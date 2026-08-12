@@ -2,9 +2,6 @@
 title = "UI: ContextMenu"
 description = "Menu de commandes superposé avec séparateurs, lignes désactivées, raccourcis et sous-menus imbriqués."
 weight = 39
-
-[extra]
-order = 39
 +++
 
 # `ContextMenu`
@@ -17,7 +14,7 @@ Les versions UI 1.11.1 à 1.11.3 sécurisent le cycle de vie des menus imbriqué
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ContextMenu</span></div>
-  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de ContextMenu" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de ContextMenu" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Cliquez sur le lanceur pour ouvrir le menu dans une zone dʼaffichage contrainte.</figcaption>
 </figure>
 

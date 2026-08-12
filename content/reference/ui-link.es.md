@@ -2,9 +2,6 @@
 title = "UI: Link"
 description = "Enlace independiente renderizado en canvas con una proyección de ancla semántica."
 weight = 18
-
-[extra]
-order = 18
 +++
 
 # `Link`
@@ -16,7 +13,7 @@ order = 18
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Link</span></div>
-  <iframe src="/sandbox/ui/component.html?name=link&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Link" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=link&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Link" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>El texto visible está en el canvas; la automatización y la tecnología de asistencia ven un ancla real.</figcaption>
 </figure>
 

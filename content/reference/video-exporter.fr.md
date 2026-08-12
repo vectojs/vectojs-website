@@ -2,9 +2,6 @@
 title = "@vectojs/video-exporter"
 description = "CLI et bibliothèque pour faire avancer une scène VectoJS trame par trame et encoder sa sortie canvas en H.264 MP4 avec Chromium et FFmpeg."
 weight = 47
-
-[extra]
-order = 47
 +++
 
 # `@vectojs/video-exporter`

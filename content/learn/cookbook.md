@@ -2,9 +2,6 @@
 title = "Cookbook"
 description = "Common patterns and recipes for VectoJS: modals, tooltips, virtualized lists, drag-and-drop, animated charts, and more."
 weight = 17
-
-[extra]
-order = 17
 +++
 
 # Cookbook

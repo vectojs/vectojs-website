@@ -2,9 +2,6 @@
 title = "@vectojs/devtools"
 description = "인-페이지 Virtual Math Tree 인스펙터와 그 헤드리스 모델 레이어 — 엔티티 피킹, 트리 뷰, 감사, 스냅샷, GPU 및 가속기 읽기, JSON-RPC 브리지."
 weight = 48
-
-[extra]
-order = 48
 +++
 
 # `@vectojs/devtools`

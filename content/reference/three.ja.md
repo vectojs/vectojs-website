@@ -2,9 +2,6 @@
 title = "@vectojs/three"
 description = "VectoJS 用の Three.js アダプター：2D UI パネルを 3D テクスチャとしてレンダリング（ThreeAdapter）するか、Three.js をレンダリングバックエンド（ThreeRenderer）として使用します。"
 weight = 41
-
-[extra]
-order = 41
 +++
 
 # `@vectojs/three`

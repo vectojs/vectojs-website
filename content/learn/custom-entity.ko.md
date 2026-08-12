@@ -2,9 +2,6 @@
 title = "커스텀 Entity 구축"
 description = "Entity를 서브클래싱하여 나만의 캔버스 컴포넌트를 만드는 방법: 변환, 렌더링, 히트 테스팅, 애니메이션, 배치, 접근성"
 weight = 9
-
-[extra]
-order = 9
 +++
 
 # 커스텀 Entity 구축

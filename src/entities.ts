@@ -12,6 +12,20 @@ export class Container extends Entity {
   public render(_r: IRenderer): void {}
 }
 
+/** Fill a rectangle through the renderer's path API (no fillRect primitive). */
+export function fillRect(
+  r: IRenderer,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  color: string,
+): void {
+  r.beginPath();
+  r.roundRect(x, y, w, h, 0);
+  r.fill(color);
+}
+
 /** A 1px horizontal rule. */
 export class DividerLine extends Entity {
   public isPointInside(_globalX: number, _globalY: number): boolean {

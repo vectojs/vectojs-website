@@ -2,9 +2,6 @@
 title = "Prise en main"
 description = "Installez VectoJS, créez une Scene et construisez un panneau de réglages complet avec Input, Toggle, Slider, Button et ScrollView."
 weight = 7
-
-[extra]
-order = 7
 +++
 
 # Prise en main

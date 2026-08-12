@@ -2,9 +2,6 @@
 title = "UI: CodeBlock"
 description = "Bloque de código en canvas de una sola hoja utilizado por Markdown para bloques de código."
 weight = 40
-
-[extra]
-order = 40
 +++
 
 # `CodeBlock`
@@ -17,7 +14,7 @@ texto coloreado por sintaxis él mismo, evitando una entidad hija por token.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · CodeBlock</span></div>
-  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de CodeBlock" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de CodeBlock" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Úsalo directamente solo para renderizadores personalizados; los documentos normales deberían usar `Markdown`.</figcaption>
 </figure>
 
@@ -67,6 +64,19 @@ cambia no hace nada y devuelve `this`.
 `Markdown.setMaxWidth()` lo llama por cada bloque de código delimitado que
 posee, así que solo necesitas invocarlo directamente si construyes un
 `CodeBlock` por tu cuenta.
+
+## Opciones y desplazamiento horizontal
+
+```ts
+new CodeBlock(source, language, width, options?: CodeBlockOptions)
+// options: { showLanguage?: boolean }  // header band with the language name, default false
+codeBlock.showLanguage: boolean
+codeBlock.scrollX: number       // current horizontal scroll (clamped to maxScrollX)
+codeBlock.maxScrollX: number    // widest line's overflow past the padded box; 0 = everything fits
+codeBlock.setScrollX(x: number): this // scroll horizontally, clamped to [0, maxScrollX]
+```
+
+Las líneas largas se desbordan en vez de ajustarse, por lo que los bloques anchos se pueden desplazar horizontalmente. `maxScrollX` se memoriza con respecto a la rejilla que lo produjo —`scrollX` se lee en cada fotograma sincronizado—, así que la caché es lo que evita que un bloque largo pague un escaneo O(lines) por fotograma.
 
 ## Lista de verificación para mantenedores
 

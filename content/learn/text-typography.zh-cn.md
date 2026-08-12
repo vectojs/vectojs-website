@@ -2,9 +2,6 @@
 title = "文本与排版"
 description = "VectoJS的文本系统：冷/热LayoutEngine拆分、LLM输出的流式处理、带混合样式的富文本、MSDF字体、阿拉伯语/双向文本和排除形状。"
 weight = 14
-
-[extra]
-order = 14
 +++
 
 # 文本与排版

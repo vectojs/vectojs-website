@@ -2,9 +2,6 @@
 title = "Devtools：检查"
 description = "将 VectoJS 场景作为数据来读取 — 树模型、实体拾取、实体/辅助功能/文本状态、高亮几何、命中测试解释，以及事件路由追踪。"
 weight = 49
-
-[extra]
-order = 49
 +++
 
 # Devtools：检查

@@ -2,9 +2,6 @@
 title = "ComputeParticleEntity"
 description = "高スループットパーティクルレイヤー：パーティクルごとのFloat32Arrayメモリレイアウト、スプリング/ダンピング/爆発CPUシミュレーション、および自動CPUフォールバック付きWebGPUコンピュートパス。"
 weight = 6
-
-[extra]
-order = 6
 +++
 
 # `ComputeParticleEntity` — 高スループットパーティクルレイヤー

@@ -2,9 +2,6 @@
 title = "UI: RadioGroup"
 description = "하나의 캔버스 컴포넌트로 렌더링된 상호 배타적 라디오 선택"
 weight = 28
-
-[extra]
-order = 28
 +++
 
 # `RadioGroup`
@@ -15,7 +12,7 @@ order = 28
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · RadioGroup</span></div>
-  <iframe src="/sandbox/ui/component.html?name=radiogroup&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="RadioGroup 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=radiogroup&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="RadioGroup 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>데모는 좁은 너비에서 가로와 세로 레이아웃 사이를 전환합니다.</figcaption>
 </figure>
 

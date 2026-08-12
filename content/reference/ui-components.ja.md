@@ -2,9 +2,6 @@
 title = "@vectojs/ui コンポーネントリファレンス"
 description = "@vectojs/ui の全コンポーネントの完全リファレンス：レイアウトコンテナ、フォームコントロール、オーバーレイ、リッチコンテンツ。"
 weight = 11
-
-[extra]
-order = 11
 +++
 
 # `@vectojs/ui` — コンポーネントリファレンス
@@ -132,6 +129,8 @@ interface TextOptions {
   lineHeight?: number;            // 行送り（px）、デフォルト 20
   preserveLeadingSpaces?: boolean;// デフォルト false
   selectable?: boolean;           // ブラウザネイティブのドラッグ選択、デフォルト true
+  textAlign?: 'left' | 'justify'; // default 'left'
+  hyphenate?: (word: string) => string[]; // word → parts, for mid-word breaks with a visible '-'
 }
 ```
 
@@ -141,6 +140,9 @@ interface TextOptions {
 - `append(text): this` — ストリーミング/タイプライターパス；`setText(this.text + text)` と同等ですが、エンジンの段落メモ化が影響を受けていない先頭段落を再利用するため、変更された最後の段落のみが再測定されます。
 - `setMaxWidth(maxWidth): this` — **ホット**パス；キャッシュされた測定テキストを再ラップするのみ（再セグメント化なし）。レスポンシブリフローにはこちらを推奨します。
 - `setSelectable(selectable): this` — 投影されたネイティブ選択サーフェスを有効または無効にします。
+- `setTextAlign(align: 'left' | 'justify'): this` — その場で再ジャスティファイします。
+
+`textAlign: 'justify'`（オプションの `hyphenate` 付き）は、結合された `fillText()` ランで尊重されます。ソース内のソフトハイフン（U+00AD）はハイフネーターなしで区切られます。
 
 コンテンツ投影は、ブラウザの検索、選択、コピーのために視覚的な改行と行の高さをミラーリングします。静的 Text はインタラクティブなヒットターゲットではありません。Canvas/VMT がそのピクセルとレイアウトを所有します。
 
@@ -158,6 +160,8 @@ interface RichTextOptions {
   onLinkClick?: (href: string) => void;   // リンクランがアクティブになったときに発火
   exclusions?: ExclusionRect[];           // テキストが回り込む矩形（除外シェイプ / フロート）
   selectable?: boolean;                   // ブラウザネイティブのドラッグ選択、デフォルト true
+  textAlign?: 'left' | 'justify';         // default 'left'
+  hyphenate?: (word: string) => string[]; // word → parts, for mid-word breaks
 }
 ```
 
@@ -167,6 +171,7 @@ interface RichTextOptions {
 - `appendSpans(spans): this` — **ストリーミング**パス；リッチ段落メモ化が影響を受けていない先頭段落を再利用するため、トークンストリームは O(ドキュメント) ではなく O(変更された段落) で再準備されます。
 - `setMaxWidth(maxWidth): this` — リフロー。
 - `setExclusions(exclusions): this` — フロート領域を設定し、リフロー。
+- `setTextAlign(align: 'left' | 'justify'): this` — その場で再ジャスティファイします。
 - `setSelectable(selectable): this` — スパンを再構築せずにネイティブ選択を切り替え。
 
 **インラインオブジェクト (2.6.0+).** スパンは、数式、アイコン、埋め込みボックスなど、`RichText` が整形しないもののために水平方向のスペースを確保できるため、行をブロックブレイクすることなく文の途中に配置できます：
@@ -522,10 +527,14 @@ new Modal(title: string, props?: ModalProps)  // props は緩く型付け（any�
 ```ts
 new ScrollView(opts: ScrollViewOptions)
 
-interface ScrollViewOptions { width: number; height: number; }
+interface ScrollViewOptions {
+  width: number;
+  height: number;
+  scrollPhysics?: MotionConfig; // default 'spring' (stiffness 180, damping 12)
+}
 ```
 
-クリッピングビューポート（`clipChildren = true`）で、ホイール + ポインタードラッグスクロールとスプリング物理（摩擦 `0.85`、スプリング `0.1`）を備えています。子は非インタラクティブな `content` Entity 内に存在し、変換されます。ビューポートボックスは固定されたままです。
+クリッピングビューポート（`clipChildren = true`）で、ホイール + ポインタードラッグスクロールと、`scrollPhysics` で設定されるスプリング物理を備えています。デフォルトのスプリングは意図的に過少減衰です（ζ ≈ 0.45、約 20% のオーバーシュート）。文書ライクなコンテンツは通常、エクスポートされた `DOCUMENT_SCROLL_PHYSICS` プリセット（`{ stiffness: 180, damping: 27 }`、ζ ≈ 1.0、オーバーシュートなし）を望みます。子は非インタラクティブな `content` Entity 内に存在し、変換されます。ビューポートボックスは固定されたままです。
 
 - `content: Entity` — スクロールされるコンテナ（パブリック）。
 - `add(child): this` / `remove(child): this` — `content` を変更し、`updateContentSize()` を呼び出します。
@@ -627,6 +636,8 @@ interface TableOptions {
 }
 ```
 
+列の整列は、テキスト整列プロパティではなく、**セルエンティティを配置すること**で適用されます — `setTextAlign` は `'left' | 'justify'` のみを受け入れます。折り返された複数行セルでは、各行ではなくブロック全体が整列されます。
+
 Canvas ネイティブデータグリッド：文字列セルは Text 子エンティティになり、Entity セルはパブリック `setMaxWidth()` を通じて制約され、`layout()` は描画専用の `render()` パスの前にラッピング、行の高さ、位置を解決します。外部セルコンテンツを変更した後は `layout()` を呼び出します。各セルは 1 つのコンテンツ投影を所有します。A11y：支援技術のために `{ role: 'grid', label: 'N 列 M 行のデータテーブル' }` を投影します。また、`Markdown` 内の GFM テーブルのレンダラーでもあります。
 
 ---
@@ -687,6 +698,9 @@ interface TabsOptions {
   onClose?: (value: string) => void;
 }
 
+// rename a tab's label at runtime:
+tabs.setLabel(tabId: string, label: string): void
+
 interface TabItem {
   id: string;
   label: string;
@@ -732,15 +746,14 @@ interface ProgressBarOptions {
 new Overlay(opts: OverlayOptions)
 
 interface OverlayOptions {
-  target: Entity;
-  content: Entity;
-  placement?: Placement; // 'top' | 'bottom' | 'left' | 'right' | 'top-start' | など
-  offset?: number;       // 距離（px）、デフォルト 8
-  autoFlip?: boolean;    // ビューポート境界外の場合に方向を自動調整
+  width: number;
+  height: number;
+  placement?: Placement; // 'top' | 'bottom' | 'left' | 'right' | 'top-start' | etc., default 'bottom'
+  offset?: number;       // distance in px, default 8
 }
 ```
 
-フローティング配置レイヤーエンジン。ネイティブではアクセシビリティノードを投影しません。
+エッジ衝突検出と配置フリップを備えたフローティング配置レイヤーエンジン。`showAt(target, placement?, offset?)` でターゲットに相対的に配置するか、`showAtPoint(x, y)` で絶対ポイントに配置します。`hide()` で非表示にします。ネイティブではアクセシビリティノードを投影しません。
 
 ---
 
@@ -754,6 +767,9 @@ interface TooltipOptions {
   content: string;
   placement?: Placement;
   delay?: number; // 表示までの ms、デフォルト 300
+  font?: string;
+  color?: string;
+  bg?: string;
 }
 ```
 
@@ -771,7 +787,8 @@ interface PopoverOptions {
   width: number;
   height: number;
   placement?: Placement;
-  offset?: number;
+  bg?: string;
+  borderColor?: string;
 }
 ```
 
@@ -787,6 +804,14 @@ new ContextMenu(opts: ContextMenuOptions)
 interface ContextMenuOptions {
   items: ContextMenuItem[];
   width?: number;
+  font?: string;            // default '14px sans-serif'
+  color?: string;           // row text, default '#e2e8f0'
+  disabledColor?: string;   // disabled rows, default 'rgba(226, 232, 240, 0.4)'
+  bg?: string;              // menu background, default 'rgba(15, 23, 42, 0.95)'
+  hoverBg?: string;         // hovered row, default 'rgba(0, 240, 255, 0.25)'
+  borderColor?: string;     // menu border, default 'rgba(255, 255, 255, 0.15)'
+  itemHeight?: number;      // row height, default 32
+  separatorHeight?: number; // divider height, default 1
 }
 
 type ContextMenuItem =
@@ -804,17 +829,21 @@ type ContextMenuItem =
 ### `VirtualList`
 
 ```ts
-new VirtualList(opts: VirtualListOptions)
+new VirtualList<T>(opts: VirtualListOptions<T>)
 
-interface VirtualListOptions {
+interface VirtualListOptions<T> {
   width: number;
   height: number;
-  itemHeight: number | ((idx: number) => number);
-  itemRenderer: (idx: number) => Entity;
+  items: T[];                          // full data array
+  renderItem: (item: T, index: number) => Entity;
+  estimatedRowHeight: number;          // before a row is measured; exact value for fixed heights
+  overscan?: number;                   // extra rows above & below the window, default 3
+  keyForItem?: (item: T, index: number) => string; // stable identity (e.g. message id)
+  stickToBottomThreshold?: number;     // px from bottom that counts as "following", default 48
 }
 ```
 
-高性能レンダリング用に最適化されたスクロールリストコンテナ。現在ビューポート境界内にあるアイテムのみをインスタンス化/レンダリングします。
+高性能レンダリング用に最適化されたスクロールリストコンテナ。現在ビューポート境界内にあるアイテムのみをインスタンス化/レンダリングします。`keyForItem` により、測定された高さが `setItems()` 後も維持され、上の行がリサイズされている間もスクロールアンカーが保持され、キャッシュを破棄せずに追加/先頭挿入が可能になります。これがないと `setItems()` はすべての測定をクリアして先頭にジャンプします。`stickToBottomThreshold`（`keyForItem` と併用した場合のみ）は、行のリサイズ後に追従するビューポートを下部に再固定します — チャットのトランスクリプトに最適です。メソッド：`scrollToIndex(index)`、`scrollToTop()`、`scrollToBottom()`、`jumpToBottom()`（即時）。エクスポートされた `RowHeights` クラスが測定キャッシュを支えます。
 
 ---
 
@@ -830,6 +859,8 @@ interface TreeViewOptions {
 interface TreeNode {
   id: string;
   label: string;
+  icon?: string;                    // optional icon glyph (emoji, nerd-font, …)
+  iconColor?: string;               // falls back to the tree's text color (material-style file icons)
   children?: TreeNode[] | (() => Promise<TreeNode[]>);
 }
 ```

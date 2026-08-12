@@ -2,9 +2,6 @@
 title = "Devtools：审计"
 description = "断言一个 VectoJS 场景是正确的 — 布局、辅助功能、文本塑形与选择审计返回结构化发现，外加用于回归测试的快照与差异。"
 weight = 50
-
-[extra]
-order = 50
 +++
 
 # Devtools：审计

@@ -2,9 +2,6 @@
 title = "Other entities"
 description = "Rect/Circle/Group shape primitives, plus SplineEntity (vectomancy curve rendering), DOMPortalEntity (projecting a real DOM element into the scene), and SVGEntity (rasterized SVG blitting) from the @vectojs/core main entry."
 weight = 8
-
-[extra]
-order = 8
 +++
 
 # Other entities (from `.`)
@@ -88,6 +85,29 @@ in viewport culling.
 Public: `doc`, `lineWidth`, `defaultColor`, `hitTolerance`, `showBounds`
 (default `false`, draws a debug outline). `SplineColor` is `[r,g,b]` (0–1), a
 linear-gradient descriptor, or `null`.
+
+**`SplineEquation`** — one curve (one stroke color) in a `SplineDocument`,
+made of consecutive cubic-polynomial segments:
+
+```ts
+interface SplineEquation {
+  color_rgb: SplineColor; // stroke color: [r,g,b] (0-1) | gradient | null
+  data: SplineSegment[]; // one segment per piecewise-cubic run
+}
+
+interface SplineSegment {
+  start_t: number; // t at segment start, [0,1]
+  end_t: number; // t at segment end, [0,1]
+  x_poly: number[]; // x(t) = [a,b,c,d] coefficients
+  y_poly: number[]; // y(t) = [a,b,c,d] coefficients
+}
+```
+
+A segment's `x_poly`/`y_poly` hold the polynomial coefficients for
+`f(t) = a + b·t + c·t² + d·t³` on `t ∈ [start_t, end_t]`. To inspect or
+hit-test a segment as a Bézier, `polySegmentToBezier(seg)` converts it to
+`BezierControlPoints` (`x0,y0,cp1x,cp1y,cp2x,cp2y,x3,y3`) — that is the shape
+`SplineEntity` itself flattens for rendering.
 
 ## DOMPortalEntity
 

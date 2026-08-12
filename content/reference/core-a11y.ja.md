@@ -2,9 +2,6 @@
 title = "a11yRoot & エージェント契約"
 description = "すべてのインタラクティブエンティティが透過的なARIAシャドウノードをDOMに投影する仕組み — A11yAttributesの形状、キャンバスパフォーマンスとDOMグレードのアクセシビリティ契約、そして古くなったり欠落したシャドウノードを引き起こす同期の注意点。"
 weight = 10
-
-[extra]
-order = 10
 +++
 
 # a11yRoot & エージェント契約
@@ -155,6 +152,21 @@ scene.releaseA11yProjection(previous);
 - Core 1.11.1 以降、新しく投影されたインタラクティブエンティティは、shadow node が作成される同じフレームで Canvas の描画順に対応する `z-index` を受け取ります。そのため、新しいオーバーレイの backdrop は次のレンダーパスを待たず、最初のポインター操作から既存のデザインコントロールより上に配置されます。
 
 使用法とテストパターンについては [アクセシビリティ](/learn/accessibility/) を参照してください。
+
+## URLサニタイズ（`sanitizeUrl` / `isSafeUrl`）
+
+どちらのヘルパーも `@vectojs/core`（`renderer/url.ts` で定義）から来ており、VectoJS が `href` をシャドウ `<a>` ノードに投影する際や、それを `window.open` に渡す際（アクセシビリティシンクと Markdown リンクレンダーで使用）に、`javascript:` / `data:` / `vbscript:` / `file:` URI スクリプトインジェクションを防ぐために存在します。
+
+```ts
+sanitizeUrl(href: string | null | undefined): string
+isSafeUrl(urlStr: string): boolean
+```
+
+`sanitizeUrl` は投影パスです：`null`/`undefined` には `''` を返し、先頭の空白をトリムし、**相対** URL はそのまま通します（相対 URL はスクリプト注入されることはありません）。そして安全なセット——`http`、`https`、`mailto`、`tel`、`ftp`——に含まれないスキームを持つ絶対 URL を無害な `'#'` に書き換え、リンクが空でなく無効なままになるようにします。決して例外を投げません。
+
+`isSafeUrl` は、すでに絶対 URL を保持しているコードのためのより狭いガードです：スキームが安全なセットに含まれていれば `true`（相対も安全）、そうでなければ `false` を返します。
+
+安全なスキームは固定されています：`http:`、`https:`、`mailto:`、`tel:`、`ftp:`。`ui-link` と Markdown リンクコールバックはどちらも、`href` が DOM に到達する前に `sanitizeUrl` を通します——信頼できないリンクを自分でレンダリングする場合も、同じようにしてください。
 
 ## 関連情報
 

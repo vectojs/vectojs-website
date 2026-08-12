@@ -2,9 +2,6 @@
 title = "UI: Stack"
 description = "Contenedor de diseño estructural para colocación vertical u horizontal de hijos."
 weight = 21
-
-[extra]
-order = 21
 +++
 
 # `Stack`
@@ -15,7 +12,7 @@ order = 21
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Stack</span></div>
-  <iframe src="/sandbox/ui/component.html?name=stack&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Stack" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=stack&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Stack" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Los hijos mantienen sus propios tamaños; `Stack` solo escribe sus `x` e `y` locales.</figcaption>
 </figure>
 

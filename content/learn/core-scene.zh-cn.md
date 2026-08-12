@@ -2,9 +2,6 @@
 title = "核心场景架构"
 description = "深入探讨虚拟数学树、Scene生命周期、Entity系统、命中测试和渲染管线。"
 weight = 8
-
-[extra]
-order = 8
 +++
 
 # 核心场景架构

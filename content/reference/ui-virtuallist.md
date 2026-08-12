@@ -2,9 +2,6 @@
 title = "UI: VirtualList"
 description = "Virtualized scroll list that only mounts visible rows plus overscan."
 weight = 33
-
-[extra]
-order = 33
 +++
 
 # `VirtualList`

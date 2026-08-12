@@ -2,9 +2,6 @@
 title = "a11yRoot et le contrat agent"
 description = "Comment chaque entité interactive projette un nœud d'ombre ARIA transparent dans le DOM — la structure A11yAttributes, le contrat performance-canvas-et-accessibilité-DOM, et les pièges de synchronisation qui causent des nœuds d'ombre obsolètes ou manquants."
 weight = 10
-
-[extra]
-order = 10
 +++
 
 # a11yRoot et le contrat agent
@@ -201,6 +198,21 @@ La cardinalité n'est pas à elle seule le critère pour recourir à `'onDemand'
   première interaction du pointeur, sans attendre un autre rendu.
 
 Voir [Accessibilité](/learn/accessibility/) pour les modèles d'utilisation et de test.
+
+## Assainissement des URL (`sanitizeUrl` / `isSafeUrl`)
+
+Les deux helpers viennent de `@vectojs/core` (définis dans `renderer/url.ts`) et existent pour arrêter l'injection de scripts par URI `javascript:` / `data:` / `vbscript:` / `file:` lorsque VectoJS projette un `href` sur un nœud `<a>` ombre ou en passe un à `window.open` (utilisé par les sinks d'accessibilité et par les rendus de liens Markdown).
+
+```ts
+sanitizeUrl(href: string | null | undefined): string
+isSafeUrl(urlStr: string): boolean
+```
+
+`sanitizeUrl` est le chemin de projection : il retourne `''` pour `null`/`undefined`, supprime les espaces de tête, laisse passer les URL **relatives** telles quelles (une URL relative ne peut jamais être injectée par script), et réécrit toute URL absolue dont le schéma n'est pas dans l'ensemble sûr — `http`, `https`, `mailto`, `tel`, `ftp` — en un bénin `'#'` afin que le lien reste non vide mais inerte. Il ne lève jamais d'exception.
+
+`isSafeUrl` est la garde plus étroite pour le code qui détient déjà une URL absolue : retourne `true` lorsque le schéma est dans l'ensemble sûr (le relatif est aussi sûr), `false` sinon.
+
+Les schémas sûrs sont fixes : `http:`, `https:`, `mailto:`, `tel:`, `ftp:`. `ui-link` et les callbacks de liens Markdown acheminent tous deux le `href` via `sanitizeUrl` avant qu'il n'atteigne le DOM — si vous rendez des liens non fiables vous-même, faites de même.
 
 ## Associé
 

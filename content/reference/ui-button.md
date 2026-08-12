@@ -2,9 +2,6 @@
 title = "Button"
 description = "Canvas-rendered button component with a semantic button projection for accessibility and automation."
 weight = 12
-
-[extra]
-order = 12
 +++
 
 # `Button`

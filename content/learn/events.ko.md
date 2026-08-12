@@ -2,9 +2,6 @@
 title = "이벤트 및 히트 테스팅"
 description = "포인터 및 키보드 이벤트가 VectoJS 엔티티 트리를 통해 전달되는 방식: 캡처, 버블, VectoJSEvent, 폼 변경 페이로드, findEntityAt."
 weight = 10
-
-[extra]
-order = 10
 +++
 
 # 이벤트 및 히트 테스팅

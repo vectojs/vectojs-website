@@ -2,9 +2,6 @@
 title = "使用场景"
 description = "VectoJS最适合的场景：仪表板、流式UI、无限画布、游戏、编辑器、WebXR和高级交互网站。"
 weight = 5
-
-[extra]
-order = 5
 +++
 
 # 使用场景

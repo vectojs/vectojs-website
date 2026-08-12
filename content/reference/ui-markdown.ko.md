@@ -2,9 +2,6 @@
 title = "Markdown"
 description = "리치 텍스트, 코드 블록, 테이블, 스트리밍 추가 및 링크 콜백이 있는 캔버스 네이티브 Markdown 렌더러 — 독립형 @vectojs/markdown 패키지."
 weight = 14
-
-[extra]
-order = 14
 +++
 
 # `Markdown` — `@vectojs/markdown`
@@ -22,7 +19,7 @@ order = 14
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>샘플은 산문, 링크, 인라인 코드 및 펜스 블록을 하나의 집중된 뷰포트에 유지하여 레이아웃 결함을 확인할 수 있습니다.</figcaption>
 </figure>
 
@@ -53,6 +50,11 @@ interface MarkdownOptions {
   onLinkClick?: (href: string) => void;
   selectable?: boolean; // default true
   userTiming?: boolean; // emit a `vecto:markdown:parse` measure, default false
+  blockAffordances?: boolean; // copy/download controls on code blocks + tables, default false
+  affordances?: BlockAffordanceConfig; // which controls + labels, e.g. { download: false }
+  showCodeLanguage?: boolean; // fence language in a header band per code block, default false
+  writeClipboard?: (text: string) => void; // injectable clipboard write (jsdom/tests)
+  saveFile?: (filename: string, content: string, mimeType: string) => void; // injectable download
 }
 ```
 
@@ -61,6 +63,24 @@ interface MarkdownOptions {
 브라우저가 드래그 선택, Ctrl/Command+C 및 페이지 내 검색을 소유하며, VMT Entity는 여전히 레이아웃과 픽셀을 소유합니다. 정렬 및 비정렬 목록 항목은 선택 가능한 `RichText`를 사용하며, 모든 GFM 테이블 셀은 하나의 선택 가능한 프로젝션을 소유합니다. 논리적 소스 순서와 하드/소프트 구분선은 중첩된 Markdown 출력을 통해서도 그대로 유지됩니다.
 Core 1.8은 변환된 산문을 2차원 커서 지오메트리로 라우팅하고 펜스 코드는 공유 준비 그리드(shared prepared grid)를 통해 라우팅하므로, 목록, GFM 테이블, 줄바꿈된 아랍어/RTL 텍스트 및 코드가 분수 DPR 및 zoom에서도 논리적 복사 순서를 유지합니다.
 애플리케이션이 컨테이너 크기 또는 CSS zoom을 소유하는 경우, Firefox가 네이티브 Range 메트릭을 재보정할 수 있도록 `scene.resize(width, height)`로 Scene에 알리세요.
+
+### 블록 어포던스(복사 / 다운로드 컨트롤)
+
+`blockAffordances: true`는 코드 블록과 테이블의 오른쪽 위 모서리에 복사 + 다운로드 컨트롤을 그립니다. 의도적으로 옵트인 설계입니다. 각 컨트롤은 탭 순서에서 포커스 가능한 지점이며, 펜스가 많은 문서는 키보드로 하나씩 붙여넣기 하기엔 지루할 것입니다(그리고 클립보드/파일시스템 권한이 없는 독자는 얻을 것이 없습니다). `affordances`는 그 집합을 좁히거나 레이블을 다시 붙입니다 — 레이블은 사용자에게 보이는 텍스트이자 스크린 리더가 읽어주는 내용이므로, 비영어 문서에 사용하세요. `writeClipboard`와 `saveFile`은 모두 jsdom에 플랫폼 경로가 없기 때문에 주입 가능합니다. `showCodeLanguage`는 헤더 밴드를 확보하며 컨트롤이 코드 첫 줄과 겹치지 않게도 합니다 — 둘을 함께 쓸 때 켜세요.
+
+종류별 재정의(`0.20.x+`): `affordances.code` / `affordances.table`은 다른 종류는 건드리지 않고 한 블록 종류에서 복사/다운로드를 비활성화합니다 — 자체 UI에서 이미 복사를 제공하는 테이블은 겹치는 컨트롤 두 개가 더 이상 필요하지 않습니다:
+
+```ts
+markdown.setOptions({
+  blockAffordances: true,
+  affordances: {
+    table: { copy: false, download: false }, // keep code-block controls only
+    code: { download: false }, // per-kind, inherits top-level defaults
+  },
+});
+```
+
+생략된 종류 키는 최상위 `copy`/`download`를 상속하며, 이는 다시 `true`를 상속합니다. 코드 블록에는 `theme.codeBorderColor`를 설정해 테두리를 추가할 수도 있습니다(선택 사항; 설정하지 않으면 기존의 테두리 없는 렌더링을 유지) — 코드 채우기가 배경과 섞이는 밝은 페이지 배경에서 유용합니다.
 
 ## 반응형 너비: `setMaxWidth()`
 
@@ -252,8 +272,28 @@ const stream = markdown.createStream({
 
 ## 확장 지점
 
-`renderToken(token)`은 protected이므로 커스텀 렌더러는 `Markdown`을 서브클래싱하여
-앱별 블록을 처리하면서도 일반 토큰은 내장 렌더러에 계속 위임할 수 있습니다.
+두 가지 확장 표면이 있습니다:
+
+- **`renderToken(token)`**은 protected이므로 커스텀 렌더러는 `Markdown`을 서브클래싱하여 앱별 블록을 처리하면서도 일반 토큰은 내장 렌더러에 계속 위임할 수 있습니다.
+- **펜스 블록 레지스트리(Fenced block registry)** — 정보 문자열을 키로 하는 코드 펜스의 플러그형 렌더링입니다(code, math, mermaid, graphviz, …). 렌더러는 첫 `render()`에서 지연 로드되고 캐시됩니다. `'error'`는 기본 코드 블록 렌더러로 폴백합니다.
+
+```ts
+import { FencedBlockRegistry } from '@vectojs/markdown';
+
+FencedBlockRegistry.register('mermaid', {
+  async load() {
+    const mermaid = await import('mermaid');
+    return (source, lang, options) => {
+      /* render → Entity */
+    };
+  },
+});
+FencedBlockRegistry.unregister('mermaid');
+```
+
+`FencedBlockRenderOptions`는 `{ theme, availableWidth, selectable }`을 담습니다. 관련 익스포트: `isFencedBlockRendererReady`, `renderFencedBlock`, 그리고 테마 해석용 `PRESET_THEMES` / `resolvePresetTheme` / `isPresetName`, 보조 함수 `tableToCsv` / `tableToMarkdown` / `extensionForLanguage` / `mimeForLanguage`(어포던스 및 익스포트 내부 구현).
+
+추가 유틸리티 표면: `Markdown.setUserTiming(on)`(파싱 측정의 런타임 토글), `codeAtlas` / `codeAtlasStats` / `highlightedLanguages`(atlas 진단), 그리고 선택적 TeX 수학 렌더러용 `MathBlock` / `preloadMathJax()` / `isMathJaxReady`(지연 로드되며 기본적으로 포함되지 않음).
 
 ## 유지보수 체크리스트
 

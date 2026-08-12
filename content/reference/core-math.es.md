@@ -2,9 +2,6 @@
 title = "Utilidades matemáticas"
 description = "SpatialHashGrid para consultas espaciales de fase amplia con promedio O(1) y SpringPhysics para un resorte sintonizable de un solo valor — el paquete independiente @vectojs/math, reexportado por @vectojs/core."
 weight = 9
-
-[extra]
-order = 9
 +++
 
 # Utilidades matemáticas — `@vectojs/math`

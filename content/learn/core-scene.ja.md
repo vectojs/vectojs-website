@@ -2,9 +2,6 @@
 title = "コアシーンアーキテクチャ"
 description = "仮想数学ツリー、Sceneのライフサイクル、Entityシステム、ヒットテスト、レンダーパイプラインの詳細。"
 weight = 8
-
-[extra]
-order = 8
 +++
 
 # コアシーンアーキテクチャ

@@ -2,9 +2,6 @@
 title = "其他實體"
 description = "Rect/Circle/Group 形狀原始物件，以及 @vectojs/core 主要進入點提供的 SplineEntity（vectomancy 曲線渲染）、DOMPortalEntity（將真實 DOM 元素投射到場景中）和 SVGEntity（光柵化 SVG 貼圖）。"
 weight = 8
-
-[extra]
-order = 8
 +++
 
 # 其他實體（來自 `.`）
@@ -88,6 +85,24 @@ polySegmentToBezier(seg: SplineSegment): BezierControlPoints
 公開屬性：`doc`、`lineWidth`、`defaultColor`、`hitTolerance`、`showBounds`
 （預設 `false`，繪製除錯輪廓）。`SplineColor` 為 `[r,g,b]`（0–1）、
 線性漸變描述器或 `null`。
+
+**`SplineEquation`** — `SplineDocument` 中的一條曲線（一種描邊顏色），由連續的立方多項式段組成：
+
+```ts
+interface SplineEquation {
+  color_rgb: SplineColor; // stroke color: [r,g,b] (0-1) | gradient | null
+  data: SplineSegment[]; // one segment per piecewise-cubic run
+}
+
+interface SplineSegment {
+  start_t: number; // t at segment start, [0,1]
+  end_t: number; // t at segment end, [0,1]
+  x_poly: number[]; // x(t) = [a,b,c,d] coefficients
+  y_poly: number[]; // y(t) = [a,b,c,d] coefficients
+}
+```
+
+段的 `x_poly`/`y_poly` 保存多項式係數 `f(t) = a + b·t + c·t² + d·t³`（`t ∈ [start_t, end_t]`）。要作為貝茲曲線檢查或命中測試某段，`polySegmentToBezier(seg)` 會將其轉換為 `BezierControlPoints`（`x0,y0,cp1x,cp1y,cp2x,cp2y,x3,y3`）——這正是 `SplineEntity` 自身用於渲染展平的形狀。
 
 ## DOMPortalEntity
 

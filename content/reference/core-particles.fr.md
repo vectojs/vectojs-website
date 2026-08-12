@@ -2,9 +2,6 @@
 title = "ComputeParticleEntity"
 description = "La couche de particules à haut débit : disposition mémoire Float32Array par particule, simulation CPU ressort/amortissement/explosion, et le chemin de calcul WebGPU avec repli CPU automatique."
 weight = 6
-
-[extra]
-order = 6
 +++
 
 # `ComputeParticleEntity` — couche de particules à haut débit

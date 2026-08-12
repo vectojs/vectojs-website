@@ -2,9 +2,6 @@
 title = "UI: Table"
 description = "用於精簡資料預覽和 Markdown 表格輸出的 canvas-native 網格表格。"
 weight = 31
-
-[extra]
-order = 31
 +++
 
 # `Table`
@@ -15,7 +12,7 @@ order = 31
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Table</span></div>
-  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Table live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Table live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>使用聚焦的示範來處理欄寬，而非在巨大的展示廊中除錯表格輸出。</figcaption>
 </figure>
 

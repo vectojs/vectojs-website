@@ -2,9 +2,6 @@
 title = "Entity"
 description = "The abstract base of every Virtual Math Tree node: transforms, the animation system, capture/bubble events, and the a11y/batching hooks a custom Entity can override."
 weight = 3
-
-[extra]
-order = 3
 +++
 
 # `Entity` (abstract)

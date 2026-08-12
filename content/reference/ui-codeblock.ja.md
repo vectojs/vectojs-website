@@ -2,9 +2,6 @@
 title = "UI: CodeBlock"
 description = "フェンス付きコードのためにMarkdownが使用する単一リーフのcanvasコードブロック。"
 weight = 40
-
-[extra]
-order = 40
 +++
 
 # `CodeBlock`
@@ -15,7 +12,7 @@ order = 40
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · CodeBlock</span></div>
-  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>これを直接使用するのはカスタムレンダラーの場合のみです。通常のドキュメントは `Markdown` を通すべきです。</figcaption>
 </figure>
 
@@ -45,6 +42,19 @@ codeBlock.setWidth(width: number): this
 グリフの形状が変わるもの——ソース、言語、フォント——はすべて `setCode()` を経由し、そこでグリッドが無効化されます。幅が変わらない場合は何もせず、`this` を返します。
 
 `Markdown.setMaxWidth()` は自身が所有する各フェンスコードブロックに対してこれを呼ぶため、直接呼ぶ必要があるのは `CodeBlock` を自分で構築する場合だけです。
+
+## オプションと横スクロール
+
+```ts
+new CodeBlock(source, language, width, options?: CodeBlockOptions)
+// options: { showLanguage?: boolean }  // header band with the language name, default false
+codeBlock.showLanguage: boolean
+codeBlock.scrollX: number       // current horizontal scroll (clamped to maxScrollX)
+codeBlock.maxScrollX: number    // widest line's overflow past the padded box; 0 = everything fits
+codeBlock.setScrollX(x: number): this // scroll horizontally, clamped to [0, maxScrollX]
+```
+
+長い行は折り返さずにあふれるため、幅の広いブロックは水平スクロールできます。`maxScrollX` はそれを生成したグリッドに対してメモ化されます。`scrollX` は同期されたフレームごとに読み取られるため、キャッシュが長いブロックにフレームごとの O(lines) スキャンを強いるのを防いでいます。
 
 ## メンテナー向けチェックリスト
 

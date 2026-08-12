@@ -2,9 +2,6 @@
 title = "レイアウトエンジン"
 description = "スタンドアロンの @vectojs/layout パッケージ（@vectojs/core/layout サブパスでもある）：高価なテキストセグメント化+計測を安価な折り返し+位置演算から分離するコールド/ホット分割、ストリーミングメモ化、リッチテキスト、および除外シェイプ。"
 weight = 4
-
-[extra]
-order = 4
 +++
 
 # レイアウトエンジン（コールド/ホット分割） — `@vectojs/layout`
@@ -41,6 +38,10 @@ layoutTextIntoBuffer(text, fontAtlas, fontSize, buffer, exclusionMask?): void
 - `LayoutResult` — `{ nodes: LayoutNode[], totalWidth, totalHeight, fallbackToCanvas? }`；`LayoutNode` は1つの配置されたグリフです。
 - `LayoutResultBuffer` — フラットな型付き配列結果（`xs/ys/ws/hs`、`chars`、`levels`、`count`、`CAPACITY = 16384`）；再利用前に `reset()`、`toLayoutResult()` で具体化。`levels` は各グリフの解決された BiDi 埋め込みレベル（偶数 = LTR、奇数 = RTL）であり、コンシューマはグリフの方向を判断できます。バッファパスは各行を視覚順に並べ替えるためにこれを使用します。グリフは**視覚**順に、共通ベースライン付きで出力され、割り当てパスとグリフごとに一致します。
 - `LayoutWorkerManager.getInstance()` — オフスレッドレイアウト用シングルトン；`queueLayout(entityId, text, { fontId, fontSize, maxWidth, maxHeight, callback, ... })` / `cancelLayout(entityId)`。[`MSDFTextEntity`](/reference/core-text/#msdftextentity) によって使用されます。
+
+知っておく価値のあるユーティリティエクスポート：`createMetricsMeasurer(fontFamily?, baseSize?)` と `resolveGlyphMeasurer(...)` は `GlyphMeasurer` を構築します；`EMPTY_GLYPH_ATLAS` はメトリクスなしのフォールバックアトラスです；`isComplexScript(text)` はシェイピングにスクリプトアイテマイザーが必要かどうかを報告します；`computeMSDFLayout(...)` はワーカーパスがオフスレッドで実行する純粋なレイアウト関数です；`cacheStats()` / `resetCacheStats()` と `clearCssLineBoxMetrics()` は診断用のエンジンレベルのキャッシュです。
+
+- `InlineObject` — リッチな段落内のインライン置換要素（画像、アイコン、数式ボックス）：`{ width, height, depth?, alt?, paint? }`。スパンは U+FFFC `OBJECT_REPLACEMENT` センチネルで構成されなければなりません；エンジンはボックスのメトリクスを予約し、コンシューマがレンダリングするときにテキストのローカル座標空間で `paint(surface: InlineObjectSurface, box: InlineObjectBox)` を呼び出します（深度の簿記は不要です）。`alt` はアクセシブルネーム、選択、コピーに使用されるテキスト同等物です——それがなければ生のセンチネルが a11y レイヤーに漏れます。`paint` は段落メモキーの一部です（`alt` と共に）：比較して等しい2つのオブジェクトはキャッシュされた段落を共有するため、`alt` の外で選択された画像（例：Markdown 画像 URL——バッジカラムのケース）はそこで宣言されなければならず、さもなければ同じ見た目のすべてのオブジェクトが最初のオブジェクトの画像を描画します。`depth` は符号を反転した CSS `vertical-align` を反映します（MathJax の `vertical-align: -0.486ex` → `depth: 0.486 * exToPx`）。
 
 使用法については [テキスト & タイポグラフィ](/learn/text-typography/) を、このエンジンの出力を消費するフォント/グリフレンダリングレイヤーについては [テキスト & Bidi](/reference/core-text/) を参照してください。
 

@@ -2,9 +2,6 @@
 title = "Devtools: bridge & plugins"
 description = "Drive a VectoJS scene from another document over a JSON-RPC bridge, and extend the inspector with your own tabs, audits, and commands."
 weight = 52
-
-[extra]
-order = 52
 +++
 
 # Devtools: bridge & plugins

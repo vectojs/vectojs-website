@@ -2,9 +2,6 @@
 title = "Graph3D & 選取"
 description = "實例化的 Three.js 渲染器，只需兩次繪圖呼叫即可繪製任何圖形，以及用於懸停/點擊節點選取的光線投射模式。"
 weight = 46
-
-[extra]
-order = 46
 +++
 
 # `Graph3D` & 選取

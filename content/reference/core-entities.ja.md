@@ -2,9 +2,6 @@
 title = "その他のエンティティ"
 description = "Rect/Circle/Group形状プリミティブ、および@vectojs/coreメインエントリからのSplineEntity（ヴェクトマンシー曲線レンダリング）、DOMPortalEntity（実際のDOM要素をシーンに投影）、SVGEntity（ラスタライズSVGブリット）。"
 weight = 8
-
-[extra]
-order = 8
 +++
 
 # その他のエンティティ（`.` から）
@@ -72,6 +69,24 @@ polySegmentToBezier(seg: SplineSegment): BezierControlPoints
 | `hitTolerance`  | `0`         | `'curve'` モードでの追加のピック余白。                                                              |
 
 公開プロパティ：`doc`、`lineWidth`、`defaultColor`、`hitTolerance`、`showBounds`（デフォルト `false`、デバッグアウトラインを描画）。`SplineColor` は `[r,g,b]`（0–1）、線形グラデーション記述子、または `null` です。
+
+**`SplineEquation`** — `SplineDocument` 内の 1 つの曲線（1 つのストローク色）で、連続する三次多項式セグメントで構成されます：
+
+```ts
+interface SplineEquation {
+  color_rgb: SplineColor; // stroke color: [r,g,b] (0-1) | gradient | null
+  data: SplineSegment[]; // one segment per piecewise-cubic run
+}
+
+interface SplineSegment {
+  start_t: number; // t at segment start, [0,1]
+  end_t: number; // t at segment end, [0,1]
+  x_poly: number[]; // x(t) = [a,b,c,d] coefficients
+  y_poly: number[]; // y(t) = [a,b,c,d] coefficients
+}
+```
+
+セグメントの `x_poly`/`y_poly` は、`t ∈ [start_t, end_t]` における `f(t) = a + b·t + c·t² + d·t³` の多項式係数を保持します。セグメントを Bézier として検査またはヒットテストするには、`polySegmentToBezier(seg)` がそれを `BezierControlPoints`（`x0,y0,cp1x,cp1y,cp2x,cp2y,x3,y3`）に変換します——これは `SplineEntity` 自体が描画用に平坦化する形状です。
 
 ## DOMPortalEntity
 

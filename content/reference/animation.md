@@ -2,9 +2,6 @@
 title = "Animation (@vectojs/animation)"
 description = "Property drivers, tweens, springs, and easing curves — the engine behind Entity.animate(), setTransition(), animateTo() and springTo()."
 weight = 54
-
-[extra]
-order = 54
 +++
 
 # `@vectojs/animation`

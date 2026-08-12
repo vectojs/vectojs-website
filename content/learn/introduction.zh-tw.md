@@ -2,9 +2,6 @@
 title = "VectoJS 簡介"
 description = "簡要概述 VectoJS 是什麼、用途為何，以及下一步該往哪裡走。"
 weight = 1
-
-[extra]
-order = 1
 +++
 
 # VectoJS 簡介

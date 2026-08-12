@@ -2,9 +2,6 @@
 title = "UI: ProgressBar"
 description = "선택적 백분율 레이블과 progressbar 시맨틱이 있는 캔버스 진행 표시기"
 weight = 30
-
-[extra]
-order = 30
 +++
 
 # `ProgressBar`
@@ -15,7 +12,7 @@ order = 30
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ProgressBar</span></div>
-  <iframe src="/sandbox/ui/component.html?name=progressbar&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ProgressBar 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=progressbar&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ProgressBar 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>`setValue()`를 사용하여 진행 변경사항을 클램프하고 다시 그리세요.</figcaption>
 </figure>
 

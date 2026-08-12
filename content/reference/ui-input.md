@@ -2,9 +2,6 @@
 title = "UI: Input"
 description = "Single-line text input with native editing behavior mirrored onto canvas."
 weight = 23
-
-[extra]
-order = 23
 +++
 
 # `Input`

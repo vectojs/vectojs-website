@@ -2,9 +2,6 @@
 title = "런타임 아키텍처"
 description = "Scene, Entity, 렌더 루프, 접근성 투영, 백엔드가 어떻게 함께 동작하는지 설명합니다."
 weight = 3
-
-[extra]
-order = 3
 +++
 
 # 런타임 아키텍처

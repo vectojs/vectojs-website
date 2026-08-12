@@ -2,9 +2,6 @@
 title = "UI: TextArea"
 description = "캔버스 렌더링이 있는 여러 줄 네이티브 텍스트 편집"
 weight = 24
-
-[extra]
-order = 24
 +++
 
 # `TextArea`
@@ -15,7 +12,7 @@ order = 24
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · TextArea</span></div>
-  <iframe src="/sandbox/ui/component.html?name=textarea&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="TextArea 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=textarea&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="TextArea 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>여러 줄 편집은 네이티브이며, 캔버스는 시각적 미러를 그립니다.</figcaption>
 </figure>
 

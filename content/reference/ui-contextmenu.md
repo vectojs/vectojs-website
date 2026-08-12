@@ -2,9 +2,6 @@
 title = "UI: ContextMenu"
 description = "Overlay command menu with separators, disabled rows, shortcuts, and nested submenus."
 weight = 39
-
-[extra]
-order = 39
 +++
 
 # `ContextMenu`

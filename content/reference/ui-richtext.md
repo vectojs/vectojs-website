@@ -2,9 +2,6 @@
 title = "UI: RichText"
 description = "Multi-style inline text component with link hotspots and streaming append support."
 weight = 17
-
-[extra]
-order = 17
 +++
 
 # `RichText`

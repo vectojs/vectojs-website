@@ -2,9 +2,6 @@
 title = "ComputeParticleEntity"
 description = "고처리량 파티클 레이어: 파티클별 Float32Array 메모리 레이아웃, 스프링/댐핑/폭발 CPU 시뮬레이션, 그리고 자동 CPU 폴백이 있는 WebGPU 컴퓨트 경로."
 weight = 6
-
-[extra]
-order = 6
 +++
 
 # `ComputeParticleEntity` — 고처리량 파티클 레이어

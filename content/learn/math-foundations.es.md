@@ -2,9 +2,6 @@
 title = "Fundamentos Matemáticos"
 description = "Los principios matemáticos y físicos que sustentan el motor de renderizado de VectoJS: Virtual Math Trees, proyección de accesibilidad semántica, grupos de Lie, disposiciones divididas, hit-testing de splines, ajuste por diferencia de conjuntos, animación por ODE y descarte espacial."
 weight = 6
-
-[extra]
-order = 6
 +++
 
 # Fundamentos Matemáticos

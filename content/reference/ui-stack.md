@@ -2,9 +2,6 @@
 title = "UI: Stack"
 description = "Structural layout container for vertical or horizontal child placement."
 weight = 21
-
-[extra]
-order = 21
 +++
 
 # `Stack`

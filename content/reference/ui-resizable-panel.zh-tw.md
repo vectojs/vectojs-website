@@ -2,9 +2,6 @@
 title = "UI: Resizable panels"
 description = "用於可拖曳分割窗格布局的 PanelGroup、Panel 和 PanelResizeHandle。"
 weight = 35
-
-[extra]
-order = 35
 +++
 
 # 可調整大小的面板
@@ -15,7 +12,7 @@ order = 35
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · PanelGroup</span></div>
-  <iframe src="/sandbox/ui/component.html?name=resizablepanel&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Resizable panel live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=resizablepanel&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Resizable panel live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>拖曳面板之間的分隔線以檢視控制柄懸停和調整大小的行為。</figcaption>
 </figure>
 

@@ -2,9 +2,6 @@
 title = "UI: TreeView"
 description = "Hierarchical tree component with eager or lazy child loading."
 weight = 34
-
-[extra]
-order = 34
 +++
 
 # `TreeView`

@@ -2,9 +2,6 @@
 title = "Markdown"
 description = "Renderizador de Markdown nativo en canvas con texto enriquecido, bloques de código, tablas, anexión por streaming y devoluciones de llamada para enlaces — el paquete independiente @vectojs/markdown."
 weight = 14
-
-[extra]
-order = 14
 +++
 
 # `Markdown` — `@vectojs/markdown`
@@ -23,7 +20,7 @@ Los párrafos y encabezados se convierten en `RichText`, los bloques de código 
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Demostración en vivo de Markdown" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Demostración en vivo de Markdown" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>La muestra mantiene prosa, enlaces, código en línea y un bloque de código en un viewport enfocado para que los defectos de diseño sean visibles.</figcaption>
 </figure>
 
@@ -54,6 +51,11 @@ interface MarkdownOptions {
   onLinkClick?: (href: string) => void;
   selectable?: boolean; // default true
   userTiming?: boolean; // emit a `vecto:markdown:parse` measure, default false
+  blockAffordances?: boolean; // copy/download controls on code blocks + tables, default false
+  affordances?: BlockAffordanceConfig; // which controls + labels, e.g. { download: false }
+  showCodeLanguage?: boolean; // fence language in a header band per code block, default false
+  writeClipboard?: (text: string) => void; // injectable clipboard write (jsdom/tests)
+  saveFile?: (filename: string, content: string, mimeType: string) => void; // injectable download
 }
 ```
 
@@ -68,6 +70,24 @@ el código de bloque a través de la cuadrícula preparada compartida, por lo qu
 árabe/RTL con ajuste y código mantienen el orden de copia lógico a DPR y zoom fraccionarios.
 Cuando una aplicación controla el tamaño del contenedor o el zoom CSS, notifica a la Scene con
 `scene.resize(width, height)` para que Firefox pueda recalibrar las métricas nativas de Range.
+
+### Affordances de bloque (controles de copiar / descargar)
+
+`blockAffordances: true` dibuja controles de copiar + descargar en la esquina superior derecha de los bloques de código y las tablas. Es opcional por diseño: cada control es una parada enfocable en el orden de tabulación, y un documento con muchos bloques delimitados sería tedioso de pegar con el teclado (y un lector sin permisos de portapapeles/sistema de archivos no gana nada). `affordances` reduce o vuelve a etiquetar el conjunto — las etiquetas son texto visible para el usuario y son lo que anuncia un lector de pantalla, así que úsalo para documentos no ingleses. Tanto `writeClipboard` como `saveFile` son inyectables porque las rutas de la plataforma están ausentes en jsdom. `showCodeLanguage` reserva una banda de cabecera que también evita que los controles se superpongan a la primera línea de código — actívalo cuando combines ambos.
+
+Anulaciones por tipo (`0.20.x+`): `affordances.code` / `affordances.table` desactivan la copia/descarga para un tipo de bloque sin tocar el otro — una tabla que ya ofrece copia en su propia UI ya no necesita dos controles superpuestos:
+
+```ts
+markdown.setOptions({
+  blockAffordances: true,
+  affordances: {
+    table: { copy: false, download: false }, // keep code-block controls only
+    code: { download: false }, // per-kind, inherits top-level defaults
+  },
+});
+```
+
+Una clave por tipo omitida hereda el `copy`/`download` de nivel superior, que a su vez hereda `true`. Los bloques de código también pueden enmarcarse con un borde estableciendo `theme.codeBorderColor` (opcional; si no se establece, se mantiene el renderizado anterior sin bordes) — útil en fondos de página claros donde el relleno del código se funde con el fondo.
 
 ## Ancho adaptable: `setMaxWidth()`
 
@@ -293,7 +313,28 @@ Lo que realmente cuesta cada llamada, para que el código de streaming pueda raz
 
 ## Punto de extensión
 
-`renderToken(token)` está protegido, así que los renderizadores personalizados pueden extender `Markdown` con bloques específicos de la aplicación a la vez que siguen delegando los tokens normales al renderizador integrado.
+Existen dos superficies de extensión:
+
+- **`renderToken(token)`** está protegido, así que los renderizadores personalizados pueden subclasificar `Markdown` para bloques específicos de la aplicación a la vez que siguen delegando los tokens normales al renderizador integrado.
+- **Registro de bloques delimitados (Fenced block registry)** — renderizado conectable para bloques de código con clave por cadena de información (code, math, mermaid, graphviz, …). Un renderizador se carga perezosamente en el primer `render()` y se cachea; `'error'` recurre al renderizador de bloques de código por defecto.
+
+```ts
+import { FencedBlockRegistry } from '@vectojs/markdown';
+
+FencedBlockRegistry.register('mermaid', {
+  async load() {
+    const mermaid = await import('mermaid');
+    return (source, lang, options) => {
+      /* render → Entity */
+    };
+  },
+});
+FencedBlockRegistry.unregister('mermaid');
+```
+
+`FencedBlockRenderOptions` lleva `{ theme, availableWidth, selectable }`. Exportaciones relacionadas: `isFencedBlockRendererReady`, `renderFencedBlock`, además de `PRESET_THEMES` / `resolvePresetTheme` / `isPresetName` para la resolución de temas, y los ayudantes `tableToCsv` / `tableToMarkdown` / `extensionForLanguage` / `mimeForLanguage` (los internos de affordances y exportación).
+
+Superficie de utilidad adicional: `Markdown.setUserTiming(on)` (conmutador en tiempo de ejecución de la medida de parseo), `codeAtlas` / `codeAtlasStats` / `highlightedLanguages` (diagnósticos de atlas), y `MathBlock` / `preloadMathJax()` / `isMathJaxReady` para el renderizador de matemáticas TeX opcional (se carga perezosamente, no se arrastra por defecto).
 
 ## Lista de verificación para mantenedores
 

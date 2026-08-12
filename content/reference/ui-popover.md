@@ -2,9 +2,6 @@
 title = "UI: Popover"
 description = "Click-triggered overlay panel that can contain arbitrary VectoJS children."
 weight = 38
-
-[extra]
-order = 38
 +++
 
 # `Popover`

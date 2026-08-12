@@ -2,9 +2,6 @@
 title = "Utilitaires mathématiques"
 description = "SpatialHashGrid pour des requêtes spatiales de phase large en O(1) moyen et SpringPhysics pour un ressort à valeur unique critique réglable — le paquet autonome @vectojs/math, re-exporté par @vectojs/core."
 weight = 9
-
-[extra]
-order = 9
 +++
 
 # Utilitaires mathématiques — `@vectojs/math`

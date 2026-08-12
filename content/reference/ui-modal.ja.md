@@ -2,9 +2,6 @@
 title = "UI: Modal"
 description = "カード、バックドロップ、およびスプリングによる出入りモーションを備えたブロッキングオーバーレイコンポーネント。"
 weight = 36
-
-[extra]
-order = 36
 +++
 
 # `Modal`
@@ -15,7 +12,7 @@ order = 36
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Modal</span></div>
-  <iframe src="/sandbox/ui/component.html?name=modal&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Modal live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=modal&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Modal live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>モーダルを開き、canvasでレンダリングされた閉じるボタンで閉じてください。</figcaption>
 </figure>
 

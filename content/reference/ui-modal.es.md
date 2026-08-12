@@ -2,9 +2,6 @@
 title = "UI: Modal"
 description = "Componente de superposición bloqueante con una card, fondo y animación de entrada/salida con muelle."
 weight = 36
-
-[extra]
-order = 36
 +++
 
 # `Modal`
@@ -16,7 +13,7 @@ salida.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Modal</span></div>
-  <iframe src="/sandbox/ui/component.html?name=modal&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Modal" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=modal&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Modal" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Abre el modal, luego ciérralo con el botón de cierre renderizado en canvas.</figcaption>
 </figure>
 

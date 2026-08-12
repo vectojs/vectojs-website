@@ -2,9 +2,6 @@
 title = "수학적 기초"
 description = "VectoJS 렌더링 엔진의 기반이 되는 수학적 및 물리적 원리: Virtual Math Trees, 시맨틱 접근성 프로젝션, Lie 그룹, 분할 레이아웃, 스플라인 히트 테스팅, 집합-차분 래핑, ODE 애니메이션, 공간 컬링."
 weight = 6
-
-[extra]
-order = 6
 +++
 
 # 수학적 기초

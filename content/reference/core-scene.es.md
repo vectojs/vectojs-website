@@ -2,9 +2,6 @@
 title = "Scene"
 description = "El orquestador de nivel superior de VectoJS: opciones del constructor, el bucle de renderizado, renderMode/maxFPS y la aceleración automática por inactividad, métodos del ciclo de vida y el registro de backends conectables WebGL/WebGPU."
 weight = 2
-
-[extra]
-order = 2
 +++
 
 # `Scene`
@@ -238,6 +235,46 @@ scene.findEntityAt(x, y): Entity | null      // entidad superior cuya isPointIns
 scene.getA11yElement(entityId: string): HTMLElement | undefined
 scene.getA11yTree(): A11yTreeNode[]          // instantánea anidada de los nodos sombra proyectados (id/tag/role/label/value/...)
 ```
+
+## Instrumentación de User Timing
+
+La Scene puede emitir [`User Timing`](https://developer.mozilla.org/en-US/docs/Web/API/User_Timing_API)
+marcas/medidas alrededor de las fases de renderizado, por lo que una captura del
+profiler muestra exactamente dónde pasa el tiempo un fotograma. Desactivada por defecto;
+actívala con la opción `userTiming` o en vivo mediante `scene.setUserTiming(true)`:
+
+```ts
+const scene = new Scene(canvas, { userTiming: true });
+// or
+scene.setUserTiming(true); // runtime toggle
+scene.userTiming; // read the current state
+```
+
+Los nombres estables de las medidas se exportan como `VECTO_USER_TIMING`:
+
+```ts
+VECTO_USER_TIMING.scene; // { transform, drawWalk, entityPaint, flush, a11ySync }
+VECTO_USER_TIMING.markdown; // { parse }
+// e.g. 'vecto:scene:transform', 'vecto:markdown:parse'
+```
+
+`@vectojs/core` también exporta los ayudantes de bajo nivel que el motor usa
+internamente (y que un renderizador personalizado o un componente instrumentado
+puede usar para añadir sus propias fases):
+
+```ts
+beginVectoUserTiming(name: string): VectoUserTimingSpan | null
+endVectoUserTiming(span: VectoUserTimingSpan | null): void
+measureVectoUserTiming(name: string, durationMs: number): void
+```
+
+`beginVectoUserTiming` devuelve `null` (y `measureVectoUserTiming` no hace nada)
+cuando el host no implementa marcas/medidas, por lo que la creación de perfiles
+opcional nunca es un requisito de tiempo de ejecución. Los intervalos usan marcas
+de inicio/fin con nombres únicos que se liberan en `endVectoUserTiming`.
+`measureVectoUserTiming` emite una medida anclada en el tiempo actual para una
+duración acumulada a partir de llamadas no solapadas — la vía que reporta los
+totales de pintado de entidad por fotograma sin instrumentar cada entidad.
 
 ## Registro de backends conectables (estático)
 

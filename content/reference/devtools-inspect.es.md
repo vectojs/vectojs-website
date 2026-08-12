@@ -2,9 +2,6 @@
 title = "Devtools: inspección"
 description = "Lee una escena de VectoJS como datos — el modelo de árbol, la selección de entidades, el estado de entidad/a11y/texto, la geometría de resaltado, la explicación de hit-test y la traza de enrutamiento de eventos."
 weight = 49
-
-[extra]
-order = 49
 +++
 
 # Devtools: inspección

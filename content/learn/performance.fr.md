@@ -2,9 +2,6 @@
 title = "Performance"
 description = "Modes de rendu, l'auto-limitation au repos, le rendu par lots WebGL, l'élimination hors fenêtre, la performance du texte et comment mesurer le débit GPU réel."
 weight = 13
-
-[extra]
-order = 13
 +++
 
 # Performance

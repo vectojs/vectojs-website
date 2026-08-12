@@ -2,9 +2,6 @@
 title = "其他实体"
 description = "Rect/Circle/Group 形状图元，外加 SplineEntity（vectomancy 曲线渲染）、DOMPortalEntity（将真实 DOM 元素投影到场景中）和 SVGEntity（栅格化 SVG 位块传输），均来自 @vectojs/core 主入口。"
 weight = 8
-
-[extra]
-order = 8
 +++
 
 # 其他实体（来自 `.`）
@@ -72,6 +69,24 @@ polySegmentToBezier(seg: SplineSegment): BezierControlPoints
 | `hitTolerance`  | `0`         | `'curve'` 模式下额外的拾取填充。                                                      |
 
 公开：`doc`、`lineWidth`、`defaultColor`、`hitTolerance`、`showBounds`（默认 `false`，绘制调试轮廓）。`SplineColor` 是 `[r,g,b]`（0–1）、一个线性渐变描述符，或 `null`。
+
+**`SplineEquation`** — `SplineDocument` 中的一条曲线（一种描边颜色），由连续的立方多项式段组成：
+
+```ts
+interface SplineEquation {
+  color_rgb: SplineColor; // stroke color: [r,g,b] (0-1) | gradient | null
+  data: SplineSegment[]; // one segment per piecewise-cubic run
+}
+
+interface SplineSegment {
+  start_t: number; // t at segment start, [0,1]
+  end_t: number; // t at segment end, [0,1]
+  x_poly: number[]; // x(t) = [a,b,c,d] coefficients
+  y_poly: number[]; // y(t) = [a,b,c,d] coefficients
+}
+```
+
+段的 `x_poly`/`y_poly` 保存多项式系数 `f(t) = a + b·t + c·t² + d·t³`（`t ∈ [start_t, end_t]`）。要作为贝塞尔曲线检查或命中测试某段，`polySegmentToBezier(seg)` 会将其转换为 `BezierControlPoints`（`x0,y0,cp1x,cp1y,cp2x,cp2y,x3,y3`）——这正是 `SplineEntity` 自身用于渲染展平的形状。
 
 ## DOMPortalEntity
 

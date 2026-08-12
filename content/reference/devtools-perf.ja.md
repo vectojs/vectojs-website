@@ -2,9 +2,6 @@
 title = "Devtools: パフォーマンス"
 description = "VectoJSのフレームコストを帰属させる — GPUとCanvas2Dの描画カウンター、WASMアクセラレータの状態、ダーティ再描画の帰属、Markdownストリーミング再利用メトリクス。"
 weight = 51
-
-[extra]
-order = 51
 +++
 
 # Devtools: パフォーマンス

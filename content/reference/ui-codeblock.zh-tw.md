@@ -2,9 +2,6 @@
 title = "UI: CodeBlock"
 description = "Markdown 用於圍欄程式碼的單葉 canvas 程式碼區塊。"
 weight = 40
-
-[extra]
-order = 40
 +++
 
 # `CodeBlock`
@@ -15,7 +12,7 @@ order = 40
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · CodeBlock</span></div>
-  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>僅在自訂渲染器時直接使用它；一般文件應透過 `Markdown`。</figcaption>
 </figure>
 
@@ -45,6 +42,19 @@ codeBlock.setWidth(width: number): this
 任何會改變字形幾何的變更——原始碼、語言、字型——都要經過 `setCode()`，它會在那裡使網格失效。寬度未變時它是空操作，並回傳 `this`。
 
 `Markdown.setMaxWidth()` 會為它擁有的每個圍欄程式碼區塊呼叫本方法，因此只有當你自行建構 `CodeBlock` 時才需要直接呼叫。
+
+## 選項與水平捲動
+
+```ts
+new CodeBlock(source, language, width, options?: CodeBlockOptions)
+// options: { showLanguage?: boolean }  // header band with the language name, default false
+codeBlock.showLanguage: boolean
+codeBlock.scrollX: number       // current horizontal scroll (clamped to maxScrollX)
+codeBlock.maxScrollX: number    // widest line's overflow past the padded box; 0 = everything fits
+codeBlock.setScrollX(x: number): this // scroll horizontally, clamped to [0, maxScrollX]
+```
+
+長行會溢出而不是換行，因此較寬的程式碼區塊可以水平捲動。`maxScrollX` 會針對產生它的網格進行記憶化——`scrollX` 在每個同步影格中都會被讀取，因此正是這個快取讓長程式碼區塊無需每影格承擔 O(lines) 的掃描開銷。
 
 ## 維護者檢查清單
 

@@ -2,9 +2,6 @@
 title = "Motor de disposición"
 description = "El paquete independiente @vectojs/layout (también la subruta @vectojs/core/layout): la división frío/caliente que separa la costosa segmentación+medición de texto de la aritmética barata de ajuste de línea y posicionamiento, memoización en streaming, texto enriquecido y formas de exclusión."
 weight = 4
-
-[extra]
-order = 4
 +++
 
 # Motor de disposición (división frío/caliente) — `@vectojs/layout`
@@ -67,6 +64,10 @@ fallbackToCanvas? }`; `LayoutNode` es un glifo posicionado.
 - `LayoutWorkerManager.getInstance()` — singleton para disposición fuera del hilo principal;
   `queueLayout(entityId, text, { fontId, fontSize, maxWidth, maxHeight, callback,
 ... })` / `cancelLayout(entityId)`. Usado por [`MSDFTextEntity`](/reference/core-text/#msdftextentity).
+
+Exportaciones de utilidad que vale la pena conocer: `createMetricsMeasurer(fontFamily?, baseSize?)` y `resolveGlyphMeasurer(...)` construyen un `GlyphMeasurer`; `EMPTY_GLYPH_ATLAS` es el atlas de respaldo sin métricas; `isComplexScript(text)` informa si el shaping necesita el itemizador de scripts; `computeMSDFLayout(...)` es la función de disposición pura que la ruta del worker ejecuta fuera del hilo; `cacheStats()` / `resetCacheStats()` y `clearCssLineBoxMetrics()` son cachés a nivel de motor para diagnósticos.
+
+- `InlineObject` — un elemento reemplazado en línea (imagen, icono, cuadro matemático) dentro de un párrafo enriquecido: `{ width, height, depth?, alt?, paint? }`. El span debe consistir en el centinela U+FFFC `OBJECT_REPLACEMENT`; el motor reserva las métricas del cuadro y, cuando el consumidor renderiza, llama a `paint(surface: InlineObjectSurface, box: InlineObjectBox)` en el espacio de coordenadas local del texto (sin necesidad de contabilidad de profundidad). `alt` es el equivalente de texto usado para el nombre accesible, la selección y el copiado; sin él, el centinela sin procesar se filtra a la capa a11y. `paint` es parte de la clave de memoización del párrafo (junto con `alt`): dos objetos que se comparan iguales comparten un párrafo en caché, por lo que una imagen elegida fuera de `alt` (p. ej. una URL de imagen de Markdown — el caso de la columna de insignias) debe declararse allí o cada objeto de apariencia igual dibuja la imagen del primero. `depth` refleja el `vertical-align` de CSS con el signo invertido (`vertical-align: -0.486ex` de MathJax → `depth: 0.486 * exToPx`).
 
 Ver [Texto y Tipografía](/learn/text-typography/) para uso, y
 [Texto y Bidi](/reference/core-text/) para la capa de renderizado de fuentes/glifos que

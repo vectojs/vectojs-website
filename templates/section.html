@@ -6,6 +6,7 @@
   "type": "section",
   "lang": "{{ lang }}",
   "title": {{ section.title | json_encode() | safe }},
+  "description": {{ section.description | default(value="") | json_encode() | safe }},
   "path": "{{ section.path }}",
   "pages": [
     {% for page in section.pages %}
@@ -15,7 +16,9 @@
       "path": "{{ page.path }}",
       "date": {% if page.date %}"{{ page.date | date(format='%Y-%m-%d') }}"{% else %}""{% endif %},
       "word_count": {{ page.word_count | default(value=0) }},
-      "reading_time": {{ page.reading_time | default(value=0) }}
+      "reading_time": {{ page.reading_time | default(value=0) }},
+      "tags": {{ page.extra.tags | default(value=[]) | json_encode() | safe }},
+      "author": {{ page.extra.author | default(value="") | json_encode() | safe }}
     }{% if not loop.last %},{% endif %}
     {% endfor %}
   ]

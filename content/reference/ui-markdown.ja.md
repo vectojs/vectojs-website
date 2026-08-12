@@ -2,9 +2,6 @@
 title = "Markdown"
 description = "リッチテキスト、コードブロック、テーブル、ストリーミング追加、リンクコールバックを備えたcanvas-nativeなMarkdownレンダラー — スタンドアロンの @vectojs/markdown パッケージ。"
 weight = 14
-
-[extra]
-order = 14
 +++
 
 # `Markdown` — `@vectojs/markdown`
@@ -17,7 +14,7 @@ order = 14
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>このサンプルは、プロース、リンク、インラインコード、フェンス付きブロックを1つの集中したビューポートに保つため、レイアウトの欠陥が見えるようになっています。</figcaption>
 </figure>
 
@@ -48,10 +45,33 @@ interface MarkdownOptions {
   onLinkClick?: (href: string) => void;
   selectable?: boolean; // default true
   userTiming?: boolean; // emit a `vecto:markdown:parse` measure, default false
+  blockAffordances?: boolean; // copy/download controls on code blocks + tables, default false
+  affordances?: BlockAffordanceConfig; // which controls + labels, e.g. { download: false }
+  showCodeLanguage?: boolean; // fence language in a header band per code block, default false
+  writeClipboard?: (text: string) => void; // injectable clipboard write (jsdom/tests)
+  saveFile?: (filename: string, content: string, mimeType: string) => void; // injectable download
 }
 ```
 
 `selectable` は現在および将来の見出し、プロース、リスト、フェンス付きコード、テーブルセルに伝播します。`markdown.setSelectable(false)` で実行時に変更します。ブラウザがドラッグ選択、Ctrl/Command+C、find-in-pageを所有します。VMTエンティティは依然としてレイアウトとピクセルを所有します。順序付きおよび順序なしのリスト項目は選択可能な `RichText` を使用します。すべてのGFMテーブルセルは1つの選択可能な投影を所有します。論理的なソース順序とハード/ソフトのセパレーターは、ネストされたMarkdown出力をまたいで無傷のまま保たれます。Core 1.8は変換されたプロースを2次元のキャレットジオメトリを通じてルーティングし、フェンス付きコードを共有の準備済みグリッドを通じてルーティングするため、リスト、GFMテーブル、折り返されたアラビア語/RTLテキスト、およびコードは、分数DPRとズームで論理的なコピー順序を保持します。アプリケーションがコンテナのサイズ設定またはCSSズームを所有する場合、`scene.resize(width, height)` でSceneに通知して、FirefoxがネイティブのRangeメトリクスを再較正できるようにします。
+
+### ブロックのアフォーダンス（コピー / ダウンロードのコントロール）
+
+`blockAffordances: true` は、コードブロックとテーブルの右上隅にコピー + ダウンロードのコントロールを描画します。意図的にオプトイン設計です。各コントロールはタブ順序のフォーカス可能な停止点であり、フェンスの多いドキュメントではキーボードで一つずつ貼り付けるのは退屈でしょう（そしてクリップボード/ファイルシステムの権限を持たない読者には何の利点もありません）。`affordances` はそのセットを絞り込んだりラベルを付け直したりします — ラベルはユーザーに見えるテキストであり、スクリーンリーダーが読み上げる内容でもあるため、英語以外のドキュメントに使ってください。`writeClipboard` と `saveFile` はどちらも、jsdom にはプラットフォームの経路が存在しないため、注入可能です。`showCodeLanguage` はヘッダーバンドを確保し、コントロールがコードの最初の行と重ならないようにもします — 両方を組み合わせる場合はオンにしてください。
+
+種類ごとの上書き（`0.20.x+`）：`affordances.code` / `affordances.table` は、もう一方に触れずに、あるブロック種類でコピー/ダウンロードを無効化します — 自身の UI で既にコピーを提供しているテーブルは、重複する2つのコントロールを必要としなくなります:
+
+```ts
+markdown.setOptions({
+  blockAffordances: true,
+  affordances: {
+    table: { copy: false, download: false }, // keep code-block controls only
+    code: { download: false }, // per-kind, inherits top-level defaults
+  },
+});
+```
+
+省略された種類キーはトップレベルの `copy`/`download` を継承し、それらは `true` を継承します。コードブロックにはさらに、`theme.codeBorderColor` を設定することで境界線を付けることもできます（任意；未設定の場合は従来の境界線なしの描画を維持）— コードの塗りが埋もれてしまいがちな明るいページ背景で役立ちます。
 
 ## レスポンシブな幅: `setMaxWidth()`
 
@@ -230,7 +250,28 @@ const stream = markdown.createStream({
 
 ## 拡張ポイント
 
-`renderToken(token)` は protected なので、カスタムレンダラーは `Markdown` をサブクラス化してアプリ固有のブロックに対応しつつ、通常のトークンは組み込みレンダラーに委譲できます。
+拡張面は2つあります：
+
+- **`renderToken(token)`** は protected なので、カスタムレンダラーは `Markdown` をサブクラス化してアプリ固有のブロックに対応しつつ、通常のトークンは組み込みレンダラーに委譲できます。
+- **フェンスブロックレジストリ** — 情報文字列をキーとするコードフェンスのプラグ可能なレンダリング（code、math、mermaid、graphviz、…）。レンダラーは最初の `render()` で遅延ロードされ、キャッシュされます。`'error'` はデフォルトのコードブロックレンダラーにフォールバックします。
+
+```ts
+import { FencedBlockRegistry } from '@vectojs/markdown';
+
+FencedBlockRegistry.register('mermaid', {
+  async load() {
+    const mermaid = await import('mermaid');
+    return (source, lang, options) => {
+      /* render → Entity */
+    };
+  },
+});
+FencedBlockRegistry.unregister('mermaid');
+```
+
+`FencedBlockRenderOptions` は `{ theme, availableWidth, selectable }` を運びます。関連するエクスポート: テーマ解決用の `isFencedBlockRendererReady`、`renderFencedBlock`、`PRESET_THEMES` / `resolvePresetTheme` / `isPresetName`、およびヘルパー `tableToCsv` / `tableToMarkdown` / `extensionForLanguage` / `mimeForLanguage`（アフォーダンスとエクスポートの内部実装）。
+
+追加のユーティリティサーフェス: `Markdown.setUserTiming(on)`（パース計測のランタイムトグル）、`codeAtlas` / `codeAtlasStats` / `highlightedLanguages`（アトラス診断）、そしてオプションのTeX数式レンダラー用の `MathBlock` / `preloadMathJax()` / `isMathJaxReady`（遅延ロードされ、デフォルトでは取り込まれません）。
 
 ## メンテナー向けチェックリスト
 

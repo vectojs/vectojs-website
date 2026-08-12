@@ -2,9 +2,6 @@
 title = "ThreeAdapter"
 description = "Renderiza una escena de VectoJS en un canvas, la expone como un THREE.CanvasTexture y conecta eventos de puntero (incluyendo controladores WebXR y multi-touch) mediante raycasting UV."
 weight = 42
-
-[extra]
-order = 42
 +++
 
 # `ThreeAdapter`

@@ -2,9 +2,6 @@
 title = "Rendimiento"
 description = "Modos de renderizado, la limitación automática por inactividad, el renderizado por lotes de WebGL, el descarte por viewport, el rendimiento del texto y cómo medir el rendimiento real de la GPU."
 weight = 13
-
-[extra]
-order = 13
 +++
 
 # Rendimiento

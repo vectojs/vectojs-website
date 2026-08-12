@@ -2,9 +2,6 @@
 title = "@vectojs/devtools"
 description = "ページ内Virtual Math Treeインスペクターとそのヘッドレスモデルレイヤー — エンティティピッキング、ツリービュー、監査、スナップショット、GPU・アクセラレータ読み出し、JSON-RPCブリッジ。"
 weight = 48
-
-[extra]
-order = 48
 +++
 
 # `@vectojs/devtools`

@@ -2,9 +2,6 @@
 title = "FAQ"
 description = "Questions fréquemment posées sur VectoJS — décisions d'architecture, performances, accessibilité et dépannage."
 weight = 49
-
-[extra]
-order = 49
 +++
 
 # Questions fréquemment posées
@@ -493,3 +490,50 @@ Puis ajoutez à `tsconfig.json` :
 ```json
 { "compilerOptions": { "types": ["@webgpu/types"] } }
 ```
+
+### Le texte ou les images semblent flous (DPR)
+
+Le texte du canvas est rendu au rapport de pixels de l'appareil par défaut — s'il semble flou, c'est que la mémoire tampon du canvas a été dimensionnée à un DPR inférieur à celui de l'écran (généralement parce que la page a été mise à l'échelle ou qu'un conteneur de mise en page personnalisé l'a redimensionnée sans `scene.resize()`). Deux leviers :
+
+- `maxDPR` plafonne le DPR de rendu (option ou en direct). Une page statique dimensionnée avec `maxDPR: 2` sur un téléphone 3x garde le coût borné — mais plafonner en dessous du DPR réel du panneau est exactement ce qui produit le flou, donc plafonnez délibérément.
+- Après tout redimensionnement/zoom manuel, appelez à nouveau `scene.resize(w, h)` — le DPR est relu et la mémoire tampon est recréée à chaque `resize()`. Une scène dont la boîte CSS du canvas change sans `resize()` se rend à l'ancien DPR et semble floue ; les symptômes de calibrage de sélection de Firefox (le surlignage de glissement dérive des glyphes) ont la même cause.
+
+### Le texte MSDF n'apparaît jamais (ou apparaît tard)
+
+`MSDFTextEntity` fait la mise en page hors du thread principal via un Worker `blob:`. Sous un CSP strict (`default-src 'self'`, `worker-src 'none'`, ou `script-src` sans `blob:`), `new Worker(blob:…)` ne **jette pas** d'erreur — il se construit et déclenche `onerror`, donc un CSP ressemble exactement à un crash. Après deux échecs consécutifs, le gestionnaire abandonne et sert la mise en page depuis le thread principal, donc le texte apparaîtra quand même — simplement pas via le worker, et les premières requêtes peuvent sembler « se bloquer » pendant que le repli s'active. Ordre de débogage : vérifiez la console du navigateur pour les violations `worker-src` / `blob:` (le repli y est invisible), puis confirmez que la scène exécute réellement `pointBackend: 'webgl'` — le chemin de repli Canvas2D a besoin de `fallbackFont` défini ou il n'y a rien à dessiner.
+
+### La scène est bloquée à ~2 fps
+
+C'est l'auto-throttle de veille qui fonctionne comme prévu : une scène statique (non sale, sans transitions en attente) se rend à ~2 fps pour économiser de l'énergie. Si votre contenu devrait être animé, soit pilotez-le via `entity.animate()` / `setTransition` (qui gardent la scène non statique), soit appelez `scene.markDirty()` **entre** les images — depuis un gestionnaire d'événement, un `rAF` séparé ou un minuteur — jamais depuis l'intérieur de `update()`, où la remise à zéro du sale après rendu l'efface. L'option nucléaire est `scene.autoThrottle = false` (ou l'option `autoThrottle: false`), qui rend chaque image quoi qu'il arrive.
+
+### Une scène `onDemand` ne se repeint jamais
+
+`renderMode: 'onDemand'` ne dessine que lorsque la scène est sale ou qu'une transition est en attente. Le manque classique : muter l'état de l'entité depuis votre propre `update()` ou un `onLoad` d'`Image` sans appeler `scene.markDirty()`. Les changements de valeur/survol/focus dans les composants ui (`Slider.setValue`, `ProgressBar.setValue`, survol de `Button`) conditionnent tous leur repeint à cela. Si une image devrait changer mais ne change pas, appelez `scene.markDirty()` une fois (par ex. depuis le gestionnaire `onLoad`/d'événement) et la rAF suivante la dessine.
+
+### Les événements `click`/`hover` de mon entité ne se déclenchent jamais
+
+Les événements ne se dispatchent que sur les entités **interactives** (`interactive = true`, ou un composant qui le définit lui-même, ou `Card` avec un `label`). `Text`/`RichText` sont délibérément non interactives — leur présence sémantique est la projection de contenu, et un nœud d'ombre interactif au-dessus d'un texte sélectionnable intercepterait le pointeur. Vérifiez aussi que l'entité a réellement une boîte (`width`/`height` > 0 ou `getBatchCircle`/`getBatchRect`) : le hit-testing exige de la géométrie.
+
+### `ScrollView` ne défile pas
+
+Deux vérifications : le contenu doit réellement **dépasser** le viewport — `updateContentSize()` calcule la plage de défilement maximale à partir des étendues des enfants, donc un contenu plus petit que le viewport n'a rien à défiler — et le ressort par défaut est sous-amorti (ζ ≈ 0.45), ce qui dépasse d'environ 20 % au relâchement. Pour un contenu de type document, passez `scrollPhysics: DOCUMENT_SCROLL_PHYSICS` (le préréglage exporté `{ stiffness: 180, damping: 27 }`, ζ ≈ 1.0, sans dépassement).
+
+### Un `Modal` / `Tooltip` / `Popover` ne s'ouvre jamais
+
+Ce sont des couches flottantes, pas des enfants de la scène — elles doivent être montées elles-mêmes : `scene.showOverlay(modal)` pour `Modal`, et `showAtPoint(x, y, source)` pour `ContextMenu`/`Popover` où `source` est requis avant que le menu soit monté (une `Scene` ou une `Entity` montée). `Tooltip`/`Popover` attachent aussi un écouteur à leur entité `target` — faites toujours `destroy()` dessus quand vous avez fini ou le gestionnaire fuit.
+
+### Un `Table` / `VirtualList` ignore les changements de taille ou de contenu
+
+`Table` résout son `width` une fois dans le constructeur — seuls `setWidth()` (et `appendRows()` pour les lignes) refont la mise en page ; changer `table.width` directement ne fait rien. `VirtualList` sans `keyForItem` efface chaque mesure de ligne et saute en haut sur `setItems()` — correct pour une liste remplacée, incorrect pour une transcription qui croît ; passez `keyForItem` (par ex. l'id de message) et éventuellement `stickToBottomThreshold` pour garder un viewport de suivi épinglé en bas.
+
+### La texture Three.js est périmée / figée
+
+`ThreeAdapter` définit `texture.needsUpdate` uniquement lorsque la scène VectoJS **se rend** réellement (il proxy `Scene.render`). Avec `renderMode: 'onDemand'`, une scène en veille ne se rend jamais, donc la texture conserve sa dernière image. Pilotez `markDirty()` / `step()` (par ex. depuis la rAF de Three) pour les panneaux en pause, ou exécutez la scène en mode `'always'`.
+
+### Un layout graph3d explose ou les composants dérivent
+
+Les deux layouts sont des modèles de force : un graphe **explosant** est généralement un décalage de liens après `setGraph` (les liens référencent des ids de nœuds qui n'existent plus — les positions des nœuds manquants ne sont pas initialisées). Les composants dérivant sous `forceCenter` sont le comportement normal du modèle de force pour les sous-graphes déconnectés — ajoutez un `centerStrength` (VectoForceLayout) ou acceptez la dérive. Quand la stabilité d'une exécution à l'autre compte, utilisez `VectoForceLayout` avec son `seed` — il est déterministe ; `D3ForceLayout` part du placement aléatoire propre à d3 et ne l'est pas. Les nœuds épinglés conservent `fx/fy/fz` (et les graines initiales `x/y/z` sont reportées comme positions de départ, pas comme épingles).
+
+### `@vectojs/styles` — mon `var(--token)` ne se résout pas / le thème ne change jamais
+
+`var(--key)` se résout par rapport au thème **actif** au moment de `applyStyle`, et les styles contenant des tokens sont réappliqués quand `setTheme(next)` s'exécute. Si une couleur ne change jamais, le style contient probablement une valeur littérale (sans `var()`), qui est délibérément non suivie. Si `applyStyle` lui-même lève `unknown token`, la clé manque dans le thème actif — rappelez-vous que les clés s'écrivent sans le préfixe `--` (`tokens({ accent: … })` ↔ `var(--accent)`), et `setTheme` lève la même erreur quand un thème vers lequel on bascule abandonne un token référencé. Un token dont la valeur échoue la validation de la propriété (par ex. `--radius-md: "50%"`) lève aussi lors du basculement. Voir [`styles`](/reference/styles/).

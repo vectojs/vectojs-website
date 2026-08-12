@@ -2,9 +2,6 @@
 title = "Overlay"
 description = "Floating UI primitives for Tooltip, Popover and ContextMenu, mounted through the Scene overlay root."
 weight = 15
-
-[extra]
-order = 15
 +++
 
 # Overlay

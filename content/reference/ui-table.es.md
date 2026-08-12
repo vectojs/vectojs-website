@@ -2,9 +2,6 @@
 title = "UI: Table"
 description = "Tabla de cuadrícula nativa en canvas para vistas previas compactas de datos y salida de tablas Markdown."
 weight = 31
-
-[extra]
-order = 31
 +++
 
 # `Table`
@@ -15,7 +12,7 @@ order = 31
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Table</span></div>
-  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Table" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Table" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Usa demostraciones enfocadas para el tamaño de columnas en lugar de depurar la salida de la tabla dentro de una galería gigante.</figcaption>
 </figure>
 

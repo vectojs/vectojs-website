@@ -2,9 +2,6 @@
 title = "UI: Checkbox"
 description = "Checkbox control with native input semantics and canvas visual state."
 weight = 25
-
-[extra]
-order = 25
 +++
 
 # `Checkbox`

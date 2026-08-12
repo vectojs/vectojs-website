@@ -2,9 +2,6 @@
 title = "UI: Toggle"
 description = "Switch control with role=switch semantics and spring knob motion."
 weight = 26
-
-[extra]
-order = 26
 +++
 
 # `Toggle`

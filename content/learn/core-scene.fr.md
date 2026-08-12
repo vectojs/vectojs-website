@@ -2,9 +2,6 @@
 title = "Architecture de la Core Scene"
 description = "Plongée en profondeur dans le Virtual Math Tree, le cycle de vie de la Scene, le système d'Entity, le hit-testing et le pipeline de rendu."
 weight = 8
-
-[extra]
-order = 8
 +++
 
 # Architecture de la Core Scene

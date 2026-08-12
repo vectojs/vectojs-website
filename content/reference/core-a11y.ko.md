@@ -2,9 +2,6 @@
 title = "a11yRoot 및 에이전트 계약"
 description = "모든 대화형 Entity가 DOM에 투명한 ARIA 섀도우 노드를 투영하는 방법 — A11yAttributes 구조, 캔버스 성능 및 DOM 수준 접근성 계약, 그리고 오래되었거나 누락된 섀도우 노드를 유발하는 동기화 주의사항."
 weight = 10
-
-[extra]
-order = 10
 +++
 
 # a11yRoot 및 에이전트 계약
@@ -177,6 +174,21 @@ scene.releaseA11yProjection(previous);
 - Core 1.11.1부터 새로 투영된 대화형 엔터티는 shadow node가 생성되는 동일한 프레임에서 Canvas 페인트 순서에 맞는 `z-index`를 받습니다. 따라서 새 오버레이의 backdrop은 다음 렌더 패스를 기다리지 않고 첫 포인터 상호작용부터 기존 디자인 컨트롤 위에 놓입니다.
 
 사용법 및 테스트 패턴은 [Accessibility](/learn/accessibility/)를 참조하세요.
+
+## URL 살균 (`sanitizeUrl` / `isSafeUrl`)
+
+두 헬퍼 모두 `@vectojs/core`(`renderer/url.ts`에 정의)에서 제공되며, VectoJS가 `href`를 섀도우 `<a>` 노드에 투영하거나 이를 `window.open`에 전달할 때(접근성 sink와 Markdown 링크 렌더링에 사용됨) `javascript:` / `data:` / `vbscript:` / `file:` URI 스크립트 주입을 막기 위해 존재합니다.
+
+```ts
+sanitizeUrl(href: string | null | undefined): string
+isSafeUrl(urlStr: string): boolean
+```
+
+`sanitizeUrl`은 투영 경로입니다: `null`/`undefined`에 대해 `''`을 반환하고, 선행 공백을 제거하며, **상대** URL을 그대로 통과시키고(상대 URL은 절대 스크립트로 주입될 수 없음), 스킴이 안전한 집합 — `http`, `https`, `mailto`, `tel`, `ftp` — 에 없는 절대 URL을 무해한 `'#'`로 다시 써서 링크가 비어 있지 않으면서도 비활성 상태를 유지하게 합니다. 절대 예외를 던지지 않습니다.
+
+`isSafeUrl`은 이미 절대 URL을 보유한 코드를 위한 더 좁은 가드입니다: 스킴이 안전한 집합에 있으면(상대 URL도 안전함) `true`를, 그렇지 않으면 `false`를 반환합니다.
+
+안전한 스킴은 고정되어 있습니다: `http:`, `https:`, `mailto:`, `tel:`, `ftp:`. `ui-link`와 Markdown 링크 콜백은 모두 `href`가 DOM에 도달하기 전에 `sanitizeUrl`을 통과시킵니다 — 신뢰할 수 없는 링크를 직접 렌더링한다면, 같은 방식으로 처리하세요.
 
 ## 관련 항목
 

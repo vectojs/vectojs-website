@@ -2,9 +2,6 @@
 title = "Introduction to VectoJS"
 description = "A concise overview of what VectoJS is, what it is for, and where to go next."
 weight = 1
-
-[extra]
-order = 1
 +++
 
 # Introduction to VectoJS
@@ -44,21 +41,21 @@ Prefer regular HTML/CSS when you are building a document-first site, SEO-heavy p
 
 ## Package map
 
-| Package                   | Purpose                                                                                                                                                             |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@vectojs/core`           | `Scene`, `Entity`, renderers, events, hit-testing, a11y projection. Depends on and re-exports the engines below, so you can import everything from `@vectojs/core`. |
-| `@vectojs/text`           | Standalone text-shaping primitives: BiDi resolution, Arabic shaping, CSS-parity typography, MSDF fonts, prepared content grids                                      |
-| `@vectojs/layout`         | Standalone layout engine: line breaking, BiDi-aware inline layout, exclusion flow, off-thread layout worker                                                         |
-| `@vectojs/math`           | Standalone spatial/physics math: `SpatialHashGrid` broad-phase and `SpringPhysics`                                                                                  |
-| `@vectojs/animation`      | Standalone easing library plus `TweenDriver` and `SpringDriver` value drivers                                                                                       |
-| `@vectojs/styles`         | Declarative style layer: CSS-property-name objects mapped to entity fields, `var()` token themes with `setTheme` switching, `css()` merging                         |
-| `@vectojs/ui`             | High-level components: `Button`, `Input`, `Toggle`, `ScrollView`, `Dropdown`, `Table`, and more. Zero runtime dependencies.                                         |
-| `@vectojs/markdown`       | `Markdown` + `CodeBlock` entities (parse with `marked`, render TeX math with `@vectojs/tex`), built on `@vectojs/ui`                                                |
-| `@vectojs/tex`            | Zero-DOM TeX typesetting (vendored KaTeX kernel + SVG emit). **Phase-1 / not for production use** — not wired into `Markdown`; API may change without notice.       |
-| `@vectojs/three`          | Project a VectoJS scene onto a Three.js texture and route raycast input back to 2D                                                                                  |
-| `@vectojs/devtools`       | In-page Virtual Math Tree inspector: entity tree, click-to-pick, live geometry readout                                                                              |
-| `@vectojs/graph3d`        | 3D force-directed graph visualization (instanced Three.js renderer)                                                                                                 |
-| `@vectojs/video-exporter` | Fixed-step Chromium + FFmpeg H.264 export for VectoJS scenes                                                                                                        |
+| Package                   | Purpose                                                                                                                                                                                                                 |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@vectojs/core`           | `Scene`, `Entity`, renderers, events, hit-testing, a11y projection. Depends on and re-exports the engines below, so you can import everything from `@vectojs/core`.                                                     |
+| `@vectojs/text`           | Standalone text-shaping primitives: BiDi resolution, Arabic shaping, CSS-parity typography, MSDF fonts, prepared content grids                                                                                          |
+| `@vectojs/layout`         | Standalone layout engine: line breaking, BiDi-aware inline layout, exclusion flow, off-thread layout worker                                                                                                             |
+| `@vectojs/math`           | Standalone spatial/physics math: `SpatialHashGrid` broad-phase and `SpringPhysics`                                                                                                                                      |
+| `@vectojs/animation`      | Standalone easing library plus `TweenDriver` and `SpringDriver` value drivers                                                                                                                                           |
+| `@vectojs/styles`         | Declarative style layer: CSS-property-name objects mapped to entity fields, `var()` token themes with `setTheme` switching, `css()` merging                                                                             |
+| `@vectojs/ui`             | High-level components: `Button`, `Input`, `Toggle`, `ScrollView`, `Dropdown`, `Table`, and more. Zero runtime dependencies.                                                                                             |
+| `@vectojs/markdown`       | `Markdown` + `CodeBlock` entities (parse with `marked`, render TeX math with `@vectojs/tex`), built on `@vectojs/ui`                                                                                                    |
+| `@vectojs/tex`            | Zero-DOM TeX typesetting (vendored KaTeX kernel + SVG emit). Powers the `$…$` / ` ```math ` blocks in [`Markdown`](/reference/ui-markdown/); loaded lazily only when a formula is present. API is public and versioned. |
+| `@vectojs/three`          | Project a VectoJS scene onto a Three.js texture and route raycast input back to 2D                                                                                                                                      |
+| `@vectojs/devtools`       | In-page Virtual Math Tree inspector: entity tree, click-to-pick, live geometry readout                                                                                                                                  |
+| `@vectojs/graph3d`        | 3D force-directed graph visualization (instanced Three.js renderer)                                                                                                                                                     |
+| `@vectojs/video-exporter` | Fixed-step Chromium + FFmpeg H.264 export for VectoJS scenes                                                                                                                                                            |
 
 The layout, text, math, and animation engines are published as their own packages so they can be consumed without the scene-graph runtime. `@vectojs/core` depends on and re-exports all of them, so existing `import { … } from '@vectojs/core'` code keeps working unchanged — reach for the standalone packages only when you want a smaller dependency surface.
 

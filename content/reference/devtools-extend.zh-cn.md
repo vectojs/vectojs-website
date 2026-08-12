@@ -2,9 +2,6 @@
 title = "Devtools：桥接与插件"
 description = "通过 JSON-RPC 桥接从另一份文档驱动 VectoJS 场景，并用你自己的标签页、审计和命令扩展检查器。"
 weight = 52
-
-[extra]
-order = 52
 +++
 
 # Devtools：桥接与插件

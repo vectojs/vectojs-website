@@ -2,9 +2,6 @@
 title = "Runtime Architecture"
 description = "How Scene, Entity, the render loop, accessibility projection, and backends fit together."
 weight = 3
-
-[extra]
-order = 3
 +++
 
 # Runtime Architecture

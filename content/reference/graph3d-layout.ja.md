@@ -2,9 +2,6 @@
 title = "GraphLayout & D3ForceLayout"
 description = "グラフデータモデルとワーカーフレンドリーなGraphLayout契約、およびd3-force-3d上でのD3ForceLayout実装。"
 weight = 45
-
-[extra]
-order = 45
 +++
 
 # `GraphLayout` & `D3ForceLayout`
@@ -58,7 +55,7 @@ interface GraphLayout {
 
 契約は意図的に最小限でワーカーフレンドリーです：位置は`GraphData.nodes`の順序でxyzトリプレットを持つ1つのフラットな`Float32Array`であるため、実装は完全にWeb Worker内で動作し、そのバッファを転送可能オブジェクトとしてスレッド境界を越えてストリーミングできます（ノードごとのオブジェクトトラフィックなし）。[`Graph3D.applyPositions()`](/reference/graph3d-renderer/#メソッド) はまったく同じバッファ形状を直接消費します。`positions` はステップ間で再利用される**同じ配列インスタンス**です — ライブビューではなく安定したスナップショットが必要な場合はコピー（`layout.positions.slice()`）してください。
 
-`@vectojs/graph3d` は現在1つの実装を同梱しています。さらなるアダプター（`ngraph`）とDAGレイアウトモードがパッケージロードマップにあり、すべてこの同じインターフェースの背後にあるため、レンダラーやワーカーホストはどれが実行されているかを知る必要がありません。
+`@vectojs/graph3d` は現在、この契約の背後で2つの実装を同梱しています：下記の[`D3ForceLayout`](#d3forcelayout)と自社製の[`VectoForceLayout`](#vectoforcelayout)（Barnes–Hut、d3依存なし）— さらにDAGレイアウトモードがパッケージロードマップにあり、すべてこの同じインターフェースの背後にあるため、レンダラーやワーカーホストはどれが実行されているかを知る必要がありません。
 
 ## `D3ForceLayout`
 
@@ -75,6 +72,26 @@ interface D3ForceLayoutOptions {
 [d3-force-3d](https://github.com/vasturiano/d3-force-3d)を適応 — `3d-force-graph`の背後にある同じエンジン — そのため、グラフの調整された力はそのまま移行できます。3次元で`forceLink` + `forceManyBody` + `forceCenter`を実行します。
 
 d3シミュレーションは自身のノードレコード（`x`/`y`/`z`/`vx`/…）を変更するため、`setGraph` は各ノードを`GraphData.nodes`オブジェクトを直接渡すのではなく、内部のシミュレーションレコードにクローンします — 宣言された`fx`/`fy`/`fz`ピンのみが引き継がれます。シミュレーション独自のタイマーは決して開始されません；`step(iterations = 1)` は同期的にそれを刻みます。これにより、`D3ForceLayout` は `requestAnimationFrame` を偽装することなくWeb Worker内部で使用可能です。
+
+## `VectoForceLayout`
+
+```ts
+new VectoForceLayout(options?: VectoForceLayoutOptions)
+
+interface VectoForceLayoutOptions {
+  linkDistance?: number;   // target resting length of links. Default 30.
+  linkStrength?: number;   // spring stiffness of links. Default 0.3.
+  repulsion?: number;      // many-body repulsion strength. Default 300.
+  centerStrength?: number; // pull toward the centroid. Default 0.02.
+  velocityDecay?: number;  // per-step velocity damping. Default 0.6.
+  theta?: number;          // Barnes–Hut opening angle. Default 0.9.
+  alphaDecay?: number;     // cooling rate. Default 0.0228; 0 disables cooling.
+  alphaMin?: number;       // alpha below which step() reports cooled. Default 0.001.
+  seed?: number;           // RNG seed for deterministic placement. Default 1.
+}
+```
+
+自社製レイアウト（0.3.0で追加）：多体項にBarnes–Hutオクトツリーを使用した力指向シミュレーション — d3依存なし、`seed`の下で決定的、Web Worker内で安全（`D3ForceLayout`と同じ`step(iterations)`契約）。実行間で同一の結果が欲しい場合にこれを選択します；`repulsion`/`linkStrength`で調整し、`alphaDecay`をゼロより上げる際は慎重に — すでに冷却の端に近いため、より高い値はグラフを後ではなく前に凍結させます。
 
 ```ts
 layout.step(); // 1ティック

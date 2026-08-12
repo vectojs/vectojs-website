@@ -2,9 +2,6 @@
 title = "@vectojs/ui Component Reference"
 description = "Complete reference for all @vectojs/ui components: layout containers, form controls, overlays, and rich content."
 weight = 11
-
-[extra]
-order = 11
 +++
 
 # `@vectojs/ui` — Component Reference

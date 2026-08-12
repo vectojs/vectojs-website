@@ -2,9 +2,6 @@
 title = "食譜"
 description = "VectoJS 的常見模式和食譜：模態框、工具提示、虛擬化列表、拖放、動畫圖表等。"
 weight = 17
-
-[extra]
-order = 17
 +++
 
 # 食譜

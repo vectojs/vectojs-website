@@ -1,0 +1,2542 @@
+[
+  {
+    "title": "@vectojs/core API Reference",
+    "href": "/reference/core-api/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "@vectojs/core API Reference",
+    "href": "/zh-tw/reference/core-api/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "@vectojs/core API 레퍼런스",
+    "href": "/ko/reference/core-api/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "@vectojs/core API 参考",
+    "href": "/zh-cn/reference/core-api/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "@vectojs/core APIリファレンス",
+    "href": "/ja/reference/core-api/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "@vectojs/devtools",
+    "href": "/reference/devtools/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "@vectojs/devtools",
+    "href": "/zh-cn/reference/devtools/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "@vectojs/devtools",
+    "href": "/zh-tw/reference/devtools/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "@vectojs/devtools",
+    "href": "/ja/reference/devtools/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "@vectojs/devtools",
+    "href": "/fr/reference/devtools/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "@vectojs/devtools",
+    "href": "/es/reference/devtools/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "@vectojs/devtools",
+    "href": "/ko/reference/devtools/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "@vectojs/graph3d",
+    "href": "/reference/graph3d/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "@vectojs/graph3d",
+    "href": "/zh-cn/reference/graph3d/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "@vectojs/graph3d",
+    "href": "/zh-tw/reference/graph3d/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "@vectojs/graph3d",
+    "href": "/ja/reference/graph3d/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "@vectojs/graph3d",
+    "href": "/fr/reference/graph3d/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "@vectojs/graph3d",
+    "href": "/es/reference/graph3d/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "@vectojs/graph3d",
+    "href": "/ko/reference/graph3d/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  { "title": "@vectojs/three", "href": "/reference/three/", "section": "reference", "lang": "en" },
+  {
+    "title": "@vectojs/three",
+    "href": "/zh-cn/reference/three/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "@vectojs/three",
+    "href": "/zh-tw/reference/three/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "@vectojs/three",
+    "href": "/ja/reference/three/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "@vectojs/three",
+    "href": "/fr/reference/three/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "@vectojs/three",
+    "href": "/es/reference/three/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "@vectojs/three",
+    "href": "/ko/reference/three/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "@vectojs/ui Component Reference",
+    "href": "/reference/ui-components/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "@vectojs/ui 컴포넌트 레퍼런스",
+    "href": "/ko/reference/ui-components/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "@vectojs/ui コンポーネントリファレンス",
+    "href": "/ja/reference/ui-components/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "@vectojs/ui 元件參考",
+    "href": "/zh-tw/reference/ui-components/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "@vectojs/ui 组件参考",
+    "href": "/zh-cn/reference/ui-components/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "@vectojs/video-exporter",
+    "href": "/reference/video-exporter/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "@vectojs/video-exporter",
+    "href": "/zh-cn/reference/video-exporter/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "@vectojs/video-exporter",
+    "href": "/zh-tw/reference/video-exporter/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "@vectojs/video-exporter",
+    "href": "/ja/reference/video-exporter/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "@vectojs/video-exporter",
+    "href": "/fr/reference/video-exporter/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "@vectojs/video-exporter",
+    "href": "/es/reference/video-exporter/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "@vectojs/video-exporter",
+    "href": "/ko/reference/video-exporter/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "a11yRoot & the agent contract",
+    "href": "/reference/core-a11y/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "a11yRoot & エージェント契約",
+    "href": "/ja/reference/core-a11y/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "a11yRoot et le contrat agent",
+    "href": "/fr/reference/core-a11y/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "a11yRoot y el contrato del agente",
+    "href": "/es/reference/core-a11y/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "a11yRoot 및 에이전트 계약",
+    "href": "/ko/reference/core-a11y/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "a11yRoot 与智能体约定",
+    "href": "/zh-cn/reference/core-a11y/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "a11yRoot 與 agent 契約",
+    "href": "/zh-tw/reference/core-a11y/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "Accesibilidad y Automatización",
+    "href": "/es/learn/accessibility/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "Accessibilité et automatisation",
+    "href": "/fr/learn/accessibility/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "Accessibility & Automation",
+    "href": "/learn/accessibility/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "Animación (@vectojs/animation)",
+    "href": "/es/reference/animation/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "Animation (@vectojs/animation)",
+    "href": "/reference/animation/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "Animation (@vectojs/animation)",
+    "href": "/fr/reference/animation/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Architecture d'exécution",
+    "href": "/fr/learn/runtime-architecture/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "Architecture de la Core Scene",
+    "href": "/fr/learn/core-scene/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "Arquitectura del Core Scene",
+    "href": "/es/learn/core-scene/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "Arquitectura del Runtime",
+    "href": "/es/learn/runtime-architecture/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "Autres entités",
+    "href": "/fr/reference/core-entities/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Beyond JSX and Templates: The Pure TypeScript DX",
+    "href": "/blog/beyond-jsx/",
+    "section": "blog",
+    "lang": "en"
+  },
+  {
+    "title": "Building Custom Entities",
+    "href": "/learn/custom-entity/",
+    "section": "learn",
+    "lang": "en"
+  },
+  { "title": "Button", "href": "/reference/ui-button/", "section": "reference", "lang": "en" },
+  {
+    "title": "Button",
+    "href": "/zh-cn/reference/ui-button/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "Button",
+    "href": "/zh-tw/reference/ui-button/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "Button", "href": "/ja/reference/ui-button/", "section": "reference", "lang": "ja" },
+  { "title": "Button", "href": "/fr/reference/ui-button/", "section": "reference", "lang": "fr" },
+  { "title": "Button", "href": "/es/reference/ui-button/", "section": "reference", "lang": "es" },
+  { "title": "Button", "href": "/ko/reference/ui-button/", "section": "reference", "lang": "ko" },
+  { "title": "Cas d'usage", "href": "/fr/learn/use-cases/", "section": "learn", "lang": "fr" },
+  { "title": "Casos de Uso", "href": "/es/learn/use-cases/", "section": "learn", "lang": "es" },
+  {
+    "title": "Cohérence entre environnements",
+    "href": "/fr/learn/cross-environment/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "Componentes de UI",
+    "href": "/es/learn/ui-components/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "Composants UI",
+    "href": "/fr/learn/ui-components/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "ComputeParticleEntity",
+    "href": "/reference/core-particles/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "ComputeParticleEntity",
+    "href": "/zh-cn/reference/core-particles/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "ComputeParticleEntity",
+    "href": "/zh-tw/reference/core-particles/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "ComputeParticleEntity",
+    "href": "/ja/reference/core-particles/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "ComputeParticleEntity",
+    "href": "/fr/reference/core-particles/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "ComputeParticleEntity",
+    "href": "/es/reference/core-particles/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "ComputeParticleEntity",
+    "href": "/ko/reference/core-particles/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "Conceptos del Motor",
+    "href": "/es/learn/engine-concepts/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "Concepts du moteur",
+    "href": "/fr/learn/engine-concepts/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "Consistencia entre entornos",
+    "href": "/es/learn/cross-environment/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "Construire des entités personnalisées",
+    "href": "/fr/learn/custom-entity/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "Construyendo Entidades Personalizadas",
+    "href": "/es/learn/custom-entity/",
+    "section": "learn",
+    "lang": "es"
+  },
+  { "title": "Cookbook", "href": "/learn/cookbook/", "section": "learn", "lang": "en" },
+  {
+    "title": "Core Scene Architecture",
+    "href": "/learn/core-scene/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "Core Scene 아키텍처",
+    "href": "/ko/learn/core-scene/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "Cross-Environment Consistency",
+    "href": "/learn/cross-environment/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "Devtools : audit",
+    "href": "/fr/reference/devtools-audit/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Devtools : inspection",
+    "href": "/fr/reference/devtools-inspect/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Devtools : performance",
+    "href": "/fr/reference/devtools-perf/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Devtools : pont et plugins",
+    "href": "/fr/reference/devtools-extend/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Devtools: auditing",
+    "href": "/reference/devtools-audit/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "Devtools: auditoría",
+    "href": "/es/reference/devtools-audit/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "Devtools: bridge & plugins",
+    "href": "/reference/devtools-extend/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "Devtools: inspección",
+    "href": "/es/reference/devtools-inspect/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "Devtools: inspecting",
+    "href": "/reference/devtools-inspect/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "Devtools: performance",
+    "href": "/reference/devtools-perf/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "Devtools: puente y plugins",
+    "href": "/es/reference/devtools-extend/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "Devtools: rendimiento",
+    "href": "/es/reference/devtools-perf/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "Devtools: 감사",
+    "href": "/ko/reference/devtools-audit/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "Devtools: 검사",
+    "href": "/ko/reference/devtools-inspect/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "Devtools: 브리지와 플러그인",
+    "href": "/ko/reference/devtools-extend/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "Devtools: 성능",
+    "href": "/ko/reference/devtools-perf/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "Devtools: インスペクト",
+    "href": "/ja/reference/devtools-inspect/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "Devtools: パフォーマンス",
+    "href": "/ja/reference/devtools-perf/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "Devtools: 監査",
+    "href": "/ja/reference/devtools-audit/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "Devtools：ブリッジとプラグイン",
+    "href": "/ja/reference/devtools-extend/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "Devtools：审计",
+    "href": "/zh-cn/reference/devtools-audit/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "Devtools：性能",
+    "href": "/zh-cn/reference/devtools-perf/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "Devtools：效能",
+    "href": "/zh-tw/reference/devtools-perf/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "Devtools：桥接与插件",
+    "href": "/zh-cn/reference/devtools-extend/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "Devtools：检查",
+    "href": "/zh-cn/reference/devtools-inspect/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "Devtools：橋接與外掛程式",
+    "href": "/zh-tw/reference/devtools-extend/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "Devtools：檢查",
+    "href": "/zh-tw/reference/devtools-inspect/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "Devtools：稽核",
+    "href": "/zh-tw/reference/devtools-audit/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "Engine Concepts",
+    "href": "/learn/engine-concepts/",
+    "section": "learn",
+    "lang": "en"
+  },
+  { "title": "Entity", "href": "/reference/core-entity/", "section": "reference", "lang": "en" },
+  {
+    "title": "Entity",
+    "href": "/zh-cn/reference/core-entity/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "Entity",
+    "href": "/zh-tw/reference/core-entity/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "Entity", "href": "/ja/reference/core-entity/", "section": "reference", "lang": "ja" },
+  { "title": "Entity", "href": "/fr/reference/core-entity/", "section": "reference", "lang": "fr" },
+  { "title": "Entity", "href": "/es/reference/core-entity/", "section": "reference", "lang": "es" },
+  { "title": "Entity", "href": "/ko/reference/core-entity/", "section": "reference", "lang": "ko" },
+  {
+    "title": "Estilos (@vectojs/styles)",
+    "href": "/es/reference/styles/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "Événements & Hit-Testing",
+    "href": "/fr/learn/events/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "Eventos y Hit-Testing",
+    "href": "/es/learn/events/",
+    "section": "learn",
+    "lang": "es"
+  },
+  { "title": "Events & Hit-Testing", "href": "/learn/events/", "section": "learn", "lang": "en" },
+  {
+    "title": "Events & Hit-Testing",
+    "href": "/ja/learn/events/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  { "title": "FAQ", "href": "/reference/faq/", "section": "reference", "lang": "en" },
+  { "title": "FAQ", "href": "/zh-cn/reference/faq/", "section": "reference", "lang": "zh-cn" },
+  { "title": "FAQ", "href": "/ja/reference/faq/", "section": "reference", "lang": "ja" },
+  { "title": "FAQ", "href": "/fr/reference/faq/", "section": "reference", "lang": "fr" },
+  { "title": "FAQ", "href": "/ko/reference/faq/", "section": "reference", "lang": "ko" },
+  {
+    "title": "Física y Animación",
+    "href": "/es/learn/physics-engine/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "Five Things People Ask About Building UI in VectoJS",
+    "href": "/blog/five-recipes/",
+    "section": "blog",
+    "lang": "en"
+  },
+  {
+    "title": "Fondations mathématiques",
+    "href": "/fr/learn/math-foundations/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "Fundamentos Matemáticos",
+    "href": "/es/learn/math-foundations/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "Getting Started",
+    "href": "/learn/getting-started/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "Getting Started",
+    "href": "/ja/learn/getting-started/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "Graph3D & picking",
+    "href": "/reference/graph3d-renderer/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "Graph3D & picking",
+    "href": "/fr/reference/graph3d-renderer/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Graph3D & picking",
+    "href": "/ko/reference/graph3d-renderer/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "Graph3D & ピッキング",
+    "href": "/ja/reference/graph3d-renderer/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "Graph3D & 選取",
+    "href": "/zh-tw/reference/graph3d-renderer/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "Graph3D y selección",
+    "href": "/es/reference/graph3d-renderer/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "Graph3D 与拾取",
+    "href": "/zh-cn/reference/graph3d-renderer/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "GraphLayout & D3ForceLayout",
+    "href": "/reference/graph3d-layout/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "GraphLayout & D3ForceLayout",
+    "href": "/zh-cn/reference/graph3d-layout/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "GraphLayout & D3ForceLayout",
+    "href": "/zh-tw/reference/graph3d-layout/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "GraphLayout & D3ForceLayout",
+    "href": "/ja/reference/graph3d-layout/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "GraphLayout & D3ForceLayout",
+    "href": "/fr/reference/graph3d-layout/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "GraphLayout & D3ForceLayout",
+    "href": "/es/reference/graph3d-layout/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "GraphLayout & D3ForceLayout",
+    "href": "/ko/reference/graph3d-layout/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "Introducción a VectoJS",
+    "href": "/es/learn/introduction/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "Introduction à VectoJS",
+    "href": "/fr/learn/introduction/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "Introduction to VectoJS",
+    "href": "/learn/introduction/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "Layout and Typography on Canvas: Fast Text Without Reflow",
+    "href": "/blog/layout-and-typography/",
+    "section": "blog",
+    "lang": "en"
+  },
+  {
+    "title": "Layout engine",
+    "href": "/reference/core-layout/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "Layout engine",
+    "href": "/zh-tw/reference/core-layout/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "Markdown", "href": "/reference/ui-markdown/", "section": "reference", "lang": "en" },
+  {
+    "title": "Markdown",
+    "href": "/zh-cn/reference/ui-markdown/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "Markdown",
+    "href": "/zh-tw/reference/ui-markdown/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "Markdown",
+    "href": "/ja/reference/ui-markdown/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "Markdown",
+    "href": "/fr/reference/ui-markdown/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Markdown",
+    "href": "/es/reference/ui-markdown/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "Markdown",
+    "href": "/ko/reference/ui-markdown/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "Math utilities",
+    "href": "/reference/core-math/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "Math utilities",
+    "href": "/zh-tw/reference/core-math/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "Mathematical Foundations",
+    "href": "/learn/math-foundations/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "Mathematical Foundations",
+    "href": "/ja/learn/math-foundations/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "Moteur de mise en page",
+    "href": "/fr/reference/core-layout/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Motor de disposición",
+    "href": "/es/reference/core-layout/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "Other entities",
+    "href": "/reference/core-entities/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "Otras entidades",
+    "href": "/es/reference/core-entities/",
+    "section": "reference",
+    "lang": "es"
+  },
+  { "title": "Overlay", "href": "/reference/ui-overlay/", "section": "reference", "lang": "en" },
+  {
+    "title": "Overlay",
+    "href": "/zh-cn/reference/ui-overlay/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "Overlay",
+    "href": "/zh-tw/reference/ui-overlay/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "Overlay", "href": "/ja/reference/ui-overlay/", "section": "reference", "lang": "ja" },
+  { "title": "Overlay", "href": "/fr/reference/ui-overlay/", "section": "reference", "lang": "fr" },
+  { "title": "Overlay", "href": "/es/reference/ui-overlay/", "section": "reference", "lang": "es" },
+  { "title": "Overlay", "href": "/ko/reference/ui-overlay/", "section": "reference", "lang": "ko" },
+  { "title": "Particle Systems", "href": "/learn/particles/", "section": "learn", "lang": "en" },
+  { "title": "Particle Systems", "href": "/ja/learn/particles/", "section": "learn", "lang": "ja" },
+  { "title": "Performance", "href": "/learn/performance/", "section": "learn", "lang": "en" },
+  { "title": "Performance", "href": "/ja/learn/performance/", "section": "learn", "lang": "ja" },
+  { "title": "Performance", "href": "/fr/learn/performance/", "section": "learn", "lang": "fr" },
+  {
+    "title": "Physics & Animation",
+    "href": "/learn/physics-engine/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "Physics & Animation",
+    "href": "/ja/learn/physics-engine/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "Physique & Animation",
+    "href": "/fr/learn/physics-engine/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "Por qué VectoJS",
+    "href": "/es/learn/why-vectojs/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "Pourquoi VectoJS",
+    "href": "/fr/learn/why-vectojs/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "Preguntas Frecuentes (FAQ)",
+    "href": "/es/reference/faq/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "Primeros Pasos",
+    "href": "/es/learn/getting-started/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "Prise en main",
+    "href": "/fr/learn/getting-started/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  { "title": "Recetario", "href": "/es/learn/cookbook/", "section": "learn", "lang": "es" },
+  { "title": "Recettes", "href": "/fr/learn/cookbook/", "section": "learn", "lang": "fr" },
+  {
+    "title": "Référence API @vectojs/core",
+    "href": "/fr/reference/core-api/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Référence des composants @vectojs/ui",
+    "href": "/fr/reference/ui-components/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Referencia de Componentes @vectojs/ui",
+    "href": "/es/reference/ui-components/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "Referencia de la API de @vectojs/core",
+    "href": "/es/reference/core-api/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "Renderers",
+    "href": "/reference/core-renderer/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "Renderers",
+    "href": "/zh-tw/reference/core-renderer/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "Renderers",
+    "href": "/fr/reference/core-renderer/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Renderizadores",
+    "href": "/es/reference/core-renderer/",
+    "section": "reference",
+    "lang": "es"
+  },
+  { "title": "Rendimiento", "href": "/es/learn/performance/", "section": "learn", "lang": "es" },
+  {
+    "title": "Rethinking Frontend: The VectoJS Philosophy",
+    "href": "/blog/rethinking-frontend/",
+    "section": "blog",
+    "lang": "en"
+  },
+  {
+    "title": "Runtime Architecture",
+    "href": "/learn/runtime-architecture/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "Runtime Architecture",
+    "href": "/ja/learn/runtime-architecture/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  { "title": "Scene", "href": "/reference/core-scene/", "section": "reference", "lang": "en" },
+  {
+    "title": "Scene",
+    "href": "/zh-cn/reference/core-scene/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "Scene",
+    "href": "/zh-tw/reference/core-scene/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "Scene", "href": "/ja/reference/core-scene/", "section": "reference", "lang": "ja" },
+  { "title": "Scene", "href": "/fr/reference/core-scene/", "section": "reference", "lang": "fr" },
+  { "title": "Scene", "href": "/es/reference/core-scene/", "section": "reference", "lang": "es" },
+  { "title": "Scene", "href": "/ko/reference/core-scene/", "section": "reference", "lang": "ko" },
+  {
+    "title": "Sistemas de Partículas",
+    "href": "/es/learn/particles/",
+    "section": "learn",
+    "lang": "es"
+  },
+  { "title": "Slider", "href": "/reference/ui-slider/", "section": "reference", "lang": "en" },
+  {
+    "title": "Slider",
+    "href": "/zh-cn/reference/ui-slider/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "Slider",
+    "href": "/zh-tw/reference/ui-slider/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "Slider", "href": "/ja/reference/ui-slider/", "section": "reference", "lang": "ja" },
+  { "title": "Slider", "href": "/fr/reference/ui-slider/", "section": "reference", "lang": "fr" },
+  { "title": "Slider", "href": "/es/reference/ui-slider/", "section": "reference", "lang": "es" },
+  { "title": "Slider", "href": "/ko/reference/ui-slider/", "section": "reference", "lang": "ko" },
+  {
+    "title": "Streaming & Real-Time Text",
+    "href": "/learn/streaming/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "Streaming et texte en temps réel",
+    "href": "/fr/learn/streaming/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "Streaming y texto en tiempo real",
+    "href": "/es/learn/streaming/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "Styles (@vectojs/styles)",
+    "href": "/reference/styles/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "Styles (@vectojs/styles)",
+    "href": "/fr/reference/styles/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Systèmes de particules",
+    "href": "/fr/learn/particles/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  { "title": "Text & Bidi", "href": "/reference/core-text/", "section": "reference", "lang": "en" },
+  {
+    "title": "Text & Bidi",
+    "href": "/zh-cn/reference/core-text/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "Text & Bidi",
+    "href": "/zh-tw/reference/core-text/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "Text & Typography",
+    "href": "/learn/text-typography/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "Text & Typography",
+    "href": "/ja/learn/text-typography/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "Texte & Typographie",
+    "href": "/fr/learn/text-typography/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "Texte et Bidi",
+    "href": "/fr/reference/core-text/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Texto y Bidi",
+    "href": "/es/reference/core-text/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "Texto y Tipografía",
+    "href": "/es/learn/text-typography/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "ThreeAdapter",
+    "href": "/reference/three-adapter/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "ThreeAdapter",
+    "href": "/zh-cn/reference/three-adapter/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "ThreeAdapter",
+    "href": "/zh-tw/reference/three-adapter/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "ThreeAdapter",
+    "href": "/ja/reference/three-adapter/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "ThreeAdapter",
+    "href": "/fr/reference/three-adapter/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "ThreeAdapter",
+    "href": "/es/reference/three-adapter/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "ThreeAdapter",
+    "href": "/ko/reference/three-adapter/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "ThreeRenderer",
+    "href": "/reference/three-renderer/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "ThreeRenderer",
+    "href": "/zh-cn/reference/three-renderer/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "ThreeRenderer",
+    "href": "/zh-tw/reference/three-renderer/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "ThreeRenderer",
+    "href": "/ja/reference/three-renderer/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "ThreeRenderer",
+    "href": "/fr/reference/three-renderer/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "ThreeRenderer",
+    "href": "/es/reference/three-renderer/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "ThreeRenderer",
+    "href": "/ko/reference/three-renderer/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  { "title": "UI Components", "href": "/learn/ui-components/", "section": "learn", "lang": "en" },
+  {
+    "title": "UI Components",
+    "href": "/ja/learn/ui-components/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  { "title": "UI 컴포넌트", "href": "/ko/learn/ui-components/", "section": "learn", "lang": "ko" },
+  {
+    "title": "UI 元件",
+    "href": "/zh-tw/learn/ui-components/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  { "title": "UI: Card", "href": "/reference/ui-card/", "section": "reference", "lang": "en" },
+  {
+    "title": "UI: Card",
+    "href": "/zh-tw/reference/ui-card/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "UI: Card", "href": "/ja/reference/ui-card/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Card", "href": "/fr/reference/ui-card/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Card", "href": "/es/reference/ui-card/", "section": "reference", "lang": "es" },
+  { "title": "UI: Card", "href": "/ko/reference/ui-card/", "section": "reference", "lang": "ko" },
+  {
+    "title": "UI: Checkbox",
+    "href": "/reference/ui-checkbox/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "UI: Checkbox",
+    "href": "/zh-tw/reference/ui-checkbox/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "UI: Checkbox",
+    "href": "/ja/reference/ui-checkbox/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: Checkbox",
+    "href": "/fr/reference/ui-checkbox/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: Checkbox",
+    "href": "/es/reference/ui-checkbox/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: Checkbox",
+    "href": "/ko/reference/ui-checkbox/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "UI: CodeBlock",
+    "href": "/reference/ui-codeblock/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "UI: CodeBlock",
+    "href": "/zh-tw/reference/ui-codeblock/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "UI: CodeBlock",
+    "href": "/ja/reference/ui-codeblock/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: CodeBlock",
+    "href": "/fr/reference/ui-codeblock/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: CodeBlock",
+    "href": "/es/reference/ui-codeblock/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: CodeBlock",
+    "href": "/ko/reference/ui-codeblock/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "UI: ContextMenu",
+    "href": "/reference/ui-contextmenu/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "UI: ContextMenu",
+    "href": "/zh-tw/reference/ui-contextmenu/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "UI: ContextMenu",
+    "href": "/ja/reference/ui-contextmenu/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: ContextMenu",
+    "href": "/fr/reference/ui-contextmenu/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: ContextMenu",
+    "href": "/es/reference/ui-contextmenu/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: ContextMenu",
+    "href": "/ko/reference/ui-contextmenu/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "UI: Dropdown",
+    "href": "/reference/ui-dropdown/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "UI: Dropdown",
+    "href": "/zh-tw/reference/ui-dropdown/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "UI: Dropdown",
+    "href": "/ja/reference/ui-dropdown/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: Dropdown",
+    "href": "/fr/reference/ui-dropdown/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: Dropdown",
+    "href": "/es/reference/ui-dropdown/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: Dropdown",
+    "href": "/ko/reference/ui-dropdown/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  { "title": "UI: Flow", "href": "/reference/ui-flow/", "section": "reference", "lang": "en" },
+  {
+    "title": "UI: Flow",
+    "href": "/zh-tw/reference/ui-flow/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "UI: Flow", "href": "/ja/reference/ui-flow/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Flow", "href": "/fr/reference/ui-flow/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Flow", "href": "/es/reference/ui-flow/", "section": "reference", "lang": "es" },
+  { "title": "UI: Flow", "href": "/ko/reference/ui-flow/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Image", "href": "/reference/ui-image/", "section": "reference", "lang": "en" },
+  {
+    "title": "UI: Image",
+    "href": "/zh-tw/reference/ui-image/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "UI: Image", "href": "/ja/reference/ui-image/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Image", "href": "/fr/reference/ui-image/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Image", "href": "/es/reference/ui-image/", "section": "reference", "lang": "es" },
+  { "title": "UI: Image", "href": "/ko/reference/ui-image/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Input", "href": "/reference/ui-input/", "section": "reference", "lang": "en" },
+  {
+    "title": "UI: Input",
+    "href": "/zh-tw/reference/ui-input/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "UI: Input", "href": "/ja/reference/ui-input/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Input", "href": "/fr/reference/ui-input/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Input", "href": "/es/reference/ui-input/", "section": "reference", "lang": "es" },
+  { "title": "UI: Input", "href": "/ko/reference/ui-input/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Link", "href": "/reference/ui-link/", "section": "reference", "lang": "en" },
+  {
+    "title": "UI: Link",
+    "href": "/zh-tw/reference/ui-link/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "UI: Link", "href": "/ja/reference/ui-link/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Link", "href": "/fr/reference/ui-link/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Link", "href": "/es/reference/ui-link/", "section": "reference", "lang": "es" },
+  { "title": "UI: Link", "href": "/ko/reference/ui-link/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Modal", "href": "/reference/ui-modal/", "section": "reference", "lang": "en" },
+  {
+    "title": "UI: Modal",
+    "href": "/zh-tw/reference/ui-modal/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "UI: Modal", "href": "/ja/reference/ui-modal/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Modal", "href": "/fr/reference/ui-modal/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Modal", "href": "/es/reference/ui-modal/", "section": "reference", "lang": "es" },
+  { "title": "UI: Modal", "href": "/ko/reference/ui-modal/", "section": "reference", "lang": "ko" },
+  {
+    "title": "UI: Paneles redimensionables",
+    "href": "/es/reference/ui-resizable-panel/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: Panneaux redimensionnables",
+    "href": "/fr/reference/ui-resizable-panel/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: Popover",
+    "href": "/reference/ui-popover/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "UI: Popover",
+    "href": "/zh-tw/reference/ui-popover/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "UI: Popover",
+    "href": "/ja/reference/ui-popover/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: Popover",
+    "href": "/fr/reference/ui-popover/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: Popover",
+    "href": "/es/reference/ui-popover/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: Popover",
+    "href": "/ko/reference/ui-popover/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "UI: ProgressBar",
+    "href": "/reference/ui-progressbar/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "UI: ProgressBar",
+    "href": "/zh-tw/reference/ui-progressbar/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "UI: ProgressBar",
+    "href": "/ja/reference/ui-progressbar/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: ProgressBar",
+    "href": "/fr/reference/ui-progressbar/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: ProgressBar",
+    "href": "/es/reference/ui-progressbar/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: ProgressBar",
+    "href": "/ko/reference/ui-progressbar/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "UI: RadioGroup",
+    "href": "/reference/ui-radiogroup/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "UI: RadioGroup",
+    "href": "/zh-tw/reference/ui-radiogroup/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "UI: RadioGroup",
+    "href": "/ja/reference/ui-radiogroup/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: RadioGroup",
+    "href": "/fr/reference/ui-radiogroup/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: RadioGroup",
+    "href": "/es/reference/ui-radiogroup/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: RadioGroup",
+    "href": "/ko/reference/ui-radiogroup/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "UI: Resizable panels",
+    "href": "/reference/ui-resizable-panel/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "UI: Resizable panels",
+    "href": "/zh-tw/reference/ui-resizable-panel/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "UI: Resizable panels",
+    "href": "/ko/reference/ui-resizable-panel/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "UI: RichText",
+    "href": "/reference/ui-richtext/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "UI: RichText",
+    "href": "/zh-tw/reference/ui-richtext/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "UI: RichText",
+    "href": "/ja/reference/ui-richtext/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: RichText",
+    "href": "/fr/reference/ui-richtext/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: RichText",
+    "href": "/es/reference/ui-richtext/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: RichText",
+    "href": "/ko/reference/ui-richtext/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "UI: ScrollView",
+    "href": "/reference/ui-scrollview/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "UI: ScrollView",
+    "href": "/zh-tw/reference/ui-scrollview/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "UI: ScrollView",
+    "href": "/ja/reference/ui-scrollview/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: ScrollView",
+    "href": "/fr/reference/ui-scrollview/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: ScrollView",
+    "href": "/es/reference/ui-scrollview/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: ScrollView",
+    "href": "/ko/reference/ui-scrollview/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  { "title": "UI: Stack", "href": "/reference/ui-stack/", "section": "reference", "lang": "en" },
+  {
+    "title": "UI: Stack",
+    "href": "/zh-tw/reference/ui-stack/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "UI: Stack", "href": "/ja/reference/ui-stack/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Stack", "href": "/fr/reference/ui-stack/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Stack", "href": "/es/reference/ui-stack/", "section": "reference", "lang": "es" },
+  { "title": "UI: Stack", "href": "/ko/reference/ui-stack/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Table", "href": "/reference/ui-table/", "section": "reference", "lang": "en" },
+  {
+    "title": "UI: Table",
+    "href": "/zh-tw/reference/ui-table/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "UI: Table", "href": "/ja/reference/ui-table/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Table", "href": "/fr/reference/ui-table/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Table", "href": "/es/reference/ui-table/", "section": "reference", "lang": "es" },
+  { "title": "UI: Table", "href": "/ko/reference/ui-table/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Tabs", "href": "/reference/ui-tabs/", "section": "reference", "lang": "en" },
+  {
+    "title": "UI: Tabs",
+    "href": "/zh-tw/reference/ui-tabs/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "UI: Tabs", "href": "/ja/reference/ui-tabs/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Tabs", "href": "/fr/reference/ui-tabs/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Tabs", "href": "/es/reference/ui-tabs/", "section": "reference", "lang": "es" },
+  { "title": "UI: Tabs", "href": "/ko/reference/ui-tabs/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Text", "href": "/reference/ui-text/", "section": "reference", "lang": "en" },
+  {
+    "title": "UI: Text",
+    "href": "/zh-tw/reference/ui-text/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  { "title": "UI: Text", "href": "/ja/reference/ui-text/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Text", "href": "/fr/reference/ui-text/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Text", "href": "/es/reference/ui-text/", "section": "reference", "lang": "es" },
+  { "title": "UI: Text", "href": "/ko/reference/ui-text/", "section": "reference", "lang": "ko" },
+  {
+    "title": "UI: TextArea",
+    "href": "/reference/ui-textarea/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "UI: TextArea",
+    "href": "/zh-tw/reference/ui-textarea/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "UI: TextArea",
+    "href": "/ja/reference/ui-textarea/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: TextArea",
+    "href": "/fr/reference/ui-textarea/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: TextArea",
+    "href": "/es/reference/ui-textarea/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: TextArea",
+    "href": "/ko/reference/ui-textarea/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  { "title": "UI: Toggle", "href": "/reference/ui-toggle/", "section": "reference", "lang": "en" },
+  {
+    "title": "UI: Toggle",
+    "href": "/zh-tw/reference/ui-toggle/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "UI: Toggle",
+    "href": "/ja/reference/ui-toggle/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: Toggle",
+    "href": "/fr/reference/ui-toggle/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: Toggle",
+    "href": "/es/reference/ui-toggle/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: Toggle",
+    "href": "/ko/reference/ui-toggle/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "UI: Tooltip",
+    "href": "/reference/ui-tooltip/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "UI: Tooltip",
+    "href": "/zh-tw/reference/ui-tooltip/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "UI: Tooltip",
+    "href": "/ja/reference/ui-tooltip/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: Tooltip",
+    "href": "/fr/reference/ui-tooltip/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: Tooltip",
+    "href": "/es/reference/ui-tooltip/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: Tooltip",
+    "href": "/ko/reference/ui-tooltip/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "UI: TreeView",
+    "href": "/reference/ui-treeview/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "UI: TreeView",
+    "href": "/zh-tw/reference/ui-treeview/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "UI: TreeView",
+    "href": "/ja/reference/ui-treeview/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: TreeView",
+    "href": "/fr/reference/ui-treeview/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: TreeView",
+    "href": "/es/reference/ui-treeview/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: TreeView",
+    "href": "/ko/reference/ui-treeview/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "UI: VirtualList",
+    "href": "/reference/ui-virtuallist/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "UI: VirtualList",
+    "href": "/zh-tw/reference/ui-virtuallist/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "UI: VirtualList",
+    "href": "/ja/reference/ui-virtuallist/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: VirtualList",
+    "href": "/fr/reference/ui-virtuallist/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: VirtualList",
+    "href": "/es/reference/ui-virtuallist/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: VirtualList",
+    "href": "/ko/reference/ui-virtuallist/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "UI: リサイズ可能なパネル",
+    "href": "/ja/reference/ui-resizable-panel/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI：Card",
+    "href": "/zh-cn/reference/ui-card/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：Checkbox",
+    "href": "/zh-cn/reference/ui-checkbox/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：CodeBlock",
+    "href": "/zh-cn/reference/ui-codeblock/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：ContextMenu",
+    "href": "/zh-cn/reference/ui-contextmenu/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：Dropdown",
+    "href": "/zh-cn/reference/ui-dropdown/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：Flow",
+    "href": "/zh-cn/reference/ui-flow/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：Image",
+    "href": "/zh-cn/reference/ui-image/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：Input",
+    "href": "/zh-cn/reference/ui-input/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：Link",
+    "href": "/zh-cn/reference/ui-link/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：Modal",
+    "href": "/zh-cn/reference/ui-modal/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：Popover",
+    "href": "/zh-cn/reference/ui-popover/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：ProgressBar",
+    "href": "/zh-cn/reference/ui-progressbar/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：RadioGroup",
+    "href": "/zh-cn/reference/ui-radiogroup/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：RichText",
+    "href": "/zh-cn/reference/ui-richtext/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：ScrollView",
+    "href": "/zh-cn/reference/ui-scrollview/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：Stack",
+    "href": "/zh-cn/reference/ui-stack/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：Table",
+    "href": "/zh-cn/reference/ui-table/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：Tabs",
+    "href": "/zh-cn/reference/ui-tabs/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：Text",
+    "href": "/zh-cn/reference/ui-text/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：TextArea",
+    "href": "/zh-cn/reference/ui-textarea/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：Toggle",
+    "href": "/zh-cn/reference/ui-toggle/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：Tooltip",
+    "href": "/zh-cn/reference/ui-tooltip/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：TreeView",
+    "href": "/zh-cn/reference/ui-treeview/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：VirtualList",
+    "href": "/zh-cn/reference/ui-virtuallist/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "UI：可调整大小的面板",
+    "href": "/zh-cn/reference/ui-resizable-panel/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  { "title": "UI组件", "href": "/zh-cn/learn/ui-components/", "section": "learn", "lang": "zh-cn" },
+  { "title": "Use Cases", "href": "/learn/use-cases/", "section": "learn", "lang": "en" },
+  { "title": "Use Cases", "href": "/ja/learn/use-cases/", "section": "learn", "lang": "ja" },
+  {
+    "title": "Utilidades matemáticas",
+    "href": "/es/reference/core-math/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "Utilitaires mathématiques",
+    "href": "/fr/reference/core-math/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  { "title": "VectoJS 소개", "href": "/ko/learn/introduction/", "section": "learn", "lang": "ko" },
+  {
+    "title": "VectoJS 簡介",
+    "href": "/zh-tw/learn/introduction/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  { "title": "VectoJS入門", "href": "/ja/learn/introduction/", "section": "learn", "lang": "ja" },
+  {
+    "title": "VectoJS简介",
+    "href": "/zh-cn/learn/introduction/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "Vertical or Horizontal: How VectoJS Breaks Frontend Ceilings",
+    "href": "/blog/vertical-vs-horizontal/",
+    "section": "blog",
+    "lang": "en"
+  },
+  {
+    "title": "We Threw Out the DOM, Kept Accessibility",
+    "href": "/blog/no-dom-no-compromise/",
+    "section": "blog",
+    "lang": "en"
+  },
+  { "title": "Why VectoJS", "href": "/learn/why-vectojs/", "section": "learn", "lang": "en" },
+  { "title": "Why VectoJS", "href": "/ja/learn/why-vectojs/", "section": "learn", "lang": "ja" },
+  {
+    "title": "Zero DOM Elements, Full Accessibility: Launching the VectoJS Gallery",
+    "href": "/blog/gallery-launch/",
+    "section": "blog",
+    "lang": "en"
+  },
+  {
+    "title": "기타 엔터티",
+    "href": "/ko/reference/core-entities/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "런타임 아키텍처",
+    "href": "/ko/learn/runtime-architecture/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "레이아웃 엔진",
+    "href": "/ko/reference/core-layout/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "렌더러",
+    "href": "/ko/reference/core-renderer/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "물리 및 애니메이션",
+    "href": "/ko/learn/physics-engine/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  { "title": "사용 사례", "href": "/ko/learn/use-cases/", "section": "learn", "lang": "ko" },
+  { "title": "성능", "href": "/ko/learn/performance/", "section": "learn", "lang": "ko" },
+  {
+    "title": "수학 유틸리티",
+    "href": "/ko/reference/core-math/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "수학적 기초",
+    "href": "/ko/learn/math-foundations/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "스타일 (@vectojs/styles)",
+    "href": "/ko/reference/styles/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "스트리밍 및 실시간 텍스트",
+    "href": "/ko/learn/streaming/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  { "title": "시작하기", "href": "/ko/learn/getting-started/", "section": "learn", "lang": "ko" },
+  {
+    "title": "애니메이션 (@vectojs/animation)",
+    "href": "/ko/reference/animation/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  { "title": "엔진 개념", "href": "/ko/learn/engine-concepts/", "section": "learn", "lang": "ko" },
+  { "title": "왜 VectoJS인가", "href": "/ko/learn/why-vectojs/", "section": "learn", "lang": "ko" },
+  {
+    "title": "이벤트 및 히트 테스팅",
+    "href": "/ko/learn/events/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "접근성 및 자동화",
+    "href": "/ko/learn/accessibility/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "커스텀 Entity 구축",
+    "href": "/ko/learn/custom-entity/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  { "title": "쿡북", "href": "/ko/learn/cookbook/", "section": "learn", "lang": "ko" },
+  {
+    "title": "텍스트 및 Bidi",
+    "href": "/ko/reference/core-text/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "텍스트 및 타이포그래피",
+    "href": "/ko/learn/text-typography/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  { "title": "파티클 시스템", "href": "/ko/learn/particles/", "section": "learn", "lang": "ko" },
+  {
+    "title": "환경 간 일관성",
+    "href": "/ko/learn/cross-environment/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "アクセシビリティと自動化",
+    "href": "/ja/learn/accessibility/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "アニメーション (@vectojs/animation)",
+    "href": "/ja/reference/animation/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "エンジンコンセプト",
+    "href": "/ja/learn/engine-concepts/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "カスタムエンティティの構築",
+    "href": "/ja/learn/custom-entity/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  { "title": "クックブック", "href": "/ja/learn/cookbook/", "section": "learn", "lang": "ja" },
+  {
+    "title": "クロス環境の一貫性",
+    "href": "/ja/learn/cross-environment/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "コアシーンアーキテクチャ",
+    "href": "/ja/learn/core-scene/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "スタイル (@vectojs/styles)",
+    "href": "/ja/reference/styles/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "ストリーミングとリアルタイムテキスト",
+    "href": "/ja/learn/streaming/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "その他のエンティティ",
+    "href": "/ja/reference/core-entities/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "テキスト & Bidi",
+    "href": "/ja/reference/core-text/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "レイアウトエンジン",
+    "href": "/ja/reference/core-layout/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "レンダラー",
+    "href": "/ja/reference/core-renderer/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "为什么选择VectoJS",
+    "href": "/zh-cn/learn/why-vectojs/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "事件与命中测试",
+    "href": "/zh-cn/learn/events/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "事件與命中測試",
+    "href": "/zh-tw/learn/events/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  { "title": "使用场景", "href": "/zh-cn/learn/use-cases/", "section": "learn", "lang": "zh-cn" },
+  { "title": "使用案例", "href": "/zh-tw/learn/use-cases/", "section": "learn", "lang": "zh-tw" },
+  {
+    "title": "其他实体",
+    "href": "/zh-cn/reference/core-entities/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "其他實體",
+    "href": "/zh-tw/reference/core-entities/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "动画 (@vectojs/animation)",
+    "href": "/zh-cn/reference/animation/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "動畫 (@vectojs/animation)",
+    "href": "/zh-tw/reference/animation/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "執行環境架構",
+    "href": "/zh-tw/learn/runtime-architecture/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  { "title": "实用手册", "href": "/zh-cn/learn/cookbook/", "section": "learn", "lang": "zh-cn" },
+  {
+    "title": "布局引擎",
+    "href": "/zh-cn/reference/core-layout/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  { "title": "常見問題", "href": "/zh-tw/reference/faq/", "section": "reference", "lang": "zh-tw" },
+  {
+    "title": "建立自訂實體",
+    "href": "/zh-tw/learn/custom-entity/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "引擎概念",
+    "href": "/zh-cn/learn/engine-concepts/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "引擎概念",
+    "href": "/zh-tw/learn/engine-concepts/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "快速入門",
+    "href": "/zh-tw/learn/getting-started/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "快速开始",
+    "href": "/zh-cn/learn/getting-started/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  { "title": "性能", "href": "/zh-cn/learn/performance/", "section": "learn", "lang": "zh-cn" },
+  { "title": "效能", "href": "/zh-tw/learn/performance/", "section": "learn", "lang": "zh-tw" },
+  {
+    "title": "数学ユーティリティ",
+    "href": "/ja/reference/core-math/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "数学基础",
+    "href": "/zh-cn/learn/math-foundations/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "数学工具",
+    "href": "/zh-cn/reference/core-math/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "數學基礎",
+    "href": "/zh-tw/learn/math-foundations/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "文字與排版",
+    "href": "/zh-tw/learn/text-typography/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "文本与排版",
+    "href": "/zh-cn/learn/text-typography/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "无障碍与自动化",
+    "href": "/zh-cn/learn/accessibility/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "构建自定义实体",
+    "href": "/zh-cn/learn/custom-entity/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "样式 (@vectojs/styles)",
+    "href": "/zh-cn/reference/styles/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "核心场景架构",
+    "href": "/zh-cn/learn/core-scene/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "核心場景架構",
+    "href": "/zh-tw/learn/core-scene/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "樣式 (@vectojs/styles)",
+    "href": "/zh-tw/reference/styles/",
+    "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "流式传输与实时文本",
+    "href": "/zh-cn/learn/streaming/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "流式傳輸與即時文本",
+    "href": "/zh-tw/learn/streaming/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "渲染器",
+    "href": "/zh-cn/reference/core-renderer/",
+    "section": "reference",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "為何選擇 VectoJS",
+    "href": "/zh-tw/learn/why-vectojs/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "無障礙與自動化",
+    "href": "/zh-tw/learn/accessibility/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "物理与动画",
+    "href": "/zh-cn/learn/physics-engine/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "物理與動畫",
+    "href": "/zh-tw/learn/physics-engine/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  { "title": "粒子系統", "href": "/zh-tw/learn/particles/", "section": "learn", "lang": "zh-tw" },
+  { "title": "粒子系统", "href": "/zh-cn/learn/particles/", "section": "learn", "lang": "zh-cn" },
+  {
+    "title": "跨环境一致性",
+    "href": "/zh-cn/learn/cross-environment/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "跨環境一致性",
+    "href": "/zh-tw/learn/cross-environment/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "运行时架构",
+    "href": "/zh-cn/learn/runtime-architecture/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  { "title": "食譜", "href": "/zh-tw/learn/cookbook/", "section": "learn", "lang": "zh-tw" }
+]

@@ -2,9 +2,6 @@
 title = "Graph3D y selección"
 description = "El renderizador Three.js con instanciado que dibuja cualquier grafo en dos llamadas de dibujo, más el patrón de raycasting para la selección de nodos por hover/click."
 weight = 46
-
-[extra]
-order = 46
 +++
 
 # `Graph3D` y selección

@@ -2,9 +2,6 @@
 title = "Introducción a VectoJS"
 description = "Una descripción concisa de qué es VectoJS, para qué sirve y a dónde ir a continuación."
 weight = 1
-
-[extra]
-order = 1
 +++
 
 # Introducción a VectoJS

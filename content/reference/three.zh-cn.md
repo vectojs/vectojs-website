@@ -2,9 +2,6 @@
 title = "@vectojs/three"
 description = "用于 VectoJS 的 Three.js 适配器：将 2D UI 面板渲染为 3D 纹理（ThreeAdapter），或使用 Three.js 作为渲染后端（ThreeRenderer）。"
 weight = 41
-
-[extra]
-order = 41
 +++
 
 # `@vectojs/three`

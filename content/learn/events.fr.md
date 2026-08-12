@@ -2,9 +2,6 @@
 title = "Événements & Hit-Testing"
 description = "Comment les événements de pointeur et de clavier circulent dans l'arbre d'entités VectoJS : capture, propagation, VectoJSEvent, charges utiles de changement de formulaire, et findEntityAt."
 weight = 10
-
-[extra]
-order = 10
 +++
 
 # Événements & Hit-Testing

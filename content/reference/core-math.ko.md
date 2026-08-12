@@ -2,9 +2,6 @@
 title = "수학 유틸리티"
 description = "O(1) 평균 광역 위상 공간 쿼리를 위한 SpatialHashGrid와 단일 값 임계-튜너블 스프링을 위한 SpringPhysics — @vectojs/core가 재-내보내기하는 독립형 @vectojs/math 패키지."
 weight = 9
-
-[extra]
-order = 9
 +++
 
 # 수학 유틸리티 — `@vectojs/math`

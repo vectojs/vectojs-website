@@ -2,9 +2,6 @@
 title = "实用手册"
 description = "VectoJS的常见模式和配方：模态框、工具提示、虚拟化列表、拖放、动画图表等。"
 weight = 17
-
-[extra]
-order = 17
 +++
 
 # 实用手册

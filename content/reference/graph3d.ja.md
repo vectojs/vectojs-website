@@ -2,14 +2,11 @@
 title = "@vectojs/graph3d"
 description = "3Dフォース指向グラフ可視化：プラガブルなGraphLayoutインターフェースと、あらゆるグラフを2回の描画呼び出しで描画するインスタンシングThree.jsレンダラー。"
 weight = 44
-
-[extra]
-order = 44
 +++
 
 # `@vectojs/graph3d`
 
-文書化バージョン: **0.2.1**
+文書化バージョン: **0.3.1**
 
 VectoJS向け3Dフォース指向グラフ可視化：プラガブルな`GraphLayout`契約（ワーカーフレンドリー、位置を1つのフラットな`Float32Array`として保持）と`Graph3D`（インスタンシングされたThree.jsレンダラーで、ノード数にかかわらず任意のグラフを正確に2回の描画呼び出しで描画）。動く77ノード/254リンクの標準データセットについては、ライブの[Les Misérablesデモ](/demos/graph3d/)を参照してください。
 

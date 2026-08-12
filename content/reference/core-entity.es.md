@@ -2,9 +2,6 @@
 title = "Entity"
 description = "La base abstracta de cada nodo del Virtual Math Tree: transformaciones, el sistema de animación, eventos de captura/burbuja y los hooks de a11y/agrupación que una Entity personalizada puede sobrescribir."
 weight = 3
-
-[extra]
-order = 3
 +++
 
 # `Entity` (abstracta)
@@ -125,8 +122,8 @@ Ver [Física y Animación](/learn/physics-engine/) para uso.
 
 ```ts
 type VectoEvent =
-  | 'click' | 'hover' | 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'pointerleave'
-  | 'change' | 'focus' | 'blur' | 'wheel' | 'keydown' | 'keyup';
+  | 'click' | 'dblclick' | 'hover' | 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'pointerleave'
+  | 'change' | 'focus' | 'blur' | 'wheel' | 'keydown' | 'keyup' | 'scroll';
 
 on(event: VectoEvent, cb: (e: any) => void, options?: { capture?: boolean }): this
 off(event: VectoEvent, cb: (e: any) => void, options?: { capture?: boolean }): this
@@ -148,6 +145,11 @@ dispatchEvent(event: VectoJSEvent): void             // estilo DOM captura (raí
   `composition` es `{ start, length } | null` para la pre-edición IME activa.
   `'wheel'` lleva el `WheelEvent` nativo (llama a `preventDefault()` para detener el
   desplazamiento de página).
+- `'dblclick'` se dispara en un doble clic (`detail === 2` nativo).
+- `'scroll'` lleva un `ScrollEventPayload` — la única forma en que una entidad observa
+  el desplazamiento de su espejo sombra: `{ scrollTop, scrollLeft, deltaY,
+deltaX, maxScrollTop }`. Se dispara desde espejos de contenido desplazables (p. ej.
+  un nodo sombra `ScrollView`) conforme el navegador los desplaza.
 
 Ver [Eventos y Hit-Testing](/learn/events/) para uso.
 
@@ -159,6 +161,12 @@ getBatchCircle(): BatchCircle | null         // { radius, color } → camino rá
 getBatchRect(): BatchRect | null             // { width, height, color } → GPU indexed-quad batch (solo pointBackend WebGL)
 update(dt: number, time: number): void       // sobrescritura opcional; dt en MILISEGUNDOS, time es performance.now(); el default avanza los tweens encolados
 ```
+
+`entity.a11yRegion: boolean` (por defecto `false`) marca la entidad como una
+**región de agrupación** a11y: los descendientes se proyectan en un contenedor compartido
+en lugar de anidarse independientemente, por lo que un contenedor de agrupación puro
+(p. ej. `width: 0`) sigue agrupando — gana la región contenedora más cercana y las
+regiones se anidan. Declarativo, nunca consultado por la geometría.
 
 `getBatchCircle`/`getBatchRect` se leen **cada fotograma** (color/radio animados
 se respetan). Una hoja agrupada representable salta su propio

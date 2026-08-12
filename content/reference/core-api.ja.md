@@ -2,9 +2,6 @@
 title = "@vectojs/core APIリファレンス"
 description = "Vectoの背後にあるゼロDOMレンダリングエンジンの概要とエントリポイントマップ — coreのScene、Entity、レンダラー、パーティクル、a11y、そしてcoreが再エクスポートするスタンドアロンの@vectojs/text、@vectojs/layout、@vectojs/math、@vectojs/animationエンジン。"
 weight = 1
-
-[extra]
-order = 1
 +++
 
 # `@vectojs/core` APIリファレンス
@@ -27,6 +24,8 @@ Vectoの背後にあるゼロDOMレンダリングエンジン。`Scene` は `En
 | [テキスト＆Bidi](/reference/core-text/)               | `MSDFFont`、`MSDFTextEntity`、`TextEntity`/`GridTextEntity`、アラビア語整形 + Bidi解決。                                                         |
 | [その他のエンティティ](/reference/core-entities/)     | `SplineEntity`、`DOMPortalEntity`、`SVGEntity`。                                                                                                 |
 | [数学ユーティリティ](/reference/core-math/)           | `SpatialHashGrid`、`SpringPhysics`。                                                                                                             |
+| [アニメーション](/reference/animation/)               | スタンドアロンの `@vectojs/animation` エンジン：`TweenDriver`/`SpringDriver`、`MotionConfig`、イージングカーブ。                                 |
+| [スタイル](/reference/styles/)                        | スタンドアロンの `@vectojs/styles` レイヤー：CSS命名のスタイルオブジェクト、`var()`トークンテーマ、`setTheme`切替、`css()`マージ。               |
 | [a11yRoot & エージェント契約](/reference/core-a11y/)  | シャドウDOM投影、`A11yAttributes`、同期の注意点。                                                                                                |
 
 ## エントリポイントとモジュールマップ

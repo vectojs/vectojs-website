@@ -2,9 +2,6 @@
 title = "Texto y Bidi"
 description = "El paquete independiente @vectojs/text (también la subruta @vectojs/core/text): métricas de tipografía, análisis de fuentes MSDF, conformado árabe y el resolvedor bidi, más los renderizadores de texto en GPU MSDFTextEntity/GridTextEntity residentes en core."
 weight = 7
-
-[extra]
-order = 7
 +++
 
 # Texto y Bidi — `@vectojs/text`
@@ -106,6 +103,7 @@ getFontMetrics(family: string): FontMetricsSource | undefined
 hasFontMetrics(): boolean
 fontMetricsVersion(): number
 clearFontMetrics(): void
+createMeasuringContext(): CanvasRenderingContext2D | null   // see below
 ```
 
 La medición de texto normalmente pasa por un contexto Canvas 2D, que mide la
@@ -115,6 +113,18 @@ vuelve a un `0.5em` plano. Medido contra Chrome a 32px
 `sans-serif` que es incorrecto por **+125%** en texto estrecho y **−47%** en ancho,
 y `iiiiiiiiii` sale exactamente tan ancho como `WWWWWWWWWW`. El ajuste de línea hereda
 el error, por lo que los saltos de línea también caen en los lugares equivocados.
+
+`createMeasuringContext()` es la salida de emergencia ligera para ese caso: crea
+un `<canvas>` fuera de pantalla de 1×1 (agregado al cuerpo del documento, invisible,
+`aria-hidden`) y devuelve su contexto 2D para medir una fuente que no tiene
+una source de métricas registrada — o `null` en un entorno sin DOM. Es el
+contexto que el propio motor usaría, por lo que mide la fuente que el renderizador
+dibujará realmente, lo cual no hacen las rutas basadas en el registro anteriores.
+El contexto de medición único compartido (`getSharedMeasuringContext` /
+`isSharedMeasuringContextAttached` / `resetSharedMeasuringContext`, también de
+`@vectojs/text`) es un contexto memoizado aparte usado en todos los paquetes
+`@vectojs/*` — `ctx.font` se asigna antes de cada lectura, así que el uso
+compartido nunca filtra una medición obsoleta.
 
 Registre las métricas una vez al inicio para solucionarlo. Cualquier JSON de `msdf-atlas-gen` funciona,
 y solo se leen sus `glyphs[].advance`, `kerning`, y `metrics` — la imagen del atlas
@@ -162,6 +172,31 @@ Para comprobar si algún texto se midió con advances fabricados,
 los cuenta, y una advertencia de consola única nombra la corrección. Es distinto de
 `LayoutResult.fallbackToCanvas`, que solo informa de una falta de **atlas** y es
 verdadero en esencialmente cada párrafo incluso en un navegador.
+
+## `@vectojs/tex` — Tipografía TeX sin DOM
+
+`@vectojs/tex` es el paquete independiente detrás de los bloques `$…$` / ` ```math ` de [`Markdown`](/reference/ui-markdown/). Integra el núcleo de análisis/maquetación de KaTeX y vuelve a emitir el resultado como una **cadena SVG autocontenida** que lleva sus propios contornos de glifos y no referencia nada externo — la única forma que sobrevive a ser rasterizada a través de `data URI → Image → createImageBitmap`. Se carga de forma diferida (solo una vez que aparece una fórmula) y es un paquete separado, público y versionado; `@vectojs/core` **no** lo reexporta.
+
+```ts
+import { layout, emitSVG } from '@vectojs/tex';
+
+const { svg, width, height, depth } = emitSVG(layout('x^2 + y^2 = z^2'));
+```
+
+Los dos ayudantes de la capa de emisión que permiten a llamadores personalizados reproducir la selección de fuente derivada de la hoja de estilos de KaTeX sin una hoja de estilos (un canvas no tiene ninguna):
+
+```ts
+resolveFont(classes: readonly string[]): ResolvedFont
+// ResolvedFont = { font: FontName; substituted: boolean }
+
+sizingRatio(classes: readonly string[]): number
+```
+
+`resolveFont` mapea las clases CSS de un span de KaTeX a un archivo de fuente concreto incluido (`FontName`, p. ej. `'Main-BoldItalic'`, `'Size2-Regular'`). La selección de fuente es **heredada, no local** — un `SymbolNode` anidado bajo `Span[delimsizing size1]` lleva una lista de clases vacía, así que pasa la concatenación de las clases de cada ancestro seguidas de las propias del símbolo, la más externa primero (las entradas posteriores ganan). Un peso/estilo solicitado que la familia no incluye degrada a su cara Regular y establece `substituted: true` en lugar de dibujar mal silenciosamente.
+
+`sizingRatio` convierte las clases `katex-sizing reset-size<N> size<M>` en el multiplicador de escala script/scriptscript (`toMultiplier / fromMultiplier`); devuelve `1` cuando las clases no llevan tamaño, así que los llamadores pueden multiplicar incondicionalmente. Estos son el mecanismo detrás de que `@vectojs/tex` reporte tamaños en métricas relativas a `ex`.
+
+`FontName`, `ResolvedFont`, `layout`, `emitSVG` y `LayoutOptions` también se exportan desde `@vectojs/tex` (ver su `src/index.ts`).
 
 ## Relacionados
 

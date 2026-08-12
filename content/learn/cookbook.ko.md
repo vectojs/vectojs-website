@@ -2,9 +2,6 @@
 title = "쿡북"
 description = "VectoJS를 위한 일반적인 패턴과 레시피: 모달, 툴팁, 가상화 목록, 드래그 앤 드롭, 애니메이션 차트 등"
 weight = 17
-
-[extra]
-order = 17
 +++
 
 # 쿡북

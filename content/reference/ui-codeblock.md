@@ -2,9 +2,6 @@
 title = "UI: CodeBlock"
 description = "Single-leaf canvas code block used by Markdown for fenced code."
 weight = 40
-
-[extra]
-order = 40
 +++
 
 # `CodeBlock`

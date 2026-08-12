@@ -2,9 +2,6 @@
 title = "Devtools: 검사"
 description = "VectoJS 씬을 데이터로 읽기 — 트리 모델, 엔티티 피킹, 엔티티/a11y/텍스트 상태, 하이라이트 지오메트리, 히트 테스트 설명, 이벤트 라우팅 트레이스."
 weight = 49
-
-[extra]
-order = 49
 +++
 
 # Devtools: 검사

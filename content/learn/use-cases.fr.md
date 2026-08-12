@@ -2,9 +2,6 @@
 title = "Cas d'usage"
 description = "Là où VectoJS s'intègre le mieux : tableaux de bord, UI en streaming, canvas infinis, jeux, éditeurs, WebXR et sites interactifs avancés."
 weight = 5
-
-[extra]
-order = 5
 +++
 
 # Cas d'usage

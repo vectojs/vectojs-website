@@ -2,9 +2,6 @@
 title = "a11yRoot y el contrato del agente"
 description = "Cómo cada Entity interactiva proyecta un nodo sombra ARIA transparente en el DOM — la forma A11yAttributes, el contrato de rendimiento de canvas y accesibilidad de grado DOM, y los problemas de sincronización que causan nodos sombra obsoletos o faltantes."
 weight = 10
-
-[extra]
-order = 10
 +++
 
 # a11yRoot y el contrato del agente
@@ -192,6 +189,21 @@ Ser alcanzable individualmente tampoco es lo mismo que ser comprendido:
 - Desde Core 1.11.1, cada entidad interactiva recién proyectada recibe el `z-index` correspondiente al orden de pintura del canvas en el mismo fotograma que crea su nodo sombra. Por tanto, el backdrop de una superposición nueva queda por encima de los controles de diseño existentes desde la primera interacción del puntero, sin esperar otro renderizado.
 
 Ver [Accesibilidad](/learn/accessibility/) para patrones de uso y pruebas.
+
+## Saneamiento de URL (`sanitizeUrl` / `isSafeUrl`)
+
+Ambos helpers provienen de `@vectojs/core` (definidos en `renderer/url.ts`) y existen para detener la inyección de scripts por URI `javascript:` / `data:` / `vbscript:` / `file:` cuando VectoJS proyecta un `href` sobre un nodo `<a>` sombra o lo pasa a `window.open` (usado por los sinks de accesibilidad y por los renders de enlaces Markdown).
+
+```ts
+sanitizeUrl(href: string | null | undefined): string
+isSafeUrl(urlStr: string): boolean
+```
+
+`sanitizeUrl` es la vía de proyección: devuelve `''` para `null`/`undefined`, recorta los espacios iniciales, deja pasar las URLs **relativas** tal cual (una URL relativa nunca es inyectable por script), y reescribe cualquier URL absoluta cuyo esquema no esté en el conjunto seguro — `http`, `https`, `mailto`, `tel`, `ftp` — a un benigno `'#'` para que el enlace siga siendo no vacío pero inerte. Nunca lanza errores.
+
+`isSafeUrl` es la guardia más estrecha para código que ya tiene una URL absoluta: devuelve `true` cuando el esquema está en el conjunto seguro (la relativa también es segura), `false` en caso contrario.
+
+Los esquemas seguros son fijos: `http:`, `https:`, `mailto:`, `tel:`, `ftp:`. Tanto `ui-link` como los callbacks de enlaces Markdown enrutan el `href` a través de `sanitizeUrl` antes de que llegue al DOM — si renderizas enlaces no confiables tú mismo, haz lo mismo.
 
 ## Relacionados
 

@@ -2,9 +2,6 @@
 title = "运行时架构"
 description = "Scene、Entity、渲染循环、无障碍投影和后端如何协同工作。"
 weight = 3
-
-[extra]
-order = 3
 +++
 
 # 运行时架构

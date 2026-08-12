@@ -2,9 +2,6 @@
 title = "快速入門"
 description = "安裝 VectoJS，建立一個 Scene，並使用 Input、Toggle、Slider、Button 和 ScrollView 構建一個完整的設定面板。"
 weight = 7
-
-[extra]
-order = 7
 +++
 
 # 快速入門

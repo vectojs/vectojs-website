@@ -2,9 +2,6 @@
 title = "ThreeRenderer"
 description = "Utiliser Three.js comme moteur IRenderer pour une Scene VectoJS : méthodes implémentées, disposition du shader de dégradé GLSL et la limitation de l'épaisseur de trait."
 weight = 43
-
-[extra]
-order = 43
 +++
 
 # `ThreeRenderer`

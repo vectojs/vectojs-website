@@ -2,9 +2,6 @@
 title = "물리 및 애니메이션"
 description = "스프링 물리학, 속도 및 힘 기반 시뮬레이션을 VMT의 모든 엔티티에 적용하기"
 weight = 11
-
-[extra]
-order = 11
 +++
 
 # 물리 및 애니메이션

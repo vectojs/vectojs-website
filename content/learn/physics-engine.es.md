@@ -2,9 +2,6 @@
 title = "Física y Animación"
 description = "Aplica física de resortes, velocidad y simulación dirigida por fuerzas a cualquier entidad del VMT."
 weight = 11
-
-[extra]
-order = 11
 +++
 
 # Física y Animación

@@ -2,9 +2,6 @@
 title = "텍스트 및 타이포그래피"
 description = "VectoJS의 텍스트 시스템: Cold/Hot LayoutEngine 분할, LLM 출력을 위한 스트리밍, 혼합 스타일의 리치 텍스트, MSDF 폰트, 아랍어/BiDi, 제외 형상."
 weight = 14
-
-[extra]
-order = 14
 +++
 
 # 텍스트 및 타이포그래피

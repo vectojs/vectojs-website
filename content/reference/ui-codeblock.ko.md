@@ -2,9 +2,6 @@
 title = "UI: CodeBlock"
 description = "Markdown에서 펜스 코드(fenced code)에 사용하는 단일 리프 캔버스 코드 블록"
 weight = 40
-
-[extra]
-order = 40
 +++
 
 # `CodeBlock`
@@ -15,7 +12,7 @@ order = 40
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · CodeBlock</span></div>
-  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=codeblock&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="CodeBlock 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>커스텀 렌더러가 아니라면 일반 문서에서는 `Markdown`을 통해 사용하세요.</figcaption>
 </figure>
 
@@ -46,6 +43,19 @@ codeBlock.setWidth(width: number): this
 글리프 형상을 바꾸는 것—소스, 언어, 폰트—은 모두 `setCode()`를 거치며 거기서 그리드가 무효화됩니다. 너비가 변하지 않으면 아무 일도 하지 않고 `this`를 반환합니다.
 
 `Markdown.setMaxWidth()`가 자신이 소유한 각 펜스 코드 블록에 대해 이를 호출하므로, `CodeBlock`을 직접 만들 때만 직접 호출이 필요합니다.
+
+## 옵션 및 가로 스크롤
+
+```ts
+new CodeBlock(source, language, width, options?: CodeBlockOptions)
+// options: { showLanguage?: boolean }  // header band with the language name, default false
+codeBlock.showLanguage: boolean
+codeBlock.scrollX: number       // current horizontal scroll (clamped to maxScrollX)
+codeBlock.maxScrollX: number    // widest line's overflow past the padded box; 0 = everything fits
+codeBlock.setScrollX(x: number): this // scroll horizontally, clamped to [0, maxScrollX]
+```
+
+긴 줄은 줄바꿈 없이 넘치므로 넓은 블록은 가로로 스크롤할 수 있습니다. `maxScrollX`는 이를 생성한 그리드에 대해 메모이제이션됩니다. `scrollX`는 동기화된 모든 프레임에서 읽히므로, 캐시 덕분에 긴 블록이 프레임마다 O(lines) 스캔 비용을 지불하지 않습니다.
 
 ## 유지보수 체크리스트
 

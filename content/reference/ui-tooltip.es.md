@@ -2,9 +2,6 @@
 title = "UI: Tooltip"
 description = "Texto superpuesto activado por hover anclado a una entidad objetivo."
 weight = 37
-
-[extra]
-order = 37
 +++
 
 # `Tooltip`
@@ -15,7 +12,7 @@ order = 37
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Tooltip</span></div>
-  <iframe src="/sandbox/ui/component.html?name=tooltip&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Tooltip" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=tooltip&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Tooltip" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Pasa el ratón sobre el objetivo para verificar la colocación y el cierre.</figcaption>
 </figure>
 

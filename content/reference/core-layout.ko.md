@@ -2,9 +2,6 @@
 title = "레이아웃 엔진"
 description = "독립형 @vectojs/layout 패키지(그리고 @vectojs/core/layout 하위 경로): 값비싼 텍스트 분할+측정을 저렴한 줄바꿈+위치 산술과 분리하는 콜드/핫 분할, 스트리밍 메모이제이션, 리치 텍스트 및 배제(Exclusion) 셰이프."
 weight = 4
-
-[extra]
-order = 4
 +++
 
 # 레이아웃 엔진 (콜드/핫 분할) — `@vectojs/layout`
@@ -65,6 +62,10 @@ fallbackToCanvas? }`; `LayoutNode`는 하나의 위치가 지정된 글리프입
 - `LayoutWorkerManager.getInstance()` — 스레드 외부 레이아웃용 싱글턴;
   `queueLayout(entityId, text, { fontId, fontSize, maxWidth, maxHeight, callback,
 ... })` / `cancelLayout(entityId)`. [`MSDFTextEntity`](/reference/core-text/#msdftextentity)에서 사용됩니다.
+
+알아두면 좋은 유틸리티 내보내기: `createMetricsMeasurer(fontFamily?, baseSize?)`와 `resolveGlyphMeasurer(...)`는 `GlyphMeasurer`를 구성합니다; `EMPTY_GLYPH_ATLAS`는 메트릭이 없는 폴백 아틀라스입니다; `isComplexScript(text)`는 셰이핑에 스크립트 아이템라이저가 필요한지 보고합니다; `computeMSDFLayout(...)`는 워커 경로가 스레드 외부에서 실행하는 순수 레이아웃 함수입니다; `cacheStats()` / `resetCacheStats()`와 `clearCssLineBoxMetrics()`는 진단용 엔진 레벨 캐시입니다.
+
+- `InlineObject` — 리치 단락 내의 인라인 교체 요소(이미지, 아이콘, 수식 상자): `{ width, height, depth?, alt?, paint? }`. span은 U+FFFC `OBJECT_REPLACEMENT` 센티널로 구성되어야 합니다; 엔진이 상자 메트릭을 예약하고, 소비자가 렌더링할 때 텍스트의 로컬 좌표 공간에서 `paint(surface: InlineObjectSurface, box: InlineObjectBox)`를 호출합니다(깊이 기록 불필요). `alt`는 접근 가능한 이름, 선택, 복사에 사용되는 텍스트 등가물입니다—그것이 없으면 원시 센티널이 a11y 레이어로 누출됩니다. `paint`는 단락 메모 키의 일부입니다(`alt`와 함께): 비교 시 동일한 두 객체는 캐시된 단락을 공유하므로, `alt` 밖에서 선택된 그림(예: Markdown 이미지 URL—배지-컬럼 사례)은 거기에 선언되어야 하며, 그렇지 않으면 동일하게 보이는 모든 객체가 첫 번째 객체의 그림을 그립니다. `depth`는 부호가 뒤집힌 CSS `vertical-align`을 반영합니다(MathJax의 `vertical-align: -0.486ex` → `depth: 0.486 * exToPx`).
 
 사용법은 [Text & Typography](/learn/text-typography/)를,
 이 엔진의 출력을 소비하는 폰트/글리프 렌더링 레이어는

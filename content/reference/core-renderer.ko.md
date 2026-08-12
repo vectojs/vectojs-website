@@ -2,9 +2,6 @@
 title = "렌더러"
 description = "@vectojs/core/renderer 하위 경로: 백엔드에 독립적인 IRenderer 계약, CanvasRenderer, SVGRenderer, WebGL 포인트/직렬/스프라이트/MSDF 레이어, Entity 콘텐츠 투영 및 parseColorToRGBA."
 weight = 5
-
-[extra]
-order = 5
 +++
 
 # 렌더러 — `@vectojs/core/renderer`

@@ -2,9 +2,6 @@
 title = "ThreeRenderer"
 description = "Usa Three.js como backend IRenderer para una escena de VectoJS: métodos implementados, la disposición del shader GLSL de gradientes y la advertencia sobre el grosor de línea."
 weight = 43
-
-[extra]
-order = 43
 +++
 
 # `ThreeRenderer`

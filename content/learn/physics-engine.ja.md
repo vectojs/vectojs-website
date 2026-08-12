@@ -2,9 +2,6 @@
 title = "Physics & Animation"
 description = "ばね物理、速度、力学指向シミュレーションをVMT内の任意のエンティティに適用します。"
 weight = 11
-
-[extra]
-order = 11
 +++
 
 # Physics & Animation

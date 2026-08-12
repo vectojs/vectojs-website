@@ -2,9 +2,6 @@
 title = "Conceptos del Motor"
 description = "Las ocho ideas matemáticas y arquitectónicas detrás de VectoJS."
 weight = 4
-
-[extra]
-order = 4
 +++
 
 # Conceptos del Motor

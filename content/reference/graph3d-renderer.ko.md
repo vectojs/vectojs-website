@@ -2,9 +2,6 @@
 title = "Graph3D & picking"
 description = "인스턴싱된 Three.js 렌더러로 모든 그래프를 두 번의 드로 콜로 그리고, 호버/클릭 노드 피킹을 위한 레이캐스팅 패턴."
 weight = 46
-
-[extra]
-order = 46
 +++
 
 # `Graph3D` & picking

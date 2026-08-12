@@ -2,9 +2,6 @@
 title = "UI: Resizable panels"
 description = "PanelGroup, Panel, and PanelResizeHandle for draggable split-pane layouts."
 weight = 35
-
-[extra]
-order = 35
 +++
 
 # Resizable panels

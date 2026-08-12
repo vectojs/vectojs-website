@@ -2,9 +2,6 @@
 title = "@vectojs/core API 参考"
 description = "Vecto 背后的 zero-DOM 渲染引擎的概述和入口点地图 —— core 中的 Scene、Entity、渲染器、粒子和 a11y，外加 core 重新导出的独立 @vectojs/text、@vectojs/layout、@vectojs/math 和 @vectojs/animation 引擎。"
 weight = 1
-
-[extra]
-order = 1
 +++
 
 # `@vectojs/core` API 参考
@@ -27,6 +24,8 @@ Vecto 背后的 zero-DOM 渲染引擎。一个 `Scene` 拥有一棵 `Entity` 节
 | [Text & Bidi](/reference/core-text/)                  | `MSDFFont`、`MSDFTextEntity`、`TextEntity`/`GridTextEntity`、阿拉伯文成形 + bidi 解析器。                     |
 | [其他实体](/reference/core-entities/)                 | `SplineEntity`、`DOMPortalEntity`、`SVGEntity`。                                                              |
 | [数学工具](/reference/core-math/)                     | `SpatialHashGrid`、`SpringPhysics`。                                                                          |
+| [动画](/reference/animation/)                         | 独立的 `@vectojs/animation` 引擎：`TweenDriver`/`SpringDriver`、`MotionConfig`、缓动曲线。                    |
+| [样式](/reference/styles/)                            | 独立的 `@vectojs/styles` 层：CSS 命名的样式对象、`var()` token 主题、`setTheme` 切换、`css()` 合并。          |
 | [a11yRoot 与智能体约定](/reference/core-a11y/)        | 影子 DOM 投影、`A11yAttributes`、同步陷阱。                                                                   |
 
 ## 入口点与模块地图

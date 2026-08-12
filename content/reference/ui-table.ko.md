@@ -2,9 +2,6 @@
 title = "UI: Table"
 description = "컴팩트한 데이터 미리보기 및 Markdown 테이블 출력을 위한 캔버스 네이티브 그리드 테이블"
 weight = 31
-
-[extra]
-order = 31
 +++
 
 # `Table`
@@ -15,7 +12,7 @@ order = 31
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Table</span></div>
-  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Table 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=table&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Table 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>거대한 갤러리 내부에서 테이블 출력을 디버깅하는 대신 컬럼 크기 조정에 초점을 맞춘 데모를 사용하세요.</figcaption>
 </figure>
 

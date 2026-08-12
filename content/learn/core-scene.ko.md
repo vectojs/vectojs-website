@@ -2,9 +2,6 @@
 title = "Core Scene 아키텍처"
 description = "Virtual Math Tree, Scene 생명주기, Entity 시스템, 히트 테스팅, 렌더 파이프라인 심층 분석"
 weight = 8
-
-[extra]
-order = 8
 +++
 
 # Core Scene 아키텍처

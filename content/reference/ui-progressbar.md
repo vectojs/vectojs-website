@@ -2,9 +2,6 @@
 title = "UI: ProgressBar"
 description = "Canvas progress indicator with optional percentage label and progressbar semantics."
 weight = 30
-
-[extra]
-order = 30
 +++
 
 # `ProgressBar`

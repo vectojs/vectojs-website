@@ -2,9 +2,6 @@
 title = "Slider"
 description = "暴露 WAI-ARIA slider 约定并在按需场景中平滑重绘的 canvas 滑块组件。"
 weight = 13
-
-[extra]
-order = 13
 +++
 
 # `Slider`
@@ -15,7 +12,7 @@ order = 13
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Slider</span></div>
-  <iframe src="/sandbox/ui/slider.html?v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Slider live demo" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/slider.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Slider live demo" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>拖拽滑块，观察标签和进度条从同一个 change 事件更新。</figcaption>
 </figure>
 

@@ -2,9 +2,6 @@
 title = "UI: VirtualList"
 description = "僅掛載可見列加上溢掃描的虛擬化滾動列表。"
 weight = 33
-
-[extra]
-order = 33
 +++
 
 # `VirtualList`
@@ -15,7 +12,7 @@ order = 33
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · VirtualList</span></div>
-  <iframe src="/sandbox/ui/component.html?name=virtuallist&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="VirtualList live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=virtuallist&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="VirtualList live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>此示範有 120 個項目，但只有可見列加上溢掃描會被掛載。</figcaption>
 </figure>
 

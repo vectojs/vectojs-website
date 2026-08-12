@@ -2,9 +2,6 @@
 title = "Scene"
 description = "顶层 VectoJS 编排器：构造函数选项、渲染循环、renderMode/maxFPS 和空闲自动节流、生命周期方法，以及可插拔的 WebGL/WebGPU 后端注册表。"
 weight = 2
-
-[extra]
-order = 2
 +++
 
 # `Scene`
@@ -168,6 +165,35 @@ scene.findEntityAt(x, y): Entity | null      // topmost entity whose isPointInsi
 scene.getA11yElement(entityId: string): HTMLElement | undefined
 scene.getA11yTree(): A11yTreeNode[]          // nested snapshot of the projected shadow nodes (id/tag/role/label/value/...)
 ```
+
+## User Timing 埋点
+
+Scene 可以在渲染阶段周围发出 [`User Timing`](https://developer.mozilla.org/en-US/docs/Web/API/User_Timing_API) 标记/测量，因此分析器捕获能精确显示一帧的时间花在哪里。默认关闭；通过 `userTiming` 选项启用，或通过 `scene.setUserTiming(true)` 实时启用：
+
+```ts
+const scene = new Scene(canvas, { userTiming: true });
+// or
+scene.setUserTiming(true); // runtime toggle
+scene.userTiming; // read the current state
+```
+
+稳定的测量名称以 `VECTO_USER_TIMING` 导出：
+
+```ts
+VECTO_USER_TIMING.scene; // { transform, drawWalk, entityPaint, flush, a11ySync }
+VECTO_USER_TIMING.markdown; // { parse }
+// e.g. 'vecto:scene:transform', 'vecto:markdown:parse'
+```
+
+`@vectojs/core` 还导出引擎内部使用的底层辅助函数（自定义渲染器或已埋点的组件也可以使用它们来添加自己的阶段）：
+
+```ts
+beginVectoUserTiming(name: string): VectoUserTimingSpan | null
+endVectoUserTiming(span: VectoUserTimingSpan | null): void
+measureVectoUserTiming(name: string, durationMs: number): void
+```
+
+当宿主不实现标记/测量时，`beginVectoUserTiming` 返回 `null`（而 `measureVectoUserTiming` 为空操作），因此可选的性能分析永远不会成为运行时要求。跨度使用唯一命名的开始/结束标记，这些标记在 `endVectoUserTiming` 时释放。`measureVectoUserTiming` 发出一个锚定在当前时间、时长为从不相交调用累积而来的测量——这是无需对每个实体埋点即可报告每帧实体绘制总计的路径。
 
 ## 可插拔后端注册表（静态）
 

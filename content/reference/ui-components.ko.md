@@ -2,9 +2,6 @@
 title = "@vectojs/ui 컴포넌트 레퍼런스"
 description = "모든 @vectojs/ui 컴포넌트의 전체 레퍼런스: 레이아웃 컨테이너, 폼 컨트롤, 오버레이, 리치 콘텐츠."
 weight = 11
-
-[extra]
-order = 11
 +++
 
 # `@vectojs/ui` — 컴포넌트 레퍼런스
@@ -135,6 +132,8 @@ interface TextOptions {
   lineHeight?: number;            // 줄 간격 px, 기본값 20
   preserveLeadingSpaces?: boolean;// 기본값 false
   selectable?: boolean;           // 브라우저 네이티브 드래그 선택, 기본값 true
+  textAlign?: 'left' | 'justify'; // default 'left'
+  hyphenate?: (word: string) => string[]; // word → parts, for mid-word breaks with a visible '-'
 }
 ```
 
@@ -144,6 +143,9 @@ interface TextOptions {
 - `append(text): this` — 스트리밍/타자기 경로; `setText(this.text + text)`와 동일하지만 엔진의 문단 메모가 변경되지 않은 선행 문단을 재사용하므로 변경된 마지막 문단만 재측정됩니다.
 - `setMaxWidth(maxWidth): this` — **핫** 경로; 캐시된 측정 텍스트만 다시 줄바꿈(재분할 없음). 반응형 리플로우에 선호됩니다.
 - `setSelectable(selectable): this` — 프로젝션된 네이티브 선택 표면을 활성화 또는 비활성화합니다.
+- `setTextAlign(align: 'left' | 'justify'): this` — 제자리에서 재정렬합니다.
+
+`textAlign: 'justify'`(선택적 `hyphenate` 포함)는 병합된 `fillText()` 런에서 존중됩니다. 소스의 소프트 하이픈(U+00AD)은 하이퍼네이터 없이 분리됩니다.
 
 콘텐츠 프로젝션은 브라우저 찾기, 선택, 복사를 위해 시각적 줄바꿈과 줄 높이를 미러링합니다. 정적 Text는 대화형 히트 대상이 아닙니다; Canvas/VMT가 여전히 픽셀과 레이아웃을 소유합니다.
 
@@ -161,6 +163,8 @@ interface RichTextOptions {
   onLinkClick?: (href: string) => void;   // 링크 런이 활성화될 때 실행
   exclusions?: ExclusionRect[];           // 텍스트가 흘러가는 사각형 (제외 형태/플로트)
   selectable?: boolean;                   // 브라우저 네이티브 드래그 선택, 기본값 true
+  textAlign?: 'left' | 'justify';         // default 'left'
+  hyphenate?: (word: string) => string[]; // word → parts, for mid-word breaks
 }
 ```
 
@@ -170,6 +174,7 @@ interface RichTextOptions {
 - `appendSpans(spans): this` — **스트리밍** 경로; 리치 문단 메모가 변경되지 않은 선행 문단을 재사용하므로 토큰 스트림이 O(문서)가 아닌 O(변경된 문단)으로 재준비됩니다.
 - `setMaxWidth(maxWidth): this` — 리플로우.
 - `setExclusions(exclusions): this` — 플로트 영역을 설정하고 리플로우합니다.
+- `setTextAlign(align: 'left' | 'justify'): this` — 제자리에서 재정렬합니다.
 - `setSelectable(selectable): this` — 스팬을 재구축하지 않고 네이티브 선택을 전환합니다.
 
 **인라인 객체(Inline objects) (2.6.0+).** 스팬(span)은 `RichText`가 형태를 잡지 않는 것 — 수식, 아이콘, 임베디드 박스 — 을 위해 가로 공간을 예약할 수 있으므로, 줄바꿈을 하지 않고 문장 중간에 위치할 수 있습니다:
@@ -525,10 +530,14 @@ new Modal(title: string, props?: ModalProps)  // props는 느슨하게 타입됨
 ```ts
 new ScrollView(opts: ScrollViewOptions)
 
-interface ScrollViewOptions { width: number; height: number; }
+interface ScrollViewOptions {
+  width: number;
+  height: number;
+  scrollPhysics?: MotionConfig; // default 'spring' (stiffness 180, damping 12)
+}
 ```
 
-휠 + 포인터-드래그 스크롤과 스프링 물리(마찰 `0.85`, 스프링 `0.1`)가 있는 클리핑 뷰포트(`clipChildren = true`). 자식은 변환되는 비대화형 `content` Entity 내부에 있습니다; 뷰포트 박스는 고정됩니다.
+`scrollPhysics`에 의해 구성된 스프링 물리와 휠 + 포인터-드래그 스크롤이 있는 클리핑 뷰포트(`clipChildren = true`) — 기본 스프링은 의도적으로 과소 감쇠되어 있습니다(ζ ≈ 0.45, 약 20% 오버슈트); 문서 같은 콘텐츠는 일반적으로 내보낸 `DOCUMENT_SCROLL_PHYSICS` 프리셋(`{ stiffness: 180, damping: 27 }`, ζ ≈ 1.0, 오버슈트 없음)을 원합니다. 자식은 변환되는 비대화형 `content` Entity 내부에 있습니다; 뷰포트 박스는 고정됩니다.
 
 - `content: Entity` — 스크롤되는 컨테이너(public).
 - `add(child): this` / `remove(child): this` — `content`를 변경하고 `updateContentSize()`를 호출합니다.
@@ -633,6 +642,8 @@ interface TableOptions {
 }
 ```
 
+열 정렬은 텍스트 정렬 속성이 아니라 **셀 엔티티를 배치**하여 적용됩니다 — `setTextAlign`은 `'left' | 'justify'`만 허용합니다. 줄바꿈된 다중 줄 셀의 경우 각 줄이 아니라 블록 자체가 정렬됩니다.
+
 Canvas 네이티브 데이터 그리드: 문자열 셀은 Text 자식 엔티티가 되고, Entity 셀은 공개 `setMaxWidth()`를 통해 제한되며, `layout()`이 그리기 전용 `render()` 패스 전에 줄바꿈, 행 높이 및 위치를 해결합니다. 외부 셀 콘텐츠를 변경한 후 `layout()`을 호출하세요. 각 셀은 하나의 콘텐츠 프로젝션을 소유합니다. A11y: 보조 기술을 위해 `{ role: 'grid', label: 'N개의 열과 M개의 행이 있는 데이터 테이블.' }`을 프로젝션합니다. 또한 `Markdown` 내부의 GFM 테이블 렌더러입니다.
 
 ---
@@ -693,6 +704,9 @@ interface TabsOptions {
   onClose?: (value: string) => void;
 }
 
+// rename a tab's label at runtime:
+tabs.setLabel(tabId: string, label: string): void
+
 interface TabItem {
   id: string;
   label: string;
@@ -738,15 +752,14 @@ interface ProgressBarOptions {
 new Overlay(opts: OverlayOptions)
 
 interface OverlayOptions {
-  target: Entity;
-  content: Entity;
-  placement?: Placement; // 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 등
-  offset?: number;       // px 거리, 기본값 8
-  autoFlip?: boolean;    // 뷰포트 경계를 벗어나면 방향 자동 조정
+  width: number;
+  height: number;
+  placement?: Placement; // 'top' | 'bottom' | 'left' | 'right' | 'top-start' | etc., default 'bottom'
+  offset?: number;       // distance in px, default 8
 }
 ```
 
-플로팅 포지셔닝 레이어 엔진. 네이티브로 접근성 노드를 프로젝션하지 않습니다.
+가장자리 충돌 감지와 배치 뒤집기가 있는 플로팅 포지셔닝 레이어 엔진. `showAt(target, placement?, offset?)`로 대상 기준으로 배치하거나 `showAtPoint(x, y)`로 절대 지점에 배치합니다. `hide()`로 숨깁니다. 네이티브로 접근성 노드를 프로젝션하지 않습니다.
 
 ---
 
@@ -760,6 +773,9 @@ interface TooltipOptions {
   content: string;
   placement?: Placement;
   delay?: number; // 표시 전 ms, 기본값 300
+  font?: string;
+  color?: string;
+  bg?: string;
 }
 ```
 
@@ -777,7 +793,8 @@ interface PopoverOptions {
   width: number;
   height: number;
   placement?: Placement;
-  offset?: number;
+  bg?: string;
+  borderColor?: string;
 }
 ```
 
@@ -793,6 +810,14 @@ new ContextMenu(opts: ContextMenuOptions)
 interface ContextMenuOptions {
   items: ContextMenuItem[];
   width?: number;
+  font?: string;            // default '14px sans-serif'
+  color?: string;           // row text, default '#e2e8f0'
+  disabledColor?: string;   // disabled rows, default 'rgba(226, 232, 240, 0.4)'
+  bg?: string;              // menu background, default 'rgba(15, 23, 42, 0.95)'
+  hoverBg?: string;         // hovered row, default 'rgba(0, 240, 255, 0.25)'
+  borderColor?: string;     // menu border, default 'rgba(255, 255, 255, 0.15)'
+  itemHeight?: number;      // row height, default 32
+  separatorHeight?: number; // divider height, default 1
 }
 
 type ContextMenuItem =
@@ -810,17 +835,21 @@ type ContextMenuItem =
 ### `VirtualList`
 
 ```ts
-new VirtualList(opts: VirtualListOptions)
+new VirtualList<T>(opts: VirtualListOptions<T>)
 
-interface VirtualListOptions {
+interface VirtualListOptions<T> {
   width: number;
   height: number;
-  itemHeight: number | ((idx: number) => number);
-  itemRenderer: (idx: number) => Entity;
+  items: T[];                          // full data array
+  renderItem: (item: T, index: number) => Entity;
+  estimatedRowHeight: number;          // before a row is measured; exact value for fixed heights
+  overscan?: number;                   // extra rows above & below the window, default 3
+  keyForItem?: (item: T, index: number) => string; // stable identity (e.g. message id)
+  stickToBottomThreshold?: number;     // px from bottom that counts as "following", default 48
 }
 ```
 
-고성능 렌더링에 최적화된 스크롤 목록 컨테이너. 현재 뷰포트 경계 내에 있는 항목만 인스턴스화/렌더링합니다.
+고성능 렌더링에 최적화된 스크롤 목록 컨테이너. 현재 뷰포트 경계 내에 있는 항목만 인스턴스화/렌더링합니다. `keyForItem`는 측정된 높이가 `setItems()` 후에도 유지되게 하고, 위 행들이 크기 조정되는 동안 스크롤 앵커를 유지하며, 캐시를 버리지 않고 추가/앞에 삽입할 수 있게 합니다 — 없으면 `setItems()`가 모든 측정을 지우고 맨 위로 이동합니다. `stickToBottomThreshold`(`keyForItem`이 있을 때만)는 행이 크기 조정된 후 추적하는 뷰포트를 맨 아래에 다시 고정합니다 — 채팅 기록에 이상적입니다. 메서드: `scrollToIndex(index)`, `scrollToTop()`, `scrollToBottom()`, `jumpToBottom()`(즉시). 내보낸 `RowHeights` 클래스가 측정 캐시를 뒷받침합니다.
 
 ---
 
@@ -836,6 +865,8 @@ interface TreeViewOptions {
 interface TreeNode {
   id: string;
   label: string;
+  icon?: string;                    // optional icon glyph (emoji, nerd-font, …)
+  iconColor?: string;               // falls back to the tree's text color (material-style file icons)
   children?: TreeNode[] | (() => Promise<TreeNode[]>);
 }
 ```

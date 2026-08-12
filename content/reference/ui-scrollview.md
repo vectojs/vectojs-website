@@ -2,9 +2,6 @@
 title = "UI: ScrollView"
 description = "Clipped scroll container with wheel and pointer-drag scrolling."
 weight = 32
-
-[extra]
-order = 32
 +++
 
 # `ScrollView`

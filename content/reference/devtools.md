@@ -2,9 +2,6 @@
 title = "@vectojs/devtools"
 description = "The in-page Virtual Math Tree inspector and its headless model layer — entity picking, tree view, audits, snapshots, GPU and accelerator readouts, and a JSON-RPC bridge."
 weight = 48
-
-[extra]
-order = 48
 +++
 
 # `@vectojs/devtools`

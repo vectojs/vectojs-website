@@ -2,9 +2,6 @@
 title = "Text & Bidi"
 description = "The standalone @vectojs/text package (also the @vectojs/core/text subpath): typography metrics, MSDF font parsing, Arabic shaping and the bidi resolver, plus the core-resident MSDFTextEntity/GridTextEntity GPU text renderers."
 weight = 7
-
-[extra]
-order = 7
 +++
 
 # Text & Bidi — `@vectojs/text`
@@ -118,6 +115,7 @@ getFontMetrics(family: string): FontMetricsSource | undefined
 hasFontMetrics(): boolean
 fontMetricsVersion(): number
 clearFontMetrics(): void
+createMeasuringContext(): CanvasRenderingContext2D | null   // see below
 ```
 
 Text measurement normally goes through a Canvas 2D context, which measures the
@@ -127,6 +125,17 @@ advance falls back to a flat `0.5em`. Measured against Chrome at 32px
 `sans-serif` that is wrong by **+125%** on narrow text and **−47%** on wide,
 and `iiiiiiiiii` comes out exactly as wide as `WWWWWWWWWW`. Wrapping inherits
 the error, so line breaks land in the wrong places too.
+
+`createMeasuringContext()` is the lightweight escape hatch for that case: it
+creates a 1×1 offscreen `<canvas>` (appended to the document body, invisible,
+`aria-hidden`) and returns its 2D context for measuring a font that has no
+registered metrics source — or `null` in a DOM-free environment. It is the
+context the engine itself would use, so it measures the font the renderer will
+actually draw, which the registry-based paths above do not. The shared
+single measuring context (`getSharedMeasuringContext` / `isSharedMeasuringContextAttached`
+/ `resetSharedMeasuringContext`, also from `@vectojs/text`) is a separate
+memoized context used across every `@vectojs/*` package — `ctx.font` is assigned
+before each read, so sharing never leaks a stale measurement.
 
 Register metrics once at startup to fix it. Any `msdf-atlas-gen` JSON works,
 and only its `glyphs[].advance`, `kerning`, and `metrics` are read — the atlas
@@ -174,6 +183,49 @@ To check whether any text was measured with fabricated advances,
 counts them, and a one-time console warning names the fix. It is distinct from
 `LayoutResult.fallbackToCanvas`, which only reports an **atlas** miss and is
 true on essentially every paragraph even in a browser.
+
+## `@vectojs/tex` — Zero-DOM TeX typesetting
+
+`@vectojs/tex` is the standalone package behind [`Markdown`'s](/reference/ui-markdown/)
+`$…$` / ` ```math ` blocks. It vendors the KaTeX parse/layout kernel and
+re-emits the result as a **self-contained SVG string** that carries its own
+glyph outlines and references nothing external — the only form that survives
+being rasterized through `data URI → Image → createImageBitmap`. It is loaded
+lazily (only once a formula actually appears) and is a separate, public,
+versioned package; `@vectojs/core` does **not** re-export it.
+
+```ts
+import { layout, emitSVG } from '@vectojs/tex';
+
+const { svg, width, height, depth } = emitSVG(layout('x^2 + y^2 = z^2'));
+```
+
+The two emit-layer helpers that let custom callers reproduce KaTeX's
+stylesheet-derived font selection without a stylesheet (a canvas has none):
+
+```ts
+resolveFont(classes: readonly string[]): ResolvedFont
+// ResolvedFont = { font: FontName; substituted: boolean }
+
+sizingRatio(classes: readonly string[]): number
+```
+
+`resolveFont` maps a KaTeX span's CSS classes to a concrete shipped font file
+(`FontName`, e.g. `'Main-BoldItalic'`, `'Size2-Regular'`). Font selection is
+**inherited, not local** — a `SymbolNode` nested under `Span[delimsizing size1]`
+carries an empty class list, so pass the concatenation of every ancestor's
+classes followed by the symbol's own, outermost first (later entries win). A
+requested weight/style the family does not ship degrades to its Regular face and
+sets `substituted: true` instead of silently drawing wrong.
+
+`sizingRatio` turns the `katex-sizing reset-size<N> size<M>` classes into the
+script/scriptscript scale multiplier (`toMultiplier / fromMultiplier`); returns
+`1` when the classes carry no sizing, so callers can multiply unconditionally.
+These are the mechanism behind `@vectojs/tex` reporting sizes in `ex`-relative
+metrics.
+
+`FontName`, `ResolvedFont`, `layout`, `emitSVG`, and `LayoutOptions` are also
+exported from `@vectojs/tex` (see its `src/index.ts`).
 
 ## Related
 

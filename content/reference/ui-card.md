@@ -2,9 +2,6 @@
 title = "UI: Card"
 description = "Rounded canvas panel component with optional role=group semantics."
 weight = 20
-
-[extra]
-order = 20
 +++
 
 # `Card`

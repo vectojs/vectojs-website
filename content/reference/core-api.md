@@ -2,9 +2,6 @@
 title = "@vectojs/core API Reference"
 description = "Overview and entry-point map for the zero-DOM rendering engine behind Vecto — Scene, Entity, renderers, particles, and a11y in core, plus the standalone @vectojs/text, @vectojs/layout, @vectojs/math, and @vectojs/animation engines that core re-exports."
 weight = 1
-
-[extra]
-order = 1
 +++
 
 # `@vectojs/core` API Reference

@@ -2,9 +2,6 @@
 title = "Devtools: inspecting"
 description = "Read a VectoJS scene as data — the tree model, entity picking, entity/a11y/text state, highlight geometry, hit-test explanation, and the event routing trace."
 weight = 49
-
-[extra]
-order = 49
 +++
 
 # Devtools: inspecting

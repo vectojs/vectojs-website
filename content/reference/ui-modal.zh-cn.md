@@ -2,9 +2,6 @@
 title = "UI：Modal"
 description = "带卡片、遮罩层和弹簧进入/退出运动的阻塞覆盖层组件。"
 weight = 36
-
-[extra]
-order = 36
 +++
 
 # `Modal`
@@ -15,7 +12,7 @@ order = 36
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Modal</span></div>
-  <iframe src="/sandbox/ui/component.html?name=modal&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Modal live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=modal&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Modal live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>打开模态框，然后用 canvas 渲染的关闭按钮关闭它。</figcaption>
 </figure>
 

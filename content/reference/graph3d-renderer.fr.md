@@ -2,9 +2,6 @@
 title = "Graph3D & picking"
 description = "Le renderer Three.js instancié qui dessine n'importe quel graphe en deux appels de dessin, plus le modèle de raycasting pour le picking de nœuds au survol/au clic."
 weight = 46
-
-[extra]
-order = 46
 +++
 
 # `Graph3D` & picking

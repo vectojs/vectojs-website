@@ -2,9 +2,6 @@
 title = "Graph3D & picking"
 description = "The instanced Three.js renderer that draws any graph in two draw calls, plus the raycasting pattern for hover/click node picking."
 weight = 46
-
-[extra]
-order = 46
 +++
 
 # `Graph3D` & picking

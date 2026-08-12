@@ -2,9 +2,6 @@
 title = "UI 컴포넌트"
 description = "@vectojs/ui 컴포넌트 라이브러리 개요: 폼, 레이아웃 컨테이너, 오버레이, 리치 콘텐츠"
 weight = 16
-
-[extra]
-order = 16
 +++
 
 # UI 컴포넌트
@@ -170,10 +167,10 @@ const radio = new RadioGroup({
     { value: 'dark', label: 'Dark Mode', disabled: false },
     { value: 'system', label: 'System Default' },
   ],
-  value: 'dark', // 초기 선택 값
-  gap: 28, // 옵션 간 세로 간격, 기본값 28
-  color: '#e2e8f0', // 라벨 텍스트 색상
-  accent: '#00f0ff', // 선택된 원의 채움색
+  value: 'dark', // initially selected value
+  gap: 12, // vertical spacing between options, default 12
+  color: '#e2e8f0', // label text color
+  accent: '#2563eb', // fill color for the selected circle
   onChange: (val) => setTheme(val),
 });
 scene.add(radio.setPosition(40, 40));
@@ -185,11 +182,11 @@ scene.add(radio.setPosition(40, 40));
 | ---------- | --------------------- | ----------- | ---------------------------------- |
 | `options`  | `RadioOption[]`       | —           | `{ value, label, disabled? }` 배열 |
 | `value`    | `string`              | `''`        | 초기에 선택된 값                   |
-| `gap`      | `number`              | `28`        | 행 간 세로 간격                    |
-| `accent`   | `string`              | `'#00f0ff'` | 선택된 원의 채움색                 |
+| `gap`      | `number`              | `12`        | 행 간 세로 간격                    |
+| `accent`   | `string`              | `'#2563eb'` | 선택된 원의 채움색                 |
 | `onChange` | `(v: string) => void` | —           | 선택 변경 시 콜백                  |
 
-`radio.setValue(val)`를 언제든지 호출하여 프로그래밍 방식으로 선택을 변경할 수 있습니다. `role="radiogroup"`과 각 옵션의 `role="radio"` + `aria-checked`를 프로젝션합니다.
+`radio.selectByValue(val, focusIt?)`를 언제든지 호출하여 프로그래밍 방식으로 선택을 변경할 수 있습니다. `role="radiogroup"`과 각 옵션의 `role="radio"` + `aria-checked`를 프로젝션합니다.
 
 ### `Tabs`
 
@@ -208,15 +205,15 @@ const tabs = new Tabs({
     { id: 'settings', label: 'Settings', content: settingsPane },
     { id: 'preview', label: 'Preview', content: previewPane },
   ],
-  activeTabId: 'settings', // 기본값: 첫 번째 탭
-  tabHeight: 36, // 탭 막대 높이, 기본값 36
-  selectedColor: '#00f0ff', // 활성 탭 밑줄 / 텍스트 색상
+  value: 'settings', // default: first tab
+  tabHeight: 40, // height of the tab bar, default 40
+  selectedColor: '#00f0ff', // active tab underline / text color
   onChange: (tabId) => console.log('Active tab:', tabId),
 });
 scene.add(tabs.setPosition(20, 20));
 
-// 프로그래밍 방식으로 탭 전환:
-tabs.setActiveTab('preview');
+// Rename a tab label programmatically:
+tabs.setLabel('settings', 'Configuration');
 ```
 
 주요 옵션:
@@ -224,8 +221,8 @@ tabs.setActiveTab('preview');
 | 옵션            | 타입                   | 기본값      | 설명                             |
 | --------------- | ---------------------- | ----------- | -------------------------------- |
 | `tabs`          | `TabItem[]`            | —           | `{ id, label, content: Entity }` |
-| `activeTabId`   | `string`               | 첫 번째 탭  | 초기에 보이는 탭                 |
-| `tabHeight`     | `number`               | `36`        | 탭 막대 행의 픽셀 높이           |
+| `value`         | `string`               | 첫 번째 탭  | 초기에 보이는 탭                 |
+| `tabHeight`     | `number`               | `40`        | 탭 막대 행의 픽셀 높이           |
 | `selectedColor` | `string`               | `'#00f0ff'` | 활성 탭 강조 색상                |
 | `onChange`      | `(id: string) => void` | —           | 탭 전환 시 실행                  |
 
@@ -303,11 +300,9 @@ const rich = new RichText(
 ```typescript
 import { Overlay } from '@vectojs/ui';
 
-const overlay = new Overlay({
-  target: button,
-  content: popoverCard,
-  placement: 'bottom-start',
-});
+const overlay = new Overlay({ width: 240, height: 120 });
+overlay.showAt(button, 'bottom-start'); // or overlay.showAtPoint(x, y)
+overlay.add(popoverCard);
 ```
 
 ### `Tooltip`
@@ -365,8 +360,10 @@ import { VirtualList } from '@vectojs/ui';
 const list = new VirtualList({
   width: 300,
   height: 500,
-  itemHeight: (idx) => measuredHeights[idx], // 또는 고정 높이의 경우 number
-  itemRenderer: (idx) => createListItemEntity(idx),
+  items: myData,
+  renderItem: (item, index) => createListItemEntity(item, index),
+  estimatedRowHeight: 24, // exact value for fixed heights; measured per row otherwise
+  keyForItem: (item) => item.id, // stable identity: keeps heights + scroll anchor across setItems()
 });
 ```
 

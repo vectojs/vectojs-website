@@ -2,9 +2,6 @@
 title = "@vectojs/ui 组件参考"
 description = "所有 @vectojs/ui 组件的完整参考：布局容器、表单控件、覆盖层和富内容。"
 weight = 11
-
-[extra]
-order = 11
 +++
 
 # `@vectojs/ui` — 组件参考
@@ -133,6 +130,8 @@ interface TextOptions {
   lineHeight?: number;            // 行高（px），默认 20
   preserveLeadingSpaces?: boolean;// 默认 false
   selectable?: boolean;           // 浏览器原生拖选，默认 true
+  textAlign?: 'left' | 'justify'; // default 'left'
+  hyphenate?: (word: string) => string[]; // word → parts, for mid-word breaks with a visible '-'
 }
 ```
 
@@ -142,6 +141,9 @@ interface TextOptions {
 - `append(text): this` — 流式/打字机路径；等价于 `setText(this.text + text)`，但引擎的段落记忆化会复用未变更的前导段落，因此只有最后一个被更改的段落会被重新测量。
 - `setMaxWidth(maxWidth): this` — **热**路径；仅对缓存的测量文本重新换行（不重新分段）。响应式回流时优先使用此方法。
 - `setSelectable(selectable): this` — 启用或禁用投影的原生选择表面。
+- `setTextAlign(align: 'left' | 'justify'): this` — 原地重新对齐。
+
+`textAlign: 'justify'`（可选 `hyphenate`）会被合并后的 `fillText()` 运行所遵循；源文本中的软连字符（U+00AD）无需连字符处理器即可断开。
 
 内容投影镜像视觉换行和行高，以支持浏览器查找、选择和复制。静态 `Text` 不是交互式命中目标；Canvas/VMT 仍然拥有其像素和布局。
 
@@ -159,6 +161,8 @@ interface RichTextOptions {
   onLinkClick?: (href: string) => void;   // 链接 run 被激活时触发
   exclusions?: ExclusionRect[];           // 文字绕排的区域（排除形状 / 浮动）
   selectable?: boolean;                   // 浏览器原生拖选，默认 true
+  textAlign?: 'left' | 'justify';         // default 'left'
+  hyphenate?: (word: string) => string[]; // word → parts, for mid-word breaks
 }
 ```
 
@@ -168,6 +172,7 @@ interface RichTextOptions {
 - `appendSpans(spans): this` — **流式**路径；富段落记忆化会复用未变更的前导段落，因此 token 流以 O(已更改段落) 而不是 O(文档) 重新准备。
 - `setMaxWidth(maxWidth): this` — 重新回流。
 - `setExclusions(exclusions): this` — 设置浮动区域并重新回流。
+- `setTextAlign(align: 'left' | 'justify'): this` — 原地重新对齐。
 - `setSelectable(selectable): this` — 切换原生选择，无需重建 spans。
 
 **内联对象 (2.6.0+)。** span 可以为 `RichText` 无法塑造的内容（公式、图标、嵌入框）保留水平空间，以便它位于句子中间，而不是作为块级元素打断行：
@@ -523,10 +528,14 @@ new Modal(title: string, props?: ModalProps)  // props 是松散类型 (any)
 ```ts
 new ScrollView(opts: ScrollViewOptions)
 
-interface ScrollViewOptions { width: number; height: number; }
+interface ScrollViewOptions {
+  width: number;
+  height: number;
+  scrollPhysics?: MotionConfig; // default 'spring' (stiffness 180, damping 12)
+}
 ```
 
-一个裁切视口（`clipChildren = true`），支持滚轮 + 指针拖动滚动和弹簧物理（摩擦力 `0.85`，弹簧 `0.1`）。子节点位于一个不可交互的 `content` Entity 内部，该 Entity 会被平移；视口框保持固定。
+一个裁切视口（`clipChildren = true`），支持滚轮 + 指针拖动滚动，并由 `scrollPhysics` 配置弹簧物理——默认弹簧刻意采用欠阻尼（ζ ≈ 0.45，约 20% 过冲）；类似文档的内容通常希望使用导出的 `DOCUMENT_SCROLL_PHYSICS` 预设（`{ stiffness: 180, damping: 27 }`，ζ ≈ 1.0，无过冲）。子节点位于一个不可交互的 `content` Entity 内部，该 Entity 会被平移；视口框保持固定。
 
 - `content: Entity` — 滚动的容器（公共）。
 - `add(child): this` / `remove(child): this` — 修改 `content` 并调用 `updateContentSize()`。
@@ -628,6 +637,8 @@ interface TableOptions {
 }
 ```
 
+列对齐是通过**定位单元格实体**来实现的，而非通过文本对齐属性——`setTextAlign` 只接受 `'left' | 'justify'`。对于换行的多行单元格，这会对齐整块内容，而不是块内的每一行。
+
 Canvas 原生数据表格：字符串单元格成为 `Text` 子实体，`Entity` 单元格通过公共 `setMaxWidth()` 进行约束，`layout()` 在仅绘制的 `render()` 传递之前解析换行、行高和位置。在更改外部单元格内容后调用 `layout()`。每个单元格拥有一个内容投影。A11y：为辅助技术投影 `{ role: 'grid', label: '包含 N 列 M 行的数据表。' }`。同时也是 `Markdown` 内部 GFM 表格的渲染器。
 
 ---
@@ -688,6 +699,9 @@ interface TabsOptions {
   onClose?: (value: string) => void;
 }
 
+// rename a tab's label at runtime:
+tabs.setLabel(tabId: string, label: string): void
+
 interface TabItem {
   id: string;
   label: string;
@@ -733,15 +747,14 @@ interface ProgressBarOptions {
 new Overlay(opts: OverlayOptions)
 
 interface OverlayOptions {
-  target: Entity;
-  content: Entity;
-  placement?: Placement; // 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 等
-  offset?: number;       // 距离（px），默认 8
-  autoFlip?: boolean;    // 如果超出视口边界则自动调整方向
+  width: number;
+  height: number;
+  placement?: Placement; // 'top' | 'bottom' | 'left' | 'right' | 'top-start' | etc., default 'bottom'
+  offset?: number;       // distance in px, default 8
 }
 ```
 
-浮动定位层引擎。本身不投影可访问性节点。
+浮动定位层引擎，具备边缘碰撞检测和位置翻转。使用 `showAt(target, placement?, offset?)` 相对于目标定位，或使用 `showAtPoint(x, y)` 定位到绝对点；使用 `hide()` 隐藏。本身不投影可访问性节点。
 
 ---
 
@@ -755,6 +768,9 @@ interface TooltipOptions {
   content: string;
   placement?: Placement;
   delay?: number; // 显示前等待的毫秒数，默认 300
+  font?: string;
+  color?: string;
+  bg?: string;
 }
 ```
 
@@ -772,7 +788,8 @@ interface PopoverOptions {
   width: number;
   height: number;
   placement?: Placement;
-  offset?: number;
+  bg?: string;
+  borderColor?: string;
 }
 ```
 
@@ -788,6 +805,14 @@ new ContextMenu(opts: ContextMenuOptions)
 interface ContextMenuOptions {
   items: ContextMenuItem[];
   width?: number;
+  font?: string;            // default '14px sans-serif'
+  color?: string;           // row text, default '#e2e8f0'
+  disabledColor?: string;   // disabled rows, default 'rgba(226, 232, 240, 0.4)'
+  bg?: string;              // menu background, default 'rgba(15, 23, 42, 0.95)'
+  hoverBg?: string;         // hovered row, default 'rgba(0, 240, 255, 0.25)'
+  borderColor?: string;     // menu border, default 'rgba(255, 255, 255, 0.15)'
+  itemHeight?: number;      // row height, default 32
+  separatorHeight?: number; // divider height, default 1
 }
 
 type ContextMenuItem =
@@ -805,17 +830,21 @@ type ContextMenuItem =
 ### `VirtualList`
 
 ```ts
-new VirtualList(opts: VirtualListOptions)
+new VirtualList<T>(opts: VirtualListOptions<T>)
 
-interface VirtualListOptions {
+interface VirtualListOptions<T> {
   width: number;
   height: number;
-  itemHeight: number | ((idx: number) => number);
-  itemRenderer: (idx: number) => Entity;
+  items: T[];                          // full data array
+  renderItem: (item: T, index: number) => Entity;
+  estimatedRowHeight: number;          // before a row is measured; exact value for fixed heights
+  overscan?: number;                   // extra rows above & below the window, default 3
+  keyForItem?: (item: T, index: number) => string; // stable identity (e.g. message id)
+  stickToBottomThreshold?: number;     // px from bottom that counts as "following", default 48
 }
 ```
 
-为高性能渲染优化的滚动列表容器。仅实例化/渲染当前在视口边界内的项目。
+为高性能渲染优化的滚动列表容器。仅实例化/渲染当前在视口边界内的项目。`keyForItem` 使测量出的高度在 `setItems()` 后仍然有效，在上方行调整大小时保持滚动锚点，并允许追加/前置而不丢弃缓存——没有它，`setItems()` 会清除所有测量并跳回顶部。`stickToBottomThreshold`（仅与 `keyForItem` 一起使用）会在行调整大小后将跟随式视口重新固定到底部——非常适合聊天记录。方法：`scrollToIndex(index)`、`scrollToTop()`、`scrollToBottom()`、`jumpToBottom()`（即时）。导出的 `RowHeights` 类为测量缓存提供支持。
 
 ---
 
@@ -831,6 +860,8 @@ interface TreeViewOptions {
 interface TreeNode {
   id: string;
   label: string;
+  icon?: string;                    // optional icon glyph (emoji, nerd-font, …)
+  iconColor?: string;               // falls back to the tree's text color (material-style file icons)
   children?: TreeNode[] | (() => Promise<TreeNode[]>);
 }
 ```

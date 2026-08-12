@@ -2,9 +2,6 @@
 title = "Devtools：ブリッジとプラグイン"
 description = "JSON-RPC ブリッジ経由で別のドキュメントから VectoJS シーンを駆動し、独自のタブ、監査、コマンドでインスペクタを拡張します。"
 weight = 52
-
-[extra]
-order = 52
 +++
 
 # Devtools：ブリッジとプラグイン

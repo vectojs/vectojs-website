@@ -2,9 +2,6 @@
 title = "UI: Dropdown"
 description = "具有覆蓋層列表框和鍵盤導覽的下拉選單控制項。"
 weight = 27
-
-[extra]
-order = 27
 +++
 
 # `Dropdown`
@@ -15,7 +12,7 @@ order = 27
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Dropdown</span></div>
-  <iframe src="/sandbox/ui/component.html?name=dropdown&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Dropdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=dropdown&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Dropdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>使用指標或鍵盤開啟；選單會透過場景覆蓋層路徑掛載。</figcaption>
 </figure>
 

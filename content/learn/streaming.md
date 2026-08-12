@@ -2,9 +2,6 @@
 title = "Streaming & Real-Time Text"
 description = "Building chat UIs, log viewers, and live dashboards: per-frame chunk coalescing, the append APIs, idle-throttle interplay, and long-transcript strategy."
 weight = 18
-
-[extra]
-order = 18
 +++
 
 # Streaming & Real-Time Text

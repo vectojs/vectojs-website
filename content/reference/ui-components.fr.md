@@ -2,9 +2,6 @@
 title = "Référence des composants @vectojs/ui"
 description = "Référence complète de tous les composants @vectojs/ui : conteneurs de mise en page, contrôles de formulaire, superpositions et contenu enrichi."
 weight = 11
-
-[extra]
-order = 11
 +++
 
 # `@vectojs/ui` — Référence des composants
@@ -133,6 +130,8 @@ interface TextOptions {
   lineHeight?: number;            // avance de ligne en px, défaut 20
   preserveLeadingSpaces?: boolean;// défaut false
   selectable?: boolean;           // sélection native par glissement du navigateur, défaut true
+  textAlign?: 'left' | 'justify'; // default 'left'
+  hyphenate?: (word: string) => string[]; // word → parts, for mid-word breaks with a visible '-'
 }
 ```
 
@@ -142,6 +141,9 @@ Texte multi-lignes dessiné avec `fillText` natif. Le retour à la ligne/la mesu
 - `append(text): this` — chemin streaming/machine à écrire ; équivaut à `setText(this.text + text)` mais le mémo de paragraphe du moteur réutilise les paragraphes de tête non modifiés, donc seul le dernier paragraphe changé est re-mesuré.
 - `setMaxWidth(maxWidth): this` — chemin **hot** ; ré-encapsule seulement le texte mesuré en cache (pas de re-segmentation). Préférez ceci pour le réajustement responsive.
 - `setSelectable(selectable): this` — active ou désactive la surface de sélection native projetée.
+- `setTextAlign(align: 'left' | 'justify'): this` — re-justifie sur place.
+
+`textAlign: 'justify'` (avec `hyphenate` optionnel) est respecté par les passages `fillText()` fusionnés ; les traits d'union souples (U+00AD) de la source se coupent sans césureur.
 
 La projection de contenu reflète les sauts de ligne visuels et la hauteur de ligne pour la recherche, la sélection et la copie du navigateur. Le texte statique n'est pas une cible de hit interactive ; Canvas/VMT possède toujours ses pixels et sa mise en page.
 
@@ -159,6 +161,8 @@ interface RichTextOptions {
   onLinkClick?: (href: string) => void;   // déclenché quand un segment de lien est activé
   exclusions?: ExclusionRect[];           // rectangles autour desquels le texte s'écoule (formes d'exclusion / flotteurs)
   selectable?: boolean;                   // sélection native par glissement du navigateur, défaut true
+  textAlign?: 'left' | 'justify';         // default 'left'
+  hyphenate?: (word: string) => string[]; // word → parts, for mid-word breaks
 }
 ```
 
@@ -168,6 +172,7 @@ Texte en ligne multi-style : segments gras / italique / colorés / de tailles di
 - `appendSpans(spans): this` — chemin **streaming** ; le mémo de paragraphe riche réutilise les paragraphes de tête non modifiés, donc un flux de tokens se re-prépare en O(paragraphe changé), pas en O(document).
 - `setMaxWidth(maxWidth): this` — réorganisation.
 - `setExclusions(exclusions): this` — définit les régions flottantes et réorganise.
+- `setTextAlign(align: 'left' | 'justify'): this` — re-justifie sur place.
 - `setSelectable(selectable): this` — bascule la sélection native sans reconstruire les segments.
 
 **Objets en ligne (2.6.0+).** Un segment peut réserver un espace horizontal pour quelque chose que `RichText` ne met pas en forme — une formule, une icône, une boîte intégrée — de sorte qu'il se trouve au milieu d'une phrase au lieu de créer un saut de ligne :
@@ -523,10 +528,14 @@ Un fond d'écran assombrissant plein écran avec une `Card` centrée contenant l
 ```ts
 new ScrollView(opts: ScrollViewOptions)
 
-interface ScrollViewOptions { width: number; height: number; }
+interface ScrollViewOptions {
+  width: number;
+  height: number;
+  scrollPhysics?: MotionConfig; // default 'spring' (stiffness 180, damping 12)
+}
 ```
 
-Un viewport de clipping (`clipChildren = true`) avec défilement par molette + glissement du pointeur et physique à ressort (friction `0.85`, ressort `0.1`). Les enfants vivent à l'intérieur d'une `content` Entity non interactive qui est translatée ; la boîte du viewport reste fixe.
+Un viewport de clipping (`clipChildren = true`) avec défilement par molette + glissement du pointeur et physique à ressort configurée par `scrollPhysics` — le ressort par défaut est délibérément sous-amorti (ζ ≈ 0,45, ~20 % de dépassement) ; le contenu de type document veut généralement le préréglage exporté `DOCUMENT_SCROLL_PHYSICS` (`{ stiffness: 180, damping: 27 }`, ζ ≈ 1,0, sans dépassement). Les enfants vivent à l'intérieur d'une `content` Entity non interactive qui est translatée ; la boîte du viewport reste fixe.
 
 - `content: Entity` — le conteneur défilant (public).
 - `add(child): this` / `remove(child): this` — mute `content` et appelle `updateContentSize()`.
@@ -628,6 +637,8 @@ interface TableOptions {
 }
 ```
 
+L'alignement des colonnes est appliqué en **positionnant l'entité de la cellule**, et non par une propriété d'alignement de texte — `setTextAlign` n'accepte que `'left' | 'justify'`. Pour une cellule multi-lignes encapsulée, cela aligne le bloc plutôt que chaque ligne à l'intérieur.
+
 Grille de données native Canvas : les cellules de chaîne deviennent des entités enfant `Text`, les cellules Entity sont contraintes via `setMaxWidth()` publique, et `layout()` résoud le retour à la ligne, les hauteurs de ligne et les positions avant la passe `render()` uniquement dédiée au dessin. Appelez `layout()` après avoir modifié le contenu externe d'une cellule. Chaque cellule possède une projection de contenu. A11y : projette `{ role: 'grid', label: 'Tableau de données avec N colonnes et M lignes.' }` pour les technologies d'assistance. Également le renderer pour les tableaux GFM dans `Markdown`.
 
 ---
@@ -688,6 +699,9 @@ interface TabsOptions {
   onClose?: (value: string) => void;
 }
 
+// rename a tab's label at runtime:
+tabs.setLabel(tabId: string, label: string): void
+
 interface TabItem {
   id: string;
   label: string;
@@ -733,15 +747,14 @@ Barre de progression affichant les pistes de progression. Options de texte centr
 new Overlay(opts: OverlayOptions)
 
 interface OverlayOptions {
-  target: Entity;
-  content: Entity;
-  placement?: Placement; // 'top' | 'bottom' | 'left' | 'right' | 'top-start' | etc.
-  offset?: number;       // distance en px, défaut 8
-  autoFlip?: boolean;    // ajuste automatiquement la direction si hors des limites du viewport
+  width: number;
+  height: number;
+  placement?: Placement; // 'top' | 'bottom' | 'left' | 'right' | 'top-start' | etc., default 'bottom'
+  offset?: number;       // distance in px, default 8
 }
 ```
 
-Moteur de couche de positionnement flottant. Ne projette pas de nœud d'accessibilité nativement.
+Moteur de couche de positionnement flottant avec détection de collision de bords et bascule de placement. Positionnez-le relatif à une cible avec `showAt(target, placement?, offset?)` ou à un point absolu avec `showAtPoint(x, y)` ; masquez-le avec `hide()`. Ne projette pas de nœud d'accessibilité nativement.
 
 ---
 
@@ -755,6 +768,9 @@ interface TooltipOptions {
   content: string;
   placement?: Placement;
   delay?: number; // ms avant l'affichage, défaut 300
+  font?: string;
+  color?: string;
+  bg?: string;
 }
 ```
 
@@ -772,7 +788,8 @@ interface PopoverOptions {
   width: number;
   height: number;
   placement?: Placement;
-  offset?: number;
+  bg?: string;
+  borderColor?: string;
 }
 ```
 
@@ -788,6 +805,14 @@ new ContextMenu(opts: ContextMenuOptions)
 interface ContextMenuOptions {
   items: ContextMenuItem[];
   width?: number;
+  font?: string;            // default '14px sans-serif'
+  color?: string;           // row text, default '#e2e8f0'
+  disabledColor?: string;   // disabled rows, default 'rgba(226, 232, 240, 0.4)'
+  bg?: string;              // menu background, default 'rgba(15, 23, 42, 0.95)'
+  hoverBg?: string;         // hovered row, default 'rgba(0, 240, 255, 0.25)'
+  borderColor?: string;     // menu border, default 'rgba(255, 255, 255, 0.15)'
+  itemHeight?: number;      // row height, default 32
+  separatorHeight?: number; // divider height, default 1
 }
 
 type ContextMenuItem =
@@ -805,17 +830,21 @@ Composant de menu déclenché par clic droit. Prend en charge les icônes, racco
 ### `VirtualList`
 
 ```ts
-new VirtualList(opts: VirtualListOptions)
+new VirtualList<T>(opts: VirtualListOptions<T>)
 
-interface VirtualListOptions {
+interface VirtualListOptions<T> {
   width: number;
   height: number;
-  itemHeight: number | ((idx: number) => number);
-  itemRenderer: (idx: number) => Entity;
+  items: T[];                          // full data array
+  renderItem: (item: T, index: number) => Entity;
+  estimatedRowHeight: number;          // before a row is measured; exact value for fixed heights
+  overscan?: number;                   // extra rows above & below the window, default 3
+  keyForItem?: (item: T, index: number) => string; // stable identity (e.g. message id)
+  stickToBottomThreshold?: number;     // px from bottom that counts as "following", default 48
 }
 ```
 
-Conteneur de liste défilante optimisé pour le rendu haute performance. N'instancie/affiche que les éléments actuellement dans les limites du viewport.
+Conteneur de liste défilante optimisé pour le rendu haute performance. N'instancie/affiche que les éléments actuellement dans les limites du viewport. `keyForItem` fait survivre les hauteurs mesurées à `setItems()`, maintient une ancre de défilement pendant que les lignes au-dessus se redimensionnent, et permet l'ajout/préfixe sans jeter le cache — sans lui, `setItems()` efface chaque mesure et saute en haut. `stickToBottomThreshold` (uniquement avec `keyForItem`) re-épingle un viewport de suivi en bas après le redimensionnement des lignes — idéal pour les transcriptions de chat. Méthodes : `scrollToIndex(index)`, `scrollToTop()`, `scrollToBottom()`, `jumpToBottom()` (instantané). La classe exportée `RowHeights` prend en charge le cache de mesure.
 
 ---
 
@@ -831,6 +860,8 @@ interface TreeViewOptions {
 interface TreeNode {
   id: string;
   label: string;
+  icon?: string;                    // optional icon glyph (emoji, nerd-font, …)
+  iconColor?: string;               // falls back to the tree's text color (material-style file icons)
   children?: TreeNode[] | (() => Promise<TreeNode[]>);
 }
 ```

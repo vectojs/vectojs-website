@@ -2,9 +2,6 @@
 title = "UI: ContextMenu"
 description = "具有分隔線、停用列、快捷鍵和巢狀子選單的覆蓋層指令選單。"
 weight = 39
-
-[extra]
-order = 39
 +++
 
 # `ContextMenu`
@@ -17,7 +14,7 @@ UI 1.11.1–1.11.3 讓巢狀選單鏈具備安全的生命週期：由根選單�
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ContextMenu</span></div>
-  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ContextMenu live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>點擊啟動器以在受約束的視口內開啟選單。</figcaption>
 </figure>
 

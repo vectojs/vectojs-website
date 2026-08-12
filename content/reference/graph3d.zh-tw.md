@@ -2,14 +2,11 @@
 title = "@vectojs/graph3d"
 description = "3D 力導向圖形視覺化：一個可插拔的 GraphLayout 介面，加上一個實例化的 Three.js 渲染器，只需兩次繪圖呼叫即可繪製任何圖形。"
 weight = 44
-
-[extra]
-order = 44
 +++
 
 # `@vectojs/graph3d`
 
-文件版本：**0.2.1**
+文件版本：**0.3.1**
 
 VectoJS 的 3D 力導向圖形視覺化：一個可插拔的 `GraphLayout` 合約（適合在 Worker 中使用，位置表示為一個平面 `Float32Array`）加上 `Graph3D`，一個實例化的 Three.js 渲染器，無論有多少節點，都只需**兩次繪圖呼叫**即可繪製任何圖形。請參閱即時 [Les Misérables 示範](/demos/graph3d/)，查看經典的 77 節點/254 連結資料集動態展示。
 

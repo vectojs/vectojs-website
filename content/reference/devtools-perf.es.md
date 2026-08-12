@@ -2,9 +2,6 @@
 title = "Devtools: rendimiento"
 description = "Atribuye el coste de fotograma de VectoJS — contadores de dibujo GPU y Canvas2D, estado de aceleradores WASM, atribución de repintado sucio y métricas de reutilización del streaming de Markdown."
 weight = 51
-
-[extra]
-order = 51
 +++
 
 # Devtools: rendimiento

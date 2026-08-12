@@ -2,9 +2,6 @@
 title = "UI: Tabs"
 description = "Tabbed panel container that mounts the active content view."
 weight = 29
-
-[extra]
-order = 29
 +++
 
 # `Tabs`

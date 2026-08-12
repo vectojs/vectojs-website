@@ -2,9 +2,6 @@
 title = "執行環境架構"
 description = "Scene、Entity、渲染迴圈、無障礙投射和後端如何組合在一起。"
 weight = 3
-
-[extra]
-order = 3
 +++
 
 # 執行環境架構
