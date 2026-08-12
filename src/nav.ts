@@ -29,6 +29,8 @@ export interface NavbarOptions {
   lang: Locale;
   active: ActiveSection;
   viewportWidth: number;
+  /** Mobile breakpoint decision from the caller (single source of truth). */
+  isMobile: boolean;
   /** Flip `data-theme` + localStorage, then rebuild (theme change). */
   onThemeChange: () => void;
   /** Navigate to a fully-qualified site URL (locale-switched). */
@@ -255,7 +257,7 @@ export function createNavbar(parent: Scene, opts: NavbarOptions): NavbarHandle {
   const containerX = (viewportW - containerW) / 2;
   const contentX = containerX + LAYOUT.containerPad;
   const innerW = containerW - LAYOUT.containerPad * 2;
-  const isMobile = viewportW <= LAYOUT.breakpointMobile;
+  const isMobile = opts.isMobile;
   const titleFont = '800 20px Outfit, sans-serif';
   const linkFont = '500 15.2px Inter, sans-serif';
   const active = opts.active;
@@ -428,6 +430,7 @@ export function createNavbar(parent: Scene, opts: NavbarOptions): NavbarHandle {
             drawer = null;
           }
         });
+        parent.add(drawer);
       }
       parent.markDirty();
     });

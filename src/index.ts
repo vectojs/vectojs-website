@@ -339,6 +339,7 @@ async function renderApp(): Promise<void> {
     lang,
     active,
     viewportWidth: viewportW,
+    isMobile,
     onThemeChange: () => flipTheme(),
     onNavigate: (url: string) => navigateTo(url),
   });
@@ -561,7 +562,7 @@ async function renderApp(): Promise<void> {
         headingColor: colors.heading,
         codeColor: colors.codeText,
         codeBgColor: colors.codeBg,
-        codeBorderColor: colors.divider,
+        codeBorderColor: colors.borderStrong,
         quoteBorderColor: colors.quoteBorder,
         quoteTextColor: colors.muted,
         hrColor: colors.divider,
