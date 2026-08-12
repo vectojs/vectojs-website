@@ -2,9 +2,6 @@
 title = "无障碍与自动化"
 description = "VectoJS如何为屏幕阅读器、键盘用户和Playwright自动化将语义DOM投影到Canvas内容之上。"
 weight = 15
-
-[extra]
-order = 15
 +++
 
 # 无障碍与自动化
@@ -283,6 +280,8 @@ const scene = new Scene(canvas, { a11ySyncInterval: 100 });
 - **投影容器，而非成员。** 整个层使用一个交互实体，通过`aria-label`集体描述它（如"5,000个粒子"），并通过`scene.findEntityAt(x, y)`自行处理指针输入 —— 它无论实体是否为`interactive`都能解析实体，因此点击测试不需要投影。
 - **只投影可触及的内容。** 虚拟化`TreeView`/`Table`使用的池化模式将热点池大小调整为可见行而不是整个数据集，因此投影保持O(视口)。参见[复合微件](#复合微件一个标签页停止方向键在内部操作)。
 - **当实体停止可操作时，调用`scene.detachA11y(entity)`。** 在别处记录为泄漏避免，它同样是一个成本杠杆：每帧同步创建和更新但从不修剪。
+
+每个实体的 `a11yProjection` 模式（`'eager' | 'onDemand' | 'never'`，默认为 `'eager'`）控制实体的影子节点何时被具体化；相关测量数据和 API 在 [`core-a11y`](/reference/core-a11y/#projection-cost-at-high-entity-counts-1300) 中有文档说明。请注意，它无法以"是否存在屏幕阅读器"为依据 —— 这出于设计（W3C TAG 设计原则 2.7）是刻意无法检测的，而且出于隐私原因，AOM 虚拟无障碍节点在所有引擎中都被阻止。
 
 ## 以编程方式检查影子树
 

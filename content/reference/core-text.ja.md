@@ -2,9 +2,6 @@
 title = "テキスト & Bidi"
 description = "スタンドアロンの @vectojs/text パッケージ（@vectojs/core/text サブパスでもある）：タイポグラフィのメトリクス、MSDFフォント解析、アラビア語整形とbidiリゾルバー、加えてcore常駐の MSDFTextEntity/GridTextEntity GPUテキストレンダラー。"
 weight = 7
-
-[extra]
-order = 7
 +++
 
 # テキスト & Bidi — `@vectojs/text`
@@ -77,9 +74,12 @@ getFontMetrics(family: string): FontMetricsSource | undefined
 hasFontMetrics(): boolean
 fontMetricsVersion(): number
 clearFontMetrics(): void
+createMeasuringContext(): CanvasRenderingContext2D | null   // see below
 ```
 
 テキストの測定は通常、レンダラーが実際に描画するフォントを測定する Canvas 2D コンテキストを通じて行われます。Node SSR や `OffscreenCanvas` のないワーカーなど、コンテキストがない場合、測定に使用できるものがなく、すべてのグリフの advance は一律 `0.5em` にフォールバックします。32px の `sans-serif` を使用した Chrome での測定と比較すると、これは幅の狭いテキストで **+125%**、幅の広いテキストで **−47%** 間違っており、`iiiiiiiiii` は `WWWWWWWWWW` とまったく同じ幅になります。折り返しはこのエラーを引き起こすため、改行も間違った場所に着地します。
+
+`createMeasuringContext()` は、そのような場合の軽量な抜け道です：1×1 のオフスクリーン `<canvas>`（document body に追加され、非表示、`aria-hidden`）を作成し、登録されたメトリクスソースを持たないフォントを測定するための 2D コンテキストを返します — DOM のない環境では `null` を返します。これはエンジン自身が使用するコンテキストであるため、レンダラーが実際に描画するフォントを測定します。これは上記のレジストリベースのパスでは実現できません。共有の単一測定コンテキスト（`getSharedMeasuringContext` / `isSharedMeasuringContextAttached` / `resetSharedMeasuringContext`、これも `@vectojs/text` から）は、すべての `@vectojs/*` パッケージにわたって使用される別個のメモ化されたコンテキストです — `ctx.font` は各読み取りの前に割り当てられるため、共有によって古い測定値が漏れることはありません。
 
 起動時に一度メトリクスを登録すると、これが修正されます。任意の `msdf-atlas-gen` JSON が機能し、その `glyphs[].advance`、`kerning`、および `metrics` のみが読み取られます — アトラス画像は無関係であるため、メトリクスのみのファイルで十分であり、何もデコードされません：
 
@@ -110,6 +110,31 @@ interface FontMetricsSource {
 `measureEm` は提供する価値があります。グリフごとの契約は `measure(char, fontSize, family)` であり、隣接する文字がないため、合計された advance では kerning を復元できません — kerning が多い文字列では約 ~10% の誤差があります。文字列全体の測定は `measureEm` を介して行われ、正確です。
 
 でっち上げの advance で測定されたテキストがあるかどうかを確認するには、[`@vectojs/layout`](/reference/core-layout/) の `unmeasuredGlyphCount()` がそれらをカウントし、1 回限りのコンソール警告で修正方法が示されます。これは `LayoutResult.fallbackToCanvas` とは異なります。後者は **atlas** のミスのみを報告し、ブラウザであっても基本的にすべての段落で true になります。
+
+## `@vectojs/tex` — ゼロDOM TeX組版
+
+`@vectojs/tex` は [`Markdown`](/reference/ui-markdown/) の `$…$` / ` ```math ` ブロックの背後にあるスタンドアロンパッケージです。KaTeXのパース/レイアウトカーネルをベンダー化し、結果を**自己完結型のSVG文字列**として再出力します。これは独自のグリフアウトラインを保持し、外部を一切参照しません — `data URI → Image → createImageBitmap` によるラスタライズを生き延びる唯一の形式です。遅延ロードされ（数式が実際に現れた時のみ）、別個の公開・バージョン管理されたパッケージです；`@vectojs/core` はそれを**再エクスポートしません**。
+
+```ts
+import { layout, emitSVG } from '@vectojs/tex';
+
+const { svg, width, height, depth } = emitSVG(layout('x^2 + y^2 = z^2'));
+```
+
+カスタム呼び出し元がスタイルシートなし（canvasにはありません）でKaTeXのスタイルシート由来のフォント選択を再現できるようにする2つのemitレイヤーヘルパー：
+
+```ts
+resolveFont(classes: readonly string[]): ResolvedFont
+// ResolvedFont = { font: FontName; substituted: boolean }
+
+sizingRatio(classes: readonly string[]): number
+```
+
+`resolveFont` はKaTeX spanのCSSクラスを具体的な同梱フォントファイル（`FontName`、例：`'Main-BoldItalic'`、`'Size2-Regular'`）にマッピングします。フォント選択は**継承され、ローカルではありません** — `Span[delimsizing size1]` の下にネストされた `SymbolNode` は空のクラスリストを持つため、各祖先のクラスの連結に続けてシンボル自身のクラスを渡します（最外が最初、後のエントリが優先）。ファミリーが同梱していない要求されたウェイト/スタイルはRegularフェイスに劣化し、黙って間違って描画する代わりに `substituted: true` を設定します。
+
+`sizingRatio` は `katex-sizing reset-size<N> size<M>` クラスを script/scriptscript のスケール乗数（`toMultiplier / fromMultiplier`）に変換します；クラスがサイズ指定を持たない場合は `1` を返すため、呼び出し元は無条件に乗算できます。これらが `@vectojs/tex` が `ex` 相対メトリクスでサイズを報告する背後にある仕組みです。
+
+`FontName`、`ResolvedFont`、`layout`、`emitSVG`、および `LayoutOptions` も `@vectojs/tex` からエクスポートされます（その `src/index.ts` を参照）。
 
 ## 関連情報
 

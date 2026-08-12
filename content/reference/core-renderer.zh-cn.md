@@ -2,9 +2,6 @@
 title = "渲染器"
 description = "@vectojs/core/renderer 子路径：后端无关的 IRenderer 约定、CanvasRenderer、SVGRenderer、WebGL point/rect/sprite/MSDF 层、Entity 内容投影，以及 parseColorToRGBA。"
 weight = 5
-
-[extra]
-order = 5
 +++
 
 # 渲染器 —— `@vectojs/core/renderer`

@@ -2,9 +2,6 @@
 title = "@vectojs/video-exporter"
 description = "VectoJSシーンをフレーム単位で進め、そのキャンバス出力をChromiumとFFmpegでH.264 MP4にエンコードするCLIおよびライブラリ。"
 weight = 47
-
-[extra]
-order = 47
 +++
 
 # `@vectojs/video-exporter`

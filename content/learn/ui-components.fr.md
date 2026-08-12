@@ -2,9 +2,6 @@
 title = "Composants UI"
 description = "Aperçu de la bibliothèque de composants @vectojs/ui : formulaires, conteneurs de mise en page, superpositions et contenu enrichi."
 weight = 16
-
-[extra]
-order = 16
 +++
 
 # Composants UI
@@ -171,9 +168,9 @@ const radio = new RadioGroup({
     { value: 'system', label: 'System Default' },
   ],
   value: 'dark', // initially selected value
-  gap: 28, // vertical spacing between options, default 28
+  gap: 12, // vertical spacing between options, default 12
   color: '#e2e8f0', // label text color
-  accent: '#00f0ff', // fill color for the selected circle
+  accent: '#2563eb', // fill color for the selected circle
   onChange: (val) => setTheme(val),
 });
 scene.add(radio.setPosition(40, 40));
@@ -185,11 +182,11 @@ Options clés :
 | ---------- | --------------------- | ----------- | ---------------------------------------- |
 | `options`  | `RadioOption[]`       | —           | Tableau de `{ value, label, disabled? }` |
 | `value`    | `string`              | `''`        | Valeur sélectionnée initialement         |
-| `gap`      | `number`              | `28`        | Espace vertical entre les rangées        |
-| `accent`   | `string`              | `'#00f0ff'` | Remplissage du cercle sélectionné        |
+| `gap`      | `number`              | `12`        | Espace vertical entre les rangées        |
+| `accent`   | `string`              | `'#2563eb'` | Remplissage du cercle sélectionné        |
 | `onChange` | `(v: string) => void` | —           | Callback au changement de sélection      |
 
-Appelez `radio.setValue(val)` à tout moment pour changer la sélection par programme. Projette `role="radiogroup"` avec un `role="radio"` + `aria-checked` individuel sur chaque option.
+Appelez `radio.selectByValue(val, focusIt?)` à tout moment pour changer la sélection par programme. Projette `role="radiogroup"` avec un `role="radio"` + `aria-checked` individuel sur chaque option.
 
 ### `Tabs`
 
@@ -208,15 +205,15 @@ const tabs = new Tabs({
     { id: 'settings', label: 'Settings', content: settingsPane },
     { id: 'preview', label: 'Preview', content: previewPane },
   ],
-  activeTabId: 'settings', // default: first tab
-  tabHeight: 36, // height of the tab bar, default 36
+  value: 'settings', // default: first tab
+  tabHeight: 40, // height of the tab bar, default 40
   selectedColor: '#00f0ff', // active tab underline / text color
   onChange: (tabId) => console.log('Active tab:', tabId),
 });
 scene.add(tabs.setPosition(20, 20));
 
-// Switch tab programmatically:
-tabs.setActiveTab('preview');
+// Rename a tab label programmatically:
+tabs.setLabel('settings', 'Configuration');
 ```
 
 Options clés :
@@ -224,8 +221,8 @@ Options clés :
 | Option          | Type                   | Défaut         | Description                             |
 | --------------- | ---------------------- | -------------- | --------------------------------------- |
 | `tabs`          | `TabItem[]`            | —              | `{ id, label, content: Entity }`        |
-| `activeTabId`   | `string`               | premier onglet | Onglet visible initialement             |
-| `tabHeight`     | `number`               | `36`           | Hauteur en pixels de la rangée de barre |
+| `value`         | `string`               | premier onglet | Onglet visible initialement             |
+| `tabHeight`     | `number`               | `40`           | Hauteur en pixels de la rangée de barre |
 | `selectedColor` | `string`               | `'#00f0ff'`    | Couleur d'accent de l'onglet actif      |
 | `onChange`      | `(id: string) => void` | —              | Se déclenche au changement d'onglet     |
 
@@ -303,11 +300,9 @@ Classe de base pour les superpositions à positionnement absolu. Ancre le conten
 ```typescript
 import { Overlay } from '@vectojs/ui';
 
-const overlay = new Overlay({
-  target: button,
-  content: popoverCard,
-  placement: 'bottom-start',
-});
+const overlay = new Overlay({ width: 240, height: 120 });
+overlay.showAt(button, 'bottom-start'); // or overlay.showAtPoint(x, y)
+overlay.add(popoverCard);
 ```
 
 ### `Tooltip`
@@ -365,8 +360,10 @@ import { VirtualList } from '@vectojs/ui';
 const list = new VirtualList({
   width: 300,
   height: 500,
-  itemHeight: (idx) => measuredHeights[idx], // or number for fixed heights
-  itemRenderer: (idx) => createListItemEntity(idx),
+  items: myData,
+  renderItem: (item, index) => createListItemEntity(item, index),
+  estimatedRowHeight: 24, // exact value for fixed heights; measured per row otherwise
+  keyForItem: (item) => item.id, // stable identity: keeps heights + scroll anchor across setItems()
 });
 ```
 

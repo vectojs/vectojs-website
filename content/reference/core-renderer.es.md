@@ -2,9 +2,6 @@
 title = "Renderizadores"
 description = "La subruta @vectojs/core/renderer: el contrato IRenderer agnóstico al backend, CanvasRenderer, SVGRenderer, la capa WebGL de puntos/rects/sprites/MSDF, la proyección de contenido de Entity y parseColorToRGBA."
 weight = 5
-
-[extra]
-order = 5
 +++
 
 # Renderizadores — `@vectojs/core/renderer`

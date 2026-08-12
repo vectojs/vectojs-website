@@ -2,9 +2,6 @@
 title = "Arquitectura del Runtime"
 description = "Cómo encajan Scene, Entity, el bucle de renderizado, la proyección de accesibilidad y los backends."
 weight = 3
-
-[extra]
-order = 3
 +++
 
 # Arquitectura del Runtime

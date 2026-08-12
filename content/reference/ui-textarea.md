@@ -2,9 +2,6 @@
 title = "UI: TextArea"
 description = "Multi-line native text editing with canvas rendering."
 weight = 24
-
-[extra]
-order = 24
 +++
 
 # `TextArea`

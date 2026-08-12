@@ -2,9 +2,6 @@
 title = "Streaming y texto en tiempo real"
 description = "Construcción de interfaces de chat, visores de registros y paneles en vivo: coalescencia de bloques por fotograma, API de adición, interacción con la aceleración inactiva y estrategia para transcripciones largas."
 weight = 18
-
-[extra]
-order = 18
 +++
 
 # Streaming y texto en tiempo real
@@ -50,7 +47,7 @@ Con un flujo de 200 tokens/s funcionando a 60 fps, esto reduce hasta ~200 pasada
 
 `appendMarkdown` esconde internamente dos costos que debes conocer:
 
-1. **El análisis léxico es O(documento), no O(fragmento).** Cada llamada vuelve a dividir en tokens toda la fuente acumulada. El análisis se ejecuta en un Worker en segundo plano cuando está disponible (volviendo al análisis léxico síncrono en entornos sin `Worker`), y la actualización de entidades reutiliza todos los bloques terminados — pero una transcripción de 100k caracteres aún paga un costo léxico de 100k caracteres por vaciado. El procesamiento por lotes por fotograma divide eso por el factor de tokens por fotograma; la segmentación de la transcripción (abajo) lo limita.
+1. **El análisis léxico es incremental, con clave en la cola inestable.** Desde 0.8.1, la ruta del worker vuelve a analizar léxicamente desde el último límite de bloque estable (`lexAppend`) en lugar de volver a dividir en tokens toda la fuente acumulada, por lo que el costo por fragmento sigue la cola modificada, no el tamaño del documento. Solo los documentos que usan bloques de definición de enlaces o matemáticas `$$` al inicio de línea vuelven a un análisis léxico de todo el documento (`lexFull`). El análisis se ejecuta en un Worker en segundo plano cuando está disponible (volviendo al análisis léxico síncrono en entornos sin `Worker`), y la actualización de entidades reutiliza todos los bloques terminados.
 
 2. **La memoización de párrafos usa como clave `\n`.** Tanto `Text.append` como el actualizador de párrafos Markdown solo vuelven a medir el párrafo que cambió. Una línea continua interminable deshabilita la memoización y degrada la medición a O(documento) por vaciado. La salida LLM tiene saltos de párrafo naturales; las líneas de registro terminan en `\n` — por lo general lo obtienes gratis, pero no elimines los saltos de línea.
 

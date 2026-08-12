@@ -2,9 +2,6 @@
 title = "Accessibilité et automatisation"
 description = "Comment VectoJS projette des contrôles DOM sémantiques par-dessus le contenu canvas pour les lecteurs d'écran, les utilisateurs au clavier et l'automatisation Playwright."
 weight = 15
-
-[extra]
-order = 15
 +++
 
 # Accessibilité et automatisation
@@ -284,7 +281,7 @@ Pour un champ de particules, une couche danmaku ou un essaim de sprites, préfé
 - **Projetez seulement ce qui est accessible.** Le modèle de pooling utilisé par `TreeView`/`Table` virtualisés dimensionne un pool de zones réactives aux lignes visibles plutôt qu'à l'ensemble des données, donc la projection reste en O(viewport). Voir [widgets composites](#widgets-composites--un-seul-arrêt-tabulation-touches-fléchées-à-lintérieur).
 - **Appelez `scene.detachA11y(entity)`** lorsqu'une entité cesse d'être actionnable. Documenté ailleurs comme une prévention de fuite, c'est également un levier de coût : la synchronisation par image crée et met à jour mais ne taille jamais.
 
-> Un mode `a11yProjection` par entité (`'eager' | 'onDemand' | 'never'`) qui matérialise un nœud uniquement au survol/au focus est conçu mais **pas encore implémenté**. Notez qu'il ne peut pas se baser sur « un lecteur d'écran est-il présent » — c'est délibérément indétectable par conception (principe de conception 2.7 du W3C TAG), et les nœuds d'accessibilité virtuels AOM sont bloqués dans tous les moteurs pour des raisons de confidentialité.
+Un mode `a11yProjection` par entité (`'eager' | 'onDemand' | 'never'`, par défaut `'eager'`) contrôle le moment où le nœud fantôme de l'entité est matérialisé ; les mesures et l'API sont documentées dans [`core-a11y`](/reference/core-a11y/#projection-cost-at-high-entity-counts-1300). Notez qu'il ne peut pas se baser sur « un lecteur d'écran est-il présent » — c'est délibérément indétectable par conception (principe de conception 2.7 du W3C TAG), et les nœuds d'accessibilité virtuels AOM sont bloqués dans tous les moteurs pour des raisons de confidentialité.
 
 ## Inspecter l'arbre fantôme par programmation
 

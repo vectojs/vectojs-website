@@ -2,9 +2,6 @@
 title = "Mathematical Foundations"
 description = "The mathematical and physical principles underpinning the VectoJS rendering engine: Virtual Math Trees, semantic accessibility projection, Lie groups, split layouts, spline hit-testing, set-difference wrapping, ODE animation, and spatial culling."
 weight = 6
-
-[extra]
-order = 6
 +++
 
 # Mathematical Foundations

@@ -2,9 +2,6 @@
 title = "ComputeParticleEntity"
 description = "The high-throughput particle layer: per-particle Float32Array memory layout, spring/damping/explosion CPU simulation, and the WebGPU compute path with automatic CPU fallback."
 weight = 6
-
-[extra]
-order = 6
 +++
 
 # `ComputeParticleEntity` — high-throughput particle layer

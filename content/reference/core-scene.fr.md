@@ -2,9 +2,6 @@
 title = "Scene"
 description = "L'orchestrateur de plus haut niveau de VectoJS : options du constructeur, la boucle de rendu, renderMode/maxFPS et la régulation automatique d'inactivité, les méthodes de cycle de vie, et le registre de backends enfichables WebGL/WebGPU."
 weight = 2
-
-[extra]
-order = 2
 +++
 
 # `Scene`
@@ -242,6 +239,46 @@ scene.findEntityAt(x, y): Entity | null      // entité la plus haute dont isPoi
 scene.getA11yElement(entityId: string): HTMLElement | undefined
 scene.getA11yTree(): A11yTreeNode[]          // instantané imbriqué des nœuds d'ombre projetés (id/tag/role/label/value/...)
 ```
+
+## Instrumentation User Timing
+
+La Scène peut émettre des [`User Timing`](https://developer.mozilla.org/en-US/docs/Web/API/User_Timing_API)
+marques/mesures autour des phases de rendu, afin qu'une capture de profileur
+montre exactement où une image passe son temps. Désactivée par défaut ; activez-la
+avec l'option `userTiming` ou en direct via `scene.setUserTiming(true)` :
+
+```ts
+const scene = new Scene(canvas, { userTiming: true });
+// or
+scene.setUserTiming(true); // runtime toggle
+scene.userTiming; // read the current state
+```
+
+Les noms stables des mesures sont exportés sous le nom `VECTO_USER_TIMING` :
+
+```ts
+VECTO_USER_TIMING.scene; // { transform, drawWalk, entityPaint, flush, a11ySync }
+VECTO_USER_TIMING.markdown; // { parse }
+// e.g. 'vecto:scene:transform', 'vecto:markdown:parse'
+```
+
+`@vectojs/core` exporte aussi les helpers de bas niveau que le moteur utilise
+en interne (et qu'un renderer personnalisé ou un composant instrumenté peut
+utiliser pour ajouter ses propres phases) :
+
+```ts
+beginVectoUserTiming(name: string): VectoUserTimingSpan | null
+endVectoUserTiming(span: VectoUserTimingSpan | null): void
+measureVectoUserTiming(name: string, durationMs: number): void
+```
+
+`beginVectoUserTiming` renvoie `null` (et `measureVectoUserTiming` ne fait rien)
+quand l'hôte n'implémente pas les marques/mesures, de sorte que le profilage
+optionnel n'est jamais une exigence d'exécution. Les intervalles utilisent des
+marques de début/fin à noms uniques libérées à `endVectoUserTiming`.
+`measureVectoUserTiming` émet une mesure ancrée au temps courant pour une durée
+accumulée à partir d'appels disjoints — la voie qui rapporte les totaux de
+peinture d'entité par image sans instrumenter chaque entité.
 
 ## Registre de backends enfichables (statique)
 

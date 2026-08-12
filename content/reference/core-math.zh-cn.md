@@ -2,9 +2,6 @@
 title = "数学工具"
 description = "用于 O(1) 平均粗略阶段空间查询的 SpatialHashGrid，以及用于单值临界可调弹簧的 SpringPhysics —— 独立的 @vectojs/math 包，由 @vectojs/core 重新导出。"
 weight = 9
-
-[extra]
-order = 9
 +++
 
 # 数学工具 —— `@vectojs/math`

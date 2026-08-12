@@ -2,9 +2,6 @@
 title = "Devtools：效能"
 description = "歸因 VectoJS 幀成本 — GPU 與 Canvas2D 繪製計數器、WASM 加速器狀態、髒重繪歸因，以及 Markdown 串流重複使用指標。"
 weight = 51
-
-[extra]
-order = 51
 +++
 
 # Devtools：效能

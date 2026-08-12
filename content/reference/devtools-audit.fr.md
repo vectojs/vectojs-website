@@ -2,9 +2,6 @@
 title = "Devtools : audit"
 description = "Asserter qu'une scène VectoJS est correcte — mises en page, accessibilité, mise en forme du texte et audits de sélection qui renvoient des découvertes structurées, plus des instantanés et des différences pour les tests de régression."
 weight = 50
-
-[extra]
-order = 50
 +++
 
 # Devtools : audit

@@ -2,9 +2,6 @@
 title = "Entity"
 description = "모든 Virtual Math Tree 노드의 추상 기본 클래스: 변환, 애니메이션 시스템, 캡처/버블 이벤트, 그리고 커스텀 Entity가 오버라이드할 수 있는 a11y/배치 훅."
 weight = 3
-
-[extra]
-order = 3
 +++
 
 # `Entity` (추상)
@@ -123,8 +120,8 @@ springTo(props: Partial<Record<AnimatableProp, number>>, cfg?: SpringConfig): Pr
 
 ```ts
 type VectoEvent =
-  | 'click' | 'hover' | 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'pointerleave'
-  | 'change' | 'focus' | 'blur' | 'wheel' | 'keydown' | 'keyup';
+  | 'click' | 'dblclick' | 'hover' | 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'pointerleave'
+  | 'change' | 'focus' | 'blur' | 'wheel' | 'keydown' | 'keyup' | 'scroll';
 
 on(event: VectoEvent, cb: (e: any) => void, options?: { capture?: boolean }): this
 off(event: VectoEvent, cb: (e: any) => void, options?: { capture?: boolean }): this
@@ -145,6 +142,8 @@ dispatchEvent(event: VectoJSEvent): void             // DOM-스타일 캡처 (�
   `{ value, checked, selectionStart, selectionEnd, composition }`을 전달하며,
   `composition`은 활성 IME 사전 편집에 대해 `{ start, length } | null`입니다.
   `'wheel'`은 네이티브 `WheelEvent`를 전달합니다(페이지 스크롤을 막으려면 `preventDefault()` 호출).
+- `'dblclick'`은 더블 클릭 시 실행됩니다(네이티브 `detail === 2`).
+- `'scroll'`은 `ScrollEventPayload`를 전달합니다 — 엔터티가 자신의 섀도우 미러 스크롤 오프셋을 관찰하는 유일한 방법입니다: `{ scrollTop, scrollLeft, deltaY, deltaX, maxScrollTop }`. 브라우저가 스크롤 가능한 콘텐츠 미러(예: `ScrollView` 섀도우 노드)를 스크롤할 때 실행됩니다.
 
 사용법은 [Events & Hit-Testing](/learn/events/)을 참조하세요.
 
@@ -156,6 +155,8 @@ getBatchCircle(): BatchCircle | null         // { radius, color } → 렌더러 
 getBatchRect(): BatchRect | null             // { width, height, color } → GPU indexed-quad batch (WebGL pointBackend 전용)
 update(dt: number, time: number): void       // 선택적 오버라이드; dt는 밀리초, time은 performance.now(); 기본값은 큐에 추가된 트윈 진행
 ```
+
+`entity.a11yRegion: boolean`(기본값 `false`)은 엔터티를 a11y **그룹화 영역**으로 표시합니다: 하위 요소는 독립적으로 중첩되는 대신 공유 컨테이너에 투영되므로, 순수 그룹화 컨테이너(예: `width: 0`)도 여전히 그룹화됩니다 — 가장 가까운 둘러싸는 영역이 우선하며 영역은 중첩됩니다. 선언적이며 지오메트리에서 참조되지 않습니다.
 
 `getBatchCircle`/`getBatchRect`는 **매 프레임** 읽힙니다(애니메이션된 color/radius
 반영). 표현 가능한 배치 리프는 자체

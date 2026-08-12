@@ -2,9 +2,6 @@
 title = "UI：ProgressBar"
 description = "带可选百分比标签和 progressbar 语义的 canvas 进度指示器。"
 weight = 30
-
-[extra]
-order = 30
 +++
 
 # `ProgressBar`
@@ -15,7 +12,7 @@ order = 30
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ProgressBar</span></div>
-  <iframe src="/sandbox/ui/component.html?name=progressbar&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ProgressBar live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=progressbar&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ProgressBar live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>使用 `setValue()` 来钳制并重绘进度变化。</figcaption>
 </figure>
 

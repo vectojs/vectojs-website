@@ -2,9 +2,6 @@
 title = "시작하기"
 description = "VectoJS를 설치하고, Scene을 생성한 후 Input, Toggle, Slider, Button, ScrollView로 구성된 완전한 설정 패널을 구축합니다."
 weight = 7
-
-[extra]
-order = 7
 +++
 
 # 시작하기

@@ -2,9 +2,6 @@
 title = "Devtools：橋接與外掛程式"
 description = "透過 JSON-RPC 橋接從另一份文件驅動 VectoJS 場景，並以您自己的標籤頁、稽核和指令擴充檢查器。"
 weight = 52
-
-[extra]
-order = 52
 +++
 
 # Devtools：橋接與外掛程式

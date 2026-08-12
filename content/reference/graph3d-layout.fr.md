@@ -2,9 +2,6 @@
 title = "GraphLayout & D3ForceLayout"
 description = "Le modèle de données du graphe et le contrat GraphLayout compatible worker, ainsi que son implémentation D3ForceLayout basée sur d3-force-3d."
 weight = 45
-
-[extra]
-order = 45
 +++
 
 # `GraphLayout` & `D3ForceLayout`
@@ -58,7 +55,7 @@ interface GraphLayout {
 
 Le contrat est délibérément minimal et compatible worker : les positions sont un seul `Float32Array` plat de triplets xyz dans l'ordre de `GraphData.nodes`, de sorte qu'une implémentation peut vivre entièrement dans un Web Worker et diffuser son tampon par-delà la frontière des threads comme un transferable, sans trafic d'objets par nœud. [`Graph3D.applyPositions()`](/reference/graph3d-renderer/#méthodes) consomme exactement ce même format de tampon directement. `positions` est la **même instance de tableau** réutilisée entre les étapes — copiez-la (`layout.positions.slice()`) si vous avez besoin d'un instantané stable plutôt que d'une vue en direct.
 
-`@vectojs/graph3d` livre une implémentation aujourd'hui ; d'autres adaptateurs (`ngraph`) et modes de layout DAG sont sur la feuille de route du paquet, tous derrière cette même interface, de sorte qu'un renderer ou un hôte worker n'ait jamais besoin de savoir lequel tourne.
+`@vectojs/graph3d` livre deux implémentations derrière ce contrat aujourd'hui — [`D3ForceLayout`](#d3forcelayout) ci-dessous et la propre [`VectoForceLayout`](#vectoforcelayout) (Barnes–Hut, sans dépendance d3) — en plus des modes de layout DAG sur la feuille de route du paquet, tous derrière cette même interface, de sorte qu'un renderer ou un hôte worker n'ait jamais besoin de savoir lequel tourne.
 
 ## `D3ForceLayout`
 
@@ -75,6 +72,26 @@ interface D3ForceLayoutOptions {
 Adapte [d3-force-3d](https://github.com/vasturiano/d3-force-3d) — le même moteur derrière `3d-force-graph` — de sorte que les forces réglées d'un graphe migrent avec leurs sensations intactes. Exécute `forceLink` + `forceManyBody` + `forceCenter` en 3 dimensions.
 
 La simulation d3 mute ses propres enregistrements de nœuds (`x`/`y`/`z`/`vx`/…), donc `setGraph` clone chaque nœud dans un enregistrement de simulation interne plutôt que de lui passer directement vos objets `GraphData.nodes` — seules les broches `fx`/`fy`/`fz` déclarées sont transférées. Le minuteur propre de la simulation n'est jamais démarré ; `step(iterations = 1)` le fait tic synchrone, ce qui permet d'utiliser `D3ForceLayout` dans un Web Worker sans simuler `requestAnimationFrame`.
+
+## `VectoForceLayout`
+
+```ts
+new VectoForceLayout(options?: VectoForceLayoutOptions)
+
+interface VectoForceLayoutOptions {
+  linkDistance?: number;   // target resting length of links. Default 30.
+  linkStrength?: number;   // spring stiffness of links. Default 0.3.
+  repulsion?: number;      // many-body repulsion strength. Default 300.
+  centerStrength?: number; // pull toward the centroid. Default 0.02.
+  velocityDecay?: number;  // per-step velocity damping. Default 0.6.
+  theta?: number;          // Barnes–Hut opening angle. Default 0.9.
+  alphaDecay?: number;     // cooling rate. Default 0.0228; 0 disables cooling.
+  alphaMin?: number;       // alpha below which step() reports cooled. Default 0.001.
+  seed?: number;           // RNG seed for deterministic placement. Default 1.
+}
+```
+
+Le layout maison (ajouté en 0.3.0) : une simulation dirigée par forces avec un octree Barnes–Hut pour le terme multi-corps — sans dépendance d3, déterministe sous un `seed`, et sûr dans un Web Worker (le même contrat `step(iterations)` que `D3ForceLayout`). Choisissez-le lorsque vous voulez des résultats identiques entre les exécutions ; réglez avec `repulsion`/`linkStrength`, et augmentez `alphaDecay` au-dessus de zéro avec précaution — il est déjà près du bord de refroidissement, donc une valeur plus élevée fige le graphe plus tôt plutôt que plus tard.
 
 ```ts
 layout.step(); // un tic

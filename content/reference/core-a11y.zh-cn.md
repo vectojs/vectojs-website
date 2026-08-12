@@ -2,9 +2,6 @@
 title = "a11yRoot 与智能体约定"
 description = "每个可交互 Entity 如何将一个透明的 ARIA 影子节点投影到 DOM 中 —— A11yAttributes 的形状、canvas 性能与 DOM 级无障碍的约定，以及导致陈旧或缺失影子节点的同步陷阱。"
 weight = 10
-
-[extra]
-order = 10
 +++
 
 # a11yRoot 与智能体约定
@@ -155,6 +152,21 @@ scene.releaseA11yProjection(previous);
 - 从 Core 1.11.1 起，新投影的交互实体会在创建影子节点的同一帧获得与画布绘制顺序一致的 `z-index`。因此，新覆盖层的背板会在第一次指针交互时就位于旧的设计控件之上，而不必等待下一次渲染。
 
 参见[无障碍](/learn/accessibility/)了解用法和测试模式。
+
+## URL 消毒（`sanitizeUrl` / `isSafeUrl`）
+
+这两个辅助函数都来自 `@vectojs/core`（定义于 `renderer/url.ts`），用于在 VectoJS 将 `href` 投影到影子 `<a>` 节点上，或将其传给 `window.open`（用于无障碍 sink 和 Markdown 链接渲染）时，阻止 `javascript:` / `data:` / `vbscript:` / `file:` URI 脚本注入。
+
+```ts
+sanitizeUrl(href: string | null | undefined): string
+isSafeUrl(urlStr: string): boolean
+```
+
+`sanitizeUrl` 是投影路径：对 `null`/`undefined` 返回 `''`，去除前导空白，**相对** URL 原样通过（相对 URL 永远不会被注入脚本），并将任何 scheme 不在安全集合——`http`、`https`、`mailto`、`tel`、`ftp`——中的绝对 URL 重写为无害的 `'#'`，使链接保持非空但无效。它永远不会抛出异常。
+
+`isSafeUrl` 是更严格的守卫，用于那些已经持有绝对 URL 的代码：当 scheme 在安全集合中时返回 `true`（相对 URL 也是安全的），否则返回 `false`。
+
+安全 scheme 是固定的：`http:`、`https:`、`mailto:`、`tel:`、`ftp:`。`ui-link` 和 Markdown 链接回调都会在 `href` 到达 DOM 之前将其通过 `sanitizeUrl` 路由——如果你自己渲染不受信任的链接，也请这样做。
 
 ## 相关
 

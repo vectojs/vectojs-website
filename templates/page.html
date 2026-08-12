@@ -15,9 +15,15 @@ replace(from="<", to="\\u003c") | replace(from=">", to="\\u003e") | safe }},
 }}, "permalink": "{{ h1.permalink }}", "children": [ {% for h2 in h1.children %}
 { "title": {{ h2.title | json_encode() | safe }}, "permalink": "{{ h2.permalink
 }}" }{% if not loop.last %},{% endif %} {% endfor %} ] }{% if not loop.last
-%},{% endif %} {% endfor %} ], "translations": {{ page.translations |
-default(value=[]) | json_encode() | safe }}, "navigation": { "earlier": {% if
-page.earlier %}{ "title": {{ page.earlier.title | json_encode() | safe }},
-"path": "{{ page.earlier.path }}" }{% else %}null{% endif %}, "later": {% if
-page.later %}{ "title": {{ page.later.title | json_encode() | safe }}, "path":
-"{{ page.later.path }}" }{% else %}null{% endif %} } }{% endblock page_data %}
+%},{% endif %} {% endfor %} ], "sidebar": [
+    {% set _sec = get_section(path=page.ancestors | last, lang=page.lang) %}
+    {% for sp in _sec.pages %}
+    { "title": {{ sp.title | json_encode() | safe }}, "path": "{{ sp.path }}" }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ], "translations": {{
+page.translations | default(value=[]) | json_encode() | safe }}, "navigation": {
+"earlier": {% if page.earlier %}{ "title": {{ page.earlier.title | json_encode()
+| safe }}, "path": "{{ page.earlier.path }}" }{% else %}null{% endif %},
+"later": {% if page.later %}{ "title": {{ page.later.title | json_encode() |
+safe }}, "path": "{{ page.later.path }}" }{% else %}null{% endif %} } }{%
+endblock page_data %}

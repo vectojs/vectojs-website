@@ -2,9 +2,6 @@
 title = "為何選擇 VectoJS"
 description = "VectoJS 解決的問題、它與 DOM 和畫布函式庫的差異，以及何時不該使用它。"
 weight = 2
-
-[extra]
-order = 2
 +++
 
 # 為何選擇 VectoJS

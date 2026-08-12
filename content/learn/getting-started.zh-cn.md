@@ -2,9 +2,6 @@
 title = "快速开始"
 description = "安装VectoJS，创建Scene，并使用Input、Toggle、Slider、Button和ScrollView构建一个完整设置面板。"
 weight = 7
-
-[extra]
-order = 7
 +++
 
 # 快速开始

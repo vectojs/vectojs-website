@@ -2,9 +2,6 @@
 title = "@vectojs/video-exporter"
 description = "VectoJS Scene을 프레임별로 진행하고 Chromium과 FFmpeg로 캔버스 출력을 H.264 MP4로 인코딩하는 CLI 및 라이브러리."
 weight = 47
-
-[extra]
-order = 47
 +++
 
 # `@vectojs/video-exporter`

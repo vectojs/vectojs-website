@@ -2,9 +2,6 @@
 title = "Devtools：檢查"
 description = "將 VectoJS 場景以資料形式讀取 — 樹狀模型、實體選取、實體/a11y/文字狀態、高亮幾何、命中測試解釋，以及事件路由追蹤。"
 weight = 49
-
-[extra]
-order = 49
 +++
 
 # Devtools：檢查

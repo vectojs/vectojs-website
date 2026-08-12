@@ -2,9 +2,6 @@
 title = "파티클 시스템"
 description = "ComputeParticleEntity: WebGPU 컴퓨트 파티클, CPU 폴백, 8-float 메모리 레이아웃, 마우스 상호작용, triggerExplosion"
 weight = 12
-
-[extra]
-order = 12
 +++
 
 # 파티클 시스템

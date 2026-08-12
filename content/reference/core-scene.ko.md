@@ -2,9 +2,6 @@
 title = "Scene"
 description = "최상위 VectoJS 오케스트레이터: 생성자 옵션, 렌더 루프, renderMode/maxFPS 및 유휴 자동 스로틀, 생명주기 메서드, 플러그형 WebGL/WebGPU 백엔드 레지스트리."
 weight = 2
-
-[extra]
-order = 2
 +++
 
 # `Scene`
@@ -197,6 +194,35 @@ scene.findEntityAt(x, y): Entity | null      // isPointInside()가 true를 반�
 scene.getA11yElement(entityId: string): HTMLElement | undefined
 scene.getA11yTree(): A11yTreeNode[]          // 투영된 섀도우 노드의 중첩 스냅샷 (id/tag/role/label/value/...)
 ```
+
+## User Timing 계측
+
+Scene은 렌더 페이즈 주변에서 [`User Timing`](https://developer.mozilla.org/en-US/docs/Web/API/User_Timing_API) 마크/측정을 발생시킬 수 있으므로, 프로파일러 캡처가 프레임이 시간을 보내는 위치를 정확히 보여줍니다. 기본적으로 꺼져 있습니다. `userTiming` 옵션으로 활성화하거나 `scene.setUserTiming(true)`로 라이브 활성화합니다:
+
+```ts
+const scene = new Scene(canvas, { userTiming: true });
+// or
+scene.setUserTiming(true); // runtime toggle
+scene.userTiming; // read the current state
+```
+
+안정적인 측정 이름은 `VECTO_USER_TIMING`으로 내보내집니다:
+
+```ts
+VECTO_USER_TIMING.scene; // { transform, drawWalk, entityPaint, flush, a11ySync }
+VECTO_USER_TIMING.markdown; // { parse }
+// e.g. 'vecto:scene:transform', 'vecto:markdown:parse'
+```
+
+`@vectojs/core`는 엔진이 내부적으로 사용하는 저수준 헬퍼도 내보냅니다(커스텀 렌더러나 계측된 컴포넌트가 자체 페이즈를 추가하는 데 사용할 수 있음):
+
+```ts
+beginVectoUserTiming(name: string): VectoUserTimingSpan | null
+endVectoUserTiming(span: VectoUserTimingSpan | null): void
+measureVectoUserTiming(name: string, durationMs: number): void
+```
+
+호스트가 마크/측정을 구현하지 않으면 `beginVectoUserTiming`은 `null`을 반환하고(`measureVectoUserTiming`은 no-op) 선택적 프로파일링은 결코 런타임 요구사항이 아닙니다. 스팬은 고유하게 명명된 시작/끝 마크를 사용하며 `endVectoUserTiming`에서 해제됩니다. `measureVectoUserTiming`은 분리된 호출에서 누적된 지속 시간에 대해 현재 시간에 고정된 하나의 측정을 발생시킵니다 — 모든 엔터티를 계측하지 않고 프레임당 엔터티 페인트 합계를 보고하는 경로입니다.
 
 ## 플러그형 백엔드 레지스트리 (정적)
 

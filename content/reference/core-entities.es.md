@@ -2,9 +2,6 @@
 title = "Otras entidades"
 description = "Primitivas de forma Rect/Circle/Group, más SplineEntity (renderizado de curvas de vectomancy), DOMPortalEntity (proyectar un elemento DOM real en la escena) y SVGEntity (blitting SVG rasterizado) desde el punto de entrada principal de @vectojs/core."
 weight = 8
-
-[extra]
-order = 8
 +++
 
 # Otras entidades (desde `.`)
@@ -87,6 +84,24 @@ en el recorte por viewport.
 Público: `doc`, `lineWidth`, `defaultColor`, `hitTolerance`, `showBounds`
 (default `false`, dibuja un contorno de depuración). `SplineColor` es `[r,g,b]` (0–1), un
 descriptor de gradiente lineal, o `null`.
+
+**`SplineEquation`** — una curva (un color de trazo) en un `SplineDocument`, compuesta por segmentos polinómicos cúbicos consecutivos:
+
+```ts
+interface SplineEquation {
+  color_rgb: SplineColor; // stroke color: [r,g,b] (0-1) | gradient | null
+  data: SplineSegment[]; // one segment per piecewise-cubic run
+}
+
+interface SplineSegment {
+  start_t: number; // t at segment start, [0,1]
+  end_t: number; // t at segment end, [0,1]
+  x_poly: number[]; // x(t) = [a,b,c,d] coefficients
+  y_poly: number[]; // y(t) = [a,b,c,d] coefficients
+}
+```
+
+Los `x_poly`/`y_poly` de un segmento contienen los coeficientes polinómicos de `f(t) = a + b·t + c·t² + d·t³` en `t ∈ [start_t, end_t]`. Para inspeccionar o hacer hit-test de un segmento como Bézier, `polySegmentToBezier(seg)` lo convierte en `BezierControlPoints` (`x0,y0,cp1x,cp1y,cp2x,cp2y,x3,y3`) — que es la forma que `SplineEntity` mismo aplana para el renderizado.
 
 ## DOMPortalEntity
 

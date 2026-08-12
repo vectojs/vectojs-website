@@ -2,9 +2,6 @@
 title = "Markdown"
 description = "Canvas-native Markdown renderer with rich text, code blocks, tables, frame-coalesced StreamController, and link callbacks — the standalone @vectojs/markdown package."
 weight = 14
-
-[extra]
-order = 14
 +++
 
 # `Markdown` — `@vectojs/markdown`
@@ -74,6 +71,25 @@ screen reader announces, so use it for non-English documents. Both `writeClipboa
 and `saveFile` are injectable because the platform paths are absent in jsdom.
 `showCodeLanguage` reserves a header band that also stops the controls from
 overlapping the first line of code — turn it on when combining both.
+
+Per-kind overrides (`0.20.x+`): `affordances.code` / `affordances.table` disable
+copy/download for one block kind without touching the other — a table that
+already offers copy in its own UI no longer needs two overlapping controls:
+
+```ts
+markdown.setOptions({
+  blockAffordances: true,
+  affordances: {
+    table: { copy: false, download: false }, // keep code-block controls only
+    code: { download: false }, // per-kind, inherits top-level defaults
+  },
+});
+```
+
+An omitted per-kind key inherits the top-level `copy`/`download`, which inherit
+`true`. Code blocks can additionally be outlined with a border by setting
+`theme.codeBorderColor` (optional; unset keeps the previous borderless
+rendering) — useful on light page backgrounds where the code fill blends in.
 
 ## Responsive width: `setMaxWidth()`
 

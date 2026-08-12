@@ -2,9 +2,6 @@
 title = "使用案例"
 description = "VectoJS 最適合的場景：儀表板、串流 UI、無限畫布、遊戲、編輯器、WebXR 和進階互動網站。"
 weight = 5
-
-[extra]
-order = 5
 +++
 
 # 使用案例

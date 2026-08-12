@@ -2,9 +2,6 @@
 title = "Construyendo Entidades Personalizadas"
 description = "Aprende a crear subclases de Entity para construir tus propios componentes de canvas: transformaciones, renderizado, hit-testing, animación, agrupación por lotes y accesibilidad."
 weight = 9
-
-[extra]
-order = 9
 +++
 
 # Construyendo Entidades Personalizadas

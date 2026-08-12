@@ -2,9 +2,6 @@
 title = "ThreeRenderer"
 description = "将 Three.js 用作 VectoJS Scene 的 IRenderer 后端：已实现的方法、GLSL 渐变 shader 布局，以及线宽注意事项。"
 weight = 43
-
-[extra]
-order = 43
 +++
 
 # `ThreeRenderer`

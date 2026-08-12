@@ -2,9 +2,6 @@
 title = "Por qué VectoJS"
 description = "El problema que VectoJS resuelve, en qué se diferencia de las bibliotecas de DOM y canvas, y cuándo no usarlo."
 weight = 2
-
-[extra]
-order = 2
 +++
 
 # Por qué VectoJS

@@ -2,9 +2,6 @@
 title = "UI: Table"
 description = "Canvas-native grid table for compact data previews and Markdown table output."
 weight = 31
-
-[extra]
-order = 31
 +++
 
 # `Table`

@@ -2,9 +2,6 @@
 title = "Use Cases"
 description = "VectoJSが最も適する場所：ダッシュボード、ストリーミングUI、無限キャンバス、ゲーム、エディター、WebXR、そして高度なインタラクティブサイト。"
 weight = 5
-
-[extra]
-order = 5
 +++
 
 # Use Cases

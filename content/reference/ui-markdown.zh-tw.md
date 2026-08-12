@@ -2,9 +2,6 @@
 title = "Markdown"
 description = "具有豐富文字、程式碼區塊、表格、串流附加和連結回呼的 canvas-native Markdown 渲染器 — 獨立的 @vectojs/markdown 套件。"
 weight = 14
-
-[extra]
-order = 14
 +++
 
 # `Markdown` — `@vectojs/markdown`
@@ -17,7 +14,7 @@ order = 14
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>此範例將文章、連結、行內程式碼和一個圍欄區塊保持在一個聚焦的視口中，讓布局缺陷清晰可見。</figcaption>
 </figure>
 
@@ -48,10 +45,33 @@ interface MarkdownOptions {
   onLinkClick?: (href: string) => void;
   selectable?: boolean; // default true
   userTiming?: boolean; // emit a `vecto:markdown:parse` measure, default false
+  blockAffordances?: boolean; // copy/download controls on code blocks + tables, default false
+  affordances?: BlockAffordanceConfig; // which controls + labels, e.g. { download: false }
+  showCodeLanguage?: boolean; // fence language in a header band per code block, default false
+  writeClipboard?: (text: string) => void; // injectable clipboard write (jsdom/tests)
+  saveFile?: (filename: string, content: string, mimeType: string) => void; // injectable download
 }
 ```
 
 `selectable` 會傳播到當前和未來的標題、文章、列表、圍欄程式碼和表格儲存格。在執行階段使用 `markdown.setSelectable(false)` 變更它。瀏覽器擁有拖曳選取、Ctrl/Command+C 和頁面內尋找；VMT entity 仍擁有布局和像素。有序和無序列表項目使用可選取的 `RichText`；每個 GFM 表格儲存格擁有一個可選取的投射。邏輯來源順序和硬/軟分隔符在巢狀的 Markdown 輸出中維持完整。Core 1.8 透過二維游標幾何路由變換過的文章，並透過共用的預備網格路由圍欄程式碼，因此列表、GFM 表格、換行的阿拉伯文/RTL 文字和程式碼在分數 DPR 和縮放下保留邏輯複製順序。當應用程式擁有容器尺寸或 CSS 縮放時，使用 `scene.resize(width, height)` 通知 Scene，讓 Firefox 可以重新校準原生 Range 度量。
+
+### 區塊操作控件（複製 / 下載）
+
+`blockAffordances: true` 會在程式碼區塊和表格的右上角繪製複製 + 下載控件。它是刻意採用選擇加入設計的：每個控件都是 Tab 順序中的一個可聚焦節點，而含有大量圍欄區塊的文件若靠鍵盤逐個貼上會非常繁瑣（並且沒有剪貼簿/檔案系統權限的讀者也得不到任何好處）。`affordances` 會收窄或重新標記這一組控件——這些標籤是用戶可見的文字，也是螢幕閱讀器所播報的內容，因此請為非英語文件使用它。`writeClipboard` 和 `saveFile` 都是可注入的，因為 jsdom 中不存在這些平台路徑。`showCodeLanguage` 會預留一條頁首帶，它也能防止控件與第一行程式碼重疊——在同時啟用兩者時請打開它。
+
+按種類覆寫（`0.20.x+`）：`affordances.code` / `affordances.table` 可為一種區塊類型停用複製/下載，而不影響另一種——如果表格自身的 UI 已經提供複製功能，它就不再需要兩個重疊的控件：
+
+```ts
+markdown.setOptions({
+  blockAffordances: true,
+  affordances: {
+    table: { copy: false, download: false }, // keep code-block controls only
+    code: { download: false }, // per-kind, inherits top-level defaults
+  },
+});
+```
+
+省略的種類鍵會繼承頂層 `copy`/`download`，而後者預設繼承 `true`。程式碼區塊還可以透過設定 `theme.codeBorderColor` 加上邊框（選用；未設定則維持先前無邊框的渲染）——在淺色頁面背景上程式碼填充色容易融入時很有用。
 
 ## 響應式寬度：`setMaxWidth()`
 
@@ -221,7 +241,28 @@ const stream = markdown.createStream({
 
 ## 擴充點
 
-`renderToken(token)` 是受保護的，因此自訂渲染器可以子類化 `Markdown` 以處理應用專屬的區塊，同時仍將一般 token 委派給內建渲染器。
+存在兩個擴充面：
+
+- **`renderToken(token)`** 是受保護的，因此自訂渲染器可以子類化 `Markdown` 以處理應用專屬的區塊，同時仍將一般 token 委派給內建渲染器。
+- **圍欄區塊註冊表（Fenced block registry）** —— 針對程式碼圍欄的可插拔渲染，以資訊字串為鍵（code、math、mermaid、graphviz……）。渲染器在首次 `render()` 時懶載入並進行快取；`'error'` 會回退到預設的程式碼區塊渲染器。
+
+```ts
+import { FencedBlockRegistry } from '@vectojs/markdown';
+
+FencedBlockRegistry.register('mermaid', {
+  async load() {
+    const mermaid = await import('mermaid');
+    return (source, lang, options) => {
+      /* render → Entity */
+    };
+  },
+});
+FencedBlockRegistry.unregister('mermaid');
+```
+
+`FencedBlockRenderOptions` 攜帶 `{ theme, availableWidth, selectable }`。相關匯出：用於主題解析的 `isFencedBlockRendererReady`、`renderFencedBlock`，以及 `PRESET_THEMES` / `resolvePresetTheme` / `isPresetName`，還有輔助函式 `tableToCsv` / `tableToMarkdown` / `extensionForLanguage` / `mimeForLanguage`（即操作控件和匯出功能的內部實作）。
+
+其他實用工具面：`Markdown.setUserTiming(on)`（解析度量的執行階段開關）、`codeAtlas` / `codeAtlasStats` / `highlightedLanguages`（atlas 診斷），以及用於選用 TeX 數學渲染器的 `MathBlock` / `preloadMathJax()` / `isMathJaxReady`（懶載入，預設不會引入）。
 
 ## 維護者檢查清單
 

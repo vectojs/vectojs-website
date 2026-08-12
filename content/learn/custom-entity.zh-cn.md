@@ -2,9 +2,6 @@
 title = "构建自定义实体"
 description = "学习如何继承Entity来构建自己的canvas组件：变换、渲染、命中测试、动画、批处理和无障碍。"
 weight = 9
-
-[extra]
-order = 9
 +++
 
 # 构建自定义实体

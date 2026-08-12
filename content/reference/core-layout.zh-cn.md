@@ -2,9 +2,6 @@
 title = "布局引擎"
 description = "独立的 @vectojs/layout 包（也是 @vectojs/core/layout 子路径）：将昂贵的文本分段+测量与廉价的换行+定位算术分离的冷/热分离、流式记忆化、富文本和排除形状。"
 weight = 4
-
-[extra]
-order = 4
 +++
 
 # 布局引擎（冷/热分离）—— `@vectojs/layout`
@@ -41,6 +38,10 @@ layoutTextIntoBuffer(text, fontAtlas, fontSize, buffer, exclusionMask?): void
 - `LayoutResult` —— `{ nodes: LayoutNode[], totalWidth, totalHeight, fallbackToCanvas? }`；`LayoutNode` 是一个定位的字形。
 - `LayoutResultBuffer` —— 扁平的类型化数组结果（`xs/ys/ws/hs`、`chars`、`levels`、`count`、`CAPACITY = 16384`）；重用前 `reset()`，用 `toLayoutResult()` 实体化。`levels` 是每个字形解析后的 BiDi 嵌入级别（偶数 = LTR，奇数 = RTL），因此消费者可以判断字形的方向；缓冲路径使用它来将每行重排为视觉顺序。字形以**视觉**顺序输出，共享基线，与分配路径逐字形匹配。
 - `LayoutWorkerManager.getInstance()` —— 用于线程外布局的单例；`queueLayout(entityId, text, { fontId, fontSize, maxWidth, maxHeight, callback, ... })` / `cancelLayout(entityId)`。被 [`MSDFTextEntity`](/reference/core-text/#msdftextentity) 使用。
+
+值得了解的实用导出：`createMetricsMeasurer(fontFamily?, baseSize?)` 和 `resolveGlyphMeasurer(...)` 用于构建 `GlyphMeasurer`；`EMPTY_GLYPH_ATLAS` 是无度量回退图集；`isComplexScript(text)` 报告塑形是否需要脚本项化器（script itemizer）；`computeMSDFLayout(...)` 是工作线程路径离线运行的纯布局函数；`cacheStats()` / `resetCacheStats()` 和 `clearCssLineBoxMetrics()` 是用于诊断的引擎级缓存。
+
+- `InlineObject` —— 富文本段落中的内联替换元素（图像、图标、数学框）：`{ width, height, depth?, alt?, paint? }`。该 span 必须由 U+FFFC `OBJECT_REPLACEMENT` 哨兵组成；引擎保留框度量，并在消费者渲染时在文本的局部坐标空间中调用 `paint(surface: InlineObjectSurface, box: InlineObjectBox)`（无需深度簿记）。`alt` 是用于可访问名称、选择和复制的文本等效项——没有它，原始哨兵会泄漏到 a11y 层。`paint` 是段落记忆键的一部分（连同 `alt`）：两个比较相等的对象共享一个缓存的段落，因此在 `alt` 之外选择的图片（例如 Markdown 图片 URL——徽章列的情况）必须在此声明，否则每个外观相同的对象都会绘制第一个对象的图片。`depth` 镜像 CSS `vertical-align` 且符号翻转（MathJax 的 `vertical-align: -0.486ex` → `depth: 0.486 * exToPx`）。
 
 参见[文本与排版](/learn/text-typography/)了解用法，以及 [Text & Bidi](/reference/core-text/) 了解消费此引擎输出的字体/字形渲染层。
 

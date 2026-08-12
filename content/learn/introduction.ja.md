@@ -2,9 +2,6 @@
 title = "VectoJS入門"
 description = "VectoJSとは何か、何のためのものか、次にどこへ進むべきかを簡潔に概説します。"
 weight = 1
-
-[extra]
-order = 1
 +++
 
 # VectoJS入門

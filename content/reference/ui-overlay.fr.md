@@ -2,9 +2,6 @@
 title = "Overlay"
 description = "Primitives dʼUI flottante pour Tooltip, Popover et ContextMenu, montées via la racine de superposition de la Scene."
 weight = 15
-
-[extra]
-order = 15
 +++
 
 # Overlay
@@ -17,7 +14,7 @@ le même système dʼanimation.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Overlay</span></div>
-  <iframe src="/sandbox/ui/overlay.html?v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Démonstration live dʼOverlay" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/overlay.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Démonstration live dʼOverlay" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Survolez ou cliquez sur les lanceurs. Popover et ContextMenu sont positionnés pour éviter le défaut de débordement difficile à détecter dans une grande galerie.</figcaption>
 </figure>
 

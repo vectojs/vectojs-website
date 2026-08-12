@@ -2,9 +2,6 @@
 title = "FAQ"
 description = "关于 VectoJS 的常见问题 —— 架构决策、性能、无障碍和故障排除。"
 weight = 49
-
-[extra]
-order = 49
 +++
 
 # 常见问题
@@ -325,3 +322,50 @@ bun add -d @webgpu/types
 ```json
 { "compilerOptions": { "types": ["@webgpu/types"] } }
 ```
+
+### 文本或图片看起来模糊（DPR）
+
+Canvas 文本默认按设备像素比渲染 —— 如果看起来模糊，说明 canvas 后备存储的尺寸设得比显示器的 DPR 更低（通常是因为页面被缩放，或自定义布局容器在不调用 `scene.resize()` 的情况下调整了它）。两个处理方式：
+
+- `maxDPR` 限制渲染 DPR（选项或实时）。在 3x 手机上用 `maxDPR: 2` 设置尺寸的静态页面能让成本有界 —— 但把上限设得低于面板的真实 DPR 正是产生模糊的原因，所以要刻意设置上限。
+- 任何手动调整大小/缩放后，再次调用 `scene.resize(w, h)` —— 每次 `resize()` 都会重新读取 DPR 并重建后备存储。canvas CSS 盒发生变化而未经过 `resize()` 的场景会以过时的 DPR 渲染并显得柔和；Firefox 选择校准的症状（拖拽高亮从字形漂移）也是同样的原因。
+
+### MSDF 文本从未出现（或出现较晚）
+
+`MSDFTextEntity` 通过 `blob:` Worker 在离线程进行布局。在严格 CSP 下（`default-src 'self'`、`worker-src 'none'` 或不含 `blob:` 的 `script-src`），`new Worker(blob:…)` 并**不会**抛出异常 —— 它会构造并触发 `onerror`，因此 CSP 看起来完全像崩溃。连续两次失败后，管理器会放弃并从主线程提供布局，所以文本仍然会出现 —— 只是不通过 worker，而且前几次请求在回退生效期间可能看起来像在"挂起"。调试顺序：先检查浏览器控制台中的 `worker-src` / `blob:` 违规（回退在那里不可见），然后确认场景确实运行了 `pointBackend: 'webgl'` —— Canvas2D 回退路径需要设置 `fallbackFont`，否则没有东西可绘制。
+
+### 场景卡在约 2 fps
+
+这是空闲自动节流按设计工作：静态场景（不脏、无待定过渡）以约 2 fps 渲染以省电。如果你的内容应该动起来，要么通过 `entity.animate()` / `setTransition` 驱动它（这会让场景保持非静态），要么在帧**之间**调用 `scene.markDirty()` —— 从事件处理器、独立的 `rAF` 或定时器 —— 绝不要在 `update()` 内部调用，因为渲染后的脏重置会抹掉它。核选项是 `scene.autoThrottle = false`（或 `autoThrottle: false` 选项），它会无条件每帧渲染。
+
+### `onDemand` 场景从不重新绘制
+
+`renderMode: 'onDemand'` 只在场景脏或有待定过渡时绘制。经典遗漏：从你自己的 `update()` 或 `Image` `onLoad` 中改变实体状态而没有调用 `scene.markDirty()`。UI 组件中的值/悬停/焦点变化（`Slider.setValue`、`ProgressBar.setValue`、`Button` 悬停）都以它作为重新绘制的门控。如果一帧应该变化但没有，调用一次 `scene.markDirty()`（例如从 `onLoad`/事件处理器），下一帧 rAF 就会绘制它。
+
+### 我的实体的 `click`/`hover` 事件从不触发
+
+事件只在**交互**实体上派发（`interactive = true`，或自行设置它的组件，或带 `label` 的 `Card`）。`Text`/`RichText` 刻意不可交互 —— 它们的语义存在是内容投影，而位于可选文本之上的交互影子节点会拦截指针。还要检查实体确实有一个盒（`width`/`height` > 0 或 `getBatchCircle`/`getBatchRect`）：命中测试需要几何。
+
+### `ScrollView` 无法滚动
+
+两个检查：内容必须实际**超出**视口 —— `updateContentSize()` 从子元素范围计算最大滚动范围，所以比视口小的内容没有可滚动的 —— 而且默认弹簧欠阻尼（ζ ≈ 0.45），释放时会过冲约 20%。对于类文档内容，传入 `scrollPhysics: DOCUMENT_SCROLL_PHYSICS`（导出的 `{ stiffness: 180, damping: 27 }` 预设，ζ ≈ 1.0，无过冲）。
+
+### `Modal` / `Tooltip` / `Popover` 从不打开
+
+这些是浮动层，不是场景子元素 —— 它们必须自行挂载：`Modal` 用 `scene.showOverlay(modal)`，`ContextMenu`/`Popover` 用 `showAtPoint(x, y, source)`，其中 `source` 在菜单挂载前是必需的（一个 `Scene` 或已挂载的 `Entity`）。`Tooltip`/`Popover` 还会向它们的 `target` 实体附加一个监听器 —— 用完时务必 `destroy()` 它们，否则处理器会泄漏。
+
+### `Table` / `VirtualList` 忽略尺寸或内容变化
+
+`Table` 在构造函数中解析一次它的 `width` —— 只有 `setWidth()`（以及行用 `appendRows()`）会重新布局；直接改变 `table.width` 没有作用。没有 `keyForItem` 的 `VirtualList` 会清除每一行的测量，并在 `setItems()` 时跳到顶部 —— 对替换的列表正确，对增长中的记录则错误；传入 `keyForItem`（例如消息 id）并可选用 `stickToBottomThreshold` 让跟随的视口固定在底部。
+
+### Three.js 纹理过期 / 冻结
+
+`ThreeAdapter` 只在 VectoJS 场景实际**渲染**时设置 `texture.needsUpdate`（它代理 `Scene.render`）。在 `renderMode: 'onDemand'` 下，空闲场景从不渲染，所以纹理保持其最后一帧。为暂停的面板驱动 `markDirty()` / `step()`（例如从 Three 的 rAF），或以 `'always'` 模式运行场景。
+
+### graph3d 布局爆炸或组件漂移分离
+
+两种布局都是力模型：**爆炸**的图通常是 `setGraph` 后的链接不匹配（链接引用不再存在的节点 id —— 缺失节点的位置未初始化）。在 `forceCenter` 下组件漂移分离，是力模型对断开子图的正常行为 —— 添加 `centerStrength`（VectoForceLayout）或接受漂移。当运行间稳定性重要时，使用带 `seed` 的 `VectoForceLayout` —— 它是确定性的；`D3ForceLayout` 从 d3 自己的随机放置开始，不是确定性的。固定节点保留 `fx/fy/fz`（初始 `x/y/z` 种子作为起始位置而非固定传递）。
+
+### `@vectojs/styles` —— 我的 `var(--token)` 未解析 / 主题从未改变
+
+`var(--key)` 在 `applyStyle` 时针对**活动**主题解析，包含 token 的样式会在 `setTheme(next)` 运行时重新应用。如果颜色从未改变，样式可能持有字面值（无 `var()`），这是刻意不跟踪的。如果 `applyStyle` 本身抛出 `unknown token`，说明 key 在活动主题中缺失 —— 记住 key 书写时不带 `--` 前缀（`tokens({ accent: … })` ↔ `var(--accent)`），而且当切换到的主题丢失被引用的 token 时，`setTheme` 也会抛出同样的错误。一个值未通过属性验证的 token（例如 `--radius-md: "50%"`）在切换时也会抛出。参见 [`styles`](/reference/styles/)。

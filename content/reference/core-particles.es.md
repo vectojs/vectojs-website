@@ -2,9 +2,6 @@
 title = "ComputeParticleEntity"
 description = "La capa de partículas de alto rendimiento: diseño de memoria Float32Array por partícula, simulación en CPU de resorte/amortiguación/explosión y la ruta de cómputo WebGPU con degradado automático a CPU."
 weight = 6
-
-[extra]
-order = 6
 +++
 
 # `ComputeParticleEntity` — capa de partículas de alto rendimiento

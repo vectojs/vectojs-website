@@ -2,9 +2,6 @@
 title = "Engine Concepts"
 description = "The eight mathematical and architectural ideas behind VectoJS."
 weight = 4
-
-[extra]
-order = 4
 +++
 
 # Engine Concepts

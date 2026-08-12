@@ -2,9 +2,6 @@
 title = "Getting Started"
 description = "Install VectoJS, create a Scene, and build a complete settings panel with Input, Toggle, Slider, Button, and ScrollView."
 weight = 7
-
-[extra]
-order = 7
 +++
 
 # Getting Started

@@ -2,9 +2,6 @@
 title = "UI组件"
 description = "@vectojs/ui组件库概述：表单、布局容器、覆盖层和富内容。"
 weight = 16
-
-[extra]
-order = 16
 +++
 
 # UI组件
@@ -166,14 +163,14 @@ import { RadioGroup } from '@vectojs/ui';
 
 const radio = new RadioGroup({
   options: [
-    { value: 'light', label: '浅色模式' },
-    { value: 'dark', label: '深色模式', disabled: false },
-    { value: 'system', label: '系统默认' },
+    { value: 'light', label: 'Light Mode' },
+    { value: 'dark', label: 'Dark Mode', disabled: false },
+    { value: 'system', label: 'System Default' },
   ],
-  value: 'dark', // 初始选择的值
-  gap: 28, // 选项之间的垂直间距，默认28
-  color: '#e2e8f0', // 标签文本颜色
-  accent: '#00f0ff', // 选中圆圈的填充颜色
+  value: 'dark', // initially selected value
+  gap: 12, // vertical spacing between options, default 12
+  color: '#e2e8f0', // label text color
+  accent: '#2563eb', // fill color for the selected circle
   onChange: (val) => setTheme(val),
 });
 scene.add(radio.setPosition(40, 40));
@@ -185,11 +182,11 @@ scene.add(radio.setPosition(40, 40));
 | ---------- | --------------------- | ----------- | --------------------------------- |
 | `options`  | `RadioOption[]`       | —           | `{ value, label, disabled? }`数组 |
 | `value`    | `string`              | `''`        | 初始选中的值                      |
-| `gap`      | `number`              | `28`        | 行之间的垂直间距                  |
-| `accent`   | `string`              | `'#00f0ff'` | 选中圆圈的填充色                  |
+| `gap`      | `number`              | `12`        | 行之间的垂直间距                  |
+| `accent`   | `string`              | `'#2563eb'` | 选中圆圈的填充色                  |
 | `onChange` | `(v: string) => void` | —           | 选择变化时的回调                  |
 
-随时调用`radio.setValue(val)`以编程方式更改选择。投影`role="radiogroup"`，每个选项带有独立的`role="radio"` + `aria-checked`。
+随时调用`radio.selectByValue(val, focusIt?)`以编程方式更改选择。投影`role="radiogroup"`，每个选项带有独立的`role="radio"` + `aria-checked`。
 
 ### `Tabs`
 
@@ -205,18 +202,18 @@ const tabs = new Tabs({
   width: 500,
   height: 360,
   tabs: [
-    { id: 'settings', label: '设置', content: settingsPane },
-    { id: 'preview', label: '预览', content: previewPane },
+    { id: 'settings', label: 'Settings', content: settingsPane },
+    { id: 'preview', label: 'Preview', content: previewPane },
   ],
-  activeTabId: 'settings', // 默认：第一个标签
-  tabHeight: 36, // 标签栏高度，默认36
-  selectedColor: '#00f0ff', // 活动标签下划线/文本颜色
-  onChange: (tabId) => console.log('活动标签：', tabId),
+  value: 'settings', // default: first tab
+  tabHeight: 40, // height of the tab bar, default 40
+  selectedColor: '#00f0ff', // active tab underline / text color
+  onChange: (tabId) => console.log('Active tab:', tabId),
 });
 scene.add(tabs.setPosition(20, 20));
 
-// 以编程方式切换标签：
-tabs.setActiveTab('preview');
+// Rename a tab label programmatically:
+tabs.setLabel('settings', 'Configuration');
 ```
 
 关键选项：
@@ -224,8 +221,8 @@ tabs.setActiveTab('preview');
 | 选项            | 类型                   | 默认值      | 说明                             |
 | --------------- | ---------------------- | ----------- | -------------------------------- |
 | `tabs`          | `TabItem[]`            | —           | `{ id, label, content: Entity }` |
-| `activeTabId`   | `string`               | 第一个标签  | 初始可见的标签                   |
-| `tabHeight`     | `number`               | `36`        | 标签栏行的像素高度               |
+| `value`         | `string`               | 第一个标签  | 初始可见的标签                   |
+| `tabHeight`     | `number`               | `40`        | 标签栏行的像素高度               |
 | `selectedColor` | `string`               | `'#00f0ff'` | 活动标签强调色                   |
 | `onChange`      | `(id: string) => void` | —           | 标签切换时触发                   |
 
@@ -303,11 +300,9 @@ const rich = new RichText(
 ```typescript
 import { Overlay } from '@vectojs/ui';
 
-const overlay = new Overlay({
-  target: button,
-  content: popoverCard,
-  placement: 'bottom-start',
-});
+const overlay = new Overlay({ width: 240, height: 120 });
+overlay.showAt(button, 'bottom-start'); // or overlay.showAtPoint(x, y)
+overlay.add(popoverCard);
 ```
 
 ### `Tooltip`
@@ -365,8 +360,10 @@ import { VirtualList } from '@vectojs/ui';
 const list = new VirtualList({
   width: 300,
   height: 500,
-  itemHeight: (idx) => measuredHeights[idx], // 或固定高度使用number
-  itemRenderer: (idx) => createListItemEntity(idx),
+  items: myData,
+  renderItem: (item, index) => createListItemEntity(item, index),
+  estimatedRowHeight: 24, // exact value for fixed heights; measured per row otherwise
+  keyForItem: (item) => item.id, // stable identity: keeps heights + scroll anchor across setItems()
 });
 ```
 

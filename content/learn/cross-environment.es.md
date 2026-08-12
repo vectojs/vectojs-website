@@ -2,9 +2,6 @@
 title = "Consistencia entre entornos"
 description = "Mantener una UI de canvas idéntica entre sistemas operativos, navegadores, niveles de zoom y densidades de píxel — y mantener la selección de texto alineada con la salida renderizada."
 weight = 19
-
-[extra]
-order = 19
 +++
 
 # Consistencia entre entornos

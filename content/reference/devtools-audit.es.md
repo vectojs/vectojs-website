@@ -2,9 +2,6 @@
 title = "Devtools: auditoría"
 description = "Verifica que una escena de VectoJS es correcta — auditorías de layout, accesibilidad, shaping de texto y selección que devuelven hallazgos estructurados, más instantáneas y diffs para tests de regresión."
 weight = 50
-
-[extra]
-order = 50
 +++
 
 # Devtools: auditoría

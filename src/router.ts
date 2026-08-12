@@ -45,6 +45,13 @@ export async function handleUrlRoute(url: string): Promise<void> {
 }
 
 export async function navigateTo(url: string): Promise<void> {
+  try {
+    (window as unknown as { __navLog?: string[] }).__navLog?.push(
+      `${new Error().stack?.split('\n')[2]?.trim() || '?'} -> ${url}`,
+    );
+  } catch {
+    // debug aid only
+  }
   if (url.startsWith('http://') || url.startsWith('https://')) {
     try {
       const parsed = new URL(url);

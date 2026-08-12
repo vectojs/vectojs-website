@@ -2,9 +2,6 @@
 title = "Primeros Pasos"
 description = "Instala VectoJS, crea un Scene y construye un panel de ajustes completo con Input, Toggle, Slider, Button y ScrollView."
 weight = 7
-
-[extra]
-order = 7
 +++
 
 # Primeros Pasos

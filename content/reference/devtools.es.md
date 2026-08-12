@@ -2,9 +2,6 @@
 title = "@vectojs/devtools"
 description = "El inspector en página del Virtual Math Tree y su capa de modelo headless — selección de entidades, vista de árbol, auditorías, instantáneas, lecturas de GPU y aceleradores, y puente JSON-RPC."
 weight = 48
-
-[extra]
-order = 48
 +++
 
 # `@vectojs/devtools`

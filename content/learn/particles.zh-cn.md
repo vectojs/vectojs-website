@@ -2,9 +2,6 @@
 title = "粒子系统"
 description = "ComputeParticleEntity：WebGPU计算粒子、CPU回退、8浮点内存布局、鼠标交互和triggerExplosion。"
 weight = 12
-
-[extra]
-order = 12
 +++
 
 # 粒子系统

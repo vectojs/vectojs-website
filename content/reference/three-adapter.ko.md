@@ -2,9 +2,6 @@
 title = "ThreeAdapter"
 description = "VectoJS Scene을 캔버스에 렌더링하고 THREE.CanvasTexture로 노출하며, UV 레이캐스팅을 통해 포인터 이벤트(WebXR 컨트롤러 및 멀티터치 포함)를 연결합니다."
 weight = 42
-
-[extra]
-order = 42
 +++
 
 # `ThreeAdapter`

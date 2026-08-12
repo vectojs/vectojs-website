@@ -2,9 +2,6 @@
 title = "Text & Bidi"
 description = "独立的 @vectojs/text 包（也是 @vectojs/core/text 子路径）：排版度量、MSDF 字体解析、阿拉伯文塑形和 bidi 解析器，外加驻留于 core 的 MSDFTextEntity/GridTextEntity GPU 文本渲染器。"
 weight = 7
-
-[extra]
-order = 7
 +++
 
 # Text & Bidi —— `@vectojs/text`
@@ -77,9 +74,12 @@ getFontMetrics(family: string): FontMetricsSource | undefined
 hasFontMetrics(): boolean
 fontMetricsVersion(): number
 clearFontMetrics(): void
+createMeasuringContext(): CanvasRenderingContext2D | null   // see below
 ```
 
 文本度量通常通过 Canvas 2D 上下文进行，它会测量渲染器实际要绘制的字体。如果没有上下文——如 Node SSR、没有 `OffscreenCanvas` 的 Web Worker——就没有东西可以用来测量，每个字形的 advance 都会退化为一个固定的 `0.5em`。与 Chrome 下 32px 的 `sans-serif` 相比，这在窄文本上误差达到了 **+125%**，在宽文本上误差为 **−47%**，并且 `iiiiiiiiii` 会和 `WWWWWWWWWW` 完全一样宽。自动换行也会继承这个误差，导致断行位置同样出错。
+
+`createMeasuringContext()` 是这种情况的轻量级逃生舱：它创建一个 1×1 的离屏 `<canvas>`（追加到文档 body，不可见，`aria-hidden`）并返回它的 2D 上下文，用于测量没有已注册度量 source 的字体——在无 DOM 环境中则返回 `null`。它就是引擎本身会使用的上下文，因此它测量的是渲染器实际绘制的字体，这是上面基于注册表的路径所不能做到的。共享的单一度量上下文（`getSharedMeasuringContext` / `isSharedMeasuringContextAttached` / `resetSharedMeasuringContext`，同样来自 `@vectojs/text`）是一个单独的记忆化上下文，用于每个 `@vectojs/*` 包——`ctx.font` 在每次读取前都会被赋值，因此共享不会泄露过期的测量值。
 
 在启动时注册一次度量数据即可修复此问题。任何 `msdf-atlas-gen` 生成的 JSON 都可以，并且只读取其中的 `glyphs[].advance`、`kerning` 和 `metrics`——图集图片是无关紧要的，因此一个纯度量文件就足够了，不会进行任何解码：
 
@@ -110,6 +110,31 @@ interface FontMetricsSource {
 `measureEm` 是值得提供的。逐字形的契约是 `measure(char, fontSize, family)` 且没有相邻字符，因此累加的 advance 无法恢复 kerning（在包含大量字距调整的字符串上误差约为 ~10%）。全字符串度量会通过 `measureEm` 并且是精确的。
 
 要检查是否有任何文本是使用编造的 advance 进行测量的，来自 [`@vectojs/layout`](/reference/core-layout/) 的 `unmeasuredGlyphCount()` 会对它们进行计数，并且一次性的控制台警告会指出修复方法。它不同于 `LayoutResult.fallbackToCanvas`，后者仅报告 **atlas** 未命中，并且即使在浏览器中几乎每个段落都会返回 true。
+
+## `@vectojs/tex` —— 零 DOM 的 TeX 排版
+
+`@vectojs/tex` 是 [`Markdown`](/reference/ui-markdown/) 的 `$…$` / ` ```math ` 块背后的独立包。它内置了 KaTeX 的解析/排版内核，并将结果重新输出为一个**自包含的 SVG 字符串**，携带自己的字形轮廓且不引用任何外部内容——这是唯一一种能经受通过 `data URI → Image → createImageBitmap` 栅格化的形式。它是延迟加载的（只有在公式实际出现时才加载），并且是一个独立的、公开的、带版本号的包；`@vectojs/core` **不**重新导出它。
+
+```ts
+import { layout, emitSVG } from '@vectojs/tex';
+
+const { svg, width, height, depth } = emitSVG(layout('x^2 + y^2 = z^2'));
+```
+
+两个 emit 层辅助函数让自定义调用者无需样式表（canvas 没有样式表）即可重现 KaTeX 的样式表派生字体选择：
+
+```ts
+resolveFont(classes: readonly string[]): ResolvedFont
+// ResolvedFont = { font: FontName; substituted: boolean }
+
+sizingRatio(classes: readonly string[]): number
+```
+
+`resolveFont` 将 KaTeX span 的 CSS 类映射到一个具体内置的字体文件（`FontName`，例如 `'Main-BoldItalic'`、`'Size2-Regular'`）。字体选择是**继承的，而非局部的**——嵌套在 `Span[delimsizing size1]` 下的 `SymbolNode` 带有空的类列表，因此请传入每个祖先类的连接后跟符号自身的类，最外层在前（后出现的条目胜出）。请求的字重/样式如果该字族未提供，则会降级到其 Regular 字面，并设置 `substituted: true`，而不是静默地绘制错误。
+
+`sizingRatio` 将 `katex-sizing reset-size<N> size<M>` 类转换为 script/scriptscript 缩放倍率（`toMultiplier / fromMultiplier`）；当这些类不带缩放时返回 `1`，因此调用者可以无条件地进行乘法。这些是 `@vectojs/tex` 以 `ex` 相对度量报告尺寸的底层机制。
+
+`FontName`、`ResolvedFont`、`layout`、`emitSVG` 和 `LayoutOptions` 也从 `@vectojs/tex` 导出（参见其 `src/index.ts`）。
 
 ## 相关
 

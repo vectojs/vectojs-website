@@ -2,9 +2,6 @@
 title = "事件与命中测试"
 description = "指针和键盘事件如何流经VectoJS实体树：捕获、冒泡、VectoJSEvent、表单变更负载和findEntityAt。"
 weight = 10
-
-[extra]
-order = 10
 +++
 
 # 事件与命中测试

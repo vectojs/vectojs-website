@@ -2,9 +2,6 @@
 title = "レンダラー"
 description = "@vectojs/core/renderer サブパス：バックエンド非依存のIRenderer契約、CanvasRenderer、SVGRenderer、WebGLポイント/矩形/スプライト/MSDFレイヤー、Entityコンテンツ投影、およびparseColorToRGBA。"
 weight = 5
-
-[extra]
-order = 5
 +++
 
 # レンダラー — `@vectojs/core/renderer`

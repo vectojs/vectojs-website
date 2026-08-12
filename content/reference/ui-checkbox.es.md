@@ -2,9 +2,6 @@
 title = "UI: Checkbox"
 description = "Control de casilla de verificación con semántica de input nativa y estado visual en canvas."
 weight = 25
-
-[extra]
-order = 25
 +++
 
 # `Checkbox`
@@ -15,7 +12,7 @@ order = 25
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Checkbox</span></div>
-  <iframe src="/sandbox/ui/component.html?name=checkbox&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Checkbox" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=checkbox&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Checkbox" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Los clics en el canvas y los cambios del input nativo comparten la misma ruta `change`.</figcaption>
 </figure>
 

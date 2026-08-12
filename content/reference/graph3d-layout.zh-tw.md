@@ -2,9 +2,6 @@
 title = "GraphLayout & D3ForceLayout"
 description = "圖形資料模型和適合 Worker 的 GraphLayout 合約，以及基於 d3-force-3d 的 D3ForceLayout 實作。"
 weight = 45
-
-[extra]
-order = 45
 +++
 
 # `GraphLayout` & `D3ForceLayout`
@@ -58,7 +55,7 @@ interface GraphLayout {
 
 該合約刻意保持精簡且適合 Worker 使用：位置是一個平面 `Float32Array`，包含按 `GraphData.nodes` 順序排列的 xyz 三元組，因此實作可以完全存在於 Web Worker 內部，並將其緩衝區作為可轉移物件跨越執行緒邊界串流傳輸，無需每個節點的物件流量。[`Graph3D.applyPositions()`](/reference/graph3d-renderer/#方法) 直接使用完全相同的緩衝區形狀。`positions` 是跨步驟重複使用的**同一個陣列實例** — 如果您需要穩定的快照而非即時檢視，請複製它（`layout.positions.slice()`）。
 
-`@vectojs/graph3d` 目前提供一個實作；更多的轉接器（`ngraph`）和 DAG 佈局模式已在套件路線圖上，所有這些都位於同一個介面之後，因此渲染器或 Worker 主機無需知道正在執行哪一個。
+`@vectojs/graph3d` 今天提供兩個實作：下方的 [`D3ForceLayout`](#d3forcelayout) 和自有的 [`VectoForceLayout`](#vectoforcelayout)（Barnes–Hut，無 d3 依賴）—— 另外還有 DAG 佈局模式在套件路線圖上，所有這些都位於同一個介面之後，因此渲染器或 Worker 主機無需知道正在執行哪一個。
 
 ## `D3ForceLayout`
 
@@ -75,6 +72,26 @@ interface D3ForceLayoutOptions {
 適配 [d3-force-3d](https://github.com/vasturiano/d3-force-3d) — 與 `3d-force-graph` 背後的相同引擎 — 因此圖形調整過的力會保留其感覺。在 3 維度中執行 `forceLink` + `forceManyBody` + `forceCenter`。
 
 d3 模擬會修改自己的節點記錄（`x`/`y`/`z`/`vx`/...），因此 `setGraph` 會將每個節點複製到內部模擬記錄中，而非直接將您的 `GraphData.nodes` 物件交給它 — 只有宣告的 `fx`/`fy`/`fz` 固定點會被帶入。模擬自己的計時器從不啟動；`step(iterations = 1)` 同步推進它，這正是 `D3ForceLayout` 可以在 Web Worker 內使用而無需偽造 `requestAnimationFrame` 的原因。
+
+## `VectoForceLayout`
+
+```ts
+new VectoForceLayout(options?: VectoForceLayoutOptions)
+
+interface VectoForceLayoutOptions {
+  linkDistance?: number;   // target resting length of links. Default 30.
+  linkStrength?: number;   // spring stiffness of links. Default 0.3.
+  repulsion?: number;      // many-body repulsion strength. Default 300.
+  centerStrength?: number; // pull toward the centroid. Default 0.02.
+  velocityDecay?: number;  // per-step velocity damping. Default 0.6.
+  theta?: number;          // Barnes–Hut opening angle. Default 0.9.
+  alphaDecay?: number;     // cooling rate. Default 0.0228; 0 disables cooling.
+  alphaMin?: number;       // alpha below which step() reports cooled. Default 0.001.
+  seed?: number;           // RNG seed for deterministic placement. Default 1.
+}
+```
+
+自有佈局（0.3.0 新增）：一種力導向模擬，多體項使用 Barnes–Hut 八叉樹 —— 無 d3 依賴，在 `seed` 下具有確定性，且可在 Web Worker 內安全執行（與 `D3ForceLayout` 相同的 `step(iterations)` 合約）。當您希望多次執行獲得相同結果時選擇它；使用 `repulsion`/`linkStrength` 進行調整，並謹慎地將 `alphaDecay` 提升到零以上 —— 它已接近冷卻邊緣，因此較高的值會讓圖更早而非更晚凍結。
 
 ```ts
 layout.step(); // 一次 tick

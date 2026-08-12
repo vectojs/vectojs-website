@@ -2,9 +2,6 @@
 title = "Devtools: puente y plugins"
 description = "Conduce una escena de VectoJS desde otro documento mediante un puente JSON-RPC, y extiende el inspector con tus propias pestañas, auditorías y comandos."
 weight = 52
-
-[extra]
-order = 52
 +++
 
 # Devtools: puente y plugins

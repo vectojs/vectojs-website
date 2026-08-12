@@ -2,9 +2,6 @@
 title = "Getting Started"
 description = "VectoJSをインストールし、Sceneを作成し、Input、Toggle、Slider、Button、ScrollViewを備えた完全な設定パネルを構築します。"
 weight = 7
-
-[extra]
-order = 7
 +++
 
 # Getting Started

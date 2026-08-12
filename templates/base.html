@@ -1,64 +1,163 @@
 <!doctype html>
 <html lang="{% if lang %}{{ lang }}{% else %}en{% endif %}">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="{% block description %}{{ config.description }}{% endblock description %}">
-  <title>{% block title %}{{ config.title }}{% endblock title %}</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  
-  <!-- Inline theme script to prevent flash -->
-  <script>
-    (function() {
-      try {
-        var stored = localStorage.getItem('vecto-theme');
-        var theme = stored === 'light' || stored === 'dark' ? stored :
-          (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-        document.documentElement.setAttribute('data-theme', theme);
-      } catch (e) {
-        document.documentElement.setAttribute('data-theme', 'dark');
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="{% block description %}{{ config.description }}{% endblock description %}"
+    />
+    <title>{% block title %}{{ config.title }}{% endblock title %}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 300;
+        font-display: swap;
+        src: url(https://cdn.vectojs.org/website/fonts/Inter-300.woff2)
+          format("woff2");
       }
-    })();
-  </script>
-  
-  <!-- Minimal CSS for skeleton -->
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background-color: #0b0f19;
-      overflow: auto;
-    }
-    html[data-theme='light'], html[data-theme='light'] body {
-      background-color: #f8fafc;
-    }
-    #vecto-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: auto;
-    }
-  </style>
-  
-  {% block extra_head %}{% endblock extra_head %}
-</head>
-<body>
-  <canvas id="vecto-canvas"></canvas>
-  
-  <script id="page-data" type="application/json">
-{
-  "config": {
-    "title": {{ config.title | json_encode() | safe }},
-    "description": {{ config.description | json_encode() | safe }},
-    "github": {{ config.extra.github | json_encode() | safe }},
-    "gallery": {{ config.extra.gallery | json_encode() | safe }}
-  },
-  "data": {% block page_data %}{}{% endblock page_data %}
-}
-  </script>
-  
-  <script type="module" src="/js/index.js"></script>
-</body>
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(https://cdn.vectojs.org/website/fonts/Inter-400.woff2)
+          format("woff2");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 500;
+        font-display: swap;
+        src: url(https://cdn.vectojs.org/website/fonts/Inter-500.woff2)
+          format("woff2");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 600;
+        font-display: swap;
+        src: url(https://cdn.vectojs.org/website/fonts/Inter-600.woff2)
+          format("woff2");
+      }
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url(https://cdn.vectojs.org/website/fonts/Inter-700.woff2)
+          format("woff2");
+      }
+      @font-face {
+        font-family: "Outfit";
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(https://cdn.vectojs.org/website/fonts/Outfit-400.woff2)
+          format("woff2");
+      }
+      @font-face {
+        font-family: "Outfit";
+        font-style: normal;
+        font-weight: 600;
+        font-display: swap;
+        src: url(https://cdn.vectojs.org/website/fonts/Outfit-600.woff2)
+          format("woff2");
+      }
+      @font-face {
+        font-family: "Outfit";
+        font-style: normal;
+        font-weight: 800;
+        font-display: swap;
+        src: url(https://cdn.vectojs.org/website/fonts/Outfit-800.woff2)
+          format("woff2");
+      }
+      @font-face {
+        font-family: "Playfair Display";
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url(https://cdn.vectojs.org/website/fonts/PlayfairDisplay-700.woff2)
+          format("woff2");
+      }
+      @font-face {
+        font-family: "Playfair Display";
+        font-style: normal;
+        font-weight: 800;
+        font-display: swap;
+        src: url(https://cdn.vectojs.org/website/fonts/PlayfairDisplay-800.woff2)
+          format("woff2");
+      }
+      @font-face {
+        font-family: "Playfair Display";
+        font-style: normal;
+        font-weight: 900;
+        font-display: swap;
+        src: url(https://cdn.vectojs.org/website/fonts/PlayfairDisplay-900.woff2)
+          format("woff2");
+      }
+    </style>
+
+    <!-- Inline theme script to prevent flash -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("vecto-theme");
+          var theme =
+            stored === "light" || stored === "dark"
+              ? stored
+              : window.matchMedia("(prefers-color-scheme: light)").matches
+                ? "light"
+                : "dark";
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      })();
+    </script>
+
+    <!-- Minimal CSS for skeleton -->
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #0b0f19;
+        overflow: auto;
+      }
+      html[data-theme="light"],
+      html[data-theme="light"] body {
+        background-color: #f8fafc;
+      }
+      #vecto-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: auto;
+      }
+    </style>
+
+    {% block extra_head %}{% endblock extra_head %}
+  </head>
+  <body>
+    <canvas id="vecto-canvas"></canvas>
+
+    <script id="page-data" type="application/json">
+      {
+        "config": {
+          "title": {{ config.title | json_encode() | safe }},
+          "description": {{ config.description | json_encode() | safe }},
+          "github": {{ config.extra.github | json_encode() | safe }},
+          "gallery": {{ config.extra.gallery | json_encode() | safe }}
+        },
+        "data": {% block page_data %}{}{% endblock page_data %}
+      }
+    </script>
+
+    <script type="module" src="/js/index.js"></script>
+  </body>
 </html>

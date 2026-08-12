@@ -2,9 +2,6 @@
 title = "ThreeAdapter"
 description = "将 VectoJS Scene 渲染到 canvas 上，将其暴露为 THREE.CanvasTexture，并通过 UV 光线投射连接指针事件（包括 WebXR 控制器和多点触控）。"
 weight = 42
-
-[extra]
-order = 42
 +++
 
 # `ThreeAdapter`

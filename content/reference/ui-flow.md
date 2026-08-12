@@ -2,9 +2,6 @@
 title = "UI: Flow"
 description = "Horizontal wrapping layout container for chips, tags, and responsive toolbars."
 weight = 22
-
-[extra]
-order = 22
 +++
 
 # `Flow`

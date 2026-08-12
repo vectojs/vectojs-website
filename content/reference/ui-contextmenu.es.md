@@ -2,9 +2,6 @@
 title = "UI: ContextMenu"
 description = "Menú de comandos superpuesto con separadores, filas deshabilitadas, atajos y submenús anidados."
 weight = 39
-
-[extra]
-order = 39
 +++
 
 # `ContextMenu`
@@ -17,7 +14,7 @@ Las versiones UI 1.11.1–1.11.3 hacen seguro el ciclo de vida de las cadenas an
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ContextMenu</span></div>
-  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de ContextMenu" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=contextmenu&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de ContextMenu" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Haz clic en el lanzador para abrir el menú dentro de un viewport limitado.</figcaption>
 </figure>
 

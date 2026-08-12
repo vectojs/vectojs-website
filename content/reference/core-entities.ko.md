@@ -2,9 +2,6 @@
 title = "기타 엔터티"
 description = "Rect/Circle/Group 셰이프 기본 요소와 SplineEntity(vectomancy 커브 렌더링), DOMPortalEntity(실제 DOM 엘리먼트를 Scene에 투영), SVGEntity(래스터화된 SVG 블리팅) — 모두 @vectojs/core 메인 진입점에서 제공됩니다."
 weight = 8
-
-[extra]
-order = 8
 +++
 
 # 기타 엔터티 (`.`에서)
@@ -85,6 +82,24 @@ polySegmentToBezier(seg: SplineSegment): BezierControlPoints
 공개: `doc`, `lineWidth`, `defaultColor`, `hitTolerance`, `showBounds`
 (기본값 `false`, 디버그 외곽선 그리기). `SplineColor`는 `[r,g,b]` (0–1),
 선형-그라데이션 디스크립터 또는 `null`입니다.
+
+**`SplineEquation`** — `SplineDocument`의 한 곡선(한 획 색상)으로, 연속된 3차 다항식 세그먼트로 구성됩니다:
+
+```ts
+interface SplineEquation {
+  color_rgb: SplineColor; // stroke color: [r,g,b] (0-1) | gradient | null
+  data: SplineSegment[]; // one segment per piecewise-cubic run
+}
+
+interface SplineSegment {
+  start_t: number; // t at segment start, [0,1]
+  end_t: number; // t at segment end, [0,1]
+  x_poly: number[]; // x(t) = [a,b,c,d] coefficients
+  y_poly: number[]; // y(t) = [a,b,c,d] coefficients
+}
+```
+
+세그먼트의 `x_poly`/`y_poly`는 `t ∈ [start_t, end_t]`에서 `f(t) = a + b·t + c·t² + d·t³`의 다항식 계수를 보관합니다. 세그먼트를 Bézier로 검사하거나 히트 테스트하려면 `polySegmentToBezier(seg)`가 이를 `BezierControlPoints`(`x0,y0,cp1x,cp1y,cp2x,cp2y,x3,y3`)로 변환합니다 — 이것은 `SplineEntity` 자체가 렌더링을 위해 평탄화하는 형태입니다.
 
 ## DOMPortalEntity
 

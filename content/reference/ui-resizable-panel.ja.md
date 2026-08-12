@@ -2,9 +2,6 @@
 title = "UI: リサイズ可能なパネル"
 description = "ドラッグ可能な分割ペインレイアウトのための PanelGroup、Panel、PanelResizeHandle。"
 weight = 35
-
-[extra]
-order = 35
 +++
 
 # リサイズ可能なパネル
@@ -15,7 +12,7 @@ order = 35
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · PanelGroup</span></div>
-  <iframe src="/sandbox/ui/component.html?name=resizablepanel&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Resizable panel live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=resizablepanel&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Resizable panel live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>パネル間の仕切りをドラッグして、ハンドルのホバーとリサイズの動作を確認してください。</figcaption>
 </figure>
 

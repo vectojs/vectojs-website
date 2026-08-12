@@ -2,9 +2,6 @@
 title = "物理与动画"
 description = "对VMT中的任何实体应用弹簧物理、速度和力导向模拟。"
 weight = 11
-
-[extra]
-order = 11
 +++
 
 # 物理与动画

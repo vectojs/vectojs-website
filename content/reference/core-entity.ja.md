@@ -2,9 +2,6 @@
 title = "Entity"
 description = "すべてのVirtual Math Treeノードの抽象基底：トランスフォーム、アニメーションシステム、キャプチャ/バブルイベント、およびカスタムEntityがオーバーライドできるa11y/バッチングフック。"
 weight = 3
-
-[extra]
-order = 3
 +++
 
 # `Entity`（抽象）
@@ -93,8 +90,8 @@ springTo(props: Partial<Record<AnimatableProp, number>>, cfg?: SpringConfig): Pr
 
 ```ts
 type VectoEvent =
-  | 'click' | 'hover' | 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'pointerleave'
-  | 'change' | 'focus' | 'blur' | 'wheel' | 'keydown' | 'keyup';
+  | 'click' | 'dblclick' | 'hover' | 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'pointerleave'
+  | 'change' | 'focus' | 'blur' | 'wheel' | 'keydown' | 'keyup' | 'scroll';
 
 on(event: VectoEvent, cb: (e: any) => void, options?: { capture?: boolean }): this
 off(event: VectoEvent, cb: (e: any) => void, options?: { capture?: boolean }): this
@@ -105,6 +102,8 @@ dispatchEvent(event: VectoJSEvent): void             // DOMスタイルのキャ
 - `on`/`off` はデフォルトで**バブル**フェーズです；キャプチャフェーズには `{ capture: true }` を渡してください。バブルリスナーはレガシー `emit()` パスでも発火します。
 - `VectoJSEvent<N>` は `nativeEvent` をラップし、`target`、`currentTarget`、`bubbles`、`stopPropagation()`、`stopImmediatePropagation()`、`preventDefault()`、ビューポート `clientX/Y`、論理 `sceneX/Y`、カレントターゲット `localX/Y`、modifierキー、およびパススルー（`deltaX/Y`、`key`、`defaultPrevented`）を追加します。ローカル座標は完全なネストされたアフィン変換を反転します。バブルしないイベントもキャプチャフェーズは実行しますが、バブルフェーズではターゲットのみが発火します。
 - フォームコントロールのシャドウ `<input>` からの `'change'` は `{ value, checked, selectionStart, selectionEnd, composition }` を運びます。`composition` はアクティブなIMEプリエディットの `{ start, length } | null` です。`'wheel'` はネイティブの `WheelEvent` を運びます（`preventDefault()` を呼び出すとページスクロールを停止します）。
+- `'dblclick'` はダブルクリックで発火します（ネイティブ `detail === 2`）。
+- `'scroll'` は `ScrollEventPayload` を運びます — エンティティが自身のシャドウミラーのスクロールオフセットを観察する唯一の方法です：`{ scrollTop, scrollLeft, deltaY, deltaX, maxScrollTop }`。ブラウザがスクロール可能なコンテンツミラー（例：`ScrollView` シャドウノード）をスクロールすると発火します。
 
 使用法については [イベント & ヒットテスト](/learn/events/) を参照してください。
 
@@ -116,6 +115,8 @@ getBatchCircle(): BatchCircle | null         // { radius, color } → レンダ�
 getBatchRect(): BatchRect | null             // { width, height, color } → GPU indexed-quad batch（WebGL pointBackend のみ）
 update(dt: number, time: number): void       // オプションのオーバーライド；dt はミリ秒、time は performance.now()；デフォルトはキューに入ったトゥイーンを進行
 ```
+
+`entity.a11yRegion: boolean`（デフォルト `false`）はエンティティをa11y **グループ化リージョン**としてマークします：子孫は個別にネストされるのではなく共有コンテナに投影されるため、純粋なグループ化コンテナ（例：`width: 0`）でもグループ化されます — 最も近い囲みリージョンが優先され、リージョンはネストできます。宣言的であり、ジオメトリから参照されることはありません。
 
 `getBatchCircle`/`getBatchRect` は**毎フレーム**読み取られます（アニメーションする色/半径も反映されます）。表現可能なバッチリーフは自身の `save/translate/scale/rotate/render/restore` をスキップします；Canvasモードまたはサポートされていない累積アフィン変換は、エンティティの通常の `render()` フォールバックを使用します。
 

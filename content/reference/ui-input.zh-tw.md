@@ -2,9 +2,6 @@
 title = "UI: Input"
 description = "將原生編輯行為鏡射到 canvas 上的單行文字輸入框。"
 weight = 23
-
-[extra]
-order = 23
 +++
 
 # `Input`
@@ -15,7 +12,7 @@ order = 23
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Input</span></div>
-  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Input live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>透過鍵盤輸入或基於角色的自動化填寫文字框。</figcaption>
 </figure>
 

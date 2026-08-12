@@ -1,17 +1,24 @@
-import { Scene } from '@vectojs/core';
-import { Text, RichText } from '@vectojs/ui';
-import { applyStyle, style } from '@vectojs/styles';
+import { Scene, type IRenderer } from '@vectojs/core';
+import { Card, Stack, Text } from '@vectojs/ui';
 import { createArticleMarkdown } from './article';
 import { withWholeLineProjection } from './text-utils';
-import { Container, DividerLine, ReadingProgressBar, PageContainer } from './entities';
+import { Container, DividerLine, fillRect, PageContainer } from './entities';
 import {
   applyWebsiteTheme,
   resolveThemeColors,
   resolveLayoutMetrics,
   websiteThemeName,
+  LAYOUT,
 } from './theme';
+import { createNavbar, type ActiveSection } from './nav';
+import { buildHeroSection } from './hero';
+import { buildHomeSections } from './home';
 import { TocSidebar, MobileToc, type TocEntry } from './toc';
+import { buildSidebar, SIDEBAR_WIDTH, sidebarCollapsed, setSidebarCollapsed } from './sidebar';
 import { navigateTo, handleUrlRoute, setPageDataCallback } from './router';
+import { parseLocale, type Locale } from './i18n/config';
+import { useTranslations } from './i18n/ui';
+import { getHomeStrings } from './i18n/home';
 
 // withWholeLineProjection MUST be applied to every Text/RichText entity.
 //
@@ -37,6 +44,157 @@ let currentPageData: unknown = null;
 let scrollListenersAttached = false;
 let currentMainScroll: Container | null = null;
 let lastDpr = typeof window !== 'undefined' ? window.devicePixelRatio : 1;
+let heroStop: (() => void) | null = null;
+
+function themeName(): 'light' | 'dark' {
+  return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+}
+
+/** Drop a leading `# Title` from an article body (title renders separately). */
+function stripLeadingH1(md: string): string {
+  if (md.startsWith('# ')) {
+    const nl = md.indexOf('\n');
+    return nl === -1 ? '' : md.slice(nl + 1);
+  }
+  return md;
+}
+
+interface BlogCardPage {
+  title: string;
+  description?: string;
+  path: string;
+  date?: string;
+  tags?: string[];
+  author?: string;
+}
+
+/**
+ * One blog post card: meta line, title, description, tag pills, read link.
+ * Composed from `Card` + `Stack` so the whole card is one clickable region
+ * with a proper accessible name and a projected box that matches the paint.
+ */
+function buildBlogCard(
+  parent: Container,
+  page: BlogCardPage,
+  opts: {
+    colors: ReturnType<typeof resolveThemeColors>;
+    contentX: number;
+    innerW: number;
+  },
+  topY: number,
+): number {
+  const { colors, contentX, innerW } = opts;
+  const pad = 24;
+  const contentW = innerW - pad * 2;
+
+  const stack = new Stack({ direction: 'vertical', gap: 10 });
+
+  const metaParts: string[] = [];
+  if (page.date) {
+    metaParts.push(
+      new Date(`${page.date}T00:00:00Z`).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timeZone: 'UTC',
+      }),
+    );
+  }
+  if (page.author) metaParts.push(page.author);
+  if (metaParts.length) {
+    stack.add(
+      new Text(metaParts.join(' · '), {
+        font: '12.8px Inter, sans-serif',
+        color: colors.faint,
+      }),
+    );
+  }
+
+  stack.add(
+    withWholeLineProjection(
+      new Text(page.title, {
+        font: '600 20px Outfit, sans-serif',
+        color: colors.text,
+        maxWidth: contentW,
+      }),
+    ),
+  );
+
+  if (page.description) {
+    stack.add(
+      withWholeLineProjection(
+        new Text(page.description, {
+          font: '14.4px Inter, sans-serif',
+          color: colors.muted,
+          maxWidth: contentW,
+          lineHeight: 22,
+        }),
+      ),
+    );
+  }
+
+  if (page.tags?.length) {
+    const tagRow = new Stack({ direction: 'horizontal', gap: 8 });
+    for (const tag of page.tags.slice(0, 4)) {
+      const label = new Text(tag, {
+        font: '600 11.5px Inter, sans-serif',
+        color: colors.primary,
+      });
+      const pill = new Card({
+        width: label.width + 18,
+        height: label.height + 8,
+        bg: 'rgba(99,102,241,0.12)',
+        radius: 999,
+      });
+      label.x = 9;
+      label.y = 4;
+      pill.add(label);
+      tagRow.add(pill);
+    }
+    stack.add(tagRow);
+  }
+
+  stack.add(
+    new Text('Read post →', {
+      font: '600 13px Inter, sans-serif',
+      color: colors.accent,
+    }),
+  );
+
+  const card = new Card({
+    width: innerW,
+    height: stack.height + pad * 2,
+    bg: colors.bgCard,
+    border: colors.divider,
+    borderWidth: 1,
+    radius: LAYOUT.cardRadius,
+    padding: pad,
+    label: page.title,
+    onClick: () => navigateTo(page.path),
+  });
+  card.x = contentX;
+  card.y = topY;
+  parent.add(card);
+
+  stack.x = contentX + pad;
+  stack.y = topY + pad;
+  parent.add(stack);
+
+  return topY + card.height + 20;
+}
+
+/** Flip `data-theme` + localStorage, then rebuild the whole page. */
+function flipTheme(): void {
+  const next = themeName() === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  try {
+    localStorage.setItem('vecto-theme', next);
+  } catch {
+    // private browsing / storage disabled — theme still applies this session
+  }
+  applyWebsiteTheme(next);
+  void renderApp();
+}
 
 // ─── Responsive Layout ─────────────────────────────────────────────────────────
 
@@ -74,49 +232,99 @@ async function handleResize(): Promise<void> {
 
 // ─── Main Render ───────────────────────────────────────────────────────────────
 
-async function renderApp(): Promise<void> {
-  if (!currentScene || !currentPageData) return;
-
-  // Clear existing entities
-  const root = (currentScene as any).root;
-  if (root?.children) {
-    const kids = [...root.children];
-    for (const kid of kids) {
-      currentScene.remove(kid);
-      const destroySubtree = (node: any) => {
-        if (node.children) {
-          const children = [...node.children];
-          for (const c of children) destroySubtree(c);
+function clearScene(scene: Scene): void {
+  const root = (scene as unknown as { root?: { children?: Entity[] } }).root;
+  if (!root?.children) return;
+  for (const kid of [...root.children]) {
+    try {
+      scene.remove(kid);
+      const destroySubtree = (node: unknown): void => {
+        const children = (node as { children?: unknown[] }).children;
+        if (children) {
+          for (const c of [...children]) destroySubtree(c);
         }
-        if (typeof node.destroy === 'function') node.destroy();
+        if (typeof (node as { destroy?: unknown }).destroy === 'function') {
+          (node as { destroy: () => void }).destroy();
+        }
       };
       destroySubtree(kid);
+    } catch {
+      // One entity's destroy() must not stop the sweep — a stuck subtree
+      // would accumulate duplicates on the next renderApp (e.g. TocSidebar).
     }
   }
+}
 
-  const { width, contentWidth, originX, isMobile } = resolveLayoutMetrics(window.innerWidth);
+/** Generation counter for renderApp: a newer call supersedes an in-flight one. */
+let renderGeneration = 0;
+
+async function renderApp(): Promise<void> {
+  if (!currentScene || !currentPageData) return;
+  const generation = ++renderGeneration;
+
+  // Every rebuild must resync the styles-layer theme with data-theme: rebuilds
+  // triggered by popstate (language switch) or resize would otherwise keep the
+  // previous theme's resolved colors (navbar/links/cards built with stale hues).
+  applyWebsiteTheme(websiteThemeName());
+
+  if (heroStop) {
+    heroStop();
+    heroStop = null;
+  }
+  clearScene(currentScene);
+
+  const viewportW = window.innerWidth;
+  const viewportH = window.innerHeight;
+  const { width, contentWidth, originX, isMobile } = resolveLayoutMetrics(viewportW);
   const colors = resolveThemeColors();
+  const payload = currentPageData as {
+    config?: { title?: string };
+    data?: {
+      type?: string;
+      title?: string;
+      lang?: string;
+      raw_content?: string;
+      toc?: TocEntry[];
+      pages?: {
+        title: string;
+        description?: string;
+        path: string;
+        date?: string;
+      }[];
+      translations?: { title: string; permalink: string }[];
+      navigation?: {
+        earlier?: { title: string; path: string } | null;
+        later?: { title: string; path: string } | null;
+      };
+    };
+  };
+  const { locale } = parseLocale(window.location.pathname);
+  const lang: Locale = locale;
+  const t = useTranslations(lang);
+  const type = payload.data?.type ?? 'page';
+  const rest = parseLocale(window.location.pathname).rest;
+  const active: ActiveSection =
+    rest.split('/')[1] === 'learn'
+      ? 'learn'
+      : rest.split('/')[1] === 'reference'
+        ? 'reference'
+        : rest.split('/')[1] === 'blog'
+          ? 'blog'
+          : 'home';
 
+  // ── scroll container (added before the navbar so the nav draws on top) ──────
   const mainScroll = new Container();
   currentMainScroll = mainScroll;
-
-  mainScroll.setTransition({ y: { duration: 120, easing: 'easeOutCubic' } });
-
-  const _origUpdate = mainScroll.update.bind(mainScroll);
-  mainScroll.update = function (dt: number, time: number) {
-    _origUpdate(dt, time);
-    if (this.hasPendingAnimations()) {
-      currentScene?.markDirty();
-    }
-  };
-
+  // No y transition: scroll sync must be instant. A transition needs the
+  // entity update loop, which an onDemand scene only drives while something
+  // marks it dirty — so a slow scroll left mainScroll.y frozen mid-animation
+  // (observed: scrollY 2937 while mainScroll.y sat at -957).
   currentScene.add(mainScroll);
 
   if (!scrollListenersAttached) {
     scrollListenersAttached = true;
     document.body.style.overflow = 'auto';
     document.documentElement.style.overflow = 'auto';
-
     window.addEventListener('scroll', () => {
       if (currentMainScroll) {
         currentMainScroll.y = -window.scrollY;
@@ -125,73 +333,210 @@ async function renderApp(): Promise<void> {
     });
   }
 
-  const progressBar = new ReadingProgressBar(mainScroll, width, colors.progressBar);
-  currentScene.add(progressBar);
+  // ── fixed navbar (scene root, drawn above the scrolling content) ────────────
+  createNavbar(currentScene, {
+    colors,
+    lang,
+    active,
+    viewportWidth: viewportW,
+    onThemeChange: () => flipTheme(),
+    onNavigate: (url: string) => navigateTo(url),
+  });
 
   if (typeof window !== 'undefined') {
     (window as any).currentScene = currentScene;
     (window as any).mainScroll = mainScroll;
   }
 
-  let currentY = 20;
+  let currentY = LAYOUT.navHeight;
 
-  // ── Header ──────────────────────────────────────────────────────────────────
-  const headerContainer = new Container();
-  headerContainer.setPosition(originX, currentY);
+  // ── content ─────────────────────────────────────────────────────────────────
+  if (type === 'home') {
+    // Hero (neural field + serif title + CTAs + stats card)
+    const heroH = Math.round(viewportH * LAYOUT.heroMinHeight);
+    heroStop = buildHeroSection({
+      scene: mainScroll,
+      width: width,
+      height: heroH,
+      galleryLabel: getHomeStrings(lang).hero.gallery,
+      galleryUrl: payload.config?.gallery || 'https://gallery.vectojs.org',
+    });
+    currentY += heroH;
 
-  const payload = currentPageData as any;
+    // Hero bottom border
+    const heroDivider = new DividerLine(width, colors.divider);
+    heroDivider.setPosition(0, currentY);
+    mainScroll.add(heroDivider);
+    currentY += 1;
 
-  const titleText = withWholeLineProjection(
-    new RichText([{ text: payload.config?.title || 'VectoJS', style: { href: '/' } }], {
-      font: '600 24px system-ui, sans-serif',
-      onLinkClick: () => navigateTo('/'),
-    }),
-  );
-  applyStyle(titleText, style({ color: 'var(--heading)' }));
-  headerContainer.add(titleText);
+    const containerW = Math.min(viewportW, LAYOUT.containerMax);
+    const contentX = (viewportW - containerW) / 2 + LAYOUT.containerPad;
+    const innerW = containerW - LAYOUT.containerPad * 2;
 
-  mainScroll.add(headerContainer);
-  currentY += 80;
+    currentY = buildHomeSections(
+      mainScroll,
+      { lang, colors, contentX, innerW, isMobile },
+      currentY,
+    );
 
-  // ── Divider ─────────────────────────────────────────────────────────────────
-  const divider = new DividerLine(contentWidth, colors.divider);
-  divider.setPosition(originX, currentY);
-  mainScroll.add(divider);
+    const footerTop = await buildFooter(
+      mainScroll,
+      t('footer.copyright'),
+      colors,
+      innerW,
+      contentX,
+      currentY + LAYOUT.footerMarginTop,
+    );
+    if (generation !== renderGeneration) return;
+    currentY = footerTop + 96;
+  } else if (type === 'section') {
+    const containerW = Math.min(viewportW, LAYOUT.containerMax);
+    const contentX = (viewportW - containerW) / 2 + LAYOUT.containerPad;
+    const innerW = containerW - LAYOUT.containerPad * 2;
+    const isBlog = rest.startsWith('/blog/');
 
-  currentY += 40;
+    const title = new Text(payload.data?.title || '', {
+      font: '800 40px Outfit, sans-serif',
+      color: colors.strong,
+    });
+    title.x = contentX;
+    title.y = currentY + LAYOUT.sectionPad;
+    mainScroll.add(title);
+    currentY += LAYOUT.sectionPad + title.height + 24;
 
-  // ── Page content ────────────────────────────────────────────────────────────
-  const page = new PageContainer();
-  page.setPosition(originX, currentY);
-  mainScroll.add(page);
-  let footerContainer: Container | null = null;
+    if (payload.data?.description) {
+      const lede = new Text(payload.data.description, {
+        font: '16.8px Inter, sans-serif',
+        color: colors.muted,
+        maxWidth: innerW * 0.7,
+        lineHeight: 26,
+      });
+      lede.x = contentX;
+      lede.y = currentY;
+      mainScroll.add(lede);
+      currentY += lede.height + 48;
+    }
 
-  if (payload.data?.type === 'page') {
+    for (const page of payload.data?.pages ?? []) {
+      if (isBlog) {
+        currentY = buildBlogCard(mainScroll, page, { colors, contentX, innerW }, currentY);
+      } else {
+        const row = new Container();
+        row.x = contentX;
+        row.y = currentY;
+        row.width = innerW;
+        row.height = 96;
+        row.interactive = true;
+        row.on('click', () => navigateTo(page.path));
+        const rowTitle = withWholeLineProjection(
+          new Text(page.title, {
+            font: '600 17px Inter, sans-serif',
+            color: colors.text,
+          }),
+        );
+        rowTitle.x = 0;
+        rowTitle.y = 12;
+        row.add(rowTitle);
+        if (page.description) {
+          const desc = withWholeLineProjection(
+            new Text(page.description, {
+              font: '14px Inter, sans-serif',
+              color: colors.muted,
+              maxWidth: innerW - 60,
+            }),
+          );
+          desc.x = 0;
+          desc.y = rowTitle.y + rowTitle.height + 8;
+          row.add(desc);
+        }
+        const chevron = new Text('→', {
+          font: '18px Inter, sans-serif',
+          color: colors.accent,
+        });
+        chevron.x = innerW - 30;
+        chevron.y = 34;
+        row.add(chevron);
+        const rowDivider = new DividerLine(innerW, colors.divider);
+        rowDivider.y = 95;
+        row.add(rowDivider);
+        mainScroll.add(row);
+        currentY += 96;
+      }
+    }
+
+    const footerTop = await buildFooter(
+      mainScroll,
+      t('footer.copyright'),
+      colors,
+      innerW,
+      contentX,
+      currentY + LAYOUT.footerMarginTop,
+    );
+    if (generation !== renderGeneration) return;
+    currentY = footerTop + 96;
+  } else {
+    // Article page. Start below the fixed navbar plus a breathing gap so the
+    // title's ascenders are never clipped behind it.
+    const sidebarPages = (payload.data?.sidebar ?? []) as {
+      title: string;
+      path: string;
+    }[];
+    const collapsed = sidebarCollapsed(isMobile);
+    let contentOffset = 0;
+    if (sidebarPages.length > 0 && !collapsed) {
+      buildSidebar(currentScene, {
+        colors,
+        lang,
+        pages: sidebarPages,
+        activePath: payload.data?.path ?? '',
+        viewportWidth: viewportW,
+        viewportHeight: viewportH,
+        onNavigate: (url: string) => navigateTo(url),
+        onToggle: () => {
+          setSidebarCollapsed(!sidebarCollapsed(isMobile));
+          void renderApp();
+        },
+      });
+      contentOffset = SIDEBAR_WIDTH + 32;
+    }
+    const page = new PageContainer();
+    page.setPosition(originX + contentOffset, currentY + 40);
+    mainScroll.add(page);
     let detailY = 0;
+    let footerContainer: Container | null = null;
 
     const pageTitle = withWholeLineProjection(
-      new RichText(
-        [
-          {
-            text: payload.data.title || 'Untitled',
-          },
-        ],
-        {
-          font: `bold ${isMobile ? 32 : 44}px system-ui, sans-serif`,
-          maxWidth: contentWidth,
-        },
-      ),
+      new Text(payload.data?.title || 'Untitled', {
+        font: `800 ${isMobile ? 32 : 40}px Outfit, sans-serif`,
+        color: colors.strong,
+        maxWidth: contentWidth,
+      }),
     );
-    applyStyle(pageTitle, style({ color: 'var(--heading)' }));
     pageTitle.setPosition(0, detailY);
     page.add(pageTitle);
-
     detailY += pageTitle.height + 24;
 
-    const toc: TocEntry[] = payload.data.toc || [];
+    if (payload.data?.date) {
+      const dateText = withWholeLineProjection(
+        new Text(payload.data.date, {
+          font: '14px Inter, sans-serif',
+          color: colors.faint,
+        }),
+      );
+      dateText.setPosition(0, detailY);
+      page.add(dateText);
+      detailY += dateText.height + 24;
+    }
+
+    const toc: TocEntry[] = payload.data?.toc ?? [];
     const showToc = toc.length > 0;
     const tocSidebarWidth = 240;
-    const showDesktopToc = showToc && !isMobile && originX >= tocSidebarWidth + 40;
+    // The TOC clears the article column's right edge; with a docs sidebar the
+    // article already starts at contentOffset, so the TOC needs viewport room
+    // for sidebar + article + TOC + margins. On narrower screens it falls back
+    // to the mobile TOC.
+    const tocX = originX + contentOffset + contentWidth + 40;
+    const showDesktopToc = showToc && !isMobile && tocX + tocSidebarWidth <= viewportW;
     let mobileToc: MobileToc | null = null;
 
     const navigateToHeading = { fn: (_flatIndex: number) => {} };
@@ -204,20 +549,24 @@ async function renderApp(): Promise<void> {
       detailY += mobileToc.height + 24;
     }
 
-    // raw_content is the full .md file loaded via Zola's load_data(); frontmatter
-    // stripping happens inside createArticleMarkdown (article.ts).
-    const md = await createArticleMarkdown(payload.data.raw_content || '', {
+    // The page title is rendered above; drop the document's own leading H1
+    // (every article starts with `# <title>`) so it doesn't render twice.
+    const raw = stripLeadingH1(payload.data?.raw_content ?? '');
+    const md = await createArticleMarkdown(raw, {
       maxWidth: contentWidth,
       theme: {
-        bodyFont: 'system-ui, sans-serif',
+        bodyFont: 'Inter, sans-serif',
         codeFont: 'monospace',
         textColor: colors.text,
         headingColor: colors.heading,
         codeColor: colors.codeText,
         codeBgColor: colors.codeBg,
+        codeBorderColor: colors.divider,
         quoteBorderColor: colors.quoteBorder,
         quoteTextColor: colors.muted,
         hrColor: colors.divider,
+        tableBgColor: colors.bgCard,
+        tableHeaderBgColor: 'rgba(99,102,241,0.08)',
         syntaxKeywordColor: colors.syntaxKeyword,
         syntaxStringColor: colors.syntaxString,
         syntaxCommentColor: colors.syntaxComment,
@@ -226,15 +575,24 @@ async function renderApp(): Promise<void> {
       },
       blockAffordances: true,
       showCodeLanguage: true,
+      // Tables already sit inside a content flow where a copy control would
+      // overlap the header row; code blocks keep their copy/download controls.
+      affordances: { table: { copy: false, download: false } },
       onLinkClick: (url: string) => navigateTo(url),
     });
+    // A newer renderApp (fonts.ready, resize, popstate) may have rebuilt the
+    // tree while the markdown worker was parsing — attaching this late entity
+    // would duplicate it into the fresh tree.
+    if (generation !== renderGeneration) return;
     md.setPosition(0, detailY);
     page.add(md);
     detailY += md.height + 24;
 
     if (showDesktopToc) {
       const sidebar = new TocSidebar(toc, tocSidebarWidth, onTocNavigate);
-      sidebar.setPosition(originX + contentWidth + 40, currentY + md.y);
+      // The article column already sits right of the docs sidebar when one is
+      // shown; the TOC must clear the article's right edge, not the page's.
+      sidebar.setPosition(originX + contentOffset + contentWidth + 40, currentY + md.y);
       currentScene.add(sidebar);
     }
 
@@ -255,15 +613,13 @@ async function renderApp(): Promise<void> {
     const reflowBelowMd = () => {
       let nextY = md.y + md.height + 24;
       page.height = nextY;
-
       if (footerContainer) {
         const footerY = page.height + 60;
         footerContainer.setPosition(0, footerY);
         page.height = footerY + 80;
       }
-
       if (typeof document !== 'undefined') {
-        document.body.style.height = `${page.height}px`;
+        document.body.style.height = `${page.height + LAYOUT.navHeight}px`;
         mainScroll.height = page.height;
       }
       currentScene?.markDirty();
@@ -277,32 +633,93 @@ async function renderApp(): Promise<void> {
         reflowBelowMd();
       };
     }
+
+    const footerY = page.height + 60;
+    footerContainer = new Container();
+    footerContainer.setPosition(0, footerY);
+    const footerText = withWholeLineProjection(
+      new Text(t('footer.copyright'), {
+        font: '14px Inter, sans-serif',
+        color: colors.muted,
+      }),
+    );
+    footerText.setPosition(0, 0);
+    footerContainer.add(footerText);
+    page.add(footerContainer);
+    page.height = footerY + 80;
+
+    currentY = page.height;
   }
 
-  // ── Footer ──────────────────────────────────────────────────────────────────
-  const footerY = page.height + 60;
-  footerContainer = new Container();
-  footerContainer.setPosition(0, footerY);
-
-  const footerText = withWholeLineProjection(
-    new Text(`© ${new Date().getFullYear()} VectoJS. Built with VectoJS.`, {
-      font: '14px system-ui, sans-serif',
-    }),
-  );
-  applyStyle(footerText, style({ color: 'var(--muted)' }));
-  footerText.setPosition(0, 0);
-  footerContainer.add(footerText);
-
-  page.add(footerContainer);
-  page.height = footerY + 80;
-
+  // ── page height sync ────────────────────────────────────────────────────────
+  mainScroll.height = currentY - LAYOUT.navHeight;
   if (typeof document !== 'undefined') {
-    document.body.style.height = `${page.height}px`;
-    mainScroll.height = page.height;
+    document.body.style.height = `${currentY}px`;
   }
 
   currentScene.markDirty();
   currentScene.render(currentScene.getRenderer(), 0, performance.now());
+}
+
+/** Old-site footer: recessed surface, copyright line and links. */
+async function buildFooter(
+  parent: Container,
+  copyright: string,
+  colors: ReturnType<typeof resolveThemeColors>,
+  innerW: number,
+  contentX: number,
+  topY: number,
+): Promise<number> {
+  const footer = new Container();
+  footer.x = 0;
+  footer.y = topY;
+  footer.width = window.innerWidth;
+  footer.height = 96;
+
+  const bg = new (class extends Container {
+    render(r: IRenderer): void {
+      fillRect(r, 0, 0, footer.width, footer.height, colors.surface2);
+      fillRect(r, 0, 0, footer.width, 1, colors.divider);
+    }
+  })();
+  footer.add(bg);
+
+  const copy = withWholeLineProjection(
+    new Text(copyright, {
+      font: '14.4px Inter, sans-serif',
+      color: colors.muted,
+    }),
+  );
+  copy.x = contentX;
+  copy.y = 40;
+  footer.add(copy);
+
+  const links: { label: string; href: string }[] = [
+    { label: 'GitHub', href: 'https://github.com/vectojs/vectojs' },
+    { label: 'VectoJS', href: 'https://vectojs.org' },
+  ];
+  let lx = contentX + innerW;
+  for (const link of links) {
+    const el = withWholeLineProjection(
+      new Text(link.label, {
+        font: '14.4px Inter, sans-serif',
+        color: colors.muted,
+      }),
+    );
+    lx -= el.width;
+    el.x = lx;
+    el.y = 40;
+    el.interactive = true;
+    el.on('click', () => {
+      if (link.href.startsWith('http')) window.open(link.href, '_blank', 'noopener');
+      else navigateTo(link.href);
+    });
+    footer.add(el);
+    lx -= 24;
+  }
+
+  parent.add(footer);
+  return topY;
 }
 
 async function renderPage(): Promise<void> {
@@ -367,6 +784,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     void renderApp();
   });
 
+  // Wait for the webfonts before the first layout: ui Text measures at
+  // construction, so a layout built against the fallback font is wrong even
+  // after fonts load (Text re-lays out itself, but the container geometry
+  // built around the wrong measurement never updates). fonts.ready is NOT
+  // enough: with a canvas-only page no DOM text ever uses the fonts, so
+  // nothing triggers their download and ready resolves immediately. Load each
+  // family/weight explicitly instead. AllSettled: font failures must not
+  // block the page (fallback metrics are then used and the site still works).
+  const fontSpecs = [
+    '400 16px Inter',
+    '500 16px Inter',
+    '600 16px Inter',
+    '700 16px Inter',
+    '400 16px Outfit',
+    '600 16px Outfit',
+    '800 16px Outfit',
+    '700 16px "Playfair Display"',
+    '800 16px "Playfair Display"',
+    '900 16px "Playfair Display"',
+  ];
+  const fonts = (document as any).fonts;
+  if (fonts) {
+    await Promise.allSettled(fontSpecs.map((s) => fonts.load(s)));
+  }
+  // Canvas-only pages don't drive the font loader from DOM text, and a layout
+  // built during font loading measures with fallback metrics (ui Text keeps
+  // its own lines but the container geometry built from the wrong measurement
+  // never updates). Rebuild once when the fonts really finish loading.
+  let fontRerenderDone = false;
+  fonts?.addEventListener?.('loadingdone', () => {
+    if (fontRerenderDone) return;
+    fontRerenderDone = true;
+    void renderPage();
+  });
   await renderPage();
 
   let lastWidth = window.innerWidth;
@@ -435,10 +886,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.addEventListener('popstate', async () => {
     await handleUrlRoute(window.location.pathname);
   });
-
-  if (typeof document !== 'undefined' && (document as any).fonts) {
-    (document as any).fonts.ready.then(() => {
-      void renderPage();
-    });
-  }
 });

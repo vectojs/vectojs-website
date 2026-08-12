@@ -2,9 +2,6 @@
 title = "Entity"
 description = "La classe de base abstraite de chaque nœud du Virtual Math Tree : transformations, système d'animation, événements capture/bulle, et les hooks a11y/lot qu'une Entity personnalisée peut redéfinir."
 weight = 3
-
-[extra]
-order = 3
 +++
 
 # `Entity` (abstraite)
@@ -128,8 +125,8 @@ Voir [Physique et animation](/learn/physics-engine/) pour l'utilisation.
 
 ```ts
 type VectoEvent =
-  | 'click' | 'hover' | 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'pointerleave'
-  | 'change' | 'focus' | 'blur' | 'wheel' | 'keydown' | 'keyup';
+  | 'click' | 'dblclick' | 'hover' | 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'pointerleave'
+  | 'change' | 'focus' | 'blur' | 'wheel' | 'keydown' | 'keyup' | 'scroll';
 
 on(event: VectoEvent, cb: (e: any) => void, options?: { capture?: boolean }): this
 off(event: VectoEvent, cb: (e: any) => void, options?: { capture?: boolean }): this
@@ -152,6 +149,11 @@ dispatchEvent(event: VectoJSEvent): void             // capture de style DOM (ra
   `composition` est `{ start, length } | null` pour la pré-édition IME active.
   `'wheel'` transporte le `WheelEvent` natif (appelez `preventDefault()` pour arrêter
   le défilement de page).
+- `'dblclick'` se déclenche sur un double-clic (`detail === 2` natif).
+- `'scroll'` transporte un `ScrollEventPayload` — le seul moyen pour une entité
+  d'observer le défilement de son miroir d'ombre : `{ scrollTop, scrollLeft, deltaY,
+deltaX, maxScrollTop }`. Se déclenche depuis les miroirs de contenu défilables (p. ex.
+  un nœud d'ombre `ScrollView`) lorsque le navigateur les fait défiler.
 
 Voir [Événements et hit-testing](/learn/events/) pour l'utilisation.
 
@@ -163,6 +165,12 @@ getBatchCircle(): BatchCircle | null         // { radius, color } → voie rapid
 getBatchRect(): BatchRect | null             // { width, height, color } → GPU indexed-quad batch (pointBackend WebGL uniquement)
 update(dt: number, time: number): void       // redéfinition facultative ; dt en MILLISECONDES, time est performance.now(); le défaut avance les tweens en file d'attente
 ```
+
+`entity.a11yRegion: boolean` (par défaut `false`) marque l'entité comme une
+**région de regroupement** a11y : les descendants se projettent dans un conteneur
+partagé au lieu d'être imbriqués indépendamment, donc un conteneur de regroupement
+pur (p. ex. `width: 0`) regroupe toujours — la région englobante la plus proche gagne
+et les régions s'imbriquent. Déclaratif, jamais consulté par la géométrie.
 
 `getBatchCircle`/`getBatchRect` sont lus **à chaque image** (couleur/rayon animés
 honorés). Une feuille de lot représentable saute son propre

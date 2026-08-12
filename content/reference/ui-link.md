@@ -2,9 +2,6 @@
 title = "UI: Link"
 description = "Standalone canvas-rendered link with a semantic anchor projection."
 weight = 18
-
-[extra]
-order = 18
 +++
 
 # `Link`

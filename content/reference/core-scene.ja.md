@@ -2,9 +2,6 @@
 title = "Scene"
 description = "トップレベルのVectoJSオーケストレーター：コンストラクタオプション、レンダーループ、renderMode/maxFPSとアイドル自動スロットル、ライフサイクルメソッド、およびプラガブルなWebGL/WebGPUバックエンドレジストリ。"
 weight = 2
-
-[extra]
-order = 2
 +++
 
 # `Scene`
@@ -168,6 +165,35 @@ scene.findEntityAt(x, y): Entity | null      // isPointInside() が true を返�
 scene.getA11yElement(entityId: string): HTMLElement | undefined
 scene.getA11yTree(): A11yTreeNode[]          // 投影されたシャドウノードのネストされたスナップショット（id/tag/role/label/value/...）
 ```
+
+## User Timing 計測
+
+Sceneは、レンダーフェーズの前後に[`User Timing`](https://developer.mozilla.org/en-US/docs/Web/API/User_Timing_API)のマーク/メジャーを発行できるため、プロファイラーキャプチャはフレームが時間を費やす場所を正確に示します。デフォルトではオフです。`userTiming`オプションで有効にするか、`scene.setUserTiming(true)`でライブに有効にできます：
+
+```ts
+const scene = new Scene(canvas, { userTiming: true });
+// or
+scene.setUserTiming(true); // runtime toggle
+scene.userTiming; // read the current state
+```
+
+安定したメジャー名は`VECTO_USER_TIMING`としてエクスポートされます：
+
+```ts
+VECTO_USER_TIMING.scene; // { transform, drawWalk, entityPaint, flush, a11ySync }
+VECTO_USER_TIMING.markdown; // { parse }
+// e.g. 'vecto:scene:transform', 'vecto:markdown:parse'
+```
+
+`@vectojs/core`は、エンジンが内部で使用する低レベルヘルパーもエクスポートします（カスタムレンダラーや計測されたコンポーネントが独自のフェーズを追加するために使用できます）：
+
+```ts
+beginVectoUserTiming(name: string): VectoUserTimingSpan | null
+endVectoUserTiming(span: VectoUserTimingSpan | null): void
+measureVectoUserTiming(name: string, durationMs: number): void
+```
+
+ホストがマーク/メジャーを実装していない場合、`beginVectoUserTiming`は`null`を返し（`measureVectoUserTiming`はno-op）、オプションのプロファイリングは決してランタイム要件になりません。スパンは一意に名前付けされた開始/終了マークを使用し、`endVectoUserTiming`で解放されます。`measureVectoUserTiming`は、互いに素な呼び出しから蓄積された継続時間について、現在時刻に固定された1つのメジャーを発行します — すべてのエンティティを計測せずにフレームごとのエンティティペイント合計を報告するパスです。
 
 ## プラガブルバックエンドレジストリ（静的）
 

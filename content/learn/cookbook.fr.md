@@ -2,9 +2,6 @@
 title = "Recettes"
 description = "Modèles et recettes courants pour VectoJS : modales, infobulles, listes virtualisées, glisser-déposer, graphiques animés, et plus encore."
 weight = 17
-
-[extra]
-order = 17
 +++
 
 # Recettes

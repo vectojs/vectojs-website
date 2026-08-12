@@ -2,9 +2,6 @@
 title = "@vectojs/core API 레퍼런스"
 description = "Vecto 뒤에 있는 제로-DOM 렌더링 엔진의 개요 및 진입점 맵 — 코어의 Scene, Entity, 렌더러, 파티클, a11y와 함께, 코어가 재-내보내기하는 독립형 @vectojs/text, @vectojs/layout, @vectojs/math, @vectojs/animation 엔진."
 weight = 1
-
-[extra]
-order = 1
 +++
 
 # `@vectojs/core` API 레퍼런스
@@ -35,6 +32,8 @@ Vecto의 제로-DOM 렌더링 엔진입니다. `Scene`은 `Entity` 노드의 트
 | [텍스트 및 Bidi](/reference/core-text/)               | `MSDFFont`, `MSDFTextEntity`, `TextEntity`/`GridTextEntity`, 아랍어 쉐이핑 및 bidi 리졸버.                               |
 | [기타 엔터티](/reference/core-entities/)              | `SplineEntity`, `DOMPortalEntity`, `SVGEntity`.                                                                          |
 | [수학 유틸리티](/reference/core-math/)                | `SpatialHashGrid`, `SpringPhysics`.                                                                                      |
+| [애니메이션](/reference/animation/)                   | 독립형 `@vectojs/animation` 엔진: `TweenDriver`/`SpringDriver`, `MotionConfig`, 이징 곡선.                               |
+| [스타일](/reference/styles/)                          | 독립형 `@vectojs/styles` 레이어: CSS 명명 스타일 객체, `var()` 토큰 테마, `setTheme` 전환, `css()` 병합.                 |
 | [a11yRoot 및 에이전트 계약](/reference/core-a11y/)    | 섀도우-DOM 투영, `A11yAttributes`, 동기화 주의사항.                                                                      |
 
 ## 진입점 및 모듈 맵

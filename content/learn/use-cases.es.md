@@ -2,9 +2,6 @@
 title = "Casos de Uso"
 description = "Dónde encaja mejor VectoJS: paneles, UI en streaming, canvas infinitos, juegos, editores, WebXR y sitios interactivos avanzados."
 weight = 5
-
-[extra]
-order = 5
 +++
 
 # Casos de Uso

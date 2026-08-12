@@ -2,9 +2,6 @@
 title = "UI: Dropdown"
 description = "Combobox control with an overlay listbox and keyboard navigation."
 weight = 27
-
-[extra]
-order = 27
 +++
 
 # `Dropdown`

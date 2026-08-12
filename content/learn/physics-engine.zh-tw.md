@@ -2,9 +2,6 @@
 title = "物理與動畫"
 description = "將彈簧物理、速度和力導向模擬應用於 VMT 中的任何實體。"
 weight = 11
-
-[extra]
-order = 11
 +++
 
 # 物理與動畫

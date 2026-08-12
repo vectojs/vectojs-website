@@ -2,9 +2,6 @@
 title = "Devtools: performance"
 description = "Attribute VectoJS frame cost — GPU and Canvas2D draw counters, WASM accelerator status, dirty-repaint attribution, and Markdown streaming reuse metrics."
 weight = 51
-
-[extra]
-order = 51
 +++
 
 # Devtools: performance

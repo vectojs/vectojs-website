@@ -2,9 +2,6 @@
 title = "UI: Tooltip"
 description = "대상 Entity에 고정된 호버 트리거 오버레이 텍스트"
 weight = 37
-
-[extra]
-order = 37
 +++
 
 # `Tooltip`
@@ -15,7 +12,7 @@ order = 37
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Tooltip</span></div>
-  <iframe src="/sandbox/ui/component.html?name=tooltip&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Tooltip 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=tooltip&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Tooltip 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>대상을 호버하여 배치 및 해제를 확인하세요.</figcaption>
 </figure>
 

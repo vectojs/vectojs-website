@@ -2,9 +2,6 @@
 title = "Physics & Animation"
 description = "Apply spring physics, velocity, and force-directed simulation to any entity in the VMT."
 weight = 11
-
-[extra]
-order = 11
 +++
 
 # Physics & Animation

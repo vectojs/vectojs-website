@@ -2,9 +2,6 @@
 title = "ThreeAdapter"
 description = "Render a VectoJS Scene onto a canvas, expose it as a THREE.CanvasTexture, and wire pointer events (including WebXR controllers and multi-touch) via UV raycasting."
 weight = 42
-
-[extra]
-order = 42
 +++
 
 # `ThreeAdapter`

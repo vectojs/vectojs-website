@@ -2,9 +2,6 @@
 title = "Moteur de mise en page"
 description = "Le paquet autonome @vectojs/layout (aussi le sous-chemin @vectojs/core/layout) : la division froid/chaud qui sépare la segmentation et mesure coûteuses du texte du calcul bon marché d'enroulement et de position, la mémoïsation en continu, le texte enrichi et les formes d'exclusion."
 weight = 4
-
-[extra]
-order = 4
 +++
 
 # Moteur de mise en page (division froid/chaud) — `@vectojs/layout`
@@ -69,6 +66,10 @@ fallbackToCanvas? }` ; `LayoutNode` est un glyphe positionné.
 - `LayoutWorkerManager.getInstance()` — singleton pour la mise en page hors-thread ;
   `queueLayout(entityId, text, { fontId, fontSize, maxWidth, maxHeight, callback,
 ... })` / `cancelLayout(entityId)`. Utilisé par [`MSDFTextEntity`](/reference/core-text/#msdftextentity).
+
+Des exports utilitaires à connaître : `createMetricsMeasurer(fontFamily?, baseSize?)` et `resolveGlyphMeasurer(...)` construisent un `GlyphMeasurer` ; `EMPTY_GLYPH_ATLAS` est l'atlas de repli sans métriques ; `isComplexScript(text)` indique si la mise en forme nécessite l'itemiseur de scripts ; `computeMSDFLayout(...)` est la fonction de mise en page pure que le chemin du worker exécute hors-thread ; `cacheStats()` / `resetCacheStats()` et `clearCssLineBoxMetrics()` sont des caches au niveau du moteur pour les diagnostics.
+
+- `InlineObject` — un élément remplacé en ligne (image, icône, boîte mathématique) dans un paragraphe enrichi : `{ width, height, depth?, alt?, paint? }`. Le span doit être constitué du sentinelle U+FFFC `OBJECT_REPLACEMENT` ; le moteur réserve les métriques de la boîte et, quand le consommateur rend, appelle `paint(surface: InlineObjectSurface, box: InlineObjectBox)` dans l'espace de coordonnées local du texte (pas de comptabilité de profondeur nécessaire). `alt` est l'équivalent textuel utilisé pour le nom accessible, la sélection et la copie — sans lui, le sentinelle brut fuit vers la couche a11y. `paint` fait partie de la clé de mémoïsation du paragraphe (avec `alt`) : deux objets qui se comparent égaux partagent un paragraphe en cache, donc une image choisie en dehors de `alt` (par exemple une URL d'image Markdown — le cas de la colonne de badges) doit y être déclarée, sinon chaque objet d'apparence égale dessine l'image du premier. `depth` reflète le `vertical-align` CSS avec le signe inversé (`vertical-align: -0.486ex` de MathJax → `depth: 0.486 * exToPx`).
 
 Voir [Texte et typographie](/learn/text-typography/) pour l'utilisation, et
 [Texte et Bidi](/reference/core-text/) pour la couche de rendu des polices/glyphes qui

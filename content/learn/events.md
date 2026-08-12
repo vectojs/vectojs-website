@@ -2,9 +2,6 @@
 title = "Events & Hit-Testing"
 description = "How pointer and keyboard events flow through the VectoJS entity tree: capture, bubble, VectoJSEvent, form change payloads, and findEntityAt."
 weight = 10
-
-[extra]
-order = 10
 +++
 
 # Events & Hit-Testing

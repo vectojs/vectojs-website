@@ -2,14 +2,11 @@
 title = "@vectojs/graph3d"
 description = "Visualización de grafos 3D con fuerza dirigida: una interfaz GraphLayout conectable más un renderizador Three.js con instanciado que dibuja cualquier grafo en dos llamadas de dibujo."
 weight = 44
-
-[extra]
-order = 44
 +++
 
 # `@vectojs/graph3d`
 
-Versión documentada: **0.2.1**
+Versión documentada: **0.3.1**
 
 Visualización de grafos 3D con fuerza dirigida para VectoJS: un contrato `GraphLayout` conectable (apto para workers, posiciones como un único `Float32Array` plano) más `Graph3D`, un renderizador Three.js con instanciado que dibuja cualquier grafo — sin importar cuántos nodos — en exactamente dos llamadas de dibujo. Consulta la demo en vivo de [Les Misérables](/demos/graph3d/) para ver el conjunto de datos canónico de 77 nodos y 254 enlaces en movimiento.
 

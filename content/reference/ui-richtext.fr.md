@@ -2,9 +2,6 @@
 title = "UI: RichText"
 description = "Composant de texte en ligne multi-style avec zones de lien et support dʼajout en flux."
 weight = 17
-
-[extra]
-order = 17
 +++
 
 # `RichText`
@@ -17,7 +14,7 @@ exact du presse-papier à travers des tailles de police mixtes, des ligatures, d
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · RichText</span></div>
-  <iframe src="/sandbox/ui/component.html?name=richtext&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de RichText" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=richtext&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de RichText" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Le lien en ligne est une zone dʼancrage transparente au-dessus du texte du canvas.</figcaption>
 </figure>
 

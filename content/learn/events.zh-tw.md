@@ -2,9 +2,6 @@
 title = "事件與命中測試"
 description = "指標和鍵盤事件如何在 VectoJS 實體樹中流動：捕獲、冒泡、VectoJSEvent、表單變更負載和 findEntityAt。"
 weight = 10
-
-[extra]
-order = 10
 +++
 
 # 事件與命中測試

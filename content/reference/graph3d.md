@@ -2,9 +2,6 @@
 title = "@vectojs/graph3d"
 description = "3D force-directed graph visualization: a pluggable GraphLayout interface plus an instanced Three.js renderer that draws any graph in two draw calls."
 weight = 44
-
-[extra]
-order = 44
 +++
 
 # `@vectojs/graph3d`

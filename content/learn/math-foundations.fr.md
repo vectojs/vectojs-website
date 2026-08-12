@@ -2,9 +2,6 @@
 title = "Fondations mathématiques"
 description = "Les principes mathématiques et physiques qui sous-tendent le moteur de rendu VectoJS : Virtual Math Trees, projection d'accessibilité sémantique, groupes de Lie, mises en page scindées, hit-testing de splines, retour à la ligne par différence d'ensembles, animation par EDO et élimination spatiale."
 weight = 6
-
-[extra]
-order = 6
 +++
 
 # Fondations mathématiques

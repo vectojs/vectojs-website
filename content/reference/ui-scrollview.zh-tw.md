@@ -2,9 +2,6 @@
 title = "UI: ScrollView"
 description = "具有滾輪和指標拖曳滾動的裁剪滾動容器。"
 weight = 32
-
-[extra]
-order = 32
 +++
 
 # `ScrollView`
@@ -15,7 +12,7 @@ order = 32
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ScrollView</span></div>
-  <iframe src="/sandbox/ui/component.html?name=scrollview&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ScrollView live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=scrollview&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="ScrollView live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>在視口內滾輪或拖曳；避免巢狀的競爭滾動擁有者。</figcaption>
 </figure>
 

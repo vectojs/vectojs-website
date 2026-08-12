@@ -2,9 +2,6 @@
 title = "Particle Systems"
 description = "ComputeParticleEntity：WebGPUコンピュートパーティクル、CPUフォールバック、8-floatのメモリレイアウト、マウスインタラクション、triggerExplosion。"
 weight = 12
-
-[extra]
-order = 12
 +++
 
 # Particle Systems

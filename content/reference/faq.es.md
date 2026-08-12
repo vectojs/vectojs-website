@@ -2,9 +2,6 @@
 title = "Preguntas Frecuentes (FAQ)"
 description = "Preguntas frecuentes sobre VectoJS — decisiones de arquitectura, rendimiento, accesibilidad y solución de problemas."
 weight = 49
-
-[extra]
-order = 49
 +++
 
 # Preguntas Frecuentes
@@ -325,3 +322,50 @@ Luego añade a `tsconfig.json`:
 ```json
 { "compilerOptions": { "types": ["@webgpu/types"] } }
 ```
+
+### El texto o las imágenes se ven borrosos (DPR)
+
+El texto del canvas se renderiza a la relación de píxeles del dispositivo por defecto — si se ve borroso, la memoria intermedia del canvas se dimensionó a un DPR menor que el de la pantalla (normalmente porque la página se escaló o un contenedor de layout personalizado la redimensionó sin `scene.resize()`). Dos manejos:
+
+- `maxDPR` limita el DPR de renderizado (opción o en vivo). Una página estática dimensionada con `maxDPR: 2` en un teléfono 3x mantiene el costo acotado — pero limitar por debajo del DPR real del panel es exactamente lo que produce el desenfoque, así que limita deliberadamente.
+- Después de cualquier redimensionado/zoom manual, vuelve a llamar a `scene.resize(w, h)` — el DPR se vuelve a leer y la memoria intermedia se recrea en cada `resize()`. Una escena cuya caja CSS del canvas cambia sin `resize()` se renderiza al DPR obsoleto y se ve suave; los síntomas de calibración de selección de Firefox (el resaltado de arrastre se desvía de los glifos) son la misma causa.
+
+### El texto MSDF nunca aparece (o aparece tarde)
+
+`MSDFTextEntity` distribuye fuera del hilo principal mediante un Worker `blob:`. Bajo un CSP estricto (`default-src 'self'`, `worker-src 'none'`, o `script-src` sin `blob:`), `new Worker(blob:…)` **no** lanza una excepción — se construye y dispara `onerror`, por lo que un CSP se ve exactamente como un fallo. Tras dos fallos consecutivos el gestor se rinde y sirve el layout desde el hilo principal, así que el texto aún aparecerá — solo que no vía el worker, y las primeras peticiones pueden parecer que se "cuelgan" mientras se activa el fallback. Orden de depuración: revisa la consola del navegador por violaciones de `worker-src` / `blob:` (el fallback es invisible allí), luego confirma que la escena realmente ejecuta `pointBackend: 'webgl'` — la ruta de fallback Canvas2D necesita `fallbackFont` configurado o no hay nada que dibujar.
+
+### La escena está atascada en ~2 fps
+
+Eso es el auto-throttle de inactividad funcionando como está diseñado: una escena estática (no sucia, sin transiciones pendientes) se renderiza a ~2 fps para ahorrar energía. Si tu contenido debería estar animándose, o bien condúcelo mediante `entity.animate()` / `setTransition` (que mantienen la escena no estática), o llama a `scene.markDirty()` **entre** fotogramas — desde un manejador de eventos, un `rAF` separado o un temporizador — nunca desde dentro de `update()`, donde el restablecimiento de suciedad posterior al render lo borra. La opción nuclear es `scene.autoThrottle = false` (o la opción `autoThrottle: false`), que renderiza cada fotograma sin importar qué.
+
+### Una escena `onDemand` nunca se vuelve a pintar
+
+`renderMode: 'onDemand'` solo dibuja cuando la escena está sucia o hay una transición pendiente. El fallo clásico: mutar el estado de la entidad desde tu propio `update()` o un `onLoad` de `Image` sin llamar a `scene.markDirty()`. Los cambios de valor/hover/foco en los componentes de ui (`Slider.setValue`, `ProgressBar.setValue`, hover de `Button`) condicionan su repintado a ello. Si un fotograma debería cambiar pero no lo hace, llama a `scene.markDirty()` una vez (p. ej. desde el manejador `onLoad`/de evento) y el siguiente rAF lo dibuja.
+
+### Los eventos `click`/`hover` de mi entidad nunca se disparan
+
+Los eventos solo se despachan en entidades **interactivas** (`interactive = true`, o un componente que lo establece por sí mismo, o `Card` con un `label`). `Text`/`RichText` son deliberadamente no interactivas — su presencia semántica es la proyección de contenido, y un nodo sombra interactivo encima de texto seleccionable interceptaría el puntero. También verifica que la entidad realmente tenga una caja (`width`/`height` > 0 o `getBatchCircle`/`getBatchRect`): el hit-testing requiere geometría.
+
+### `ScrollView` no se desplaza
+
+Dos comprobaciones: el contenido debe realmente **exceder** el viewport — `updateContentSize()` calcula el rango máximo de desplazamiento a partir de las extensiones de los hijos, así que un contenido más pequeño que el viewport no tiene nada que desplazar — y el resorte por defecto está subamortiguado (ζ ≈ 0.45), que sobrepasa ~20% al soltarlo. Para contenido tipo documento, pasa `scrollPhysics: DOCUMENT_SCROLL_PHYSICS` (el preset exportado `{ stiffness: 180, damping: 27 }`, ζ ≈ 1.0, sin sobrepaso).
+
+### Un `Modal` / `Tooltip` / `Popover` nunca se abre
+
+Son capas flotantes, no hijos de la escena — deben montarse por sí mismas: `scene.showOverlay(modal)` para `Modal`, y `showAtPoint(x, y, source)` para `ContextMenu`/`Popover` donde `source` es requerido antes de que se monte el menú (una `Scene` o una `Entity` montada). `Tooltip`/`Popover` también adjuntan un listener a su entidad `target` — siempre haz `destroy()` sobre ellos cuando termines o el manejador se filtra.
+
+### Un `Table` / `VirtualList` ignora los cambios de tamaño o contenido
+
+`Table` resuelve su `width` una vez en el constructor — solo `setWidth()` (y `appendRows()` para filas) vuelve a hacer el layout; cambiar `table.width` directamente no hace nada. `VirtualList` sin `keyForItem` borra cada medición de fila y salta al inicio en `setItems()` — correcto para una lista reemplazada, incorrecto para una transcripción que crece; pasa `keyForItem` (p. ej. el id del mensaje) y opcionalmente `stickToBottomThreshold` para mantener un viewport de seguimiento fijado abajo.
+
+### La textura de Three.js está obsoleta / congelada
+
+`ThreeAdapter` establece `texture.needsUpdate` solo cuando la escena VectoJS realmente **se renderiza** (proxifica `Scene.render`). Con `renderMode: 'onDemand'`, una escena inactiva nunca se renderiza, así que la textura conserva su último fotograma. Maneja `markDirty()` / `step()` (p. ej. desde la rAF de Three) para paneles en pausa, o ejecuta la escena en modo `'always'`.
+
+### Un layout de graph3d explota o los componentes se separan
+
+Ambos layouts son modelos de fuerza: un grafo **explosionado** suele ser un desajuste de enlaces tras `setGraph` (los enlaces referencian ids de nodos que ya no existen — las posiciones de los nodos faltantes no están inicializadas). Los componentes separándose bajo `forceCenter` es el comportamiento normal del modelo de fuerza para subgrafos desconectados — añade un `centerStrength` (VectoForceLayout) o acepta la deriva. Cuando importe la estabilidad entre ejecuciones, usa `VectoForceLayout` con su `seed` — es determinista; `D3ForceLayout` parte de la colocación aleatoria propia de d3 y no lo es. Los nodos fijados conservan `fx/fy/fz` (y las semillas iniciales `x/y/z` se transfieren como posiciones iniciales, no como fijaciones).
+
+### `@vectojs/styles` — mi `var(--token)` no se resuelve / el tema nunca cambia
+
+`var(--key)` se resuelve contra el tema **activo** en el momento de `applyStyle`, y los estilos que contienen tokens se vuelven a aplicar cuando se ejecuta `setTheme(next)`. Si un color nunca cambia, probablemente el estilo contiene un valor literal (sin `var()`), que deliberadamente no se rastrea. Si `applyStyle` en sí lanza `unknown token`, la clave falta en el tema activo — recuerda que las claves se escriben sin el prefijo `--` (`tokens({ accent: … })` ↔ `var(--accent)`), y `setTheme` lanza el mismo error cuando un tema al que se cambia elimina un token referenciado. Un token cuyo valor falla la validación de la propiedad (p. ej. `--radius-md: "50%"`) también lanza al cambiar. Consulta [`styles`](/reference/styles/).

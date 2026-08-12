@@ -2,9 +2,6 @@
 title = "UI: TextArea"
 description = "具有 canvas 渲染的多行原生文字編輯。"
 weight = 24
-
-[extra]
-order = 24
 +++
 
 # `TextArea`
@@ -15,7 +12,7 @@ order = 24
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · TextArea</span></div>
-  <iframe src="/sandbox/ui/component.html?name=textarea&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="TextArea live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=textarea&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="TextArea live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>多行編輯是原生的；canvas 繪製視覺鏡射。</figcaption>
 </figure>
 

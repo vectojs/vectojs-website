@@ -2,9 +2,6 @@
 title = "Performance"
 description = "レンダーモード、アイドル自動スロットル、WebGLバッチレンダリング、ビューポートカリング、テキストパフォーマンス、そして実際のGPUスループットの測定方法。"
 weight = 13
-
-[extra]
-order = 13
 +++
 
 # Performance

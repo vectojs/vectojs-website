@@ -2,9 +2,6 @@
 title = "Text & Typography"
 description = "VectoJSのテキストシステム：cold/hotのLayoutEngine分割、LLM出力のためのストリーミング、混在スタイルのリッチテキスト、MSDFフォント、アラビア語/BiDi、除外形状。"
 weight = 14
-
-[extra]
-order = 14
 +++
 
 # Text & Typography

@@ -2,9 +2,6 @@
 title = "Recetario"
 description = "Patrones y recetas comunes para VectoJS: modales, tooltips, listas virtualizadas, drag-and-drop, gráficos animados y más."
 weight = 17
-
-[extra]
-order = 17
 +++
 
 # Recetario

@@ -2,9 +2,6 @@
 title = "Devtools: 브리지와 플러그인"
 description = "JSON-RPC 브리지를 통해 다른 문서에서 VectoJS 씬을 구동하고, 고유한 탭·감사·명령으로 인스펙터를 확장합니다."
 weight = 52
-
-[extra]
-order = 52
 +++
 
 # Devtools: 브리지와 플러그인

@@ -2,9 +2,6 @@
 title = "UI: Resizable panels"
 description = "드래그 가능한 분할 창 레이아웃을 위한 PanelGroup, Panel 및 PanelResizeHandle"
 weight = 35
-
-[extra]
-order = 35
 +++
 
 # Resizable panels
@@ -15,7 +12,7 @@ order = 35
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · PanelGroup</span></div>
-  <iframe src="/sandbox/ui/component.html?name=resizablepanel&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="크기 조절 가능한 패널 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=resizablepanel&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="크기 조절 가능한 패널 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>패널 사이의 구분선을 드래그하여 핸들 호버 및 크기 조절 동작을 확인하세요.</figcaption>
 </figure>
 

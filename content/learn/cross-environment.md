@@ -2,9 +2,6 @@
 title = "Cross-Environment Consistency"
 description = "Keeping a canvas UI identical across operating systems, browsers, zoom levels, and pixel densities — and keeping text selection aligned with the rendered output."
 weight = 19
-
-[extra]
-order = 19
 +++
 
 # Cross-Environment Consistency

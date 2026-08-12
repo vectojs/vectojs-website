@@ -2,9 +2,6 @@
 title = "FAQ"
 description = "VectoJS에 대한 자주 묻는 질문 — 아키텍처 결정, 성능, 접근성 및 문제 해결."
 weight = 49
-
-[extra]
-order = 49
 +++
 
 # 자주 묻는 질문 (FAQ)
@@ -325,3 +322,50 @@ bun add -d @webgpu/types
 ```json
 { "compilerOptions": { "types": ["@webgpu/types"] } }
 ```
+
+### 텍스트나 이미지가 흐릿하게 보입니다 (DPR)
+
+Canvas 텍스트는 기본적으로 디바이스 픽셀 비율로 렌더링됩니다 — 흐릿하게 보인다면 캔버스 백킹 스토어가 디스플레이보다 낮은 DPR로 크기 조정된 것입니다(보통 페이지가 확대/축소되었거나 사용자 정의 레이아웃 컨테이너가 `scene.resize()` 없이 크기를 조정했기 때문입니다). 두 가지 처리 방법:
+
+- `maxDPR`은 렌더 DPR을 제한합니다(옵션 또는 실시간). 3x 폰에서 `maxDPR: 2`로 크기 조정된 정적 페이지는 비용을 제한된 범위로 유지합니다 — 그러나 패널의 실제 DPR보다 낮게 제한하는 것이 바로 흐릿함을 만드는 원인이므로 의도적으로 제한하세요.
+- 수동으로 크기 조정/확대 후에는 `scene.resize(w, h)`를 다시 호출하세요 — 매번 `resize()`마다 DPR을 다시 읽고 백킹 스토어를 다시 만듭니다. `resize()` 없이 캔버스 CSS 박스가 변경된 씬은 이전 DPR로 렌더링되어 부드러워 보입니다; Firefox 선택 보정 증상(드래그 하이라이트가 글리프에서 벗어남)도 같은 원인입니다.
+
+### MSDF 텍스트가 전혀 나타나지 않습니다 (또는 늦게 나타납니다)
+
+`MSDFTextEntity`는 `blob:` Worker를 통해 오프스레드로 레이아웃합니다. 엄격한 CSP(`default-src 'self'`, `worker-src 'none'`, 또는 `blob:`이 없는 `script-src`)에서는 `new Worker(blob:…)`가 **예외를 던지지 않습니다** — 생성되고 `onerror`를 발생시키므로 CSP는 충돌과 똑같이 보입니다. 연속 두 번 실패하면 관리자는 포기하고 메인 스레드에서 레이아웃을 제공하므로 텍스트는 여전히 나타납니다 — 다만 worker를 통하지 않고, 폴백이 작동하는 동안 처음 몇 번의 요청은 "멈춘" 것처럼 보일 수 있습니다. 디버그 순서: 브라우저 콘솔에서 `worker-src` / `blob:` 위반을 확인하고(폴백은 거기서 보이지 않습니다), 그런 다음 씬이 실제로 `pointBackend: 'webgl'`을 실행하는지 확인하세요 — Canvas2D 폴백 경로는 `fallbackFont`가 설정되어 있어야 하며, 그렇지 않으면 그릴 것이 없습니다.
+
+### 씬이 약 2fps에 멈춰 있습니다
+
+이는 유휴 자동 스로틀이 설계대로 작동하는 것입니다: 정적 씬(더티가 아니고 보류 중인 전환이 없는)은 전력을 절약하기 위해 약 2fps로 렌더링됩니다. 콘텐츠가 애니메이션되어야 한다면 `entity.animate()` / `setTransition`으로 구동하거나(씬을 비정적으로 유지), 프레임 **사이**에서 `scene.markDirty()`를 호출하세요 — 이벤트 핸들러, 별도의 `rAF` 또는 타이머에서 — 절대 `update()` 내부에서 호출하지 마세요. 렌더 후 더티 리셋이 그 값을 지우기 때문입니다. 최후의 수단은 `scene.autoThrottle = false`(또는 `autoThrottle: false` 옵션)로, 조건 없이 매 프레임 렌더링합니다.
+
+### `onDemand` 씬이 다시 그려지지 않습니다
+
+`renderMode: 'onDemand'`는 씬이 더티이거나 전환이 보류 중일 때만 그립니다. 전형적인 실수: `scene.markDirty()`를 호출하지 않고 자신의 `update()` 또는 `Image` `onLoad`에서 엔터티 상태를 변경하는 것. UI 컴포넌트의 값/호버/포커스 변경(`Slider.setValue`, `ProgressBar.setValue`, `Button` 호버)은 모두 그에 재페인트를 게이트합니다. 프레임이 변경되어야 하는데 그렇지 않다면 `scene.markDirty()`를 한 번 호출하고(예: `onLoad`/이벤트 핸들러에서), 다음 rAF가 그것을 그립니다.
+
+### 내 엔터티의 `click`/`hover` 이벤트가 전혀 발생하지 않습니다
+
+이벤트는 **인터랙티브** 엔터티에서만 디스패치됩니다(`interactive = true`, 또는 스스로 이를 설정하는 컴포넌트, 또는 `label`이 있는 `Card`). `Text`/`RichText`는 의도적으로 비인터랙티브입니다 — 그들의 의미적 존재는 콘텐츠 투영이며, 선택 가능한 텍스트 위의 인터랙티브 섀도우 노드는 포인터를 가로챌 것입니다. 또한 엔터티에 실제로 박스가 있는지 확인하세요(`width`/`height` > 0 또는 `getBatchCircle`/`getBatchRect`): 히트 테스트에는 지오메트리가 필요합니다.
+
+### `ScrollView`이 스크롤되지 않습니다
+
+두 가지 확인: 콘텐츠가 실제로 뷰포트를 **초과**해야 합니다 — `updateContentSize()`는 자식 범위에서 최대 스크롤 범위를 계산하므로 뷰포트보다 작은 콘텐츠는 스크롤할 것이 없습니다 — 또한 기본 스프링은 저감쇠(ζ ≈ 0.45)이며 릴리스 시 약 20% 오버슈트합니다. 문서형 콘텐츠의 경우 `scrollPhysics: DOCUMENT_SCROLL_PHYSICS`(내보낸 `{ stiffness: 180, damping: 27 }` 프리셋, ζ ≈ 1.0, 오버슈트 없음)를 전달하세요.
+
+### `Modal` / `Tooltip` / `Popover`이 열리지 않습니다
+
+이들은 플로팅 레이어이며 씬의 자식이 아닙니다 — 스스로 마운트해야 합니다: `Modal`은 `scene.showOverlay(modal)`, `ContextMenu`/`Popover`는 `showAtPoint(x, y, source)`를 사용하며, 여기서 `source`는 메뉴가 마운트되기 전에 필요합니다(`Scene` 또는 마운트된 `Entity`). `Tooltip`/`Popover`은 또한 `target` 엔터티에 리스너를 부착합니다 — 다 쓴 후에는 반드시 `destroy()`하세요. 그렇지 않으면 핸들러가 누출됩니다.
+
+### `Table` / `VirtualList`이 크기나 콘텐츠 변경을 무시합니다
+
+`Table`은 생성자에서 `width`를 한 번만 해석합니다 — `setWidth()`(그리고 행의 경우 `appendRows()`)만 다시 레이아웃합니다; `table.width`를 직접 변경해도 아무 효과가 없습니다. `keyForItem`이 없는 `VirtualList`는 모든 행 측정을 지우고 `setItems()` 시 최상단으로 점프합니다 — 교체된 리스트에는 올바르지만 커지는 기록에는 잘못입니다; `keyForItem`(예: 메시지 id)을 전달하고 선택적으로 `stickToBottomThreshold`를 전달하여 따라가는 뷰포트를 하단에 고정하세요.
+
+### Three.js 텍스처가 오래되었습니다 / 고정되어 있습니다
+
+`ThreeAdapter`는 VectoJS 씬이 실제로 **렌더링**할 때만 `texture.needsUpdate`를 설정합니다(`Scene.render`를 프록시합니다). `renderMode: 'onDemand'`에서는 유휴 씬이 절대 렌더링하지 않으므로 텍스처가 마지막 프레임을 유지합니다. 일시 중지된 패널의 경우 `markDirty()` / `step()`을 구동하거나(예: Three의 rAF에서), 씬을 `'always'` 모드로 실행하세요.
+
+### graph3d 레이아웃이 폭발하거나 컴포넌트가 서로 떨어져 표류합니다
+
+두 레이아웃 모두 포스 모델입니다: **폭발하는** 그래프는 보통 `setGraph` 이후의 링크 불일치입니다(링크가 더 이상 존재하지 않는 노드 id를 참조 — 누락된 노드의 위치는 초기화되지 않음). `forceCenter` 아래에서 컴포넌트가 서로 떨어져 표류하는 것은 끊긴 하위 그래프에 대한 포스 모델의 정상적인 동작입니다 — `centerStrength`(VectoForceLayout)를 추가하거나 표류를 받아들이세요. 실행 간 안정성이 중요할 때는 `seed`가 있는 `VectoForceLayout`을 사용하세요 — 결정적입니다; `D3ForceLayout`은 d3 자체의 무작위 배치에서 시작하며 결정적이지 않습니다. 고정된 노드는 `fx/fy/fz`를 유지합니다(초기 `x/y/z` 시드는 고정이 아닌 시작 위치로 이월됩니다).
+
+### `@vectojs/styles` — 내 `var(--token)`이 해석되지 않습니다 / 테마가 전혀 변경되지 않습니다
+
+`var(--key)`는 `applyStyle` 시점에 **활성** 테마에 대해 해석되며, 토큰을 포함하는 스타일은 `setTheme(next)`가 실행될 때 다시 적용됩니다. 색상이 전혀 변하지 않는다면 스타일에 리터럴 값(`var()` 없이)이 들어 있는 것이며, 이는 의도적으로 추적되지 않습니다. `applyStyle` 자체가 `unknown token`을 던지면 키가 활성 테마에 없는 것입니다 — 키는 `--` 접두사 없이 작성된다는 점을 기억하세요(`tokens({ accent: … })` ↔ `var(--accent)`), 그리고 전환된 테마가 참조된 토큰을 떨어뜨리면 `setTheme`도 동일한 오류를 던집니다. 값이 속성 검증에 실패하는 토큰(예: `--radius-md: "50%"`)도 전환 시 던집니다. [`styles`](/reference/styles/)를 참조하세요.

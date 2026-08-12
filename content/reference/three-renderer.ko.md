@@ -2,9 +2,6 @@
 title = "ThreeRenderer"
 description = "VectoJS Scene의 IRenderer 백엔드로 Three.js 사용: 구현된 메서드, GLSL 그래디언트 셰이더 레이아웃, 라인폭 주의사항."
 weight = 43
-
-[extra]
-order = 43
 +++
 
 # `ThreeRenderer`

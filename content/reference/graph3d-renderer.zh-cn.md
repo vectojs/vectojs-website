@@ -2,9 +2,6 @@
 title = "Graph3D 与拾取"
 description = "在两次绘制调用中绘制任意图的实例化 Three.js 渲染器，外加用于悬停/点击节点拾取的光线投射模式。"
 weight = 46
-
-[extra]
-order = 46
 +++
 
 # `Graph3D` 与拾取

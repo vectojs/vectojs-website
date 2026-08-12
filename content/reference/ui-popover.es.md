@@ -2,9 +2,6 @@
 title = "UI: Popover"
 description = "Panel superpuesto activado por clic que puede contener hijos arbitrarios de VectoJS."
 weight = 38
-
-[extra]
-order = 38
 +++
 
 # `Popover`
@@ -15,7 +12,7 @@ order = 38
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Popover</span></div>
-  <iframe src="/sandbox/ui/component.html?name=popover&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Popover" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=popover&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Popover" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Haz clic en el objetivo dos veces para abrir y cerrar el popover.</figcaption>
 </figure>
 

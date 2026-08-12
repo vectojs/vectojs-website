@@ -2,9 +2,6 @@
 title = "UI: Modal"
 description = "Blocking overlay component with a card, backdrop, and spring enter/exit motion."
 weight = 36
-
-[extra]
-order = 36
 +++
 
 # `Modal`

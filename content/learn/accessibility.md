@@ -2,9 +2,6 @@
 title = "Accessibility & Automation"
 description = "How VectoJS projects semantic DOM controls over canvas content for screen readers, keyboard users, and Playwright automation."
 weight = 15
-
-[extra]
-order = 15
 +++
 
 # Accessibility & Automation

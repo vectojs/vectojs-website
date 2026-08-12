@@ -2,9 +2,6 @@
 title = "Renderers"
 description = "Le sous-chemin @vectojs/core/renderer : le contrat IRenderer indépendant du backend, CanvasRenderer, SVGRenderer, la couche WebGL points/rects/sprites/MSDF, la projection de contenu Entity, et parseColorToRGBA."
 weight = 5
-
-[extra]
-order = 5
 +++
 
 # Renderers — `@vectojs/core/renderer`

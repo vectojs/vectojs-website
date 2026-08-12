@@ -2,9 +2,6 @@
 title = "Renderers"
 description = "@vectojs/core/renderer 子路徑：與後端無關的 IRenderer 合約、CanvasRenderer、SVGRenderer、WebGL 點/矩形/sprite/MSDF 圖層、Entity 內容投射以及 parseColorToRGBA。"
 weight = 5
-
-[extra]
-order = 5
 +++
 
 # Renderers — `@vectojs/core/renderer`

@@ -2,9 +2,6 @@
 title = "@vectojs/devtools"
 description = "页面内 Virtual Math Tree 检查器及其无头模型层 — 实体拾取、树视图、审计、快照、GPU 与加速器读数和 JSON-RPC 桥接。"
 weight = 48
-
-[extra]
-order = 48
 +++
 
 # `@vectojs/devtools`

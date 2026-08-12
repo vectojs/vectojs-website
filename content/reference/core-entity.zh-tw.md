@@ -2,9 +2,6 @@
 title = "Entity"
 description = "每個 Virtual Math Tree 節點的抽象基礎：變換、動畫系統、捕獲/冒泡事件，以及自訂 Entity 可覆寫的 a11y/批次處理掛鉤。"
 weight = 3
-
-[extra]
-order = 3
 +++
 
 # `Entity`（抽象類別）
@@ -126,8 +123,8 @@ springTo(props: Partial<Record<AnimatableProp, number>>, cfg?: SpringConfig): Pr
 
 ```ts
 type VectoEvent =
-  | 'click' | 'hover' | 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'pointerleave'
-  | 'change' | 'focus' | 'blur' | 'wheel' | 'keydown' | 'keyup';
+  | 'click' | 'dblclick' | 'hover' | 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'pointerleave'
+  | 'change' | 'focus' | 'blur' | 'wheel' | 'keydown' | 'keyup' | 'scroll';
 
 on(event: VectoEvent, cb: (e: any) => void, options?: { capture?: boolean }): this
 off(event: VectoEvent, cb: (e: any) => void, options?: { capture?: boolean }): this
@@ -148,7 +145,9 @@ dispatchEvent(event: VectoJSEvent): void             // DOM 風格捕獲（根�
   `{ value, checked, selectionStart, selectionEnd, composition }`，其中
   `composition` 為 `{ start, length } | null`，表示活躍的 IME 預編輯狀態。
   `'wheel'` 帶有原生 `WheelEvent`（呼叫 `preventDefault()` 可停止頁面
-  滾動）。
+  捲動）。
+- `'dblclick'` 在雙擊時觸發（原生 `detail === 2`）。
+- `'scroll'` 攜帶一個 `ScrollEventPayload` —— 這是實體觀察其影子鏡像捲動偏移量的唯一方式：`{ scrollTop, scrollLeft, deltaY, deltaX, maxScrollTop }`。當瀏覽器捲動可捲動的內容鏡像（例如 `ScrollView` 影子節點）時觸發。
 
 用法請參閱 [Events & Hit-Testing](/learn/events/)。
 
@@ -160,6 +159,8 @@ getBatchCircle(): BatchCircle | null         // { radius, color } → renderer f
 getBatchRect(): BatchRect | null             // { width, height, color } → GPU indexed-quad batch（僅 WebGL pointBackend）
 update(dt: number, time: number): void       // 可選覆寫；dt 為毫秒，time 為 performance.now()；預設推進排隊中的補間
 ```
+
+`entity.a11yRegion: boolean`（預設 `false`）將實體標記為 a11y **分組區域**：後代投影到共享容器中，而不是獨立巢狀，因此純分組容器（例如 `width: 0`）仍然會分組 —— 最近的封閉區域勝出，且區域可以巢狀。它是宣告式的，永遠不會被幾何查詢。
 
 `getBatchCircle`/`getBatchRect` **每幀**讀取（動態顏色/半徑
 也會生效）。可表示的批次葉節點會跳過其自身的

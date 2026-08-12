@@ -2,9 +2,6 @@
 title = "UI: RichText"
 description = "リンクホットスポットとストリーミング追加のサポートを備えた、複数スタイルのインラインテキストコンポーネント。"
 weight = 17
-
-[extra]
-order = 17
 +++
 
 # `RichText`
@@ -15,7 +12,7 @@ order = 17
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · RichText</span></div>
-  <iframe src="/sandbox/ui/component.html?name=richtext&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="RichText live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=richtext&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="RichText live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>インラインリンクは、canvasテキストの上にある透明なアンカーホットスポットです。</figcaption>
 </figure>
 

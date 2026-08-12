@@ -2,9 +2,6 @@
 title = "ComputeParticleEntity"
 description = "高吞吐量粒子层：每粒子 Float32Array 内存布局、弹簧/阻尼/爆炸 CPU 模拟，以及带自动 CPU 回退的 WebGPU 计算路径。"
 weight = 6
-
-[extra]
-order = 6
 +++
 
 # `ComputeParticleEntity` —— 高吞吐量粒子层

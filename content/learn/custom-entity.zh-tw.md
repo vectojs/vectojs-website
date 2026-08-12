@@ -2,9 +2,6 @@
 title = "建立自訂實體"
 description = "學習如何繼承 Entity 來建立你自己的畫布元件：變換、渲染、命中測試、動畫、批次處理和無障礙。"
 weight = 9
-
-[extra]
-order = 9
 +++
 
 # 建立自訂實體

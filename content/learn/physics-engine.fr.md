@@ -2,9 +2,6 @@
 title = "Physique & Animation"
 description = "Appliquez une physique de ressort, une vélocité et une simulation dirigée par les forces à n'importe quelle entité du VMT."
 weight = 11
-
-[extra]
-order = 11
 +++
 
 # Physique & Animation

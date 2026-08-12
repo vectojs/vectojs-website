@@ -2,9 +2,6 @@
 title = "为什么选择VectoJS"
 description = "VectoJS解决的问题，它与DOM和canvas库的区别，以及何时不使用它。"
 weight = 2
-
-[extra]
-order = 2
 +++
 
 # 为什么选择VectoJS

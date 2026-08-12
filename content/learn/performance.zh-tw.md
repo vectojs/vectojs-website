@@ -2,9 +2,6 @@
 title = "效能"
 description = "渲染模式、空閒自動節流、WebGL 批次渲染、視窗剔除、文字效能，以及如何測量真實 GPU 吞吐量。"
 weight = 13
-
-[extra]
-order = 13
 +++
 
 # 效能

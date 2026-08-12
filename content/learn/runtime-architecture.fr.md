@@ -2,9 +2,6 @@
 title = "Architecture d'exécution"
 description = "Comment Scene, Entity, la boucle de rendu, la projection d'accessibilité et les backends s'assemblent."
 weight = 3
-
-[extra]
-order = 3
 +++
 
 # Architecture d'exécution

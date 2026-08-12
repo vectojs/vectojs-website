@@ -2,9 +2,6 @@
 title = "Texte & Typographie"
 description = "Le système de texte de VectoJS : séparation froide/chaude du LayoutEngine, streaming pour la sortie LLM, texte enrichi à styles mixtes, polices MSDF, arabe/BiDi, et formes d'exclusion."
 weight = 14
-
-[extra]
-order = 14
 +++
 
 # Texte & Typographie

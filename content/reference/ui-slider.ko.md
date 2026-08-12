@@ -2,9 +2,6 @@
 title = "Slider"
 description = "WAI-ARIA 슬라이더 규약을 노출하고 온디맨드(on-demand) 씬에서 부드럽게 다시 그리는 캔버스 슬라이더 컴포넌트"
 weight = 13
-
-[extra]
-order = 13
 +++
 
 # `Slider`
@@ -15,7 +12,7 @@ order = 13
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Slider</span></div>
-  <iframe src="/sandbox/ui/slider.html?v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Slider 라이브 데모" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/slider.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-tall" loading="eager" title="Slider 라이브 데모" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>thumb을 드래그하면 동일한 변경 이벤트에서 레이블과 진행 표시줄이 업데이트되는 것을 확인하세요.</figcaption>
 </figure>
 

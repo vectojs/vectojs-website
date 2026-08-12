@@ -2,9 +2,6 @@
 title = "a11yRoot & the agent contract"
 description = "How every interactive Entity projects a transparent ARIA shadow node into the DOM — the A11yAttributes shape, the canvas-performance-and-DOM-grade-accessibility contract, and the sync gotchas that cause stale or missing shadow nodes."
 weight = 10
-
-[extra]
-order = 10
 +++
 
 # a11yRoot & the agent contract
@@ -236,6 +233,32 @@ Individual reachability is also not the same thing as comprehension:
   its first pointer interaction instead of waiting for another render pass.
 
 See [Accessibility](/learn/accessibility/) for usage and testing patterns.
+
+## URL sanitization (`sanitizeUrl` / `isSafeUrl`)
+
+Both helpers come from `@vectojs/core` (defined in `renderer/url.ts`) and exist
+to stop `javascript:` / `data:` / `vbscript:` / `file:` URI-script injection
+when VectoJS projects an `href` onto a shadow `<a>` node or passes one to
+`window.open` (used by the accessibility sinks and by Markdown link renders).
+
+```ts
+sanitizeUrl(href: string | null | undefined): string
+isSafeUrl(urlStr: string): boolean
+```
+
+`sanitizeUrl` is the projection path: it returns `''` for `null`/`undefined`,
+trims leading whitespace, passes **relative** URLs through verbatim (a relative
+URL is never script-injectable), and rewrites any absolute URL whose scheme is
+not in the safe set — `http`, `https`, `mailto`, `tel`, `ftp` — to a benign
+`'#'` so the link stays non-empty but inert. It never throws.
+
+`isSafeUrl` is the narrower guard for code that already holds an absolute URL:
+returns `true` when the scheme is in the safe set (relative is also safe),
+`false` otherwise.
+
+The safe schemes are fixed: `http:`, `https:`, `mailto:`, `tel:`, `ftp:`.
+`ui-link` and Markdown link callbacks both route `href` through `sanitizeUrl`
+before it reaches the DOM — if you render untrusted links yourself, do the same.
 
 ## Related
 

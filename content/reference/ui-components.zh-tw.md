@@ -2,9 +2,6 @@
 title = "@vectojs/ui 元件參考"
 description = "所有 @vectojs/ui 元件的完整參考：佈局容器、表單控制項、疊層和豐富內容。"
 weight = 11
-
-[extra]
-order = 11
 +++
 
 # `@vectojs/ui` — 元件參考
@@ -132,6 +129,8 @@ interface TextOptions {
   lineHeight?: number;            // 行高 px，預設 20
   preserveLeadingSpaces?: boolean;// 預設 false
   selectable?: boolean;           // 瀏覽器原生拖曳選取，預設 true
+  textAlign?: 'left' | 'justify'; // default 'left'
+  hyphenate?: (word: string) => string[]; // word → parts, for mid-word breaks with a visible '-'
 }
 ```
 
@@ -141,6 +140,9 @@ interface TextOptions {
 - `append(text): this` — 串流/打字機路徑；等於 `setText(this.text + text)`，但引擎的段落記憶體重用未觸及的前導段落，因此只有變更的最後一個段落被重新量測。
 - `setMaxWidth(maxWidth): this` — **熱**路徑；僅重新包裝快取的量測文字（不重新分段）。對於響應式重排，優先使用此方法。
 - `setSelectable(selectable): this` — 啟用或停用投射的原生選取表面。
+- `setTextAlign(align: 'left' | 'justify'): this` — 原地重新對齊。
+
+`textAlign: 'justify'`（可搭配選用的 `hyphenate`）會被合併後的 `fillText()` 執行遵循；來源中的軟連字元（U+00AD）在沒有斷字器時也能斷行。
 
 內容投射鏡像視覺換行和行高，以支援瀏覽器尋找、選取和複製。靜態 Text 不是互動式點擊目標；Canvas/VMT 仍然擁有其像素和佈局。
 
@@ -158,6 +160,8 @@ interface RichTextOptions {
   onLinkClick?: (href: string) => void;   // 連結 run 被啟動時觸發
   exclusions?: ExclusionRect[];           // 文字繞排的矩形（排除形狀 / 浮動）
   selectable?: boolean;                   // 瀏覽器原生拖曳選取，預設 true
+  textAlign?: 'left' | 'justify';         // default 'left'
+  hyphenate?: (word: string) => string[]; // word → parts, for mid-word breaks
 }
 ```
 
@@ -167,6 +171,7 @@ interface RichTextOptions {
 - `appendSpans(spans): this` — **串流**路徑；豐富段落記憶體重用未觸及的前導段落，因此 token 串流以 O(變更的段落) 而非 O(整個文件) 重新準備。
 - `setMaxWidth(maxWidth): this` — 重排。
 - `setExclusions(exclusions): this` — 設定浮動區域並重排。
+- `setTextAlign(align: 'left' | 'justify'): this` — 原地重新對齊。
 - `setSelectable(selectable): this` — 在不重建 spans 的情況下切換原生選取。
 
 **行內物件 (2.6.0+)。** 一個 span 可以為 `RichText` 不會塑形的內容保留水平空間 — 例如公式、圖示或嵌入方塊 — 讓它能位於句中，而不會阻斷行：
@@ -522,10 +527,14 @@ new Modal(title: string, props?: ModalProps)  // props 為鬆散型別 (any)
 ```ts
 new ScrollView(opts: ScrollViewOptions)
 
-interface ScrollViewOptions { width: number; height: number; }
+interface ScrollViewOptions {
+  width: number;
+  height: number;
+  scrollPhysics?: MotionConfig; // default 'spring' (stiffness 180, damping 12)
+}
 ```
 
-一個裁剪視口（`clipChildren = true`），支援滾輪 + 指標拖曳捲動和彈簧物理（摩擦力 `0.85`、彈簧 `0.1`）。子節點存在於一個非互動的 `content` Entity 內部，該 Entity 會被平移；視口方塊保持固定。
+一個裁剪視口（`clipChildren = true`），支援滾輪 + 指標拖曳捲動，並由 `scrollPhysics` 設定彈簧物理——預設彈簧刻意採用欠阻尼（ζ ≈ 0.45，約 20% 過衝）；類似文件型的內容通常希望使用匯出的 `DOCUMENT_SCROLL_PHYSICS` 預設（`{ stiffness: 180, damping: 27 }`，ζ ≈ 1.0，無過衝）。子節點存在於一個非互動的 `content` Entity 內部，該 Entity 會被平移；視口方塊保持固定。
 
 - `content: Entity` — 可捲動的容器（公開）。
 - `add(child): this` / `remove(child): this` — 修改 `content` 並呼叫 `updateContentSize()`。
@@ -627,6 +636,8 @@ interface TableOptions {
 }
 ```
 
+欄對齊是透過**定位儲存格實體**來套用的，而非透過文字對齊屬性——`setTextAlign` 只接受 `'left' | 'justify'`。對於換行的多行儲存格，這會對齊整個區塊，而不是區塊內的每一行。
+
 Canvas 原生資料網格：字串儲存格成為 Text 子 Entity，Entity 儲存格透過公開的 `setMaxWidth()` 進行約束，而 `layout()` 在僅繪製的 `render()` 傳遞之前解析換行、行高和位置。在變更外部儲存格內容後呼叫 `layout()`。每個儲存格擁有一個內容投射。無障礙：為輔助技術投射 `{ role: 'grid', label: '具有 N 列和 M 行的資料表格。' }`。同時也是 `Markdown` 中 GFM 表格的渲染器。
 
 ---
@@ -687,6 +698,9 @@ interface TabsOptions {
   onClose?: (value: string) => void;
 }
 
+// rename a tab's label at runtime:
+tabs.setLabel(tabId: string, label: string): void
+
 interface TabItem {
   id: string;
   label: string;
@@ -732,15 +746,14 @@ interface ProgressBarOptions {
 new Overlay(opts: OverlayOptions)
 
 interface OverlayOptions {
-  target: Entity;
-  content: Entity;
-  placement?: Placement; // 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 等
-  offset?: number;       // 距離 px，預設 8
-  autoFlip?: boolean;    // 超出視口邊界時自動調整方向
+  width: number;
+  height: number;
+  placement?: Placement; // 'top' | 'bottom' | 'left' | 'right' | 'top-start' | etc., default 'bottom'
+  offset?: number;       // distance in px, default 8
 }
 ```
 
-浮動定位層引擎。原生不投射無障礙節點。
+浮動定位層引擎，具備邊緣碰撞偵測和位置翻轉。使用 `showAt(target, placement?, offset?)` 相對於目標定位，或使用 `showAtPoint(x, y)` 定位到絕對點；使用 `hide()` 隱藏。原生不投射無障礙節點。
 
 ---
 
@@ -754,6 +767,9 @@ interface TooltipOptions {
   content: string;
   placement?: Placement;
   delay?: number; // 顯示前的毫秒數，預設 300
+  font?: string;
+  color?: string;
+  bg?: string;
 }
 ```
 
@@ -771,7 +787,8 @@ interface PopoverOptions {
   width: number;
   height: number;
   placement?: Placement;
-  offset?: number;
+  bg?: string;
+  borderColor?: string;
 }
 ```
 
@@ -787,6 +804,14 @@ new ContextMenu(opts: ContextMenuOptions)
 interface ContextMenuOptions {
   items: ContextMenuItem[];
   width?: number;
+  font?: string;            // default '14px sans-serif'
+  color?: string;           // row text, default '#e2e8f0'
+  disabledColor?: string;   // disabled rows, default 'rgba(226, 232, 240, 0.4)'
+  bg?: string;              // menu background, default 'rgba(15, 23, 42, 0.95)'
+  hoverBg?: string;         // hovered row, default 'rgba(0, 240, 255, 0.25)'
+  borderColor?: string;     // menu border, default 'rgba(255, 255, 255, 0.15)'
+  itemHeight?: number;      // row height, default 32
+  separatorHeight?: number; // divider height, default 1
 }
 
 type ContextMenuItem =
@@ -804,17 +829,21 @@ type ContextMenuItem =
 ### `VirtualList`
 
 ```ts
-new VirtualList(opts: VirtualListOptions)
+new VirtualList<T>(opts: VirtualListOptions<T>)
 
-interface VirtualListOptions {
+interface VirtualListOptions<T> {
   width: number;
   height: number;
-  itemHeight: number | ((idx: number) => number);
-  itemRenderer: (idx: number) => Entity;
+  items: T[];                          // full data array
+  renderItem: (item: T, index: number) => Entity;
+  estimatedRowHeight: number;          // before a row is measured; exact value for fixed heights
+  overscan?: number;                   // extra rows above & below the window, default 3
+  keyForItem?: (item: T, index: number) => string; // stable identity (e.g. message id)
+  stickToBottomThreshold?: number;     // px from bottom that counts as "following", default 48
 }
 ```
 
-針對高效能渲染最佳化的可捲動列表容器。僅實例化/渲染目前在視口範圍內的項目。
+針對高效能渲染最佳化的可捲動列表容器。僅實例化/渲染目前在視口範圍內的項目。`keyForItem` 使測量出的高度在 `setItems()` 後仍然有效、在上方行調整大小時保持捲動錨點，並允許追加/前置而不丟棄快取——沒有它，`setItems()` 會清除所有測量並跳回頂部。`stickToBottomThreshold`（僅與 `keyForItem` 一起使用）會在行調整大小後將跟隨式視口重新固定到底部——非常適合聊天記錄。方法：`scrollToIndex(index)`、`scrollToTop()`、`scrollToBottom()`、`jumpToBottom()`（即時）。匯出的 `RowHeights` 類別為測量快取提供支援。
 
 ---
 
@@ -830,6 +859,8 @@ interface TreeViewOptions {
 interface TreeNode {
   id: string;
   label: string;
+  icon?: string;                    // optional icon glyph (emoji, nerd-font, …)
+  iconColor?: string;               // falls back to the tree's text color (material-style file icons)
   children?: TreeNode[] | (() => Promise<TreeNode[]>);
 }
 ```

@@ -2,9 +2,6 @@
 title = "Layout engine"
 description = "獨立的 @vectojs/layout 套件（也是 @vectojs/core/layout 子路徑）：將昂貴的文字分段+測量與廉價的換行+定位運算分離的冷/熱分割、串流記憶化、豐富文字和排除形狀。"
 weight = 4
-
-[extra]
-order = 4
 +++
 
 # Layout engine（冷/熱分割）— `@vectojs/layout`
@@ -56,6 +53,10 @@ fallbackToCanvas? }`；`LayoutNode` 是一個已定位的字形。
 - `LayoutWorkerManager.getInstance()` — 用於離執行緒 layout 的單例；
   `queueLayout(entityId, text, { fontId, fontSize, maxWidth, maxHeight, callback,
 ... })` / `cancelLayout(entityId)`。由 [`MSDFTextEntity`](/reference/core-text/#msdftextentity) 使用。
+
+值得了解的實用匯出：`createMetricsMeasurer(fontFamily?, baseSize?)` 與 `resolveGlyphMeasurer(...)` 用於建構 `GlyphMeasurer`；`EMPTY_GLYPH_ATLAS` 是無度量後備圖集；`isComplexScript(text)` 報告塑形是否需要指令碼項目化器（script itemizer）；`computeMSDFLayout(...)` 是工作執行緒路徑在離執行緒中執行的純布局函式；`cacheStats()` / `resetCacheStats()` 與 `clearCssLineBoxMetrics()` 是用於診斷的引擎級快取。
+
+- `InlineObject` — 豐富文字段落中的內聯替換元素（圖片、圖示、數學框）：`{ width, height, depth?, alt?, paint? }`。該 span 必須由 U+FFFC `OBJECT_REPLACEMENT` 哨兵組成；引擎保留框度量，並在消費者渲染時於文字的局部座標空間中呼叫 `paint(surface: InlineObjectSurface, box: InlineObjectBox)`（無需深度簿記）。`alt` 是用於可存取名稱、選擇與複製的文字等效項——沒有它，原始哨兵會洩漏到 a11y 層。`paint` 是段落記憶鍵的一部分（連同 `alt`）：兩個比較相等的物件共享一個快取的段落，因此在 `alt` 之外選擇的圖片（例如 Markdown 圖片 URL——徽章欄的情況）必須在此宣告，否則每個外觀相同的物件都會繪製第一個物件的圖片。`depth` 鏡像 CSS `vertical-align` 且符號翻轉（MathJax 的 `vertical-align: -0.486ex` → `depth: 0.486 * exToPx`）。
 
 使用方式請參閱 [Text & Typography](/learn/text-typography/)，消耗此引擎輸出的字型/字形渲染層請參閱 [Text & Bidi](/reference/core-text/)。
 

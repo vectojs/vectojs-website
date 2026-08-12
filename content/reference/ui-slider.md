@@ -2,9 +2,6 @@
 title = "Slider"
 description = "Canvas slider component that exposes the WAI-ARIA slider contract and repaints smoothly in on-demand scenes."
 weight = 13
-
-[extra]
-order = 13
 +++
 
 # `Slider`

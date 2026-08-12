@@ -2,9 +2,6 @@
 title = "Streaming et texte en temps réel"
 description = "Création d’interfaces de chat, de visionneuses de journaux et de tableaux de bord en direct : fusion de blocs par trame, API d’ajout, interaction avec le bridage inactif et stratégie pour les longs transcriptions."
 weight = 18
-
-[extra]
-order = 18
 +++
 
 # Streaming et texte en temps réel
@@ -50,7 +47,7 @@ Avec un flux de 200 jetons/s fonctionnant à 60 fps, cela réduit jusqu'à envir
 
 Deux coûts se cachent à l'intérieur de `appendMarkdown` que vous devez connaître :
 
-1. **L'analyse lexicale est O(document), pas O(morceau).** Chaque appel re-tokenise l'ensemble de la source accumulée. L'analyse s'exécute dans un Worker en arrière-plan lorsqu'il est disponible (avec un repli sur l'analyse synchrone dans les environnements sans `Worker`), et la mise à jour de l'entité réutilise tous les blocs terminés — mais un transcript de 100 000 caractères paie toujours le coût lexical de 100 000 caractères par vidage. Le traitement par lots par trame divise ce coût par le facteur de jetons par trame ; la segmentation du transcript (ci-dessous) le limite.
+1. **L'analyse lexicale est incrémentale, indexée sur la queue instable.** Depuis 0.8.1, le chemin worker refait l'analyse lexicale depuis la dernière limite de bloc stable (`lexAppend`) au lieu de re-tokeniser l'ensemble de la source accumulée, donc le coût par morceau suit la queue modifiée, pas la taille du document. Seuls les documents qui utilisent des blocs de définition de liens ou du math `$$` en début de ligne retombent sur une analyse lexicale de tout le document (`lexFull`). L'analyse s'exécute dans un Worker en arrière-plan lorsqu'il est disponible (avec un repli sur l'analyse synchrone dans les environnements sans `Worker`), et la mise à jour de l'entité réutilise tous les blocs terminés.
 
 2. **La mémorisation des paragraphes se fait sur la clé `\n`.** `Text.append` et le metteur à jour de paragraphes Markdown ne remesurent que le paragraphe qui a changé. Une ligne continue sans fin désactive la mémorisation et dégrade la mesure en O(document) par vidage. La sortie LLM a des sauts de paragraphe naturels ; les lignes de journal se terminent par `\n` — vous en bénéficiez généralement gratuitement, mais ne supprimez pas les retours à la ligne.
 

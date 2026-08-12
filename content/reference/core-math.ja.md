@@ -2,9 +2,6 @@
 title = "数学ユーティリティ"
 description = "平均O(1)のブロードフェーズ空間クエリのためのSpatialHashGridと、単一値の臨界調整可能スプリングのためのSpringPhysics — @vectojs/core が再エクスポートするスタンドアロンの @vectojs/math パッケージ。"
 weight = 9
-
-[extra]
-order = 9
 +++
 
 # 数学ユーティリティ — `@vectojs/math`

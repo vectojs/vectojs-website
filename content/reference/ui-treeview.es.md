@@ -2,9 +2,6 @@
 title = "UI: TreeView"
 description = "Componente de árbol jerárquico con carga perezosa o inmediata de hijos."
 weight = 34
-
-[extra]
-order = 34
 +++
 
 # `TreeView`
@@ -15,7 +12,7 @@ order = 34
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · TreeView</span></div>
-  <iframe src="/sandbox/ui/component.html?name=treeview&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de TreeView" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=treeview&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de TreeView" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Haz clic en las filas padre para expandirlas o contraerlas.</figcaption>
 </figure>
 

@@ -2,9 +2,6 @@
 title = "성능"
 description = "렌더 모드, 유휴 자동 스로틀, WebGL 배치 렌더링, 뷰포트 컬링, 텍스트 성능, 실제 GPU 처리량 측정 방법"
 weight = 13
-
-[extra]
-order = 13
 +++
 
 # 성능

@@ -2,9 +2,6 @@
 title = "Math utilities"
 description = "SpatialHashGrid for O(1)-average broad-phase spatial queries and SpringPhysics for a single-value critically-tunable spring — the standalone @vectojs/math package, re-exported by @vectojs/core."
 weight = 9
-
-[extra]
-order = 9
 +++
 
 # Math utilities — `@vectojs/math`

@@ -2,9 +2,6 @@
 title = "Accesibilidad y Automatización"
 description = "Cómo VectoJS proyecta controles DOM semánticos sobre el contenido del canvas para lectores de pantalla, usuarios de teclado y automatización con Playwright."
 weight = 15
-
-[extra]
-order = 15
 +++
 
 # Accesibilidad y Automatización
@@ -284,7 +281,7 @@ Para un campo de partículas, una capa de danmaku o un enjambre de sprites, pref
 - **Proyecta solo lo que es alcanzable.** El patrón de pooling usado por `TreeView`/`Table` virtualizados ajusta un pool de hotspots a las filas visibles en lugar de al conjunto de datos, por lo que la proyección se mantiene en O(viewport). Consulta [widgets compuestos](#widgets-compuestos-una-parada-de-tabulación-teclas-de-flecha-dentro).
 - **Llama a `scene.detachA11y(entity)`** cuando una entidad deje de ser accionable. Documentado en otra parte como prevención de fugas, es igualmente una palanca de costo: la sincronización por frame crea y actualiza pero nunca poda.
 
-> Un modo `a11yProjection` por entidad (`'eager' | 'onDemand' | 'never'`) que materializa un nodo solo al pasar el ratón o al enfocar está diseñado pero **aún no implementado**. Ten en cuenta que no puede basarse en \"si hay un lector de pantalla presente\" — eso es deliberadamente indetectable por diseño (principio de diseño 2.7 del W3C TAG), y los nodos virtuales de accesibilidad AOM están bloqueados en todos los motores por razones de privacidad.
+Un modo `a11yProjection` por entidad (`'eager' | 'onDemand' | 'never'`, por defecto `'eager'`) controla cuándo se materializa el nodo shadow de la entidad; las mediciones y la API están documentadas en [`core-a11y`](/reference/core-a11y/#projection-cost-at-high-entity-counts-1300). Ten en cuenta que no puede basarse en "si hay un lector de pantalla presente" — eso es deliberadamente indetectable por diseño (principio de diseño 2.7 del W3C TAG), y los nodos de accesibilidad virtuales de AOM están bloqueados en todos los motores por razones de privacidad.
 
 ## Inspeccionar el árbol shadow programáticamente
 

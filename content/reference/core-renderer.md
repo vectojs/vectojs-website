@@ -2,9 +2,6 @@
 title = "Renderers"
 description = "The @vectojs/core/renderer subpath: the backend-agnostic IRenderer contract, CanvasRenderer, SVGRenderer, the WebGL point/rect/sprite/MSDF layer, Entity content projection, and parseColorToRGBA."
 weight = 5
-
-[extra]
-order = 5
 +++
 
 # Renderers — `@vectojs/core/renderer`

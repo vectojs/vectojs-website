@@ -2,9 +2,6 @@
 title = "Runtime Architecture"
 description = "Scene、Entity、レンダーループ、アクセシビリティ投影、バックエンドがどのように連携するか。"
 weight = 3
-
-[extra]
-order = 3
 +++
 
 # Runtime Architecture

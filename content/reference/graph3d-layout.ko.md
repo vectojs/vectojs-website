@@ -2,9 +2,6 @@
 title = "GraphLayout & D3ForceLayout"
 description = "그래프 데이터 모델과 worker 친화적인 GraphLayout 계약, 그리고 d3-force-3d 기반의 D3ForceLayout 구현체."
 weight = 45
-
-[extra]
-order = 45
 +++
 
 # `GraphLayout` & `D3ForceLayout`
@@ -58,7 +55,7 @@ interface GraphLayout {
 
 계약은 의도적으로 최소화되고 worker 친화적입니다: positions는 `GraphData.nodes` 순서의 xyz 삼중항으로 된 하나의 평평한 `Float32Array`이므로, 구현체가 Web Worker 내부에 완전히 존재하고 전송 가능한 버퍼를 스레드 경계를 통해 노드별 객체 트래픽 없이 스트리밍할 수 있습니다. [`Graph3D.applyPositions()`](/reference/graph3d-renderer/#메서드)는 동일한 버퍼 형태를 직접 사용합니다. `positions`는 단계마다 **재사용되는 동일한 배열 인스턴스**입니다 — 안정적인 스냅샷이 필요하면 복사(`layout.positions.slice()`)하세요.
 
-`@vectojs/graph3d`는 현재 하나의 구현체를 제공합니다; 더 많은 어댑터(`ngraph`)와 DAG 레이아웃 모드가 패키지 로드맵에 있으며, 모두 이 동일한 인터페이스 뒤에 있으므로 렌더러나 worker 호스트는 어떤 것이 실행 중인지 알 필요가 없습니다.
+`@vectojs/graph3d`는 이 계약 뒤에 두 가지 구현체를 제공합니다 — 아래의 [`D3ForceLayout`](#d3forcelayout)과 자체 개발한 [`VectoForceLayout`](#vectoforcelayout)(Barnes–Hut, d3 의존성 없음) — 그리고 DAG 레이아웃 모드가 패키지 로드맵에 있으며, 모두 이 동일한 인터페이스 뒤에 있으므로 렌더러나 worker 호스트는 어떤 것이 실행 중인지 알 필요가 없습니다.
 
 ## `D3ForceLayout`
 
@@ -75,6 +72,26 @@ interface D3ForceLayoutOptions {
 [d3-force-3d](https://github.com/vasturiano/d3-force-3d)를 어댑트합니다 — `3d-force-graph`의 기반이 되는 동일한 엔진이므로, 그래프의 튜닝된 힘이 그 느낌을 유지한 채 마이그레이션됩니다. 3차원에서 `forceLink` + `forceManyBody` + `forceCenter`를 실행합니다.
 
 d3 시뮬레이션은 자체 노드 레코드(`x`/`y`/`z`/`vx`/…)를 변경하므로, `setGraph`는 각 노드를 `GraphData.nodes` 객체를 직접 전달하는 대신 내부 시뮬레이션 레코드로 복제합니다 — 선언된 `fx`/`fy`/`fz` 핀만 전달됩니다. 시뮬레이션의 자체 타이머는 절대 시작되지 않습니다; `step(iterations = 1)`은 동기식으로 틱을 진행하므로, `D3ForceLayout`이 `requestAnimationFrame`을 모방하지 않고 Web Worker 내부에서 사용 가능합니다.
+
+## `VectoForceLayout`
+
+```ts
+new VectoForceLayout(options?: VectoForceLayoutOptions)
+
+interface VectoForceLayoutOptions {
+  linkDistance?: number;   // target resting length of links. Default 30.
+  linkStrength?: number;   // spring stiffness of links. Default 0.3.
+  repulsion?: number;      // many-body repulsion strength. Default 300.
+  centerStrength?: number; // pull toward the centroid. Default 0.02.
+  velocityDecay?: number;  // per-step velocity damping. Default 0.6.
+  theta?: number;          // Barnes–Hut opening angle. Default 0.9.
+  alphaDecay?: number;     // cooling rate. Default 0.0228; 0 disables cooling.
+  alphaMin?: number;       // alpha below which step() reports cooled. Default 0.001.
+  seed?: number;           // RNG seed for deterministic placement. Default 1.
+}
+```
+
+자체 개발 레이아웃(0.3.0에서 추가): 다체 항에 Barnes–Hut 옥트리를 사용하는 힘 기반 시뮬레이션 — d3 의존성이 없고, `seed` 하에서 결정적이며, Web Worker 내부에서 안전합니다(`D3ForceLayout`과 동일한 `step(iterations)` 계약). 실행 간에 동일한 결과가 필요할 때 선택하세요; `repulsion`/`linkStrength`로 조정하고 `alphaDecay`를 0보다 높게 올릴 때는 주의하세요 — 이미 냉각 경계에 가깝기 때문에 더 높은 값은 그래프를 나중이 아니라 더 일찍 고정시킵니다.
 
 ```ts
 layout.step(); // 한 틱

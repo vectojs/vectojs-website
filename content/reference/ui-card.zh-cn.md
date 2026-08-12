@@ -2,9 +2,6 @@
 title = "UI：Card"
 description = "带可选 role=group 语义的圆角 canvas 面板组件。"
 weight = 20
-
-[extra]
-order = 20
 +++
 
 # `Card`
@@ -15,7 +12,7 @@ order = 20
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Card</span></div>
-  <iframe src="/sandbox/ui/component.html?name=card&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Card live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=card&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Card live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Card 拥有背景和边框；子元素定位在 card 的局部空间中。</figcaption>
 </figure>
 

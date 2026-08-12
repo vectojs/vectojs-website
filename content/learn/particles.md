@@ -2,9 +2,6 @@
 title = "Particle Systems"
 description = "ComputeParticleEntity: WebGPU compute particles, CPU fallback, the 8-float memory layout, mouse interaction, and triggerExplosion."
 weight = 12
-
-[extra]
-order = 12
 +++
 
 # Particle Systems

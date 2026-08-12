@@ -2,9 +2,6 @@
 title = "Référence API @vectojs/core"
 description = "Vue d'ensemble et carte des points d'entrée du moteur de rendu zero-DOM derrière Vecto — Scene, Entity, renderers, particules et a11y dans core, plus les moteurs autonomes @vectojs/text, @vectojs/layout, @vectojs/math et @vectojs/animation que core re-exporte."
 weight = 1
-
-[extra]
-order = 1
 +++
 
 # `@vectojs/core` — Référence API
@@ -36,6 +33,8 @@ pied de page « Associé » renvoyant vers les autres :
 | [Texte et Bidi](/reference/core-text/)                | `MSDFFont`, `MSDFTextEntity`, `TextEntity`/`GridTextEntity`, shape arabe + résolveur bidi.                                                      |
 | [Autres entités](/reference/core-entities/)           | `SplineEntity`, `DOMPortalEntity`, `SVGEntity`.                                                                                                 |
 | [Utilitaires mathématiques](/reference/core-math/)    | `SpatialHashGrid`, `SpringPhysics`.                                                                                                             |
+| [Animation](/reference/animation/)                    | Le moteur autonome `@vectojs/animation` : `TweenDriver`/`SpringDriver`, `MotionConfig`, courbes d'easing.                                       |
+| [Styles](/reference/styles/)                          | La couche autonome `@vectojs/styles` : objets de style nommés CSS, thèmes de jetons `var()`, bascule `setTheme`, fusion `css()`.                |
 | [a11yRoot et le contrat agent](/reference/core-a11y/) | La projection d'ombre DOM, `A11yAttributes`, pièges de synchronisation.                                                                         |
 
 ## Points d'entrée et carte des modules

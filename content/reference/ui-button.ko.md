@@ -2,9 +2,6 @@
 title = "Button"
 description = "접근성과 자동화를 위한 시맨틱 버튼 프로젝션이 있는 캔버스 렌더링 버튼 컴포넌트"
 weight = 12
-
-[extra]
-order = 12
 +++
 
 # `Button`
@@ -15,7 +12,7 @@ order = 12
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Button</span></div>
-  <iframe src="/sandbox/ui/button.html?v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame" loading="eager" title="Button 라이브 데모" sandbox="allow-scripts allow-same-origin"></iframe>
+  <iframe src="/sandbox/ui/button.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame" loading="eager" title="Button 라이브 데모" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>호버(Hover)하면 그려진 상태가 변경됩니다. 클릭은 Playwright가 찾을 수 있는 동일한 button 역할(role)을 통해 전달됩니다.</figcaption>
 </figure>
 

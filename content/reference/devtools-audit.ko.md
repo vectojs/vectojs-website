@@ -2,9 +2,6 @@
 title = "Devtools: 감사"
 description = "VectoJS 씬이 올바른지 검증하세요 — 구조화된 결과를 반환하는 레이아웃, 접근성, 텍스트 셰이핑, 선택 감사와 회귀 테스트용 스냅샷 및 디프."
 weight = 50
-
-[extra]
-order = 50
 +++
 
 # Devtools: 감사

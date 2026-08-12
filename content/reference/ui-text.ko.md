@@ -2,9 +2,6 @@
 title = "UI: Text"
 description = "줄바꿈, 핫 max-width 재흐름 및 시맨틱 레이블이 있는 캔버스 텍스트 컴포넌트"
 weight = 16
-
-[extra]
-order = 16
 +++
 
 # `Text`
@@ -15,7 +12,7 @@ order = 16
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Text</span></div>
-  <iframe src="/sandbox/ui/component.html?name=text&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Text 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=text&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Text 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>페이지 크기를 조정하여 집중된 뷰포트에서 핫 `maxWidth` 재흐름을 확인하세요.</figcaption>
 </figure>
 

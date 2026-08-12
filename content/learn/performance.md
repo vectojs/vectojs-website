@@ -2,9 +2,6 @@
 title = "Performance"
 description = "Render modes, the idle auto-throttle, WebGL batch rendering, viewport culling, text performance, and how to measure real GPU throughput."
 weight = 13
-
-[extra]
-order = 13
 +++
 
 # Performance

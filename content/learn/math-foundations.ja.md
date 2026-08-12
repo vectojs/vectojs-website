@@ -2,9 +2,6 @@
 title = "Mathematical Foundations"
 description = "VectoJSレンダリングエンジンを支える数学的・物理的原理：Virtual Math Tree、セマンティックアクセシビリティ投影、リー群、分割レイアウト、スプラインhit-testing、集合差折り返し、ODEアニメーション、空間カリング。"
 weight = 6
-
-[extra]
-order = 6
 +++
 
 # Mathematical Foundations

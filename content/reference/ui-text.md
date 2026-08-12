@@ -2,9 +2,6 @@
 title = "UI: Text"
 description = "Canvas text component with wrapping, hot max-width reflow, and a semantic label."
 weight = 16
-
-[extra]
-order = 16
 +++
 
 # `Text`

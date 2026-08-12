@@ -2,9 +2,6 @@
 title = "Eventos y Hit-Testing"
 description = "Cómo fluyen los eventos de puntero y teclado a través del árbol de entidades de VectoJS: captura, propagación, VectoJSEvent, payloads de cambio de formularios y findEntityAt."
 weight = 10
-
-[extra]
-order = 10
 +++
 
 # Eventos y Hit-Testing

@@ -2,9 +2,6 @@
 title = "UI: Input"
 description = "Entrada de texto de una sola línea con comportamiento de edición nativo reflejado en el canvas."
 weight = 23
-
-[extra]
-order = 23
 +++
 
 # `Input`
@@ -16,7 +13,7 @@ IME, portapapeles, selección y automatización se mantienen nativos.
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Input</span></div>
-  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.34.0-ui-2.15.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Input" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=input&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Demostración en vivo de Input" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Llena el cuadro de texto mediante entrada de teclado o automatización basada en roles.</figcaption>
 </figure>
 

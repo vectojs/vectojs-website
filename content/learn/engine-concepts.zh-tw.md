@@ -2,9 +2,6 @@
 title = "引擎概念"
 description = "VectoJS 背後八個數學與架構理念。"
 weight = 4
-
-[extra]
-order = 4
 +++
 
 # 引擎概念

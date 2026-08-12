@@ -2,9 +2,6 @@
 title = "a11yRoot 與 agent 契約"
 description = "每個可互動的 Entity 如何將透明的 ARIA 陰影節點投射到 DOM 中 — A11yAttributes 形狀、canvas 效能與 DOM 等級無障礙的契約，以及導致陰影節點過時或遺失的同步注意事項。"
 weight = 10
-
-[extra]
-order = 10
 +++
 
 # a11yRoot 與 agent 契約
@@ -160,6 +157,21 @@ scene.releaseA11yProjection(previous);
 - 從 Core 1.11.1 起，新投影的互動實體會在建立 shadow node 的同一影格取得與畫布繪製順序一致的 `z-index`。因此，新覆蓋層的 backdrop 在第一次指標互動時就位於既有設計控制項之上，不必等待下一次渲染。
 
 使用模式和測試模式請參閱 [Accessibility](/learn/accessibility/)。
+
+## URL 消毒（`sanitizeUrl` / `isSafeUrl`）
+
+這兩個輔助函式都來自 `@vectojs/core`（定義於 `renderer/url.ts`），用於在 VectoJS 將 `href` 投影到陰影 `<a>` 節點上，或將其傳給 `window.open`（用於無障礙 sink 和 Markdown 連結渲染）時，阻止 `javascript:` / `data:` / `vbscript:` / `file:` URI 指令碼注入。
+
+```ts
+sanitizeUrl(href: string | null | undefined): string
+isSafeUrl(urlStr: string): boolean
+```
+
+`sanitizeUrl` 是投影路徑：對 `null`/`undefined` 回傳 `''`，去除前導空白，**相對** URL 原樣通過（相對 URL 永遠不會被注入指令碼），並將任何 scheme 不在安全集合——`http`、`https`、`mailto`、`tel`、`ftp`——中的絕對 URL 重寫為無害的 `'#'`，使連結保持非空但無效。它永遠不會拋出例外。
+
+`isSafeUrl` 是更嚴格的守衛，用於那些已經持有絕對 URL 的程式碼：當 scheme 在安全集合中時回傳 `true`（相對 URL 也是安全的），否則回傳 `false`。
+
+安全 scheme 是固定的：`http:`、`https:`、`mailto:`、`tel:`、`ftp:`。`ui-link` 和 Markdown 連結回呼都會在 `href` 到達 DOM 之前將其透過 `sanitizeUrl` 路由——如果你自己渲染不受信任的連結，也請這樣做。
 
 ## 相關
 

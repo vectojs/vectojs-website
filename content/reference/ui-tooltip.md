@@ -2,9 +2,6 @@
 title = "UI: Tooltip"
 description = "Hover-triggered overlay text anchored to a target entity."
 weight = 37
-
-[extra]
-order = 37
 +++
 
 # `Tooltip`
