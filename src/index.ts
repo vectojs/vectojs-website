@@ -544,7 +544,7 @@ async function renderApp(): Promise<void> {
     const onTocNavigate = (flatIndex: number) => navigateToHeading.fn(flatIndex);
 
     if (showToc && !showDesktopToc) {
-      mobileToc = new MobileToc(toc, contentWidth, onTocNavigate);
+      mobileToc = new MobileToc(toc, contentWidth, onTocNavigate, lang);
       mobileToc.setPosition(0, detailY);
       page.add(mobileToc);
       detailY += mobileToc.height + 24;
@@ -590,7 +590,7 @@ async function renderApp(): Promise<void> {
     detailY += md.height + 24;
 
     if (showDesktopToc) {
-      const sidebar = new TocSidebar(toc, tocSidebarWidth, onTocNavigate);
+      const sidebar = new TocSidebar(toc, tocSidebarWidth, onTocNavigate, lang);
       // The article column already sits right of the docs sidebar when one is
       // shown; the TOC must clear the article's right edge, not the page's.
       sidebar.setPosition(originX + contentOffset + contentWidth + 40, currentY + md.y);

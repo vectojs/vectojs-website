@@ -2,6 +2,8 @@ import { Entity, type IRenderer, type A11yAttributes, VectoJSEvent } from '@vect
 import { Text, RichText, Card } from '@vectojs/ui';
 import { Container } from './entities';
 import { withWholeLineProjection } from './text-utils';
+import { useTranslations } from './i18n/ui';
+import type { Locale } from './i18n/config';
 
 export interface TocEntry {
   title: string;
@@ -91,12 +93,17 @@ export class TocSidebar extends Entity {
   public isPointInside(_globalX: number, _globalY: number): boolean {
     return false;
   }
-  constructor(toc: TocEntry[], width: number, onNavigate: (flatIndex: number) => void) {
+  constructor(
+    toc: TocEntry[],
+    width: number,
+    onNavigate: (flatIndex: number) => void,
+    lang: Locale,
+  ) {
     super();
     this.width = width;
 
     const title = withWholeLineProjection(
-      new Text('On this page', {
+      new Text(useTranslations(lang)('toc.onThisPage'), {
         font: '600 14px system-ui, sans-serif',
         color: '#111827',
       }),
@@ -136,23 +143,28 @@ export class MobileToc extends Entity {
   /** Called after every expand/collapse so the parent can reflow. */
   public onToggle?: () => void;
 
-  constructor(toc: TocEntry[], width: number, onNavigate: (flatIndex: number) => void) {
+  constructor(
+    toc: TocEntry[],
+    width: number,
+    onNavigate: (flatIndex: number) => void,
+    lang: Locale,
+  ) {
     super();
     this.width = width;
     this.toc = toc;
     this.onNavigate = onNavigate;
-
+    const t = useTranslations(lang);
     this.header = new Card({
       width,
       height: this.collapsedHeight,
       bg: '#f9fafb',
       border: '#e5e7eb',
       radius: 6,
-      label: 'Table of Contents',
+      label: t('toc.tableOfContents'),
       onClick: () => this.toggle(),
     });
     this.headerLabel = withWholeLineProjection(
-      new RichText([{ text: '▸ Table of Contents' }], {
+      new RichText([{ text: `▸ ${t('toc.tableOfContents')}` }], {
         font: 'bold 14px system-ui, sans-serif',
         color: '#111827',
       }),
@@ -168,7 +180,7 @@ export class MobileToc extends Entity {
     this.expanded = !this.expanded;
     this.headerLabel.setSpans([
       {
-        text: this.expanded ? '▾ Table of Contents' : '▸ Table of Contents',
+        text: this.expanded ? `▾ ${t('toc.tableOfContents')}` : `▸ ${t('toc.tableOfContents')}`,
       },
     ]);
 

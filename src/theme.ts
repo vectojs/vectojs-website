@@ -177,7 +177,7 @@ export const LAYOUT = {
   /** .container horizontal padding. */
   containerPad: 32,
   /** .navbar padding + content height (~56px). */
-  navHeight: 56,
+  navHeight: 60, // old site .navbar measured 60px
   /** .features-section vertical padding. */
   sectionPad: 128,
   /** .metrics-section / .usecases-section vertical padding. */

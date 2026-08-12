@@ -94,7 +94,9 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
   const header = new Stack({ direction: 'horizontal', gap: 12 });
   header.x = pad;
   header.y = top + 20;
-  const label = new Text(lang === 'en' ? 'Docs' : t('nav.learn'), {
+  const sectionName =
+    activePath.split('/')[1] === 'reference' ? t('nav.reference') : t('nav.learn');
+  const label = new Text(lang === 'en' ? sectionName.toUpperCase() : sectionName, {
     font: '700 13px Inter, sans-serif',
     color: colors.faint,
   });
