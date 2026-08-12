@@ -125,7 +125,10 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
   list.x = 8;
   list.y = top + 56;
   const maxItems = Math.max(1, Math.floor((height - 64) / 30));
-  for (const page of pages.slice(0, maxItems)) {
+  const truncated = pages.length > maxItems;
+  const showAll = truncated && sidebarExpanded();
+  const visible = showAll ? pages : pages.slice(0, maxItems);
+  for (const page of visible) {
     const active =
       page.path === activePath || (page.path.endsWith('/') && activePath.startsWith(page.path));
     const font = active ? '600 13.5px Inter, sans-serif' : '13.5px Inter, sans-serif';
@@ -154,8 +157,32 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
   }
   root.add(list);
 
+  if (truncated && !showAll) {
+    const more = new Text(`+${pages.length - maxItems}`, {
+      font: '600 13px Inter, sans-serif',
+      color: colors.accent,
+    });
+    more.x = 18;
+    more.y = list.y + maxItems * 30 + 12;
+    more.interactive = true;
+    more.getA11yAttributes = () => ({ role: 'button', label: 'Show all' });
+    more.on('click', () => {
+      setSidebarExpanded(true);
+      onToggle();
+    });
+    root.add(more);
+  }
+
   parent.add(root);
   return root;
+}
+
+let sidebarExpandedAll = false;
+function sidebarExpanded(): boolean {
+  return sidebarExpandedAll;
+}
+function setSidebarExpanded(v: boolean): void {
+  sidebarExpandedAll = v;
 }
 
 export interface MobileDocsOptions {

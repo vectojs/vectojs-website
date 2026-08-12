@@ -21,6 +21,47 @@ const LOGO_MARK_DARK =
   );
 const SEARCH_INDEX_URL = '/search-index.json';
 
+let searchOpener: (() => void) | null = null;
+let searchModal: Entity | null = null;
+let searchParent: Scene | null = null;
+let searchPanel: { x: number; y: number; w: number; h: number } | null = null;
+
+function closeSearch(): void {
+  if (!searchModal || !searchParent) return;
+  searchParent.remove(searchModal);
+  searchModal = null;
+  searchParent = null;
+  searchPanel = null;
+  document.removeEventListener('keydown', onSearchKey);
+  document.removeEventListener('pointerdown', onSearchBackdrop);
+}
+
+const onSearchKey = (e: KeyboardEvent): void => {
+  if (e.key === 'Escape') closeSearch();
+};
+
+const onSearchBackdrop = (e: PointerEvent): void => {
+  if (!searchPanel) return;
+  const inPanel =
+    e.clientX >= searchPanel.x &&
+    e.clientX <= searchPanel.x + searchPanel.w &&
+    e.clientY >= searchPanel.y &&
+    e.clientY <= searchPanel.y + searchPanel.h;
+  if (!inPanel) closeSearch();
+};
+
+/** Global Ctrl/Cmd+K opens the search modal (registered once per page load). */
+export function registerSearchShortcut(): void {
+  if ((document as unknown as { __vectoSearchShortcut?: boolean }).__vectoSearchShortcut) return;
+  (document as unknown as { __vectoSearchShortcut?: boolean }).__vectoSearchShortcut = true;
+  document.addEventListener('keydown', (e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      searchOpener?.();
+    }
+  });
+}
+
 export type ActiveSection = 'home' | 'learn' | 'reference' | 'blog';
 
 export interface NavbarOptions {
@@ -385,6 +426,7 @@ export function createNavbar(parent: Scene, opts: NavbarOptions): NavbarHandle {
   searchBtn.y = (LAYOUT.navHeight - pillH) / 2;
   searchBtn.interactive = true;
   searchBtn.on('click', () => openSearch(parent, opts));
+  searchOpener = () => openSearch(parent, opts);
   searchBtn.getA11yAttributes = () => ({
     role: 'button',
     label: t('search.label'),
@@ -671,6 +713,10 @@ function createDrawer(parent: Scene, opts: NavbarOptions, close: () => void): En
 
 /** Search modal: backdrop + panel + input + filtered result list. */
 function openSearch(parent: Scene, opts: NavbarOptions): void {
+  if (searchModal) {
+    closeSearch();
+    return;
+  }
   const t = useTranslations(opts.lang);
   const nav = opts.colors;
   const viewportW = opts.viewportWidth;
@@ -719,6 +765,10 @@ function openSearch(parent: Scene, opts: NavbarOptions): void {
     border: 'transparent',
     radius: 0,
     padding: 0,
+    onChange: (v: string) => {
+      renderResults(v);
+      parent.markDirty();
+    },
   });
   input.x = 46;
   input.y = 6;
@@ -760,11 +810,11 @@ function openSearch(parent: Scene, opts: NavbarOptions): void {
     clearRows();
     const q = query.trim().toLowerCase();
     if (!index || q === '') {
-      hint.visible = true;
+      if (hint.parent !== resultsRoot) resultsRoot.add(hint);
       parent.markDirty();
       return;
     }
-    hint.visible = false;
+    if (hint.parent === resultsRoot) resultsRoot.remove(hint);
     const hits = index
       .filter((e) => e.lang === opts.lang)
       .filter((e) => e.title.toLowerCase().includes(q) || e.section.toLowerCase().includes(q))
@@ -798,7 +848,7 @@ function openSearch(parent: Scene, opts: NavbarOptions): void {
         parent.markDirty();
       });
       row.on('click', () => {
-        closeModal();
+        closeSearch();
         opts.onNavigate(hit.href);
       });
       const title = new Text(hit.title, {
@@ -820,35 +870,15 @@ function openSearch(parent: Scene, opts: NavbarOptions): void {
     });
   };
 
-  input.onChange = (v: string) => {
-    renderResults(v);
-    parent.markDirty();
-  };
-
-  const closeModal = (): void => {
-    parent.remove(modal);
-    document.removeEventListener('keydown', onKey);
-    document.removeEventListener('pointerdown', onBackdrop);
-  };
-  const onKey = (e: KeyboardEvent): void => {
-    if (e.key === 'Escape') closeModal();
-  };
-  const onBackdrop = (e: PointerEvent): void => {
-    // Clicks anywhere inside the panel (input, result rows) must not close it;
-    // result rows are canvas entities whose DOM target is the canvas itself.
-    const inPanel =
-      e.clientX >= panelX &&
-      e.clientX <= panelX + panelW &&
-      e.clientY >= panelTop &&
-      e.clientY <= panelTop + panelH;
-    if (!inPanel) closeModal();
-  };
-
-  document.addEventListener('keydown', onKey);
-  document.addEventListener('pointerdown', onBackdrop);
+  document.addEventListener('keydown', onSearchKey);
+  document.addEventListener('pointerdown', onSearchBackdrop);
   parent.add(modal);
   // The scene is onDemand — nothing repaints after the modal is attached.
   parent.markDirty();
+  searchModal = modal;
+  searchParent = parent;
+  searchPanel = { x: panelX, y: panelTop, w: panelW, h: panelH };
+  input.focus?.();
 
   fetch(SEARCH_INDEX_URL)
     .then((res) => (res.ok ? res.json() : Promise.reject(new Error('no index'))))

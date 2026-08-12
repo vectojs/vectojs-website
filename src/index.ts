@@ -10,7 +10,7 @@ import {
   websiteThemeName,
   LAYOUT,
 } from './theme';
-import { createNavbar, type ActiveSection } from './nav';
+import { createNavbar, registerSearchShortcut, type ActiveSection } from './nav';
 import { buildHeroSection } from './hero';
 import { buildHomeSections } from './home';
 import { TocSidebar, MobileToc, type TocEntry } from './toc';
@@ -307,6 +307,8 @@ async function renderApp(): Promise<void> {
   const { locale } = parseLocale(window.location.pathname);
   const lang: Locale = locale;
   const t = useTranslations(lang);
+  const pageTitle = payload.data?.title;
+  document.title = pageTitle ? `${pageTitle} · VectoJS` : (payload.config?.title ?? 'VectoJS');
   const type = payload.data?.type ?? 'page';
   const rest = parseLocale(window.location.pathname).rest;
   const active: ActiveSection =
@@ -569,7 +571,10 @@ async function renderApp(): Promise<void> {
       docsBtn.x = 0;
       docsBtn.y = detailY;
       docsBtn.interactive = true;
-      docsBtn.getA11yAttributes = () => ({ role: 'button', label: t('nav.learn') });
+      docsBtn.getA11yAttributes = () => ({
+        role: 'button',
+        label: t('nav.learn'),
+      });
       docsBtn.on('click', () => {
         buildMobileDocsPanel(currentScene, {
           colors,
@@ -789,6 +794,14 @@ async function renderPage(): Promise<void> {
 // ─── Entry Point ───────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    await boot();
+  } catch (err) {
+    document.title = 'BOOT-ERR: ' + String(err instanceof Error ? err.message : err);
+  }
+});
+
+async function boot(): Promise<void> {
   const canvas = document.getElementById('vecto-canvas') as HTMLCanvasElement;
   if (!canvas) return;
 
@@ -816,6 +829,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     { passive: true },
   );
 
+  registerSearchShortcut();
   currentScene = new Scene(canvas, { maxFPS: 60 });
   currentScene.renderMode = 'onDemand';
   currentScene.start();
@@ -944,4 +958,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.addEventListener('popstate', async () => {
     await handleUrlRoute(window.location.pathname);
   });
-});
+}
