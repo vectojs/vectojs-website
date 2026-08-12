@@ -1,6 +1,7 @@
 import { Entity, type IRenderer, type Scene } from '@vectojs/core';
 import { Card, Stack, Text } from '@vectojs/ui';
 import { LAYOUT, type ThemeColors } from './theme';
+import { fillRect } from './entities';
 import type { Locale } from './i18n/config';
 import { useTranslations } from './i18n/ui';
 
@@ -154,4 +155,102 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
 
   parent.add(root);
   return root;
+}
+
+export interface MobileDocsOptions {
+  colors: ThemeColors;
+  lang: Locale;
+  pages: SidebarEntry[];
+  activePath: string;
+  onNavigate: (url: string) => void;
+}
+
+/**
+ * Mobile docs navigation: an overlay panel docked to the left edge listing the
+ * section's pages, replacing the fixed desktop sidebar (which has no room on
+ * narrow viewports). Returns a function that closes the panel.
+ */
+export function buildMobileDocsPanel(parent: Scene, opts: MobileDocsOptions): () => void {
+  const { colors, lang, pages, activePath, onNavigate } = opts;
+  const t = useTranslations(lang);
+  const viewportW = window.innerWidth;
+  const viewportH = window.innerHeight;
+  const w = Math.min(320, viewportW - 32);
+  const sectionName =
+    activePath.split('/')[1] === 'reference' ? t('nav.reference') : t('nav.learn');
+
+  const backdrop = new Entity();
+  backdrop.isPointInside = () => true;
+  backdrop.width = viewportW;
+  backdrop.height = viewportH;
+  backdrop.render = (r: IRenderer): void => {
+    fillRect(r, 0, 0, viewportW, viewportH, 'rgba(0,0,0,0.65)');
+  };
+  parent.add(backdrop);
+
+  const panel = new Entity();
+  panel.isPointInside = () => true;
+  panel.width = w;
+  panel.height = Math.min(viewportH - 80, pages.length * 34 + 64);
+  panel.x = 0;
+  panel.y = LAYOUT.navHeight;
+  panel.render = (r: IRenderer): void => {
+    r.beginPath();
+    r.roundRect(0, 0, w, panel.height, 0);
+    r.fill(colors.bg);
+    r.beginPath();
+    r.roundRect(w - 1, 0, 1, panel.height, 0);
+    r.fill(colors.divider);
+  };
+  parent.add(panel);
+
+  const label = new Text(lang === 'en' ? sectionName.toUpperCase() : sectionName, {
+    font: '700 13px Inter, sans-serif',
+    color: colors.faint,
+  });
+  label.x = 16;
+  label.y = 16;
+  panel.add(label);
+
+  let y = 16 + label.height + 12;
+  for (const page of pages) {
+    const active =
+      page.path === activePath || (page.path.endsWith('/') && activePath.startsWith(page.path));
+    const item = new Text(truncateToWidth(page.title, '14px Inter, sans-serif', w - 48), {
+      font: active ? '600 14px Inter, sans-serif' : '14px Inter, sans-serif',
+      color: active ? colors.accent : colors.text,
+    });
+    item.x = 16;
+    item.y = y;
+    item.interactive = true;
+    item.width = w - 32;
+    item.height = 28;
+    item.on('click', () => {
+      close();
+      if (!active) onNavigate(page.path);
+    });
+    panel.add(item);
+    y += 30;
+  }
+  panel.height = y + 12;
+
+  let closed = false;
+  const close = (): void => {
+    if (closed) return;
+    closed = true;
+    parent.remove(backdrop);
+    parent.remove(panel);
+    document.removeEventListener('pointerdown', onDoc);
+  };
+  const onDoc = (e: PointerEvent): void => {
+    const inside =
+      e.clientX >= panel.x &&
+      e.clientX <= panel.x + panel.width &&
+      e.clientY >= panel.y &&
+      e.clientY <= panel.y + panel.height;
+    if (!inside) close();
+  };
+  // Let the opening click finish propagating before listening for outside taps.
+  setTimeout(() => document.addEventListener('pointerdown', onDoc), 0);
+  return close;
 }

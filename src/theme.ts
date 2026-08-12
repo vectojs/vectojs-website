@@ -66,7 +66,7 @@ const LIGHT_THEME = tokens({
   primary: '#6366f1',
   primaryStrong: '#4f46e5',
   primaryLight: '#4338ca',
-  accent: '#38bdf8',
+  accent: '#0369a1',
   accentLight: '#0369a1',
   info: '#2563eb',
   infoLight: '#2563eb',

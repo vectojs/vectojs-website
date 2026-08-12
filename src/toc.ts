@@ -130,14 +130,19 @@ export class TocSidebar extends Entity {
  * the caller can reserve space before the list is populated.
  */
 export class MobileToc extends Entity {
-  public isPointInside(_globalX: number, _globalY: number): boolean {
-    return false;
+  // Must accept hits: the header Card's onClick depends on the subtree being
+  // reachable — a false here makes the whole pill click-through (can't expand).
+  public isPointInside(globalX: number, globalY: number): boolean {
+    const local = this.worldToLocal(globalX, globalY);
+    if (!local) return false;
+    return local.x >= 0 && local.x <= this.width && local.y >= 0 && local.y <= this.height;
   }
   private expanded = false;
   private header: Card;
   private headerLabel: RichText;
   private list: Container | null = null;
   private readonly collapsedHeight = 40;
+  private tocLabel = '';
   private readonly toc: TocEntry[];
   private readonly onNavigate: (flatIndex: number) => void;
   /** Called after every expand/collapse so the parent can reflow. */
@@ -163,8 +168,9 @@ export class MobileToc extends Entity {
       label: t('toc.tableOfContents'),
       onClick: () => this.toggle(),
     });
+    this.tocLabel = t('toc.tableOfContents');
     this.headerLabel = withWholeLineProjection(
-      new RichText([{ text: `▸ ${t('toc.tableOfContents')}` }], {
+      new RichText([{ text: `▸ ${this.tocLabel}` }], {
         font: 'bold 14px system-ui, sans-serif',
         color: '#111827',
       }),
@@ -180,7 +186,7 @@ export class MobileToc extends Entity {
     this.expanded = !this.expanded;
     this.headerLabel.setSpans([
       {
-        text: this.expanded ? `▾ ${t('toc.tableOfContents')}` : `▸ ${t('toc.tableOfContents')}`,
+        text: this.expanded ? `▾ ${this.tocLabel}` : `▸ ${this.tocLabel}`,
       },
     ]);
 

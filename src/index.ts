@@ -14,7 +14,13 @@ import { createNavbar, type ActiveSection } from './nav';
 import { buildHeroSection } from './hero';
 import { buildHomeSections } from './home';
 import { TocSidebar, MobileToc, type TocEntry } from './toc';
-import { buildSidebar, SIDEBAR_WIDTH, sidebarCollapsed, setSidebarCollapsed } from './sidebar';
+import {
+  buildMobileDocsPanel,
+  buildSidebar,
+  SIDEBAR_WIDTH,
+  sidebarCollapsed,
+  setSidebarCollapsed,
+} from './sidebar';
 import { navigateTo, handleUrlRoute, setPageDataCallback } from './router';
 import { parseLocale, type Locale } from './i18n/config';
 import { useTranslations } from './i18n/ui';
@@ -312,6 +318,30 @@ async function renderApp(): Promise<void> {
           ? 'blog'
           : 'home';
 
+  // ── page background (scene-root layer below everything, fixed to the viewport) ─
+  // Light mode carries the old site's three pastel radial washes (mint/pink/
+  // cyan); dark mode is the plain near-black blue. Drawn with concentric
+  // circles because the renderer only offers linear gradients.
+  const bgLayer = new (class extends Container {
+    render(r: IRenderer): void {
+      fillRect(r, 0, 0, viewportW, viewportH, colors.bg);
+      if (themeName() !== 'light') return;
+      const glow = (cx: number, cy: number, radius: number, rgb: string, peak: number): void => {
+        for (let i = 0; i < 24; i++) {
+          const t = i / 24;
+          r.beginPath();
+          r.arc(cx, cy, radius * (1 - t * 0.96), 0, Math.PI * 2);
+          r.fill(`rgba(${rgb},${peak * (1 - t)})`);
+        }
+      };
+      glow(viewportW * 0.08, -viewportH * 0.08, 1100, '191,253,224', 0.55);
+      glow(viewportW * 1.0, viewportH * 0.08, 1000, '254,230,251', 0.5);
+      glow(viewportW * 0.45, viewportH * 1.02, 900, '180,254,254', 0.4);
+    }
+  })();
+  bgLayer.isPointInside = () => false;
+  currentScene.add(bgLayer);
+
   // ── scroll container (added before the navbar so the nav draws on top) ──────
   const mainScroll = new Container();
   currentMainScroll = mainScroll;
@@ -529,6 +559,30 @@ async function renderApp(): Promise<void> {
       detailY += dateText.height + 24;
     }
 
+    // Mobile has no fixed sidebar; offer a Docs trigger that opens the
+    // section's page list as an overlay panel.
+    if (isMobile && sidebarPages.length > 0) {
+      const docsBtn = new Text(`☰ ${t('nav.learn')}`, {
+        font: '600 14px Inter, sans-serif',
+        color: colors.accent,
+      });
+      docsBtn.x = 0;
+      docsBtn.y = detailY;
+      docsBtn.interactive = true;
+      docsBtn.getA11yAttributes = () => ({ role: 'button', label: t('nav.learn') });
+      docsBtn.on('click', () => {
+        buildMobileDocsPanel(currentScene, {
+          colors,
+          lang,
+          pages: sidebarPages,
+          activePath: window.location.pathname,
+          onNavigate: (url: string) => navigateTo(url),
+        });
+      });
+      page.add(docsBtn);
+      detailY += docsBtn.height + 20;
+    }
+
     const toc: TocEntry[] = payload.data?.toc ?? [];
     const showToc = toc.length > 0;
     const tocSidebarWidth = 240;
@@ -560,7 +614,8 @@ async function renderApp(): Promise<void> {
         codeFont: 'monospace',
         textColor: colors.text,
         headingColor: colors.heading,
-        codeColor: colors.codeText,
+        linkColor: colors.accent,
+        codeColor: colors.text2,
         codeBgColor: colors.codeBg,
         codeBorderColor: colors.borderStrong,
         quoteBorderColor: colors.quoteBorder,

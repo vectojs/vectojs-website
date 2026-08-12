@@ -6,7 +6,6 @@ import { LOCALES, LOCALE_NAMES, localizedPath, parseLocale, type Locale } from '
 import { useTranslations } from './i18n/ui';
 
 const GITHUB_URL = 'https://github.com/vectojs/vectojs';
-const GALLERY_URL = 'https://gallery.vectojs.org';
 // Inlined SVG data URLs (same art as cdn.vectojs.org/brand/) so drawImage
 // never taints the canvas: an SVG fetched cross-origin without CORS headers
 // poisons the 2D context (getImageData/toDataURL/export all break).
@@ -235,10 +234,15 @@ export class GithubMark extends Entity {
     if (!this.bitmap) {
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${this.color}"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z"/></svg>`;
       const img = document.createElement('img');
-      img.src = `data:image/svg+xml;charset=utf-8,${svg}`;
+      // MUST encodeURIComponent: a raw `#` in `fill="#…"` becomes a URL
+      // fragment, truncating the SVG — Chrome then reports the image as
+      // 'broken' and drawImage throws, killing the whole render loop.
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
       this.bitmap = img;
     }
-    if (this.bitmap.complete) {
+    // A failed load (broken image) must be skipped, never drawn — drawImage
+    // throws InvalidStateError on a broken image and aborts the render pass.
+    if (this.bitmap.complete && this.bitmap.naturalWidth > 0) {
       r.drawImage(this.bitmap, 0, 0, this.size, this.size);
     }
   }
@@ -335,14 +339,9 @@ export function createNavbar(parent: Scene, opts: NavbarOptions): NavbarHandle {
       external?: boolean;
     }[] = [
       // Placed right-to-left; the LAST entry renders leftmost, so this array
-      // yields the display order Learn · Reference · Gallery · Blog.
+      // yields the display order Learn · Reference · Blog. (Gallery lives in
+      // the hero CTA — an external link in the navbar would be a misclick.)
       { label: t('nav.blog'), href: '/blog/', active: active === 'blog' },
-      {
-        label: t('nav.gallery'),
-        href: GALLERY_URL,
-        active: false,
-        external: true,
-      },
       {
         label: t('nav.reference'),
         href: localizedPath('/reference/core-api/', opts.lang),
@@ -486,6 +485,7 @@ function createLangPill(opts: NavbarOptions, label: string): Entity {
   const closeMenu = (): void => {
     if (menu) {
       (pill as unknown as { scene?: Scene }).scene?.remove(menu);
+      (pill as unknown as { scene?: Scene }).scene?.markDirty();
       menu = null;
     }
     if (docClose) {
@@ -499,6 +499,8 @@ function createLangPill(opts: NavbarOptions, label: string): Entity {
     menu.x = pill.x + pill.width - w;
     menu.y = LAYOUT.navHeight + 8;
     (pill as unknown as { scene?: Scene }).scene?.add(menu);
+    // The scene is onDemand — nothing repaints after the menu is attached.
+    (pill as unknown as { scene?: Scene }).scene?.markDirty();
     const onDoc = (e: PointerEvent): void => {
       // Canvas entities receive pointer events as clicks on the canvas element;
       // decide inside/outside by coordinates, not by DOM target.
@@ -551,7 +553,7 @@ function createLangMenu(opts: NavbarOptions): Entity {
       const { rest } = parseLocale(window.location.pathname);
       const target = ['learn', 'reference'].includes(rest.split('/')[1] ?? '')
         ? localizedPath(rest, loc)
-        : localizedPath('/learn/introduction/', loc);
+        : localizedPath('/', loc);
       if (loc !== opts.lang) opts.onNavigate(target);
     });
     panel.add(item);
@@ -591,12 +593,6 @@ function createDrawer(parent: Scene, opts: NavbarOptions, close: () => void): En
       active: opts.active === 'reference',
     },
     { label: t('nav.blog'), href: '/blog/', active: opts.active === 'blog' },
-    {
-      label: t('nav.gallery'),
-      href: GALLERY_URL,
-      active: false,
-      external: true,
-    },
   ];
   let y = 12;
   for (const def of links) {
@@ -659,7 +655,7 @@ function createDrawer(parent: Scene, opts: NavbarOptions, close: () => void): En
       const { rest } = parseLocale(window.location.pathname);
       const target = ['learn', 'reference'].includes(rest.split('/')[1] ?? '')
         ? localizedPath(rest, loc)
-        : localizedPath('/learn/introduction/', loc);
+        : localizedPath('/', loc);
       if (loc !== opts.lang) opts.onNavigate(target);
     });
     drawer.add(item);
@@ -761,6 +757,7 @@ function openSearch(parent: Scene, opts: NavbarOptions): void {
     const q = query.trim().toLowerCase();
     if (!index || q === '') {
       hint.visible = true;
+      parent.markDirty();
       return;
     }
     hint.visible = false;
@@ -819,7 +816,10 @@ function openSearch(parent: Scene, opts: NavbarOptions): void {
     });
   };
 
-  input.onChange = (v: string) => renderResults(v);
+  input.onChange = (v: string) => {
+    renderResults(v);
+    parent.markDirty();
+  };
 
   const closeModal = (): void => {
     parent.remove(modal);
@@ -843,6 +843,8 @@ function openSearch(parent: Scene, opts: NavbarOptions): void {
   document.addEventListener('keydown', onKey);
   document.addEventListener('pointerdown', onBackdrop);
   parent.add(modal);
+  // The scene is onDemand — nothing repaints after the modal is attached.
+  parent.markDirty();
 
   fetch(SEARCH_INDEX_URL)
     .then((res) => (res.ok ? res.json() : Promise.reject(new Error('no index'))))
