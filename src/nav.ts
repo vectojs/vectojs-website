@@ -96,6 +96,10 @@ export class NavLink extends Text {
     });
   }
 
+  public getA11yAttributes(): Record<string, string> {
+    return { role: 'link', label: this.text };
+  }
+
   private setHovered(hovered: boolean): void {
     const next = hovered ? this.hoverColor : this.baseColor;
     if (this.color === next) return;

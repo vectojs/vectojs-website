@@ -147,6 +147,7 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
     item.y = (28 - item.height) / 2;
     if (!active) {
       item.interactive = true;
+      item.getA11yAttributes = () => ({ role: 'link', label: item.text });
       item.on('click', () => onNavigate(page.path));
     }
     list.add(row);
@@ -223,6 +224,7 @@ export function buildMobileDocsPanel(parent: Scene, opts: MobileDocsOptions): ()
     item.x = 16;
     item.y = y;
     item.interactive = true;
+    item.getA11yAttributes = () => ({ role: 'link', label: item.text });
     item.width = w - 32;
     item.height = 28;
     item.on('click', () => {

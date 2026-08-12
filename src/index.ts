@@ -1,6 +1,6 @@
 import { Scene, type IRenderer } from '@vectojs/core';
 import { Card, Stack, Text } from '@vectojs/ui';
-import { createArticleMarkdown } from './article';
+
 import { withWholeLineProjection } from './text-utils';
 import { Container, DividerLine, fillRect, PageContainer } from './entities';
 import {
@@ -607,6 +607,7 @@ async function renderApp(): Promise<void> {
     // The page title is rendered above; drop the document's own leading H1
     // (every article starts with `# <title>`) so it doesn't render twice.
     const raw = stripLeadingH1(payload.data?.raw_content ?? '');
+    const { createArticleMarkdown } = await import('./article');
     const md = await createArticleMarkdown(raw, {
       maxWidth: contentWidth,
       theme: {
@@ -766,6 +767,7 @@ async function buildFooter(
     el.x = lx;
     el.y = 40;
     el.interactive = true;
+    el.getA11yAttributes = () => ({ role: 'link', label: el.text });
     el.on('click', () => {
       if (link.href.startsWith('http')) window.open(link.href, '_blank', 'noopener');
       else navigateTo(link.href);

@@ -31,6 +31,30 @@
   },
   {
     "title": "@vectojs/devtools",
+    "href": "/es/reference/devtools/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "@vectojs/devtools",
+    "href": "/fr/reference/devtools/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "@vectojs/devtools",
+    "href": "/ja/reference/devtools/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "@vectojs/devtools",
+    "href": "/ko/reference/devtools/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "@vectojs/devtools",
     "href": "/reference/devtools/",
     "section": "reference",
     "lang": "en"
@@ -48,26 +72,26 @@
     "lang": "zh-tw"
   },
   {
-    "title": "@vectojs/devtools",
-    "href": "/ja/reference/devtools/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "@vectojs/devtools",
-    "href": "/fr/reference/devtools/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "@vectojs/devtools",
-    "href": "/es/reference/devtools/",
+    "title": "@vectojs/graph3d",
+    "href": "/es/reference/graph3d/",
     "section": "reference",
     "lang": "es"
   },
   {
-    "title": "@vectojs/devtools",
-    "href": "/ko/reference/devtools/",
+    "title": "@vectojs/graph3d",
+    "href": "/fr/reference/graph3d/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "@vectojs/graph3d",
+    "href": "/ja/reference/graph3d/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "@vectojs/graph3d",
+    "href": "/ko/reference/graph3d/",
     "section": "reference",
     "lang": "ko"
   },
@@ -90,26 +114,26 @@
     "lang": "zh-tw"
   },
   {
-    "title": "@vectojs/graph3d",
-    "href": "/ja/reference/graph3d/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "@vectojs/graph3d",
-    "href": "/fr/reference/graph3d/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "@vectojs/graph3d",
-    "href": "/es/reference/graph3d/",
+    "title": "@vectojs/three",
+    "href": "/es/reference/three/",
     "section": "reference",
     "lang": "es"
   },
   {
-    "title": "@vectojs/graph3d",
-    "href": "/ko/reference/graph3d/",
+    "title": "@vectojs/three",
+    "href": "/fr/reference/three/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "@vectojs/three",
+    "href": "/ja/reference/three/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "@vectojs/three",
+    "href": "/ko/reference/three/",
     "section": "reference",
     "lang": "ko"
   },
@@ -125,30 +149,6 @@
     "href": "/zh-tw/reference/three/",
     "section": "reference",
     "lang": "zh-tw"
-  },
-  {
-    "title": "@vectojs/three",
-    "href": "/ja/reference/three/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "@vectojs/three",
-    "href": "/fr/reference/three/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "@vectojs/three",
-    "href": "/es/reference/three/",
-    "section": "reference",
-    "lang": "es"
-  },
-  {
-    "title": "@vectojs/three",
-    "href": "/ko/reference/three/",
-    "section": "reference",
-    "lang": "ko"
   },
   {
     "title": "@vectojs/ui Component Reference",
@@ -182,6 +182,30 @@
   },
   {
     "title": "@vectojs/video-exporter",
+    "href": "/es/reference/video-exporter/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "@vectojs/video-exporter",
+    "href": "/fr/reference/video-exporter/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "@vectojs/video-exporter",
+    "href": "/ja/reference/video-exporter/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "@vectojs/video-exporter",
+    "href": "/ko/reference/video-exporter/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "@vectojs/video-exporter",
     "href": "/reference/video-exporter/",
     "section": "reference",
     "lang": "en"
@@ -197,30 +221,6 @@
     "href": "/zh-tw/reference/video-exporter/",
     "section": "reference",
     "lang": "zh-tw"
-  },
-  {
-    "title": "@vectojs/video-exporter",
-    "href": "/ja/reference/video-exporter/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "@vectojs/video-exporter",
-    "href": "/fr/reference/video-exporter/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "@vectojs/video-exporter",
-    "href": "/es/reference/video-exporter/",
-    "section": "reference",
-    "lang": "es"
-  },
-  {
-    "title": "@vectojs/video-exporter",
-    "href": "/ko/reference/video-exporter/",
-    "section": "reference",
-    "lang": "ko"
   },
   {
     "title": "a11yRoot & the agent contract",
@@ -290,15 +290,15 @@
   },
   {
     "title": "Animation (@vectojs/animation)",
-    "href": "/reference/animation/",
-    "section": "reference",
-    "lang": "en"
-  },
-  {
-    "title": "Animation (@vectojs/animation)",
     "href": "/fr/reference/animation/",
     "section": "reference",
     "lang": "fr"
+  },
+  {
+    "title": "Animation (@vectojs/animation)",
+    "href": "/reference/animation/",
+    "section": "reference",
+    "lang": "en"
   },
   {
     "title": "Architecture d'exécution",
@@ -342,6 +342,10 @@
     "section": "learn",
     "lang": "en"
   },
+  { "title": "Button", "href": "/es/reference/ui-button/", "section": "reference", "lang": "es" },
+  { "title": "Button", "href": "/fr/reference/ui-button/", "section": "reference", "lang": "fr" },
+  { "title": "Button", "href": "/ja/reference/ui-button/", "section": "reference", "lang": "ja" },
+  { "title": "Button", "href": "/ko/reference/ui-button/", "section": "reference", "lang": "ko" },
   { "title": "Button", "href": "/reference/ui-button/", "section": "reference", "lang": "en" },
   {
     "title": "Button",
@@ -355,10 +359,6 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "Button", "href": "/ja/reference/ui-button/", "section": "reference", "lang": "ja" },
-  { "title": "Button", "href": "/fr/reference/ui-button/", "section": "reference", "lang": "fr" },
-  { "title": "Button", "href": "/es/reference/ui-button/", "section": "reference", "lang": "es" },
-  { "title": "Button", "href": "/ko/reference/ui-button/", "section": "reference", "lang": "ko" },
   { "title": "Cas d'usage", "href": "/fr/learn/use-cases/", "section": "learn", "lang": "fr" },
   { "title": "Casos de Uso", "href": "/es/learn/use-cases/", "section": "learn", "lang": "es" },
   {
@@ -381,6 +381,30 @@
   },
   {
     "title": "ComputeParticleEntity",
+    "href": "/es/reference/core-particles/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "ComputeParticleEntity",
+    "href": "/fr/reference/core-particles/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "ComputeParticleEntity",
+    "href": "/ja/reference/core-particles/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "ComputeParticleEntity",
+    "href": "/ko/reference/core-particles/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "ComputeParticleEntity",
     "href": "/reference/core-particles/",
     "section": "reference",
     "lang": "en"
@@ -396,30 +420,6 @@
     "href": "/zh-tw/reference/core-particles/",
     "section": "reference",
     "lang": "zh-tw"
-  },
-  {
-    "title": "ComputeParticleEntity",
-    "href": "/ja/reference/core-particles/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "ComputeParticleEntity",
-    "href": "/fr/reference/core-particles/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "ComputeParticleEntity",
-    "href": "/es/reference/core-particles/",
-    "section": "reference",
-    "lang": "es"
-  },
-  {
-    "title": "ComputeParticleEntity",
-    "href": "/ko/reference/core-particles/",
-    "section": "reference",
-    "lang": "ko"
   },
   {
     "title": "Conceptos del Motor",
@@ -644,6 +644,10 @@
     "section": "learn",
     "lang": "en"
   },
+  { "title": "Entity", "href": "/es/reference/core-entity/", "section": "reference", "lang": "es" },
+  { "title": "Entity", "href": "/fr/reference/core-entity/", "section": "reference", "lang": "fr" },
+  { "title": "Entity", "href": "/ja/reference/core-entity/", "section": "reference", "lang": "ja" },
+  { "title": "Entity", "href": "/ko/reference/core-entity/", "section": "reference", "lang": "ko" },
   { "title": "Entity", "href": "/reference/core-entity/", "section": "reference", "lang": "en" },
   {
     "title": "Entity",
@@ -657,10 +661,6 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "Entity", "href": "/ja/reference/core-entity/", "section": "reference", "lang": "ja" },
-  { "title": "Entity", "href": "/fr/reference/core-entity/", "section": "reference", "lang": "fr" },
-  { "title": "Entity", "href": "/es/reference/core-entity/", "section": "reference", "lang": "es" },
-  { "title": "Entity", "href": "/ko/reference/core-entity/", "section": "reference", "lang": "ko" },
   {
     "title": "Estilos (@vectojs/styles)",
     "href": "/es/reference/styles/",
@@ -679,18 +679,18 @@
     "section": "learn",
     "lang": "es"
   },
-  { "title": "Events & Hit-Testing", "href": "/learn/events/", "section": "learn", "lang": "en" },
   {
     "title": "Events & Hit-Testing",
     "href": "/ja/learn/events/",
     "section": "learn",
     "lang": "ja"
   },
+  { "title": "Events & Hit-Testing", "href": "/learn/events/", "section": "learn", "lang": "en" },
+  { "title": "FAQ", "href": "/fr/reference/faq/", "section": "reference", "lang": "fr" },
+  { "title": "FAQ", "href": "/ja/reference/faq/", "section": "reference", "lang": "ja" },
+  { "title": "FAQ", "href": "/ko/reference/faq/", "section": "reference", "lang": "ko" },
   { "title": "FAQ", "href": "/reference/faq/", "section": "reference", "lang": "en" },
   { "title": "FAQ", "href": "/zh-cn/reference/faq/", "section": "reference", "lang": "zh-cn" },
-  { "title": "FAQ", "href": "/ja/reference/faq/", "section": "reference", "lang": "ja" },
-  { "title": "FAQ", "href": "/fr/reference/faq/", "section": "reference", "lang": "fr" },
-  { "title": "FAQ", "href": "/ko/reference/faq/", "section": "reference", "lang": "ko" },
   {
     "title": "Física y Animación",
     "href": "/es/learn/physics-engine/",
@@ -717,20 +717,14 @@
   },
   {
     "title": "Getting Started",
-    "href": "/learn/getting-started/",
-    "section": "learn",
-    "lang": "en"
-  },
-  {
-    "title": "Getting Started",
     "href": "/ja/learn/getting-started/",
     "section": "learn",
     "lang": "ja"
   },
   {
-    "title": "Graph3D & picking",
-    "href": "/reference/graph3d-renderer/",
-    "section": "reference",
+    "title": "Getting Started",
+    "href": "/learn/getting-started/",
+    "section": "learn",
     "lang": "en"
   },
   {
@@ -744,6 +738,12 @@
     "href": "/ko/reference/graph3d-renderer/",
     "section": "reference",
     "lang": "ko"
+  },
+  {
+    "title": "Graph3D & picking",
+    "href": "/reference/graph3d-renderer/",
+    "section": "reference",
+    "lang": "en"
   },
   {
     "title": "Graph3D & ピッキング",
@@ -771,6 +771,30 @@
   },
   {
     "title": "GraphLayout & D3ForceLayout",
+    "href": "/es/reference/graph3d-layout/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "GraphLayout & D3ForceLayout",
+    "href": "/fr/reference/graph3d-layout/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "GraphLayout & D3ForceLayout",
+    "href": "/ja/reference/graph3d-layout/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "GraphLayout & D3ForceLayout",
+    "href": "/ko/reference/graph3d-layout/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "GraphLayout & D3ForceLayout",
     "href": "/reference/graph3d-layout/",
     "section": "reference",
     "lang": "en"
@@ -786,30 +810,6 @@
     "href": "/zh-tw/reference/graph3d-layout/",
     "section": "reference",
     "lang": "zh-tw"
-  },
-  {
-    "title": "GraphLayout & D3ForceLayout",
-    "href": "/ja/reference/graph3d-layout/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "GraphLayout & D3ForceLayout",
-    "href": "/fr/reference/graph3d-layout/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "GraphLayout & D3ForceLayout",
-    "href": "/es/reference/graph3d-layout/",
-    "section": "reference",
-    "lang": "es"
-  },
-  {
-    "title": "GraphLayout & D3ForceLayout",
-    "href": "/ko/reference/graph3d-layout/",
-    "section": "reference",
-    "lang": "ko"
   },
   {
     "title": "Introducción a VectoJS",
@@ -847,6 +847,30 @@
     "section": "reference",
     "lang": "zh-tw"
   },
+  {
+    "title": "Markdown",
+    "href": "/es/reference/ui-markdown/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "Markdown",
+    "href": "/fr/reference/ui-markdown/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Markdown",
+    "href": "/ja/reference/ui-markdown/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "Markdown",
+    "href": "/ko/reference/ui-markdown/",
+    "section": "reference",
+    "lang": "ko"
+  },
   { "title": "Markdown", "href": "/reference/ui-markdown/", "section": "reference", "lang": "en" },
   {
     "title": "Markdown",
@@ -859,30 +883,6 @@
     "href": "/zh-tw/reference/ui-markdown/",
     "section": "reference",
     "lang": "zh-tw"
-  },
-  {
-    "title": "Markdown",
-    "href": "/ja/reference/ui-markdown/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "Markdown",
-    "href": "/fr/reference/ui-markdown/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "Markdown",
-    "href": "/es/reference/ui-markdown/",
-    "section": "reference",
-    "lang": "es"
-  },
-  {
-    "title": "Markdown",
-    "href": "/ko/reference/ui-markdown/",
-    "section": "reference",
-    "lang": "ko"
   },
   {
     "title": "Math utilities",
@@ -898,15 +898,15 @@
   },
   {
     "title": "Mathematical Foundations",
-    "href": "/learn/math-foundations/",
-    "section": "learn",
-    "lang": "en"
-  },
-  {
-    "title": "Mathematical Foundations",
     "href": "/ja/learn/math-foundations/",
     "section": "learn",
     "lang": "ja"
+  },
+  {
+    "title": "Mathematical Foundations",
+    "href": "/learn/math-foundations/",
+    "section": "learn",
+    "lang": "en"
   },
   {
     "title": "Moteur de mise en page",
@@ -932,6 +932,10 @@
     "section": "reference",
     "lang": "es"
   },
+  { "title": "Overlay", "href": "/es/reference/ui-overlay/", "section": "reference", "lang": "es" },
+  { "title": "Overlay", "href": "/fr/reference/ui-overlay/", "section": "reference", "lang": "fr" },
+  { "title": "Overlay", "href": "/ja/reference/ui-overlay/", "section": "reference", "lang": "ja" },
+  { "title": "Overlay", "href": "/ko/reference/ui-overlay/", "section": "reference", "lang": "ko" },
   { "title": "Overlay", "href": "/reference/ui-overlay/", "section": "reference", "lang": "en" },
   {
     "title": "Overlay",
@@ -945,26 +949,22 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "Overlay", "href": "/ja/reference/ui-overlay/", "section": "reference", "lang": "ja" },
-  { "title": "Overlay", "href": "/fr/reference/ui-overlay/", "section": "reference", "lang": "fr" },
-  { "title": "Overlay", "href": "/es/reference/ui-overlay/", "section": "reference", "lang": "es" },
-  { "title": "Overlay", "href": "/ko/reference/ui-overlay/", "section": "reference", "lang": "ko" },
-  { "title": "Particle Systems", "href": "/learn/particles/", "section": "learn", "lang": "en" },
   { "title": "Particle Systems", "href": "/ja/learn/particles/", "section": "learn", "lang": "ja" },
-  { "title": "Performance", "href": "/learn/performance/", "section": "learn", "lang": "en" },
-  { "title": "Performance", "href": "/ja/learn/performance/", "section": "learn", "lang": "ja" },
+  { "title": "Particle Systems", "href": "/learn/particles/", "section": "learn", "lang": "en" },
   { "title": "Performance", "href": "/fr/learn/performance/", "section": "learn", "lang": "fr" },
-  {
-    "title": "Physics & Animation",
-    "href": "/learn/physics-engine/",
-    "section": "learn",
-    "lang": "en"
-  },
+  { "title": "Performance", "href": "/ja/learn/performance/", "section": "learn", "lang": "ja" },
+  { "title": "Performance", "href": "/learn/performance/", "section": "learn", "lang": "en" },
   {
     "title": "Physics & Animation",
     "href": "/ja/learn/physics-engine/",
     "section": "learn",
     "lang": "ja"
+  },
+  {
+    "title": "Physics & Animation",
+    "href": "/learn/physics-engine/",
+    "section": "learn",
+    "lang": "en"
   },
   {
     "title": "Physique & Animation",
@@ -1030,6 +1030,12 @@
   },
   {
     "title": "Renderers",
+    "href": "/fr/reference/core-renderer/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "Renderers",
     "href": "/reference/core-renderer/",
     "section": "reference",
     "lang": "en"
@@ -1039,12 +1045,6 @@
     "href": "/zh-tw/reference/core-renderer/",
     "section": "reference",
     "lang": "zh-tw"
-  },
-  {
-    "title": "Renderers",
-    "href": "/fr/reference/core-renderer/",
-    "section": "reference",
-    "lang": "fr"
   },
   {
     "title": "Renderizadores",
@@ -1061,16 +1061,20 @@
   },
   {
     "title": "Runtime Architecture",
-    "href": "/learn/runtime-architecture/",
-    "section": "learn",
-    "lang": "en"
-  },
-  {
-    "title": "Runtime Architecture",
     "href": "/ja/learn/runtime-architecture/",
     "section": "learn",
     "lang": "ja"
   },
+  {
+    "title": "Runtime Architecture",
+    "href": "/learn/runtime-architecture/",
+    "section": "learn",
+    "lang": "en"
+  },
+  { "title": "Scene", "href": "/es/reference/core-scene/", "section": "reference", "lang": "es" },
+  { "title": "Scene", "href": "/fr/reference/core-scene/", "section": "reference", "lang": "fr" },
+  { "title": "Scene", "href": "/ja/reference/core-scene/", "section": "reference", "lang": "ja" },
+  { "title": "Scene", "href": "/ko/reference/core-scene/", "section": "reference", "lang": "ko" },
   { "title": "Scene", "href": "/reference/core-scene/", "section": "reference", "lang": "en" },
   {
     "title": "Scene",
@@ -1084,16 +1088,16 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "Scene", "href": "/ja/reference/core-scene/", "section": "reference", "lang": "ja" },
-  { "title": "Scene", "href": "/fr/reference/core-scene/", "section": "reference", "lang": "fr" },
-  { "title": "Scene", "href": "/es/reference/core-scene/", "section": "reference", "lang": "es" },
-  { "title": "Scene", "href": "/ko/reference/core-scene/", "section": "reference", "lang": "ko" },
   {
     "title": "Sistemas de Partículas",
     "href": "/es/learn/particles/",
     "section": "learn",
     "lang": "es"
   },
+  { "title": "Slider", "href": "/es/reference/ui-slider/", "section": "reference", "lang": "es" },
+  { "title": "Slider", "href": "/fr/reference/ui-slider/", "section": "reference", "lang": "fr" },
+  { "title": "Slider", "href": "/ja/reference/ui-slider/", "section": "reference", "lang": "ja" },
+  { "title": "Slider", "href": "/ko/reference/ui-slider/", "section": "reference", "lang": "ko" },
   { "title": "Slider", "href": "/reference/ui-slider/", "section": "reference", "lang": "en" },
   {
     "title": "Slider",
@@ -1107,10 +1111,6 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "Slider", "href": "/ja/reference/ui-slider/", "section": "reference", "lang": "ja" },
-  { "title": "Slider", "href": "/fr/reference/ui-slider/", "section": "reference", "lang": "fr" },
-  { "title": "Slider", "href": "/es/reference/ui-slider/", "section": "reference", "lang": "es" },
-  { "title": "Slider", "href": "/ko/reference/ui-slider/", "section": "reference", "lang": "ko" },
   {
     "title": "Streaming & Real-Time Text",
     "href": "/learn/streaming/",
@@ -1131,15 +1131,15 @@
   },
   {
     "title": "Styles (@vectojs/styles)",
-    "href": "/reference/styles/",
-    "section": "reference",
-    "lang": "en"
-  },
-  {
-    "title": "Styles (@vectojs/styles)",
     "href": "/fr/reference/styles/",
     "section": "reference",
     "lang": "fr"
+  },
+  {
+    "title": "Styles (@vectojs/styles)",
+    "href": "/reference/styles/",
+    "section": "reference",
+    "lang": "en"
   },
   {
     "title": "Systèmes de particules",
@@ -1162,15 +1162,15 @@
   },
   {
     "title": "Text & Typography",
-    "href": "/learn/text-typography/",
-    "section": "learn",
-    "lang": "en"
-  },
-  {
-    "title": "Text & Typography",
     "href": "/ja/learn/text-typography/",
     "section": "learn",
     "lang": "ja"
+  },
+  {
+    "title": "Text & Typography",
+    "href": "/learn/text-typography/",
+    "section": "learn",
+    "lang": "en"
   },
   {
     "title": "Texte & Typographie",
@@ -1198,6 +1198,30 @@
   },
   {
     "title": "ThreeAdapter",
+    "href": "/es/reference/three-adapter/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "ThreeAdapter",
+    "href": "/fr/reference/three-adapter/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "ThreeAdapter",
+    "href": "/ja/reference/three-adapter/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "ThreeAdapter",
+    "href": "/ko/reference/three-adapter/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "ThreeAdapter",
     "href": "/reference/three-adapter/",
     "section": "reference",
     "lang": "en"
@@ -1215,26 +1239,26 @@
     "lang": "zh-tw"
   },
   {
-    "title": "ThreeAdapter",
-    "href": "/ja/reference/three-adapter/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "ThreeAdapter",
-    "href": "/fr/reference/three-adapter/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "ThreeAdapter",
-    "href": "/es/reference/three-adapter/",
+    "title": "ThreeRenderer",
+    "href": "/es/reference/three-renderer/",
     "section": "reference",
     "lang": "es"
   },
   {
-    "title": "ThreeAdapter",
-    "href": "/ko/reference/three-adapter/",
+    "title": "ThreeRenderer",
+    "href": "/fr/reference/three-renderer/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "ThreeRenderer",
+    "href": "/ja/reference/three-renderer/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "ThreeRenderer",
+    "href": "/ko/reference/three-renderer/",
     "section": "reference",
     "lang": "ko"
   },
@@ -1257,36 +1281,12 @@
     "lang": "zh-tw"
   },
   {
-    "title": "ThreeRenderer",
-    "href": "/ja/reference/three-renderer/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "ThreeRenderer",
-    "href": "/fr/reference/three-renderer/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "ThreeRenderer",
-    "href": "/es/reference/three-renderer/",
-    "section": "reference",
-    "lang": "es"
-  },
-  {
-    "title": "ThreeRenderer",
-    "href": "/ko/reference/three-renderer/",
-    "section": "reference",
-    "lang": "ko"
-  },
-  { "title": "UI Components", "href": "/learn/ui-components/", "section": "learn", "lang": "en" },
-  {
     "title": "UI Components",
     "href": "/ja/learn/ui-components/",
     "section": "learn",
     "lang": "ja"
   },
+  { "title": "UI Components", "href": "/learn/ui-components/", "section": "learn", "lang": "en" },
   { "title": "UI 컴포넌트", "href": "/ko/learn/ui-components/", "section": "learn", "lang": "ko" },
   {
     "title": "UI 元件",
@@ -1294,6 +1294,10 @@
     "section": "learn",
     "lang": "zh-tw"
   },
+  { "title": "UI: Card", "href": "/es/reference/ui-card/", "section": "reference", "lang": "es" },
+  { "title": "UI: Card", "href": "/fr/reference/ui-card/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Card", "href": "/ja/reference/ui-card/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Card", "href": "/ko/reference/ui-card/", "section": "reference", "lang": "ko" },
   { "title": "UI: Card", "href": "/reference/ui-card/", "section": "reference", "lang": "en" },
   {
     "title": "UI: Card",
@@ -1301,10 +1305,30 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "UI: Card", "href": "/ja/reference/ui-card/", "section": "reference", "lang": "ja" },
-  { "title": "UI: Card", "href": "/fr/reference/ui-card/", "section": "reference", "lang": "fr" },
-  { "title": "UI: Card", "href": "/es/reference/ui-card/", "section": "reference", "lang": "es" },
-  { "title": "UI: Card", "href": "/ko/reference/ui-card/", "section": "reference", "lang": "ko" },
+  {
+    "title": "UI: Checkbox",
+    "href": "/es/reference/ui-checkbox/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: Checkbox",
+    "href": "/fr/reference/ui-checkbox/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: Checkbox",
+    "href": "/ja/reference/ui-checkbox/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: Checkbox",
+    "href": "/ko/reference/ui-checkbox/",
+    "section": "reference",
+    "lang": "ko"
+  },
   {
     "title": "UI: Checkbox",
     "href": "/reference/ui-checkbox/",
@@ -1318,26 +1342,26 @@
     "lang": "zh-tw"
   },
   {
-    "title": "UI: Checkbox",
-    "href": "/ja/reference/ui-checkbox/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "UI: Checkbox",
-    "href": "/fr/reference/ui-checkbox/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "UI: Checkbox",
-    "href": "/es/reference/ui-checkbox/",
+    "title": "UI: CodeBlock",
+    "href": "/es/reference/ui-codeblock/",
     "section": "reference",
     "lang": "es"
   },
   {
-    "title": "UI: Checkbox",
-    "href": "/ko/reference/ui-checkbox/",
+    "title": "UI: CodeBlock",
+    "href": "/fr/reference/ui-codeblock/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: CodeBlock",
+    "href": "/ja/reference/ui-codeblock/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: CodeBlock",
+    "href": "/ko/reference/ui-codeblock/",
     "section": "reference",
     "lang": "ko"
   },
@@ -1354,26 +1378,26 @@
     "lang": "zh-tw"
   },
   {
-    "title": "UI: CodeBlock",
-    "href": "/ja/reference/ui-codeblock/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "UI: CodeBlock",
-    "href": "/fr/reference/ui-codeblock/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "UI: CodeBlock",
-    "href": "/es/reference/ui-codeblock/",
+    "title": "UI: ContextMenu",
+    "href": "/es/reference/ui-contextmenu/",
     "section": "reference",
     "lang": "es"
   },
   {
-    "title": "UI: CodeBlock",
-    "href": "/ko/reference/ui-codeblock/",
+    "title": "UI: ContextMenu",
+    "href": "/fr/reference/ui-contextmenu/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: ContextMenu",
+    "href": "/ja/reference/ui-contextmenu/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: ContextMenu",
+    "href": "/ko/reference/ui-contextmenu/",
     "section": "reference",
     "lang": "ko"
   },
@@ -1390,26 +1414,26 @@
     "lang": "zh-tw"
   },
   {
-    "title": "UI: ContextMenu",
-    "href": "/ja/reference/ui-contextmenu/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "UI: ContextMenu",
-    "href": "/fr/reference/ui-contextmenu/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "UI: ContextMenu",
-    "href": "/es/reference/ui-contextmenu/",
+    "title": "UI: Dropdown",
+    "href": "/es/reference/ui-dropdown/",
     "section": "reference",
     "lang": "es"
   },
   {
-    "title": "UI: ContextMenu",
-    "href": "/ko/reference/ui-contextmenu/",
+    "title": "UI: Dropdown",
+    "href": "/fr/reference/ui-dropdown/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: Dropdown",
+    "href": "/ja/reference/ui-dropdown/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: Dropdown",
+    "href": "/ko/reference/ui-dropdown/",
     "section": "reference",
     "lang": "ko"
   },
@@ -1425,30 +1449,10 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  {
-    "title": "UI: Dropdown",
-    "href": "/ja/reference/ui-dropdown/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "UI: Dropdown",
-    "href": "/fr/reference/ui-dropdown/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "UI: Dropdown",
-    "href": "/es/reference/ui-dropdown/",
-    "section": "reference",
-    "lang": "es"
-  },
-  {
-    "title": "UI: Dropdown",
-    "href": "/ko/reference/ui-dropdown/",
-    "section": "reference",
-    "lang": "ko"
-  },
+  { "title": "UI: Flow", "href": "/es/reference/ui-flow/", "section": "reference", "lang": "es" },
+  { "title": "UI: Flow", "href": "/fr/reference/ui-flow/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Flow", "href": "/ja/reference/ui-flow/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Flow", "href": "/ko/reference/ui-flow/", "section": "reference", "lang": "ko" },
   { "title": "UI: Flow", "href": "/reference/ui-flow/", "section": "reference", "lang": "en" },
   {
     "title": "UI: Flow",
@@ -1456,10 +1460,10 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "UI: Flow", "href": "/ja/reference/ui-flow/", "section": "reference", "lang": "ja" },
-  { "title": "UI: Flow", "href": "/fr/reference/ui-flow/", "section": "reference", "lang": "fr" },
-  { "title": "UI: Flow", "href": "/es/reference/ui-flow/", "section": "reference", "lang": "es" },
-  { "title": "UI: Flow", "href": "/ko/reference/ui-flow/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Image", "href": "/es/reference/ui-image/", "section": "reference", "lang": "es" },
+  { "title": "UI: Image", "href": "/fr/reference/ui-image/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Image", "href": "/ja/reference/ui-image/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Image", "href": "/ko/reference/ui-image/", "section": "reference", "lang": "ko" },
   { "title": "UI: Image", "href": "/reference/ui-image/", "section": "reference", "lang": "en" },
   {
     "title": "UI: Image",
@@ -1467,10 +1471,10 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "UI: Image", "href": "/ja/reference/ui-image/", "section": "reference", "lang": "ja" },
-  { "title": "UI: Image", "href": "/fr/reference/ui-image/", "section": "reference", "lang": "fr" },
-  { "title": "UI: Image", "href": "/es/reference/ui-image/", "section": "reference", "lang": "es" },
-  { "title": "UI: Image", "href": "/ko/reference/ui-image/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Input", "href": "/es/reference/ui-input/", "section": "reference", "lang": "es" },
+  { "title": "UI: Input", "href": "/fr/reference/ui-input/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Input", "href": "/ja/reference/ui-input/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Input", "href": "/ko/reference/ui-input/", "section": "reference", "lang": "ko" },
   { "title": "UI: Input", "href": "/reference/ui-input/", "section": "reference", "lang": "en" },
   {
     "title": "UI: Input",
@@ -1478,10 +1482,10 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "UI: Input", "href": "/ja/reference/ui-input/", "section": "reference", "lang": "ja" },
-  { "title": "UI: Input", "href": "/fr/reference/ui-input/", "section": "reference", "lang": "fr" },
-  { "title": "UI: Input", "href": "/es/reference/ui-input/", "section": "reference", "lang": "es" },
-  { "title": "UI: Input", "href": "/ko/reference/ui-input/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Link", "href": "/es/reference/ui-link/", "section": "reference", "lang": "es" },
+  { "title": "UI: Link", "href": "/fr/reference/ui-link/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Link", "href": "/ja/reference/ui-link/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Link", "href": "/ko/reference/ui-link/", "section": "reference", "lang": "ko" },
   { "title": "UI: Link", "href": "/reference/ui-link/", "section": "reference", "lang": "en" },
   {
     "title": "UI: Link",
@@ -1489,10 +1493,10 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "UI: Link", "href": "/ja/reference/ui-link/", "section": "reference", "lang": "ja" },
-  { "title": "UI: Link", "href": "/fr/reference/ui-link/", "section": "reference", "lang": "fr" },
-  { "title": "UI: Link", "href": "/es/reference/ui-link/", "section": "reference", "lang": "es" },
-  { "title": "UI: Link", "href": "/ko/reference/ui-link/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Modal", "href": "/es/reference/ui-modal/", "section": "reference", "lang": "es" },
+  { "title": "UI: Modal", "href": "/fr/reference/ui-modal/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Modal", "href": "/ja/reference/ui-modal/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Modal", "href": "/ko/reference/ui-modal/", "section": "reference", "lang": "ko" },
   { "title": "UI: Modal", "href": "/reference/ui-modal/", "section": "reference", "lang": "en" },
   {
     "title": "UI: Modal",
@@ -1500,10 +1504,6 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "UI: Modal", "href": "/ja/reference/ui-modal/", "section": "reference", "lang": "ja" },
-  { "title": "UI: Modal", "href": "/fr/reference/ui-modal/", "section": "reference", "lang": "fr" },
-  { "title": "UI: Modal", "href": "/es/reference/ui-modal/", "section": "reference", "lang": "es" },
-  { "title": "UI: Modal", "href": "/ko/reference/ui-modal/", "section": "reference", "lang": "ko" },
   {
     "title": "UI: Paneles redimensionables",
     "href": "/es/reference/ui-resizable-panel/",
@@ -1518,6 +1518,30 @@
   },
   {
     "title": "UI: Popover",
+    "href": "/es/reference/ui-popover/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: Popover",
+    "href": "/fr/reference/ui-popover/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: Popover",
+    "href": "/ja/reference/ui-popover/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: Popover",
+    "href": "/ko/reference/ui-popover/",
+    "section": "reference",
+    "lang": "ko"
+  },
+  {
+    "title": "UI: Popover",
     "href": "/reference/ui-popover/",
     "section": "reference",
     "lang": "en"
@@ -1529,26 +1553,26 @@
     "lang": "zh-tw"
   },
   {
-    "title": "UI: Popover",
-    "href": "/ja/reference/ui-popover/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "UI: Popover",
-    "href": "/fr/reference/ui-popover/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "UI: Popover",
-    "href": "/es/reference/ui-popover/",
+    "title": "UI: ProgressBar",
+    "href": "/es/reference/ui-progressbar/",
     "section": "reference",
     "lang": "es"
   },
   {
-    "title": "UI: Popover",
-    "href": "/ko/reference/ui-popover/",
+    "title": "UI: ProgressBar",
+    "href": "/fr/reference/ui-progressbar/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: ProgressBar",
+    "href": "/ja/reference/ui-progressbar/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: ProgressBar",
+    "href": "/ko/reference/ui-progressbar/",
     "section": "reference",
     "lang": "ko"
   },
@@ -1565,26 +1589,26 @@
     "lang": "zh-tw"
   },
   {
-    "title": "UI: ProgressBar",
-    "href": "/ja/reference/ui-progressbar/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "UI: ProgressBar",
-    "href": "/fr/reference/ui-progressbar/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "UI: ProgressBar",
-    "href": "/es/reference/ui-progressbar/",
+    "title": "UI: RadioGroup",
+    "href": "/es/reference/ui-radiogroup/",
     "section": "reference",
     "lang": "es"
   },
   {
-    "title": "UI: ProgressBar",
-    "href": "/ko/reference/ui-progressbar/",
+    "title": "UI: RadioGroup",
+    "href": "/fr/reference/ui-radiogroup/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: RadioGroup",
+    "href": "/ja/reference/ui-radiogroup/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: RadioGroup",
+    "href": "/ko/reference/ui-radiogroup/",
     "section": "reference",
     "lang": "ko"
   },
@@ -1601,26 +1625,8 @@
     "lang": "zh-tw"
   },
   {
-    "title": "UI: RadioGroup",
-    "href": "/ja/reference/ui-radiogroup/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "UI: RadioGroup",
-    "href": "/fr/reference/ui-radiogroup/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "UI: RadioGroup",
-    "href": "/es/reference/ui-radiogroup/",
-    "section": "reference",
-    "lang": "es"
-  },
-  {
-    "title": "UI: RadioGroup",
-    "href": "/ko/reference/ui-radiogroup/",
+    "title": "UI: Resizable panels",
+    "href": "/ko/reference/ui-resizable-panel/",
     "section": "reference",
     "lang": "ko"
   },
@@ -1637,8 +1643,26 @@
     "lang": "zh-tw"
   },
   {
-    "title": "UI: Resizable panels",
-    "href": "/ko/reference/ui-resizable-panel/",
+    "title": "UI: RichText",
+    "href": "/es/reference/ui-richtext/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: RichText",
+    "href": "/fr/reference/ui-richtext/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: RichText",
+    "href": "/ja/reference/ui-richtext/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: RichText",
+    "href": "/ko/reference/ui-richtext/",
     "section": "reference",
     "lang": "ko"
   },
@@ -1655,26 +1679,26 @@
     "lang": "zh-tw"
   },
   {
-    "title": "UI: RichText",
-    "href": "/ja/reference/ui-richtext/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "UI: RichText",
-    "href": "/fr/reference/ui-richtext/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "UI: RichText",
-    "href": "/es/reference/ui-richtext/",
+    "title": "UI: ScrollView",
+    "href": "/es/reference/ui-scrollview/",
     "section": "reference",
     "lang": "es"
   },
   {
-    "title": "UI: RichText",
-    "href": "/ko/reference/ui-richtext/",
+    "title": "UI: ScrollView",
+    "href": "/fr/reference/ui-scrollview/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: ScrollView",
+    "href": "/ja/reference/ui-scrollview/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: ScrollView",
+    "href": "/ko/reference/ui-scrollview/",
     "section": "reference",
     "lang": "ko"
   },
@@ -1690,30 +1714,10 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  {
-    "title": "UI: ScrollView",
-    "href": "/ja/reference/ui-scrollview/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "UI: ScrollView",
-    "href": "/fr/reference/ui-scrollview/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "UI: ScrollView",
-    "href": "/es/reference/ui-scrollview/",
-    "section": "reference",
-    "lang": "es"
-  },
-  {
-    "title": "UI: ScrollView",
-    "href": "/ko/reference/ui-scrollview/",
-    "section": "reference",
-    "lang": "ko"
-  },
+  { "title": "UI: Stack", "href": "/es/reference/ui-stack/", "section": "reference", "lang": "es" },
+  { "title": "UI: Stack", "href": "/fr/reference/ui-stack/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Stack", "href": "/ja/reference/ui-stack/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Stack", "href": "/ko/reference/ui-stack/", "section": "reference", "lang": "ko" },
   { "title": "UI: Stack", "href": "/reference/ui-stack/", "section": "reference", "lang": "en" },
   {
     "title": "UI: Stack",
@@ -1721,10 +1725,10 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "UI: Stack", "href": "/ja/reference/ui-stack/", "section": "reference", "lang": "ja" },
-  { "title": "UI: Stack", "href": "/fr/reference/ui-stack/", "section": "reference", "lang": "fr" },
-  { "title": "UI: Stack", "href": "/es/reference/ui-stack/", "section": "reference", "lang": "es" },
-  { "title": "UI: Stack", "href": "/ko/reference/ui-stack/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Table", "href": "/es/reference/ui-table/", "section": "reference", "lang": "es" },
+  { "title": "UI: Table", "href": "/fr/reference/ui-table/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Table", "href": "/ja/reference/ui-table/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Table", "href": "/ko/reference/ui-table/", "section": "reference", "lang": "ko" },
   { "title": "UI: Table", "href": "/reference/ui-table/", "section": "reference", "lang": "en" },
   {
     "title": "UI: Table",
@@ -1732,10 +1736,10 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "UI: Table", "href": "/ja/reference/ui-table/", "section": "reference", "lang": "ja" },
-  { "title": "UI: Table", "href": "/fr/reference/ui-table/", "section": "reference", "lang": "fr" },
-  { "title": "UI: Table", "href": "/es/reference/ui-table/", "section": "reference", "lang": "es" },
-  { "title": "UI: Table", "href": "/ko/reference/ui-table/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Tabs", "href": "/es/reference/ui-tabs/", "section": "reference", "lang": "es" },
+  { "title": "UI: Tabs", "href": "/fr/reference/ui-tabs/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Tabs", "href": "/ja/reference/ui-tabs/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Tabs", "href": "/ko/reference/ui-tabs/", "section": "reference", "lang": "ko" },
   { "title": "UI: Tabs", "href": "/reference/ui-tabs/", "section": "reference", "lang": "en" },
   {
     "title": "UI: Tabs",
@@ -1743,10 +1747,10 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "UI: Tabs", "href": "/ja/reference/ui-tabs/", "section": "reference", "lang": "ja" },
-  { "title": "UI: Tabs", "href": "/fr/reference/ui-tabs/", "section": "reference", "lang": "fr" },
-  { "title": "UI: Tabs", "href": "/es/reference/ui-tabs/", "section": "reference", "lang": "es" },
-  { "title": "UI: Tabs", "href": "/ko/reference/ui-tabs/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Text", "href": "/es/reference/ui-text/", "section": "reference", "lang": "es" },
+  { "title": "UI: Text", "href": "/fr/reference/ui-text/", "section": "reference", "lang": "fr" },
+  { "title": "UI: Text", "href": "/ja/reference/ui-text/", "section": "reference", "lang": "ja" },
+  { "title": "UI: Text", "href": "/ko/reference/ui-text/", "section": "reference", "lang": "ko" },
   { "title": "UI: Text", "href": "/reference/ui-text/", "section": "reference", "lang": "en" },
   {
     "title": "UI: Text",
@@ -1754,10 +1758,30 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "UI: Text", "href": "/ja/reference/ui-text/", "section": "reference", "lang": "ja" },
-  { "title": "UI: Text", "href": "/fr/reference/ui-text/", "section": "reference", "lang": "fr" },
-  { "title": "UI: Text", "href": "/es/reference/ui-text/", "section": "reference", "lang": "es" },
-  { "title": "UI: Text", "href": "/ko/reference/ui-text/", "section": "reference", "lang": "ko" },
+  {
+    "title": "UI: TextArea",
+    "href": "/es/reference/ui-textarea/",
+    "section": "reference",
+    "lang": "es"
+  },
+  {
+    "title": "UI: TextArea",
+    "href": "/fr/reference/ui-textarea/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: TextArea",
+    "href": "/ja/reference/ui-textarea/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: TextArea",
+    "href": "/ko/reference/ui-textarea/",
+    "section": "reference",
+    "lang": "ko"
+  },
   {
     "title": "UI: TextArea",
     "href": "/reference/ui-textarea/",
@@ -1771,26 +1795,26 @@
     "lang": "zh-tw"
   },
   {
-    "title": "UI: TextArea",
-    "href": "/ja/reference/ui-textarea/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "UI: TextArea",
-    "href": "/fr/reference/ui-textarea/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "UI: TextArea",
-    "href": "/es/reference/ui-textarea/",
+    "title": "UI: Toggle",
+    "href": "/es/reference/ui-toggle/",
     "section": "reference",
     "lang": "es"
   },
   {
-    "title": "UI: TextArea",
-    "href": "/ko/reference/ui-textarea/",
+    "title": "UI: Toggle",
+    "href": "/fr/reference/ui-toggle/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: Toggle",
+    "href": "/ja/reference/ui-toggle/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: Toggle",
+    "href": "/ko/reference/ui-toggle/",
     "section": "reference",
     "lang": "ko"
   },
@@ -1802,26 +1826,26 @@
     "lang": "zh-tw"
   },
   {
-    "title": "UI: Toggle",
-    "href": "/ja/reference/ui-toggle/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "UI: Toggle",
-    "href": "/fr/reference/ui-toggle/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "UI: Toggle",
-    "href": "/es/reference/ui-toggle/",
+    "title": "UI: Tooltip",
+    "href": "/es/reference/ui-tooltip/",
     "section": "reference",
     "lang": "es"
   },
   {
-    "title": "UI: Toggle",
-    "href": "/ko/reference/ui-toggle/",
+    "title": "UI: Tooltip",
+    "href": "/fr/reference/ui-tooltip/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: Tooltip",
+    "href": "/ja/reference/ui-tooltip/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: Tooltip",
+    "href": "/ko/reference/ui-tooltip/",
     "section": "reference",
     "lang": "ko"
   },
@@ -1838,26 +1862,26 @@
     "lang": "zh-tw"
   },
   {
-    "title": "UI: Tooltip",
-    "href": "/ja/reference/ui-tooltip/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "UI: Tooltip",
-    "href": "/fr/reference/ui-tooltip/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "UI: Tooltip",
-    "href": "/es/reference/ui-tooltip/",
+    "title": "UI: TreeView",
+    "href": "/es/reference/ui-treeview/",
     "section": "reference",
     "lang": "es"
   },
   {
-    "title": "UI: Tooltip",
-    "href": "/ko/reference/ui-tooltip/",
+    "title": "UI: TreeView",
+    "href": "/fr/reference/ui-treeview/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: TreeView",
+    "href": "/ja/reference/ui-treeview/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: TreeView",
+    "href": "/ko/reference/ui-treeview/",
     "section": "reference",
     "lang": "ko"
   },
@@ -1874,26 +1898,26 @@
     "lang": "zh-tw"
   },
   {
-    "title": "UI: TreeView",
-    "href": "/ja/reference/ui-treeview/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "UI: TreeView",
-    "href": "/fr/reference/ui-treeview/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "UI: TreeView",
-    "href": "/es/reference/ui-treeview/",
+    "title": "UI: VirtualList",
+    "href": "/es/reference/ui-virtuallist/",
     "section": "reference",
     "lang": "es"
   },
   {
-    "title": "UI: TreeView",
-    "href": "/ko/reference/ui-treeview/",
+    "title": "UI: VirtualList",
+    "href": "/fr/reference/ui-virtuallist/",
+    "section": "reference",
+    "lang": "fr"
+  },
+  {
+    "title": "UI: VirtualList",
+    "href": "/ja/reference/ui-virtuallist/",
+    "section": "reference",
+    "lang": "ja"
+  },
+  {
+    "title": "UI: VirtualList",
+    "href": "/ko/reference/ui-virtuallist/",
     "section": "reference",
     "lang": "ko"
   },
@@ -1908,30 +1932,6 @@
     "href": "/zh-tw/reference/ui-virtuallist/",
     "section": "reference",
     "lang": "zh-tw"
-  },
-  {
-    "title": "UI: VirtualList",
-    "href": "/ja/reference/ui-virtuallist/",
-    "section": "reference",
-    "lang": "ja"
-  },
-  {
-    "title": "UI: VirtualList",
-    "href": "/fr/reference/ui-virtuallist/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  {
-    "title": "UI: VirtualList",
-    "href": "/es/reference/ui-virtuallist/",
-    "section": "reference",
-    "lang": "es"
-  },
-  {
-    "title": "UI: VirtualList",
-    "href": "/ko/reference/ui-virtuallist/",
-    "section": "reference",
-    "lang": "ko"
   },
   {
     "title": "UI: リサイズ可能なパネル",
@@ -2090,8 +2090,8 @@
     "lang": "zh-cn"
   },
   { "title": "UI组件", "href": "/zh-cn/learn/ui-components/", "section": "learn", "lang": "zh-cn" },
-  { "title": "Use Cases", "href": "/learn/use-cases/", "section": "learn", "lang": "en" },
   { "title": "Use Cases", "href": "/ja/learn/use-cases/", "section": "learn", "lang": "ja" },
+  { "title": "Use Cases", "href": "/learn/use-cases/", "section": "learn", "lang": "en" },
   {
     "title": "Utilidades matemáticas",
     "href": "/es/reference/core-math/",
@@ -2130,8 +2130,8 @@
     "section": "blog",
     "lang": "en"
   },
-  { "title": "Why VectoJS", "href": "/learn/why-vectojs/", "section": "learn", "lang": "en" },
   { "title": "Why VectoJS", "href": "/ja/learn/why-vectojs/", "section": "learn", "lang": "ja" },
+  { "title": "Why VectoJS", "href": "/learn/why-vectojs/", "section": "learn", "lang": "en" },
   {
     "title": "Zero DOM Elements, Full Accessibility: Launching the VectoJS Gallery",
     "href": "/blog/gallery-launch/",
