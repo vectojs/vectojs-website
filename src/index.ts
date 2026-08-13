@@ -519,9 +519,11 @@ async function renderApp(): Promise<void> {
 
     // When docs sidebar is present, content starts after the sidebar width.
     // When collapsed, we render a narrow expand button but content still gets
-    // the full offset so layout stays stable across toggle.
+    // the full offset so layout stays stable across toggle. On mobile the
+    // sidebar is never mounted at all — the in-article Docs trigger opens the
+    // page list as an overlay instead (the old site's drawer).
     let contentOffset = 0;
-    if (hasSidebar) {
+    if (hasSidebar && !isMobile) {
       contentOffset = SIDEBAR_WIDTH + 32;
       // The collapse/expand toggle swaps ONLY the sidebar subtree. The article
       // column keeps the same offset in both states (layout is stable across
@@ -569,8 +571,8 @@ async function renderApp(): Promise<void> {
     }
 
     // Content column uses a fixed left origin when sidebar is present,
-    // or centers when no sidebar (e.g. blog posts).
-    const contentX = hasSidebar ? 20 + contentOffset : originX;
+    // or centers when no sidebar (e.g. blog posts, mobile).
+    const contentX = hasSidebar && !isMobile ? 20 + contentOffset : originX;
     // The generic contentWidth (up to 1024) is derived from the full viewport
     // and does not know a 240px sidebar is pinned left. On a ~1440-1600px
     // screen that pushes tocX past the viewport edge, so the desktop TOC
@@ -578,9 +580,10 @@ async function renderApp(): Promise<void> {
     // column so sidebar + article + TOC (240) + margins (80) all fit;
     // floor at 480 so narrow-but-not-mobile windows stay readable (the TOC
     // check below then hides the TOC instead of crushing the article).
-    const articleWidth = hasSidebar
-      ? Math.min(contentWidth, Math.max(480, viewportW - contentX - 240 - 80))
-      : contentWidth;
+    const articleWidth =
+      hasSidebar && !isMobile
+        ? Math.min(contentWidth, Math.max(480, viewportW - contentX - 240 - 80))
+        : contentWidth;
     const page = new PageContainer();
     page.setPosition(contentX, currentY + 40);
     mainScroll.add(page);
@@ -652,7 +655,7 @@ async function renderApp(): Promise<void> {
     const onTocNavigate = (flatIndex: number) => navigateToHeading.fn(flatIndex);
 
     if (showToc && !showDesktopToc) {
-      mobileToc = new MobileToc(toc, articleWidth, onTocNavigate, lang);
+      mobileToc = new MobileToc(toc, articleWidth, onTocNavigate, lang, colors);
       mobileToc.setPosition(0, detailY);
       page.add(mobileToc);
       detailY += mobileToc.height + 24;
@@ -705,7 +708,7 @@ async function renderApp(): Promise<void> {
     detailY += md.height + 24;
 
     if (showDesktopToc) {
-      const sidebar = new TocSidebar(toc, tocSidebarWidth, onTocNavigate, lang);
+      const sidebar = new TocSidebar(toc, tocSidebarWidth, onTocNavigate, lang, colors);
       // The article column already sits right of the docs sidebar when one is
       // shown; the TOC must clear the article's right edge, not the page's.
       sidebar.setPosition(tocX, currentY + md.y);

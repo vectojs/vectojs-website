@@ -1,5 +1,5 @@
 import { Entity, type IRenderer, type Scene } from '@vectojs/core';
-import { Image, Input, Text } from '@vectojs/ui';
+import { Input, Text } from '@vectojs/ui';
 import { fillRect } from './entities';
 import { LAYOUT, type ThemeColors } from './theme';
 import { LOCALES, LOCALE_NAMES, localizedPath, parseLocale, type Locale } from './i18n/config';
@@ -283,8 +283,57 @@ export class IconButton extends Entity {
   }
 }
 
-/** GitHub mark loaded as an SVG data-URL so it renders via drawImage. */
-export class GithubMark extends Entity {
+/**
+ * Cached bitmap loader shared by every LogoMark: the SVG data URLs are large,
+ * and decoding them is async — an uncached per-navbar Image entity flashes a
+ * placeholder on every rebuild (resize, theme flip, navigation). One cached
+ * HTMLImageElement per variant means the second and later navbar builds draw
+ * the logo on their first frame.
+ */
+const logoBitmaps = new Map<string, HTMLImageElement>();
+function getLogoBitmap(src: string): HTMLImageElement {
+  let img = logoBitmaps.get(src);
+  if (!img) {
+    img = document.createElement('img');
+    img.src = src;
+    logoBitmaps.set(src, img);
+  }
+  return img;
+}
+
+/** The site logo mark, drawn from a cached bitmap (see getLogoBitmap). */
+export class LogoMark extends Entity {
+  private readonly bitmap: HTMLImageElement;
+
+  constructor(
+    src: string,
+    size: number,
+    height: number,
+    private readonly onFirstLoad: () => void,
+  ) {
+    super();
+    this.bitmap = getLogoBitmap(src);
+    this.width = size;
+    this.height = height;
+    if (this.bitmap.complete && this.bitmap.naturalWidth > 0) {
+      // Already decoded — draw on the first frame, no flash.
+    } else {
+      this.bitmap.addEventListener('load', () => this.onFirstLoad(), {
+        once: true,
+      });
+    }
+  }
+
+  public render(r: IRenderer): void {
+    // A failed load (broken image) must be skipped, never drawn — drawImage
+    // throws InvalidStateError on a broken image and aborts the render pass.
+    if (this.bitmap.complete && this.bitmap.naturalWidth > 0) {
+      r.drawImage(this.bitmap, 0, 0, this.width, this.height);
+    }
+  }
+}
+
+/** GitHub mark loaded as an SVG data-URL so it renders via drawImage. */ export class GithubMark extends Entity {
   private size: number;
   private color: string;
 
@@ -351,12 +400,12 @@ export function createNavbar(parent: Scene, opts: NavbarOptions): NavbarHandle {
   root.add(bar);
 
   // ── logo ───────────────────────────────────────────────────────────────────
-  const mark = new Image(currentTheme === 'light' ? LOGO_MARK_LIGHT : LOGO_MARK_DARK, {
-    width: 38,
-    height: 28,
-    alt: '',
-    onLoad: () => parent.markDirty(),
-  });
+  const mark = new LogoMark(
+    currentTheme === 'light' ? LOGO_MARK_LIGHT : LOGO_MARK_DARK,
+    38,
+    28,
+    () => parent.markDirty(),
+  );
   mark.x = contentX;
   mark.y = (LAYOUT.navHeight - 28) / 2;
   root.add(mark);

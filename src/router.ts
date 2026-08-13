@@ -11,6 +11,15 @@ type PageDataCallback = (data: unknown) => void;
 
 let _onPageData: PageDataCallback | null = null;
 
+/**
+ * Page-data JSON cache keyed by path. SPA navigations re-fetch + re-parse the
+ * full HTML otherwise, which on a back/forward hop or a revisited page adds a
+ * visible beat to the click; a capped Map keeps revisits instant and memory
+ * bounded (~50KB of JSON per entry).
+ */
+const pageDataCache = new Map<string, unknown>();
+const PAGE_DATA_CACHE_MAX = 24;
+
 /** Register the function that the app should call when a new page loads. */
 export function setPageDataCallback(cb: PageDataCallback): void {
   _onPageData = cb;
@@ -27,6 +36,11 @@ function isSameOrigin(parsedUrl: URL): boolean {
 }
 
 export async function handleUrlRoute(url: string): Promise<void> {
+  const cached = pageDataCache.get(url);
+  if (cached !== undefined) {
+    _onPageData?.(cached);
+    return;
+  }
   try {
     const res = await fetch(url);
     const html = await res.text();
@@ -36,6 +50,11 @@ export async function handleUrlRoute(url: string): Promise<void> {
     if (dataElement) {
       const raw = dataElement.textContent || '';
       const data = JSON.parse(raw);
+      pageDataCache.set(url, data);
+      if (pageDataCache.size > PAGE_DATA_CACHE_MAX) {
+        const oldest = pageDataCache.keys().next().value;
+        if (oldest !== undefined) pageDataCache.delete(oldest);
+      }
       _onPageData?.(data);
     }
   } catch (e) {
@@ -45,6 +64,17 @@ export async function handleUrlRoute(url: string): Promise<void> {
 }
 
 export async function navigateTo(url: string): Promise<void> {
+  // Page-to-page navigation resets the scroll position immediately (the old
+  // DOM site's full reload did this for free). The async rebuild that follows
+  // takes ~150ms; leaving the window scrolled to the old page's offset during
+  // that gap reads as a broken wheel/page. Hash links keep their position.
+  try {
+    if (!url.includes('#') && window.scrollY > 0) {
+      window.scrollTo(0, 0);
+    }
+  } catch {
+    // scrollTo is a no-op in test environments
+  }
   try {
     (window as unknown as { __navLog?: string[] }).__navLog?.push(
       `${new Error().stack?.split('\n')[2]?.trim() || '?'} -> ${url}`,

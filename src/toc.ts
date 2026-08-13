@@ -4,6 +4,7 @@ import { Container } from './entities';
 import { withWholeLineProjection } from './text-utils';
 import { useTranslations } from './i18n/ui';
 import type { Locale } from './i18n/config';
+import type { ThemeColors } from './theme';
 
 export interface TocEntry {
   title: string;
@@ -22,12 +23,13 @@ class TocLinkRow extends Entity {
   constructor(
     private readonly title: string,
     width: number,
+    color: string,
     private readonly onActivate: () => void,
   ) {
     super();
     this.interactive = true;
     const label = withWholeLineProjection(
-      new RichText([{ text: title, style: { color: '#6b7280' } }], {
+      new RichText([{ text: title, style: { color } }], {
         font: '14px system-ui, sans-serif',
         maxWidth: width,
       }),
@@ -50,9 +52,10 @@ function buildTocRow(
   entry: TocEntry,
   indent: number,
   width: number,
+  color: string,
   onActivate: () => void,
 ): TocLinkRow {
-  const row = new TocLinkRow(entry.title, width - indent, onActivate);
+  const row = new TocLinkRow(entry.title, width - indent, color, onActivate);
   row.setPosition(indent, 0);
   return row;
 }
@@ -65,19 +68,20 @@ export function layoutTocRows(
   container: Entity,
   toc: TocEntry[],
   width: number,
+  color: string,
   onNavigate: (flatIndex: number) => void,
 ): number {
   let y = 0;
   let flatIndex = 0;
   for (const h1 of toc) {
     const index = flatIndex++;
-    const row = buildTocRow(h1, 0, width, () => onNavigate(index));
+    const row = buildTocRow(h1, 0, width, color, () => onNavigate(index));
     row.setPosition(0, y);
     container.add(row);
     y += row.height + 8;
     for (const h2 of h1.children ?? []) {
       const childIndex = flatIndex++;
-      const child = buildTocRow(h2, 16, width, () => onNavigate(childIndex));
+      const child = buildTocRow(h2, 16, width, color, () => onNavigate(childIndex));
       child.setPosition(16, y);
       container.add(child);
       y += child.height + 8;
@@ -106,6 +110,7 @@ export class TocSidebar extends Entity {
     width: number,
     private readonly onNavigate: (flatIndex: number) => void,
     private readonly lang: Locale,
+    private readonly colors: ThemeColors,
     private readonly onToggle?: () => void,
   ) {
     super();
@@ -133,16 +138,18 @@ export class TocSidebar extends Entity {
     }
 
     if (this.collapsed) {
-      // Narrow collapse button (« chevron)
+      // Narrow expand strip (« chevron). The chevron stays at the SAME left
+      // edge position as the expanded state's collapse button, so toggling
+      // never makes the control jump across the panel (the old offset bug).
       this.width = 32;
-      const chevron = new Text('«', {
+      const chevron = new Text('»', {
         font: '16px Inter, sans-serif',
-        color: '#6b7280',
+        color: this.colors.muted,
       });
-      chevron.x = (32 - chevron.width) / 2;
+      chevron.x = 8;
       chevron.y = 4;
       chevron.interactive = true;
-      chevron.width = 32;
+      chevron.width = 24;
       chevron.height = 24;
       chevron.getA11yAttributes = () => ({
         role: 'button',
@@ -153,7 +160,7 @@ export class TocSidebar extends Entity {
       this.contentRoot.add(chevron);
       this.height = 32;
     } else {
-      // Full TOC with collapse button
+      // Full TOC with collapse button pinned at the left edge.
       this.width = this.fullWidth;
 
       const header = new Entity();
@@ -161,20 +168,14 @@ export class TocSidebar extends Entity {
       header.render = () => {};
       this.contentRoot.add(header);
 
-      const title = withWholeLineProjection(
-        new Text(useTranslations(this.lang)('toc.onThisPage'), {
-          font: '600 14px system-ui, sans-serif',
-          color: '#111827',
-        }),
-      );
-      header.add(title);
-
-      // Collapse button (« chevron) next to title
+      // Collapse button (« chevron) pinned left; title sits to its right.
+      // Same left-edge position as the collapsed strip so the control does
+      // not jump when the panel toggles.
       const collapseBtn = new Text('«', {
         font: '14px Inter, sans-serif',
-        color: '#9ca3af',
+        color: this.colors.muted,
       });
-      collapseBtn.x = this.fullWidth - collapseBtn.width - 4;
+      collapseBtn.x = 8;
       collapseBtn.y = 0;
       collapseBtn.interactive = true;
       collapseBtn.width = 20;
@@ -187,12 +188,23 @@ export class TocSidebar extends Entity {
       collapseBtn.on('click', () => this.setCollapsed(true));
       header.add(collapseBtn);
 
+      const title = withWholeLineProjection(
+        new Text(useTranslations(this.lang)('toc.onThisPage'), {
+          font: '600 14px system-ui, sans-serif',
+          color: this.colors.text,
+        }),
+      );
+      title.x = 32;
+      header.add(title);
+
       const list = new Container();
       list.setPosition(0, title.height + 12);
       this.contentRoot.add(list);
 
       this.height =
-        title.height + 12 + layoutTocRows(list, this.toc, this.fullWidth, this.onNavigate);
+        title.height +
+        12 +
+        layoutTocRows(list, this.toc, this.fullWidth, this.colors.muted, this.onNavigate);
     }
 
     this.clipChildren = true;
@@ -226,6 +238,7 @@ export class MobileToc extends Entity {
   private tocLabel = '';
   private readonly toc: TocEntry[];
   private readonly onNavigate: (flatIndex: number) => void;
+  private readonly colors: ThemeColors;
   /** Called after every expand/collapse so the parent can reflow. */
   public onToggle?: () => void;
 
@@ -234,17 +247,19 @@ export class MobileToc extends Entity {
     width: number,
     onNavigate: (flatIndex: number) => void,
     lang: Locale,
+    colors: ThemeColors,
   ) {
     super();
     this.width = width;
     this.toc = toc;
     this.onNavigate = onNavigate;
+    this.colors = colors;
     const t = useTranslations(lang);
     this.header = new Card({
       width,
       height: this.collapsedHeight,
-      bg: '#f9fafb',
-      border: '#e5e7eb',
+      bg: colors.bgCard,
+      border: colors.divider,
       radius: 6,
       label: t('toc.tableOfContents'),
       onClick: () => this.toggle(),
@@ -253,7 +268,7 @@ export class MobileToc extends Entity {
     this.headerLabel = withWholeLineProjection(
       new RichText([{ text: `▸ ${this.tocLabel}` }], {
         font: 'bold 14px system-ui, sans-serif',
-        color: '#111827',
+        color: colors.text,
       }),
     );
     this.headerLabel.setPosition(12, 11);
@@ -275,7 +290,13 @@ export class MobileToc extends Entity {
       this.list = new Container();
       this.list.setPosition(12, this.collapsedHeight + 12);
       this.add(this.list);
-      const listHeight = layoutTocRows(this.list, this.toc, this.width - 24, this.onNavigate);
+      const listHeight = layoutTocRows(
+        this.list,
+        this.toc,
+        this.width - 24,
+        this.colors.muted,
+        this.onNavigate,
+      );
       this.header.height = this.collapsedHeight + 12 + listHeight + 16;
       this.height = this.header.height;
     } else if (this.list) {

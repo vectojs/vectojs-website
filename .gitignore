@@ -22,3 +22,4 @@ tmp/
 
 .astro/
 src/content/
+.playwright-cli/

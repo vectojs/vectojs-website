@@ -1,9 +1,10 @@
 import { Entity, type IRenderer, type Scene } from '@vectojs/core';
-import { Card, ScrollView, Stack, Text } from '@vectojs/ui';
+import { Card, DOCUMENT_SCROLL_PHYSICS, ScrollView, Stack, Text } from '@vectojs/ui';
 import { LAYOUT, type ThemeColors } from './theme';
 import { fillRect } from './entities';
 import type { Locale } from './i18n/config';
 import { useTranslations } from './i18n/ui';
+import { groupReferencePages } from './reference-groups';
 
 export interface SidebarEntry {
   title: string;
@@ -57,10 +58,21 @@ function truncateToWidth(text: string, font: string, maxWidth: number): string {
   return text.slice(0, lo) + '…';
 }
 
+interface RowSpec {
+  page: SidebarEntry;
+  indent: number;
+  active: boolean;
+  isGroupHeader: boolean;
+  groupOpen: boolean;
+  onClick: () => void;
+}
+
 /**
  * Left-hand docs navigation: the section's page list, fixed under the navbar
- * like the old site's sidebar. Collapsible via the header chevron; the whole
- * bar is a scene-root entity so it does not scroll with the article.
+ * like the old site's sidebar. Reference pages render as collapsible package
+ * groups (the old Astro site's `<details>` sections, auto-opened around the
+ * active page); Learn stays a flat list. Collapsible via the header chevron;
+ * the whole bar is a scene-root entity so it does not scroll with the article.
  */
 export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
   const { colors, lang, pages, activePath, viewportHeight, onNavigate, onToggle } = opts;
@@ -69,6 +81,8 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
   const top = LAYOUT.navHeight;
   const height = viewportHeight - top;
   const pad = 20;
+  const rowH = 28;
+  const isReference = activePath.includes('/reference/');
 
   const root = new Entity();
   root.isPointInside = () => false;
@@ -95,8 +109,7 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
   const header = new Stack({ direction: 'horizontal', gap: 12 });
   header.x = pad;
   header.y = top + 20;
-  const sectionName =
-    activePath.split('/')[1] === 'reference' ? t('nav.reference') : t('nav.learn');
+  const sectionName = isReference ? t('nav.reference') : t('nav.learn');
   const label = new Text(lang === 'en' ? sectionName.toUpperCase() : sectionName, {
     font: '700 13px Inter, sans-serif',
     color: colors.faint,
@@ -120,50 +133,180 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
   chevron.on('click', onToggle);
   root.add(chevron);
 
+  const isActive = (path: string): boolean =>
+    path === activePath || (path.endsWith('/') && activePath.startsWith(path));
+
+  // Group open state: the group containing the active page starts open; the
+  // rest start closed (Astro parity: `open={slug === header || children…}`).
+  const groups = isReference ? groupReferencePages(pages) : [];
+  const groupOpen = new Map<string, boolean>();
+  for (const g of groups) {
+    const all = [g.header, ...g.children];
+    groupOpen.set(
+      g.header.path,
+      all.some((p) => isActive(p.path)),
+    );
+  }
+
+  /** Recompute the flat row list from the current group open states. */
+  const computeRowSpecs = (): RowSpec[] => {
+    const specs: RowSpec[] = [];
+    if (isReference) {
+      for (const g of groups) {
+        const open = groupOpen.get(g.header.path) ?? false;
+        if (g.children.length === 0) {
+          specs.push({
+            page: g.header,
+            indent: 0,
+            active: isActive(g.header.path),
+            isGroupHeader: false,
+            groupOpen: false,
+            onClick: () => onNavigate(g.header.path),
+          });
+          continue;
+        }
+        specs.push({
+          page: g.header,
+          indent: 0,
+          active: isActive(g.header.path),
+          isGroupHeader: true,
+          groupOpen: open,
+          onClick: () => {
+            groupOpen.set(g.header.path, !open);
+            renderRows();
+          },
+        });
+        if (open) {
+          for (const child of [g.header, ...g.children]) {
+            specs.push({
+              page: child,
+              indent: 16,
+              active: isActive(child.path),
+              isGroupHeader: false,
+              groupOpen: false,
+              onClick: () => onNavigate(child.path),
+            });
+          }
+        }
+      }
+    } else {
+      for (const page of pages) {
+        specs.push({
+          page,
+          indent: 0,
+          active: isActive(page.path),
+          isGroupHeader: false,
+          groupOpen: false,
+          onClick: () => onNavigate(page.path),
+        });
+      }
+    }
+    return specs;
+  };
+
   // Page list in a scrollable container.
   const scrollHeight = height - 64; // header 20 + label 24 + gap 20 = 64
   const list = new Stack({ direction: 'vertical', gap: 2 });
-  for (const page of pages) {
-    const active =
-      page.path === activePath || (page.path.endsWith('/') && activePath.startsWith(page.path));
+  let scrollHost: ScrollView | null = null;
+
+  const makeRow = (spec: RowSpec): Card => {
+    const { page, indent, active, groupOpen, onClick } = spec;
     const font = active ? '600 13.5px Inter, sans-serif' : '13.5px Inter, sans-serif';
-    const labelText = truncateToWidth(page.title, font, width - pad * 2 - 24);
+    const labelText = truncateToWidth(page.title, font, width - pad * 2 - 24 - indent);
     const item = new Text(labelText, {
       font,
       color: active ? colors.accent : colors.text,
     });
     const row = new Card({
       width: width - pad,
-      height: 28,
+      height: rowH,
       bg: active ? 'rgba(99,102,241,0.1)' : 'transparent',
       radius: 6,
     });
     row.x = 10;
     row.y = 0;
     row.add(item);
-    item.x = 10;
-    item.y = (28 - item.height) / 2;
+    item.x = 10 + indent;
+    item.y = (rowH - item.height) / 2;
     item.interactive = true;
     item.getA11yAttributes = () => ({ role: 'link', label: item.text });
-    if (active) {
-      // Clicking the active page scrolls to top
-      item.on('click', () => {
+    // Hover feedback matches the old site's `.sidebar-link:hover`.
+    item.on('hover', () => {
+      if (active) return;
+      row.bg = colors.rowHover;
+      (row.scene as Scene | undefined)?.markDirty();
+    });
+    item.on('pointerleave', () => {
+      if (active) return;
+      row.bg = 'transparent';
+      (row.scene as Scene | undefined)?.markDirty();
+    });
+    item.on('click', () => {
+      if (active && !spec.isGroupHeader) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        onClick();
+      }
+    });
+    if (spec.isGroupHeader) {
+      const glyph = new Text(groupOpen ? '▾' : '▸', {
+        font: '12px Inter, sans-serif',
+        color: colors.muted,
       });
-    } else {
-      item.on('click', () => onNavigate(page.path));
+      glyph.x = row.width - 26;
+      glyph.y = (rowH - glyph.height) / 2;
+      glyph.interactive = false;
+      row.add(glyph);
     }
-    list.add(row);
+    return row;
+  };
+
+  /** Rebuild every row from scratch — cheap (~50 Text measures) and keeps
+   *  row order/glyph state trivially consistent with group open states. */
+  const renderRows = (): void => {
+    while (list.children.length > 0) list.remove(list.children[list.children.length - 1]);
+    const specs = computeRowSpecs();
+    let y = 0;
+    for (const spec of specs) {
+      const row = makeRow(spec);
+      row.y = y;
+      list.add(row);
+      y += rowH + 2;
+    }
+    list.height = Math.max(0, y - 2);
+    if (scrollHost) {
+      scrollHost.updateContentSize();
+    } else {
+      // Content outgrew the non-scroll path (a group was expanded): nothing to
+      // do here — the no-ScrollView branch is only chosen when the fully
+      // expanded list fits, and expansion only shrinks the list.
+    }
+    parent.markDirty();
+  };
+
+  // Only wrap in a ScrollView when the fully expanded list actually overflows:
+  // a ScrollView preventDefaults wheel even when its content fits, which turned
+  // the whole sidebar band into a wheel dead zone on short Learn pages (the old
+  // DOM site let the wheel pass through to the page there).
+  const expandedRows = computeRowSpecs();
+  const expandedHeight = expandedRows.length * (rowH + 2);
+  const needsScroll = expandedHeight > scrollHeight;
+  if (needsScroll) {
+    scrollHost = new ScrollView({
+      width: width - 8,
+      height: scrollHeight,
+      scrollPhysics: DOCUMENT_SCROLL_PHYSICS,
+    });
+    scrollHost.add(list);
+    scrollHost.x = 8;
+    scrollHost.y = top + 56;
+    root.add(scrollHost);
+  } else {
+    list.setPosition(8, top + 56);
+    root.add(list);
   }
 
-  const scrollView = new ScrollView({
-    width: width - 8,
-    height: scrollHeight,
-  });
-  scrollView.add(list);
-  scrollView.x = 8;
-  scrollView.y = top + 56;
-  root.add(scrollView);
+  renderRows();
 
   parent.add(root);
   return root;
