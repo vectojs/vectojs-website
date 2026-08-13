@@ -5,6 +5,7 @@ import { fillRect } from './entities';
 import type { Locale } from './i18n/config';
 import { useTranslations } from './i18n/ui';
 import { groupReferencePages } from './reference-groups';
+import { makeAllUnselectable } from './text-utils';
 
 export interface SidebarEntry {
   title: string;
@@ -42,6 +43,14 @@ export function setSidebarCollapsed(value: boolean): void {
   }
 }
 
+/**
+ * Which group header paths are currently open, persisted across navigation so
+ * expanding a group and clicking into it does not reset the others to closed.
+ * Initialised empty; the first render auto-opens the group that contains the
+ * active page when the path isn't recorded yet.
+ */
+const persistedGroupOpen = new Map<string, boolean>();
+
 /** Truncate a title to one line with an ellipsis (sidebar rows are 28px tall). */
 function truncateToWidth(text: string, font: string, maxWidth: number): string {
   const ctx = document.createElement('canvas').getContext('2d');
@@ -60,6 +69,8 @@ function truncateToWidth(text: string, font: string, maxWidth: number): string {
 
 interface RowSpec {
   page: SidebarEntry;
+  /** Overrides the displayed title (e.g. "Overview" for the first child link). */
+  displayTitle?: string;
   indent: number;
   active: boolean;
   isGroupHeader: boolean;
@@ -136,15 +147,18 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
   const isActive = (path: string): boolean =>
     path === activePath || (path.endsWith('/') && activePath.startsWith(path));
 
-  // Group open state: the group containing the active page starts open; the
-  // rest start closed (Astro parity: `open={slug === header || children…}`).
+  // Group open state: try the persisted map first; fall back to auto-opening
+  // the group that contains the active page (Astro parity).
   const groups = isReference ? groupReferencePages(pages) : [];
   const groupOpen = new Map<string, boolean>();
   for (const g of groups) {
     const all = [g.header, ...g.children];
+    const autoOpen = all.some((p) => isActive(p.path));
     groupOpen.set(
       g.header.path,
-      all.some((p) => isActive(p.path)),
+      persistedGroupOpen.has(g.header.path)
+        ? (persistedGroupOpen.get(g.header.path) ?? autoOpen)
+        : autoOpen,
     );
   }
 
@@ -165,21 +179,29 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
           });
           continue;
         }
+        // Group header row: strip the trailing " Reference" label so the row
+        // stays compact ("@vectojs/core API" instead of "@vectojs/core API Reference").
         specs.push({
           page: g.header,
+          displayTitle: g.header.title.replace(/\s+Reference$/i, ''),
           indent: 0,
           active: isActive(g.header.path),
           isGroupHeader: true,
           groupOpen: open,
           onClick: () => {
-            groupOpen.set(g.header.path, !open);
+            const next = !open;
+            groupOpen.set(g.header.path, next);
+            persistedGroupOpen.set(g.header.path, next);
             renderRows();
           },
         });
         if (open) {
-          for (const child of [g.header, ...g.children]) {
+          for (const [ci, child] of [g.header, ...g.children].entries()) {
             specs.push({
               page: child,
+              // First child (the repeated header page) becomes "Overview" to
+              // avoid displaying the full package name twice in a row.
+              displayTitle: ci === 0 ? 'Overview' : undefined,
               indent: 16,
               active: isActive(child.path),
               isGroupHeader: false,
@@ -294,14 +316,12 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
     parent.markDirty();
   };
 
-  // Only wrap in a ScrollView when the fully expanded list actually overflows:
-  // a ScrollView preventDefaults wheel even when its content fits, which turned
-  // the whole sidebar band into a wheel dead zone on short Learn pages (the old
-  // DOM site let the wheel pass through to the page there).
-  const expandedRows = computeRowSpecs();
-  const expandedHeight = expandedRows.length * (rowH + 2);
-  const needsScroll = expandedHeight > scrollHeight;
-  if (needsScroll) {
+  // Always use a ScrollView for reference pages — the fully expanded list can
+  // grow well beyond the sidebar height, and the upstream wheel-passthrough fix
+  // (#525, @vectojs/ui 2.16.6) ensures the wheel passes through to the page
+  // whenever maxScroll is zero, so a ScrollView with short content is no
+  // longer a dead zone.
+  if (isReference) {
     scrollHost = new ScrollView({
       width: width - 8,
       height: scrollHeight,
@@ -312,11 +332,29 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
     scrollHost.y = top + 56;
     root.add(scrollHost);
   } else {
-    list.setPosition(8, top + 56);
-    root.add(list);
+    // Only wrap in a ScrollView when the flat learn list actually overflows.
+    const listHeight = pages.length * (rowH + 2);
+    if (listHeight > scrollHeight) {
+      scrollHost = new ScrollView({
+        width: width - 8,
+        height: scrollHeight,
+        scrollPhysics: DOCUMENT_SCROLL_PHYSICS,
+      });
+      scrollHost.add(list);
+      scrollHost.x = 8;
+      scrollHost.y = top + 56;
+      root.add(scrollHost);
+    } else {
+      list.setPosition(8, top + 56);
+      root.add(list);
+    }
   }
 
   renderRows();
+
+  // Sidebar text (labels, chevrons, section header) must not join drag-selection
+  // over article content. Article text stays selectable via its own projection.
+  makeAllUnselectable(root);
 
   parent.add(root);
   return root;
@@ -371,6 +409,9 @@ export function buildSidebarExpandButton(parent: Scene, opts: SidebarExpandButto
   });
   chevron.on('click', onExpand);
   root.add(chevron);
+
+  // Expand-button strip text must not join drag-selection.
+  makeAllUnselectable(root);
 
   parent.add(root);
   return root;
@@ -462,6 +503,9 @@ export function buildMobileDocsPanel(parent: Scene, opts: MobileDocsOptions): ()
     parent.remove(panel);
     document.removeEventListener('pointerdown', onDoc);
   };
+
+  // Sidebar text must not join drag-selection over article text.
+  makeAllUnselectable(panel);
   const onDoc = (e: PointerEvent): void => {
     const inside =
       e.clientX >= panel.x &&

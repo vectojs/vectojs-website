@@ -32,3 +32,27 @@ export function withWholeLineProjection<T extends Entity>(entity: T): T {
   };
   return entity;
 }
+
+/**
+ * Walk the entity subtree and mark every Text/RichText entity as unselectable.
+ *
+ * Chrome text (navbar, sidebar, TOC, search overlay) must never participate in
+ * drag-selection: only article content (projected by `@vectojs/markdown` with
+ * `selectable: true`) should be copyable. Without this, a drag-selection across
+ * the article sweeps every sidebar row label and nav link text into the browser's
+ * native selection range alongside the article text.
+ *
+ * Calling `setSelectable(false)` keeps the content-projection carriers in the
+ * DOM (find-in-page and AT still work) but sets their `user-select: none` and
+ * `pointer-events: none`, removing them from any selection range.
+ *
+ * @see packages/core/src/tree/Scene.ts:4767 for the engine-side behaviour
+ */
+export function makeAllUnselectable(root: Entity): void {
+  const walk = (e: Entity): void => {
+    (e as { setSelectable?: (s: boolean) => void }).setSelectable?.(false);
+    // Snapshot `children` — modification during a tree walk would skip siblings.
+    for (const child of [...e.children]) walk(child);
+  };
+  walk(root);
+}

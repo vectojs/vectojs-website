@@ -1,7 +1,7 @@
 import { Entity, type IRenderer, type A11yAttributes, VectoJSEvent } from '@vectojs/core';
 import { Text, RichText, Card } from '@vectojs/ui';
 import { Container } from './entities';
-import { withWholeLineProjection } from './text-utils';
+import { withWholeLineProjection, makeAllUnselectable } from './text-utils';
 import { useTranslations } from './i18n/ui';
 import type { Locale } from './i18n/config';
 import type { ThemeColors } from './theme';
@@ -138,15 +138,17 @@ export class TocSidebar extends Entity {
     }
 
     if (this.collapsed) {
-      // Narrow expand strip (« chevron). The chevron stays at the SAME left
-      // edge position as the expanded state's collapse button, so toggling
-      // never makes the control jump across the panel (the old offset bug).
+      // Narrow expand strip (» chevron). The chevron is placed at the RIGHT
+      // edge of the 32px strip — mirroring the left sidebar whose « is at
+      // its left edge — so on-screen the button hugs the panel edge.
       this.width = 32;
       const chevron = new Text('»', {
         font: '16px Inter, sans-serif',
         color: this.colors.muted,
       });
-      chevron.x = 8;
+      // Right-align within the 32px strip: position the TEXT entity so its
+      // left edge lands near the right edge, giving a ~4px inset.
+      chevron.x = 32 - chevron.width - 4;
       chevron.y = 4;
       chevron.interactive = true;
       chevron.width = 24;
@@ -208,6 +210,8 @@ export class TocSidebar extends Entity {
     }
 
     this.clipChildren = true;
+    // TOC text must not join drag-selection — only article text is copyable.
+    makeAllUnselectable(this.contentRoot);
   }
 
   public render(_r: IRenderer): void {}

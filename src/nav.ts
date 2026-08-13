@@ -4,6 +4,7 @@ import { fillRect } from './entities';
 import { LAYOUT, type ThemeColors } from './theme';
 import { LOCALES, LOCALE_NAMES, localizedPath, parseLocale, type Locale } from './i18n/config';
 import { useTranslations } from './i18n/ui';
+import { makeAllUnselectable } from './text-utils';
 
 const GITHUB_URL = 'https://github.com/vectojs/vectojs';
 // Inlined SVG data URLs (same art as cdn.vectojs.org/brand/) so drawImage
@@ -561,6 +562,9 @@ export function createNavbar(parent: Scene, opts: NavbarOptions): NavbarHandle {
 
   parent.add(root);
 
+  // Nav chrome text must not join drag-selection over article content.
+  makeAllUnselectable(root);
+
   return {
     root,
     destroy(): void {
@@ -679,6 +683,7 @@ function createLangMenu(opts: NavbarOptions): Entity {
     });
     panel.add(item);
   });
+  makeAllUnselectable(panel);
   return panel;
 }
 
@@ -783,6 +788,7 @@ function createDrawer(parent: Scene, opts: NavbarOptions, close: () => void): En
     y += 30;
   });
   drawer.height = y + 12;
+  makeAllUnselectable(drawer);
   return drawer;
 }
 
