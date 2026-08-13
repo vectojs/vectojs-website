@@ -212,14 +212,17 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
   const makeRow = (spec: RowSpec): Card => {
     const { page, indent, active, groupOpen, onClick } = spec;
     const font = active ? '600 13.5px Inter, sans-serif' : '13.5px Inter, sans-serif';
-    const labelText = truncateToWidth(page.title, font, width - pad * 2 - 24 - indent);
-    const item = new Text(labelText, {
+    // Titles wrap instead of truncating (old-site parity: `.sidebar-link` is a
+    // full-width block with no ellipsis), so a long package title takes two
+    // lines instead of vanishing into "…".
+    const item = new Text(page.title, {
       font,
       color: active ? colors.accent : colors.text,
+      maxWidth: width - pad * 2 - 24 - indent,
     });
     const row = new Card({
       width: width - pad,
-      height: rowH,
+      height: Math.max(rowH, item.height),
       bg: active ? 'rgba(99,102,241,0.1)' : 'transparent',
       radius: 6,
     });
@@ -227,21 +230,28 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
     row.y = 0;
     row.add(item);
     item.x = 10 + indent;
-    item.y = (rowH - item.height) / 2;
-    item.interactive = true;
-    item.getA11yAttributes = () => ({ role: 'link', label: item.text });
+    item.y = (row.height - item.height) / 2;
+    // The ROW is the interactive unit, not the text: the a11y mirror then
+    // spans the full row width instead of the ~40px text box, so clicking
+    // anywhere on the row works (old site's block-level link behavior).
+    row.interactive = true;
+    row.getA11yAttributes = () => ({
+      role: 'link',
+      label: page.title,
+      tabIndex: -1,
+    });
     // Hover feedback matches the old site's `.sidebar-link:hover`.
-    item.on('hover', () => {
+    row.on('hover', () => {
       if (active) return;
       row.bg = colors.rowHover;
       (row.scene as Scene | undefined)?.markDirty();
     });
-    item.on('pointerleave', () => {
+    row.on('pointerleave', () => {
       if (active) return;
       row.bg = 'transparent';
       (row.scene as Scene | undefined)?.markDirty();
     });
-    item.on('click', () => {
+    row.on('click', () => {
       if (active && !spec.isGroupHeader) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
@@ -271,7 +281,7 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
       const row = makeRow(spec);
       row.y = y;
       list.add(row);
-      y += rowH + 2;
+      y += row.height + 2;
     }
     list.height = Math.max(0, y - 2);
     if (scrollHost) {

@@ -329,12 +329,17 @@ async function renderApp(): Promise<void> {
     render(r: IRenderer): void {
       fillRect(r, 0, 0, viewportW, viewportH, colors.bg);
       if (themeName() !== 'light') return;
+      // Astro parity (styles.css): a radial glow peaks at its center and fades
+      // to transparent at 60% of its radius, then stops. The ring approximation
+      // draws smallest-first so the composite peaks in the middle instead of at
+      // the rim (the old largest-first order painted a bright ring).
       const glow = (cx: number, cy: number, radius: number, rgb: string, peak: number): void => {
+        const fade = radius * 0.6;
         for (let i = 0; i < 24; i++) {
           const t = i / 24;
           r.beginPath();
-          r.arc(cx, cy, radius * (1 - t * 0.96), 0, Math.PI * 2);
-          r.fill(`rgba(${rgb},${peak * (1 - t)})`);
+          r.arc(cx, cy, fade * t, 0, Math.PI * 2);
+          r.fill(`rgba(${rgb},${(peak * (1 - t)).toFixed(3)})`);
         }
       };
       glow(viewportW * 0.08, -viewportH * 0.08, 1100, '191,253,224', 0.55);
@@ -551,6 +556,7 @@ async function renderApp(): Promise<void> {
             onToggle: () => {
               setSidebarCollapsed(true);
               mountSidebar();
+              onSidebarToggled();
             },
           });
         } else {
@@ -562,6 +568,7 @@ async function renderApp(): Promise<void> {
             onExpand: () => {
               setSidebarCollapsed(false);
               mountSidebar();
+              onSidebarToggled();
             },
           });
         }
@@ -707,13 +714,40 @@ async function renderApp(): Promise<void> {
     page.add(md);
     detailY += md.height + 24;
 
-    if (showDesktopToc) {
-      const sidebar = new TocSidebar(toc, tocSidebarWidth, onTocNavigate, lang, colors);
+    // The desktop TOC is created and swapped through a local mount function
+    // rather than constructed inline: toggling the left docs sidebar swaps
+    // that sidebar's subtree in place, and the old TocSidebar entity stops
+    // painting after the swap (its rows' RichText glyphs no longer reach the
+    // canvas even though the scene tree keeps them). Rebuilding ONLY the TOC
+    // entity restores it without re-parsing the article — verified live:
+    // a full rebuild after the toggle renders the TOC again (resize test),
+    // and the failure follows the stale entity, not the renderer (direct
+    // renderer draws still paint while the entity is blank).
+    let currentTocSidebar: TocSidebar | null = null;
+    // Captured once: `currentY` keeps advancing as the article branch builds
+    // the footer, so a later toggle must not re-read it for the mount spot.
+    const tocMountY = currentY + md.y;
+    const mountToc = (): void => {
+      if (currentTocSidebar) {
+        currentScene.remove(currentTocSidebar);
+        currentTocSidebar.destroy();
+        currentTocSidebar = null;
+      }
+      if (!showDesktopToc) return;
+      currentTocSidebar = new TocSidebar(toc, tocSidebarWidth, onTocNavigate, lang, colors);
       // The article column already sits right of the docs sidebar when one is
       // shown; the TOC must clear the article's right edge, not the page's.
-      sidebar.setPosition(tocX, currentY + md.y);
-      currentScene.add(sidebar);
-    }
+      currentTocSidebar.setPosition(tocX, tocMountY);
+      currentScene.add(currentTocSidebar);
+      currentScene.markDirty();
+    };
+    mountToc();
+
+    // The sidebar toggle swaps the docs sidebar in place; refresh the TOC
+    // alongside it so its entries keep painting (see mountToc's note).
+    const onSidebarToggled = (): void => {
+      mountToc();
+    };
 
     navigateToHeading.fn = (flatIndex: number) => {
       const heading = md.headingEntities[flatIndex];
