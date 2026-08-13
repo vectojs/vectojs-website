@@ -1,6 +1,7 @@
 import type { Entity } from '@vectojs/core';
 import type { Token } from 'marked';
 import { withWholeLineProjection } from './text-utils';
+import { localizedPath, type Locale } from './i18n/config';
 
 /**
  * `@vectojs/markdown` (with its katex-backed `@vectojs/tex` dependency) is the
@@ -77,12 +78,37 @@ function stripFrontmatter(raw: string): string {
   return match ? raw.slice(match[0].length) : raw;
 }
 
+/**
+ * Localize absolute internal links in markdown content for i18n pages.
+ * Replaces `/learn/...` and `/reference/...` with `/zh-cn/learn/...` etc.
+ * External links (https://) and anchors (#) are untouched.
+ */
+function localizeMarkdownLinks(markdown: string, locale: Locale): string {
+  if (locale === 'en') return markdown;
+
+  // Match markdown links: [text](/path) or [text](/path#anchor)
+  // Also match reference-style links: [text]: /path
+  return markdown.replace(
+    /(\[([^\]]+)\]:\s*|\]\()(\/(learn|reference|blog)[^\s)]*)/g,
+    (match, prefix, _, path) => {
+      // path is like "/learn/introduction/" or "/reference/core-api/#heading"
+      const localized = localizedPath(path, locale);
+      return `${prefix}${localized}`;
+    },
+  );
+}
+
 /** Lazily import markdown and build a `TrackedMarkdown` for a doc body. */
 export async function createArticleMarkdown(
   raw: string,
   options: Record<string, unknown>,
 ): Promise<ArticleMarkdown> {
   const Ctor = await ensureMarkdown();
-  const cleanMarkdown = stripFrontmatter(raw);
+  let cleanMarkdown = stripFrontmatter(raw);
+
+  // Localize links for non-English pages
+  const locale = (options.locale as Locale) ?? 'en';
+  cleanMarkdown = localizeMarkdownLinks(cleanMarkdown, locale);
+
   return new Ctor(cleanMarkdown, options);
 }

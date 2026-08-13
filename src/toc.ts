@@ -90,33 +90,114 @@ export function layoutTocRows(
 
 /** Vertical "On this page" panel rendered to the right of the article column. */
 export class TocSidebar extends Entity {
-  public isPointInside(_globalX: number, _globalY: number): boolean {
-    return false;
+  private collapsed = false;
+  private collapseButton: Entity | null = null;
+  private contentRoot: Entity;
+  private readonly fullWidth: number;
+
+  public isPointInside(globalX: number, globalY: number): boolean {
+    const local = this.worldToLocal(globalX, globalY);
+    if (!local) return false;
+    return local.x >= 0 && local.x <= this.width && local.y >= 0 && local.y <= this.height;
   }
+
   constructor(
-    toc: TocEntry[],
+    private readonly toc: TocEntry[],
     width: number,
-    onNavigate: (flatIndex: number) => void,
-    lang: Locale,
+    private readonly onNavigate: (flatIndex: number) => void,
+    private readonly lang: Locale,
+    private readonly onToggle?: () => void,
   ) {
     super();
+    this.fullWidth = width;
     this.width = width;
 
-    const title = withWholeLineProjection(
-      new Text(useTranslations(lang)('toc.onThisPage'), {
-        font: '600 14px system-ui, sans-serif',
-        color: '#111827',
-      }),
-    );
-    this.add(title);
+    this.contentRoot = new Entity();
+    this.contentRoot.isPointInside = () => false;
+    this.contentRoot.render = () => {};
+    this.add(this.contentRoot);
 
-    const list = new Container();
-    list.setPosition(0, title.height + 12);
-    this.add(list);
+    this.renderContent();
+  }
 
-    this.height = title.height + 12 + layoutTocRows(list, toc, width, onNavigate);
+  public setCollapsed(collapsed: boolean): void {
+    if (this.collapsed === collapsed) return;
+    this.collapsed = collapsed;
+    this.renderContent();
+    this.onToggle?.();
+  }
+
+  private renderContent(): void {
+    for (let i = this.contentRoot.children.length - 1; i >= 0; i--) {
+      this.contentRoot.remove(this.contentRoot.children[i]);
+    }
+
+    if (this.collapsed) {
+      // Narrow collapse button (« chevron)
+      this.width = 32;
+      const chevron = new Text('«', {
+        font: '16px Inter, sans-serif',
+        color: '#6b7280',
+      });
+      chevron.x = (32 - chevron.width) / 2;
+      chevron.y = 4;
+      chevron.interactive = true;
+      chevron.width = 32;
+      chevron.height = 24;
+      chevron.getA11yAttributes = () => ({
+        role: 'button',
+        label: useTranslations(this.lang)('toc.expandToc'),
+        tabIndex: 0,
+      });
+      chevron.on('click', () => this.setCollapsed(false));
+      this.contentRoot.add(chevron);
+      this.height = 32;
+    } else {
+      // Full TOC with collapse button
+      this.width = this.fullWidth;
+
+      const header = new Entity();
+      header.isPointInside = () => false;
+      header.render = () => {};
+      this.contentRoot.add(header);
+
+      const title = withWholeLineProjection(
+        new Text(useTranslations(this.lang)('toc.onThisPage'), {
+          font: '600 14px system-ui, sans-serif',
+          color: '#111827',
+        }),
+      );
+      header.add(title);
+
+      // Collapse button (« chevron) next to title
+      const collapseBtn = new Text('«', {
+        font: '14px Inter, sans-serif',
+        color: '#9ca3af',
+      });
+      collapseBtn.x = this.fullWidth - collapseBtn.width - 4;
+      collapseBtn.y = 0;
+      collapseBtn.interactive = true;
+      collapseBtn.width = 20;
+      collapseBtn.height = 20;
+      collapseBtn.getA11yAttributes = () => ({
+        role: 'button',
+        label: useTranslations(this.lang)('toc.collapseToc'),
+        tabIndex: 0,
+      });
+      collapseBtn.on('click', () => this.setCollapsed(true));
+      header.add(collapseBtn);
+
+      const list = new Container();
+      list.setPosition(0, title.height + 12);
+      this.contentRoot.add(list);
+
+      this.height =
+        title.height + 12 + layoutTocRows(list, this.toc, this.fullWidth, this.onNavigate);
+    }
+
     this.clipChildren = true;
   }
+
   public render(_r: IRenderer): void {}
 }
 

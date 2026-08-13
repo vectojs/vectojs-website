@@ -19,6 +19,7 @@ export interface UIStrings {
   'nav.home': string;
   'nav.openMenu': string;
   'nav.collapseSidebar': string;
+  'nav.expandSidebar': string;
   'nav.mobileNav': string;
   'nav.siteNav': string;
   'nav.viewSource': string;
@@ -47,6 +48,8 @@ export interface UIStrings {
   'fallback.notice': string;
   'toc.onThisPage': string;
   'toc.tableOfContents': string;
+  'toc.expandToc': string;
+  'toc.collapseToc': string;
   'doc.readingTime': string;
   'docs.menu': string;
   'docs.openNav': string;
@@ -74,6 +77,7 @@ const en: UIStrings = {
   'nav.home': 'Vecto home',
   'nav.openMenu': 'Open menu',
   'nav.collapseSidebar': 'Open menu',
+  'nav.expandSidebar': 'Expand sidebar',
   'nav.mobileNav': 'Mobile navigation',
   'nav.siteNav': 'Site navigation',
   'nav.viewSource': 'View source on GitHub',
@@ -100,6 +104,8 @@ const en: UIStrings = {
   'fallback.notice': 'This page has not been translated yet and is shown in English.',
   'toc.onThisPage': 'On this page',
   'toc.tableOfContents': 'Table of contents',
+  'toc.expandToc': 'Expand table of contents',
+  'toc.collapseToc': 'Collapse table of contents',
   'doc.readingTime': 'min read',
   'docs.menu': 'Menu',
   'docs.openNav': 'Open navigation menu',
@@ -127,6 +133,7 @@ const zhCN: UIStrings = {
   'nav.home': 'Vecto 首页',
   'nav.openMenu': '打开菜单',
   'nav.collapseSidebar': '打开菜单',
+  'nav.expandSidebar': '展开侧边栏',
   'nav.mobileNav': '移动端导航',
   'nav.siteNav': '站点导航',
   'nav.viewSource': '在 GitHub 上查看源码',
@@ -153,6 +160,8 @@ const zhCN: UIStrings = {
   'fallback.notice': '此页面尚未翻译，暂以英文显示。',
   'toc.onThisPage': '本页目录',
   'toc.tableOfContents': '目录',
+  'toc.expandToc': '展开目录',
+  'toc.collapseToc': '收起目录',
   'doc.readingTime': '分钟阅读',
   'docs.menu': '菜单',
   'docs.openNav': '打开导航菜单',
@@ -180,6 +189,7 @@ const zhTW: UIStrings = {
   'nav.home': 'Vecto 首頁',
   'nav.openMenu': '開啟選單',
   'nav.collapseSidebar': '開啟選單',
+  'nav.expandSidebar': '展開側邊欄',
   'nav.mobileNav': '行動裝置導覽',
   'nav.siteNav': '網站導覽',
   'nav.viewSource': '在 GitHub 上檢視原始碼',
@@ -206,6 +216,8 @@ const zhTW: UIStrings = {
   'fallback.notice': '此頁面尚未翻譯，暫以英文顯示。',
   'toc.onThisPage': '本頁目錄',
   'toc.tableOfContents': '目錄',
+  'toc.expandToc': '展開目錄',
+  'toc.collapseToc': '收合目錄',
   'doc.readingTime': '分鐘閱讀',
   'docs.menu': '選單',
   'docs.openNav': '開啟導覽選單',
@@ -233,6 +245,7 @@ const ja: UIStrings = {
   'nav.home': 'Vecto ホーム',
   'nav.openMenu': 'メニューを開く',
   'nav.collapseSidebar': 'メニューを開く',
+  'nav.expandSidebar': 'サイドバーを展開',
   'nav.mobileNav': 'モバイルナビゲーション',
   'nav.siteNav': 'サイトナビゲーション',
   'nav.viewSource': 'GitHub でソースを見る',
@@ -259,6 +272,8 @@ const ja: UIStrings = {
   'fallback.notice': 'このページはまだ翻訳されておらず、英語で表示されています。',
   'toc.onThisPage': 'このページの内容',
   'toc.tableOfContents': '目次',
+  'toc.expandToc': '目次を展開',
+  'toc.collapseToc': '目次を折りたたむ',
   'doc.readingTime': '分で読めます',
   'docs.menu': 'メニュー',
   'docs.openNav': 'ナビゲーションメニューを開く',
@@ -286,6 +301,7 @@ const fr: UIStrings = {
   'nav.home': 'Accueil Vecto',
   'nav.openMenu': 'Ouvrir le menu',
   'nav.collapseSidebar': 'Ouvrir le menu',
+  'nav.expandSidebar': 'Déplier la barre latérale',
   'nav.mobileNav': 'Navigation mobile',
   'nav.siteNav': 'Navigation du site',
   'nav.viewSource': 'Voir la source sur GitHub',
@@ -312,6 +328,8 @@ const fr: UIStrings = {
   'fallback.notice': "Cette page n'a pas encore été traduite et est affichée en anglais.",
   'toc.onThisPage': 'Sur cette page',
   'toc.tableOfContents': 'Table des matières',
+  'toc.expandToc': 'Déplier la table des matières',
+  'toc.collapseToc': 'Replier la table des matières',
   'doc.readingTime': 'min de lecture',
   'docs.menu': 'Menu',
   'docs.openNav': 'Ouvrir le menu de navigation',
@@ -339,6 +357,7 @@ const es: UIStrings = {
   'nav.home': 'Inicio de Vecto',
   'nav.openMenu': 'Abrir menú',
   'nav.collapseSidebar': 'Abrir menú',
+  'nav.expandSidebar': 'Expandir barra lateral',
   'nav.mobileNav': 'Navegación móvil',
   'nav.siteNav': 'Navegación del sitio',
   'nav.viewSource': 'Ver el código en GitHub',
@@ -365,6 +384,8 @@ const es: UIStrings = {
   'fallback.notice': 'Esta página aún no se ha traducido y se muestra en inglés.',
   'toc.onThisPage': 'En esta página',
   'toc.tableOfContents': 'Tabla de contenidos',
+  'toc.expandToc': 'Expandir tabla de contenidos',
+  'toc.collapseToc': 'Contraer tabla de contenidos',
   'doc.readingTime': 'min de lectura',
   'docs.menu': 'Menú',
   'docs.openNav': 'Abrir el menú de navegación',
@@ -392,6 +413,7 @@ const ko: UIStrings = {
   'nav.home': 'Vecto 홈',
   'nav.openMenu': '메뉴 열기',
   'nav.collapseSidebar': '메뉴 열기',
+  'nav.expandSidebar': '사이드바 펼치기',
   'nav.mobileNav': '모바일 내비게이션',
   'nav.siteNav': '사이트 내비게이션',
   'nav.viewSource': 'GitHub에서 소스 보기',
@@ -418,6 +440,8 @@ const ko: UIStrings = {
   'fallback.notice': '이 페이지는 아직 번역되지 않아 영어로 표시됩니다.',
   'toc.onThisPage': '이 페이지 내용',
   'toc.tableOfContents': '목차',
+  'toc.expandToc': '목차 펼치기',
+  'toc.collapseToc': '목차 접기',
   'doc.readingTime': '분 소요',
   'docs.menu': '메뉴',
   'docs.openNav': '탐색 메뉴 열기',

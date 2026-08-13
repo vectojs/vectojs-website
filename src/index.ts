@@ -1,4 +1,4 @@
-import { Scene, type IRenderer } from '@vectojs/core';
+import { Scene, type Entity, type IRenderer } from '@vectojs/core';
 import { Card, Stack, Text } from '@vectojs/ui';
 
 import { withWholeLineProjection } from './text-utils';
@@ -17,6 +17,7 @@ import { TocSidebar, MobileToc, type TocEntry } from './toc';
 import {
   buildMobileDocsPanel,
   buildSidebar,
+  buildSidebarExpandButton,
   SIDEBAR_WIDTH,
   sidebarCollapsed,
   setSidebarCollapsed,
@@ -514,26 +515,74 @@ async function renderApp(): Promise<void> {
       title: string;
       path: string;
     }[];
-    const collapsed = sidebarCollapsed(isMobile);
+    const hasSidebar = sidebarPages.length > 0;
+
+    // When docs sidebar is present, content starts after the sidebar width.
+    // When collapsed, we render a narrow expand button but content still gets
+    // the full offset so layout stays stable across toggle.
     let contentOffset = 0;
-    if (sidebarPages.length > 0 && !collapsed) {
-      buildSidebar(currentScene, {
-        colors,
-        lang,
-        pages: sidebarPages,
-        activePath: payload.data?.path ?? '',
-        viewportWidth: viewportW,
-        viewportHeight: viewportH,
-        onNavigate: (url: string) => navigateTo(url),
-        onToggle: () => {
-          setSidebarCollapsed(!sidebarCollapsed(isMobile));
-          void renderApp();
-        },
-      });
+    if (hasSidebar) {
       contentOffset = SIDEBAR_WIDTH + 32;
+      // The collapse/expand toggle swaps ONLY the sidebar subtree. The article
+      // column keeps the same offset in both states (layout is stable across
+      // the toggle), so a full renderApp() would be pure waste — and a visible
+      // one: it re-parses the whole article markdown and rebuilds the navbar,
+      // whose logo Image loads its SVG data URL asynchronously, flashing the
+      // placeholder box where the logo sits on every toggle.
+      const sidebarScene = currentScene;
+      let sidebarRoot: Entity | null = null;
+      const mountSidebar = (): void => {
+        if (sidebarRoot) {
+          sidebarScene.remove(sidebarRoot);
+          sidebarRoot.destroy();
+          sidebarRoot = null;
+        }
+        if (!sidebarCollapsed(isMobile)) {
+          sidebarRoot = buildSidebar(sidebarScene, {
+            colors,
+            lang,
+            pages: sidebarPages,
+            activePath: payload.data?.path ?? '',
+            viewportWidth: viewportW,
+            viewportHeight: viewportH,
+            onNavigate: (url: string) => navigateTo(url),
+            onToggle: () => {
+              setSidebarCollapsed(true);
+              mountSidebar();
+            },
+          });
+        } else {
+          // Collapsed: a narrow expand button at the left edge instead.
+          sidebarRoot = buildSidebarExpandButton(sidebarScene, {
+            colors,
+            lang,
+            viewportHeight: viewportH,
+            onExpand: () => {
+              setSidebarCollapsed(false);
+              mountSidebar();
+            },
+          });
+        }
+        sidebarScene.markDirty();
+      };
+      mountSidebar();
     }
+
+    // Content column uses a fixed left origin when sidebar is present,
+    // or centers when no sidebar (e.g. blog posts).
+    const contentX = hasSidebar ? 20 + contentOffset : originX;
+    // The generic contentWidth (up to 1024) is derived from the full viewport
+    // and does not know a 240px sidebar is pinned left. On a ~1440-1600px
+    // screen that pushes tocX past the viewport edge, so the desktop TOC
+    // never fit and always degraded to the inline MobileToc. Cap the article
+    // column so sidebar + article + TOC (240) + margins (80) all fit;
+    // floor at 480 so narrow-but-not-mobile windows stay readable (the TOC
+    // check below then hides the TOC instead of crushing the article).
+    const articleWidth = hasSidebar
+      ? Math.min(contentWidth, Math.max(480, viewportW - contentX - 240 - 80))
+      : contentWidth;
     const page = new PageContainer();
-    page.setPosition(originX + contentOffset, currentY + 40);
+    page.setPosition(contentX, currentY + 40);
     mainScroll.add(page);
     let detailY = 0;
     let footerContainer: Container | null = null;
@@ -542,7 +591,7 @@ async function renderApp(): Promise<void> {
       new Text(payload.data?.title || 'Untitled', {
         font: `800 ${isMobile ? 32 : 40}px Outfit, sans-serif`,
         color: colors.strong,
-        maxWidth: contentWidth,
+        maxWidth: articleWidth,
       }),
     );
     pageTitle.setPosition(0, detailY);
@@ -595,7 +644,7 @@ async function renderApp(): Promise<void> {
     // article already starts at contentOffset, so the TOC needs viewport room
     // for sidebar + article + TOC + margins. On narrower screens it falls back
     // to the mobile TOC.
-    const tocX = originX + contentOffset + contentWidth + 40;
+    const tocX = contentX + articleWidth + 40;
     const showDesktopToc = showToc && !isMobile && tocX + tocSidebarWidth <= viewportW;
     let mobileToc: MobileToc | null = null;
 
@@ -603,7 +652,7 @@ async function renderApp(): Promise<void> {
     const onTocNavigate = (flatIndex: number) => navigateToHeading.fn(flatIndex);
 
     if (showToc && !showDesktopToc) {
-      mobileToc = new MobileToc(toc, contentWidth, onTocNavigate, lang);
+      mobileToc = new MobileToc(toc, articleWidth, onTocNavigate, lang);
       mobileToc.setPosition(0, detailY);
       page.add(mobileToc);
       detailY += mobileToc.height + 24;
@@ -614,14 +663,15 @@ async function renderApp(): Promise<void> {
     const raw = stripLeadingH1(payload.data?.raw_content ?? '');
     const { createArticleMarkdown } = await import('./article');
     const md = await createArticleMarkdown(raw, {
-      maxWidth: contentWidth,
+      locale: lang,
+      maxWidth: articleWidth,
       theme: {
         bodyFont: 'Inter, sans-serif',
         codeFont: 'monospace',
         textColor: colors.text,
         headingColor: colors.heading,
         linkColor: colors.accent,
-        codeColor: colors.text2,
+        codeColor: colors.codeText,
         codeBgColor: colors.codeBg,
         codeBorderColor: colors.borderStrong,
         quoteBorderColor: colors.quoteBorder,
@@ -640,7 +690,11 @@ async function renderApp(): Promise<void> {
       // Tables already sit inside a content flow where a copy control would
       // overlap the header row; code blocks keep their copy/download controls.
       affordances: { table: { copy: false, download: false } },
-      onLinkClick: (url: string) => navigateTo(url),
+      onLinkClick: (url: string) => {
+        // Links in markdown are already localized by createArticleMarkdown,
+        // so just navigate directly. External URLs pass through unchanged.
+        navigateTo(url);
+      },
     });
     // A newer renderApp (fonts.ready, resize, popstate) may have rebuilt the
     // tree while the markdown worker was parsing — attaching this late entity
@@ -654,7 +708,7 @@ async function renderApp(): Promise<void> {
       const sidebar = new TocSidebar(toc, tocSidebarWidth, onTocNavigate, lang);
       // The article column already sits right of the docs sidebar when one is
       // shown; the TOC must clear the article's right edge, not the page's.
-      sidebar.setPosition(originX + contentOffset + contentWidth + 40, currentY + md.y);
+      sidebar.setPosition(tocX, currentY + md.y);
       currentScene.add(sidebar);
     }
 

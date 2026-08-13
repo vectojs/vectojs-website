@@ -25,6 +25,8 @@ let searchOpener: (() => void) | null = null;
 let searchModal: Entity | null = null;
 let searchParent: Scene | null = null;
 let searchPanel: { x: number; y: number; w: number; h: number } | null = null;
+let searchNavRows: Entity[] = [];
+let searchSelected = -1;
 
 function closeSearch(): void {
   if (!searchModal || !searchParent) return;
@@ -32,12 +34,36 @@ function closeSearch(): void {
   searchModal = null;
   searchParent = null;
   searchPanel = null;
+  searchNavRows = [];
+  searchSelected = -1;
   document.removeEventListener('keydown', onSearchKey);
   document.removeEventListener('pointerdown', onSearchBackdrop);
 }
 
+const setSearchSelected = (i: number): void => {
+  searchSelected = i;
+  searchNavRows.forEach((row, idx) => {
+    (row as unknown as { selected?: boolean }).selected = idx === i;
+  });
+  searchParent?.markDirty();
+};
+
 const onSearchKey = (e: KeyboardEvent): void => {
-  if (e.key === 'Escape') closeSearch();
+  if (e.key === 'Escape') {
+    closeSearch();
+    return;
+  }
+  if (!searchModal || searchNavRows.length === 0) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    setSearchSelected(Math.min(searchSelected + 1, searchNavRows.length - 1));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    setSearchSelected(Math.max(searchSelected - 1, 0));
+  } else if (e.key === 'Enter' && searchSelected >= 0) {
+    e.preventDefault();
+    searchNavRows[searchSelected].emit('click');
+  }
 };
 
 const onSearchBackdrop = (e: PointerEvent): void => {
@@ -804,6 +830,8 @@ function openSearch(parent: Scene, opts: NavbarOptions): void {
   const clearRows = (): void => {
     for (const row of rows) resultsRoot.remove(row);
     rows = [];
+    searchNavRows = [];
+    searchSelected = -1;
   };
 
   const renderResults = (query: string): void => {
@@ -834,11 +862,25 @@ function openSearch(parent: Scene, opts: NavbarOptions): void {
       row.width = panelW - 40;
       row.height = 44;
       row.y = i * 48;
+      row.isPointInside = (gx: number, gy: number): boolean => {
+        const lx = gx - row.x;
+        const ly = gy - row.y;
+        return lx >= 0 && lx < row.width && ly >= 0 && ly < row.height;
+      };
       row.render = (r: IRenderer): void => {
-        if ((row as unknown as { hovered?: boolean }).hovered) {
+        const st = row as unknown as { hovered?: boolean; selected?: boolean };
+        if (st.selected) {
+          fillRect(r, 0, 0, row.width, 44, nav.rowHover);
+          fillRect(r, 0, 0, 3, 44, nav.accent);
+        } else if (st.hovered) {
           fillRect(r, 0, 0, row.width, 44, nav.rowHover);
         }
       };
+      row.getA11yAttributes = () => ({
+        role: 'link',
+        label: `${hit.title} — ${hit.section}`,
+        tabIndex: -1,
+      });
       row.on('hover', () => {
         (row as unknown as { hovered?: boolean }).hovered = true;
         parent.markDirty();
@@ -849,7 +891,7 @@ function openSearch(parent: Scene, opts: NavbarOptions): void {
       });
       row.on('click', () => {
         closeSearch();
-        opts.onNavigate(hit.href);
+        opts.onNavigate(localizedPath(hit.href, opts.lang));
       });
       const title = new Text(hit.title, {
         font: '15px Inter, sans-serif',
@@ -868,6 +910,7 @@ function openSearch(parent: Scene, opts: NavbarOptions): void {
       resultsRoot.add(row);
       rows.push(row);
     });
+    searchNavRows = rows.slice();
   };
 
   document.addEventListener('keydown', onSearchKey);
@@ -878,7 +921,10 @@ function openSearch(parent: Scene, opts: NavbarOptions): void {
   searchModal = modal;
   searchParent = parent;
   searchPanel = { x: panelX, y: panelTop, w: panelW, h: panelH };
-  input.focus?.();
+  // Focus after a frame so the a11y projection has materialized.
+  requestAnimationFrame(() => {
+    input.focus?.();
+  });
 
   fetch(SEARCH_INDEX_URL)
     .then((res) => (res.ok ? res.json() : Promise.reject(new Error('no index'))))

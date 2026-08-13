@@ -1,5 +1,5 @@
 import { Entity, type IRenderer, type Scene } from '@vectojs/core';
-import { Card, Stack, Text } from '@vectojs/ui';
+import { Card, ScrollView, Stack, Text } from '@vectojs/ui';
 import { LAYOUT, type ThemeColors } from './theme';
 import { fillRect } from './entities';
 import type { Locale } from './i18n/config';
@@ -120,15 +120,10 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
   chevron.on('click', onToggle);
   root.add(chevron);
 
-  // Page list.
+  // Page list in a scrollable container.
+  const scrollHeight = height - 64; // header 20 + label 24 + gap 20 = 64
   const list = new Stack({ direction: 'vertical', gap: 2 });
-  list.x = 8;
-  list.y = top + 56;
-  const maxItems = Math.max(1, Math.floor((height - 64) / 30));
-  const truncated = pages.length > maxItems;
-  const showAll = truncated && sidebarExpanded();
-  const visible = showAll ? pages : pages.slice(0, maxItems);
-  for (const page of visible) {
+  for (const page of pages) {
     const active =
       page.path === activePath || (page.path.endsWith('/') && activePath.startsWith(page.path));
     const font = active ? '600 13.5px Inter, sans-serif' : '13.5px Inter, sans-serif';
@@ -148,41 +143,84 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
     row.add(item);
     item.x = 10;
     item.y = (28 - item.height) / 2;
-    if (!active) {
-      item.interactive = true;
-      item.getA11yAttributes = () => ({ role: 'link', label: item.text });
+    item.interactive = true;
+    item.getA11yAttributes = () => ({ role: 'link', label: item.text });
+    if (active) {
+      // Clicking the active page scrolls to top
+      item.on('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    } else {
       item.on('click', () => onNavigate(page.path));
     }
     list.add(row);
   }
-  root.add(list);
 
-  if (truncated && !showAll) {
-    const more = new Text(`+${pages.length - maxItems}`, {
-      font: '600 13px Inter, sans-serif',
-      color: colors.accent,
-    });
-    more.x = 18;
-    more.y = list.y + maxItems * 30 + 12;
-    more.interactive = true;
-    more.getA11yAttributes = () => ({ role: 'button', label: 'Show all' });
-    more.on('click', () => {
-      setSidebarExpanded(true);
-      onToggle();
-    });
-    root.add(more);
-  }
+  const scrollView = new ScrollView({
+    width: width - 8,
+    height: scrollHeight,
+  });
+  scrollView.add(list);
+  scrollView.x = 8;
+  scrollView.y = top + 56;
+  root.add(scrollView);
 
   parent.add(root);
   return root;
 }
 
-let sidebarExpandedAll = false;
-function sidebarExpanded(): boolean {
-  return sidebarExpandedAll;
+/** Options for the narrow expand-only button shown when sidebar is collapsed. */
+export interface SidebarExpandButtonOptions {
+  colors: ThemeColors;
+  lang: Locale;
+  viewportHeight: number;
+  onExpand: () => void;
 }
-function setSidebarExpanded(v: boolean): void {
-  sidebarExpandedAll = v;
+
+/**
+ * Narrow fixed panel (32px wide) at the left edge with a single "»" button.
+ * Shown when the sidebar is collapsed so the user can bring it back.
+ * Returns the root entity so the caller can swap it out on toggle.
+ */
+export function buildSidebarExpandButton(parent: Scene, opts: SidebarExpandButtonOptions): Entity {
+  const { colors, lang, viewportHeight, onExpand } = opts;
+  const t = useTranslations(lang);
+  const top = LAYOUT.navHeight;
+
+  const root = new Entity();
+  root.isPointInside = () => false;
+  root.render = () => {};
+
+  const bg = new Entity();
+  bg.isPointInside = () => false;
+  bg.width = 32;
+  bg.height = viewportHeight - top;
+  bg.x = 0;
+  bg.y = top;
+  bg.render = (r: import('@vectojs/core').IRenderer) => {
+    r.fill(colors.surface2, 0, 0, bg.width, bg.height);
+  };
+  root.add(bg);
+
+  const chevron = new Text('»', {
+    font: '16px Inter, sans-serif',
+    color: colors.muted,
+  });
+  chevron.x = (32 - chevron.width) / 2;
+  chevron.y = top + 20;
+  chevron.interactive = true;
+  chevron.width = 32;
+  chevron.height = 24;
+  chevron.getA11yAttributes = () => ({
+    role: 'button',
+    label: t('nav.expandSidebar'),
+    tabIndex: 0,
+  });
+  chevron.on('click', onExpand);
+  root.add(chevron);
+
+  parent.add(root);
+  return root;
 }
 
 export interface MobileDocsOptions {
