@@ -233,11 +233,14 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
 
   const makeRow = (spec: RowSpec): Card => {
     const { page, indent, active, groupOpen, onClick } = spec;
+    // Prefer the display override (header strips " Reference"; first child is
+    // "Overview") — the raw page.title is still used for navigation/identity.
+    const title = spec.displayTitle ?? page.title;
     const font = active ? '600 13.5px Inter, sans-serif' : '13.5px Inter, sans-serif';
     // Titles wrap instead of truncating (old-site parity: `.sidebar-link` is a
     // full-width block with no ellipsis), so a long package title takes two
     // lines instead of vanishing into "…".
-    const item = new Text(page.title, {
+    const item = new Text(title, {
       font,
       color: active ? colors.accent : colors.text,
       maxWidth: width - pad * 2 - 24 - indent,
@@ -259,7 +262,7 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
     row.interactive = true;
     row.getA11yAttributes = () => ({
       role: 'link',
-      label: page.title,
+      label: title,
       tabIndex: -1,
     });
     // Hover feedback matches the old site's `.sidebar-link:hover`.
