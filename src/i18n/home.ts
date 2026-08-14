@@ -126,38 +126,48 @@ const en: HomeStrings = {
       'Every number below is a before/after on the same workload, measured in a real browser on a real GPU — never headless, and quoted for both engines because V8 and SpiderMonkey diverge.',
     items: [
       {
-        value: '117\u2013251\u00d7',
+        // table-virtual @5000, median of 7 (FF n=5 after cadence gate)
+        value: '100\u2013166\u00d7',
         label: 'Table virtualization',
-        detail: '5,000 rows, virtualized vs classic render pass (Chrome 151 / Firefox 153)',
+        detail:
+          '5,000 rows, virtualized vs classic (Chrome ~63\u21920.63 ms/frame, Firefox ~82\u21920.50; N=7, 2026-08-14)',
       },
       {
-        value: '34\u00d7',
+        // content-projection @1600×240 glyphs
+        value: '29\u201332\u00d7',
         label: 'Content-projection gate',
-        detail: '1,600 blocks / 384k glyphs: 23.3ms \u2192 0.69ms per frame (Chrome 151)',
+        detail:
+          '1,600 blocks / 384k glyphs: Chrome 23.3\u21920.73 ms, Firefox 19.3\u21920.65 (median of 7)',
       },
       {
-        value: '306\u2013442\u00d7',
+        // hero-metrics Fenwick vs linear @100k rows, median of 7
+        value: '170\u2013447\u00d7',
         label: 'Virtualized scroll math',
-        detail: 'Fenwick vs linear scan, 100k rows (Chrome 151 / Firefox 153)',
+        detail: 'Fenwick vs linear scan, 100k rows (Chrome / Firefox, median of 7, hero-metrics)',
       },
       {
-        value: '4.8\u20137.9\u00d7',
+        // graph-layout @5000
+        value: '7.6\u20138.0\u00d7',
         label: 'Force-directed layout vs d3',
-        detail: '5,000 nodes: 36.3ms \u2192 4.9ms per tick (Chrome 151 / Firefox 153)',
+        detail:
+          '5,000 nodes: ~38\u21925.1 ms/tick Chrome, ~39\u21924.8 Firefox (VectoForceLayout vs d3-force-3d, N=7)',
       },
       {
-        value: '1.4\u20133.1\u00d7',
-        label: 'WASM transform kernel',
-        detail: '100k entities, world AABB pass (Chrome 151 / Firefox 153); JS stays the fallback',
+        // core-wasm world-AABB @100k flat — FF ~parity on this path
+        value: '1.0\u20132.2\u00d7',
+        label: 'WASM world-AABB kernel',
+        detail:
+          '100k entities flat topology (Chrome 2.2\u00d7, Firefox ~1.0\u00d7); JS remains the fallback (N=7)',
       },
       {
-        value: '14\u201332M',
+        // hero-metrics MSDF layout @5699 chars
+        value: '13\u201324M',
         label: 'MSDF glyphs per second',
-        detail: 'chars/s at 5.7k chars (Chrome 151 / Firefox 153)',
+        detail: 'chars/s at 5.7k chars (Chrome ~24M, Firefox ~13M, median of 7, hero-metrics)',
       },
     ],
     footnote:
-      'Reproduce any of these: the benchmark sources live in <code>benchmarks/</code> and the raw JSON baselines are committed alongside them.',
+      'Median of 7 headed runs per engine on real GPU (Hyprland harness), commit 9db4b6d / core 1.35.3 era. Sources in <code>benchmarks/</code>; write-up in <code>vectojs-docs/forge/baselines/homepage-metrics-2026-08-14.md</code>.',
   },
   usecases: {
     title: 'Built for',
