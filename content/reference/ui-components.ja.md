@@ -7,7 +7,7 @@ weight = 11
 # `@vectojs/ui` — コンポーネントリファレンス
 
 > VectoJS ゼロ DOM Canvas エンジン向けの再利用可能な高レベルコンポーネント。
-> ドキュメントバージョン：**2.15.1**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
+> ドキュメントバージョン：**2.16.6**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
 
 すべてのコンポーネントは、Virtual Math Tree（VMT）のリーフまたはコンテナです。ここにあるものは実際の DOM ではありません — コンポーネントは `IRenderer` を介して Canvas に自身を描画します。アクセシビリティ、エージェント自動化、クローラビリティは、並行する **A11y シャドウ DOM** から提供されます：コンポーネントが `interactive` の場合、`Scene` はコンポーネントのボックスの上に配置された単一の隠れた透明な実際の DOM ノードを投影します。これは `getA11yAttributes()` から構築されます。これが、`page.getByRole('button', { name })` / `fill()` / スクリーンリーダーが純粋な Canvas UI に対して機能する理由です。
 
