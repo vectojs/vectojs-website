@@ -159,5 +159,13 @@ function restartLayout() {
 
 ## Related
 
+For renderer-independent **2D** force layout, incremental topology updates, and
+interleaved XY positions, use
+[`@vectojs/graph-layout`](/reference/graph-layout/). It is a separate package;
+its `ForceLayout2D` and XY buffer do not implement this page's 3D `GraphLayout`
+contract or its XYZ position shape. Both APIs return an active/cooled boolean
+from host-driven `step()`, but their layout types and position buffers are not
+interchangeable.
+
 [`Graph3D` & picking](/reference/graph3d-renderer/) (consumes `positions` directly) ·
 [`@vectojs/graph3d` overview](/reference/graph3d/)

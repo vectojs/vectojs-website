@@ -25,6 +25,7 @@ import {
 import { navigateTo, handleUrlRoute, setPageDataCallback } from './router';
 import { parseLocale, type Locale } from './i18n/config';
 import { useTranslations } from './i18n/ui';
+import { normalizeTranslationTargets } from './i18n/language-target';
 import { getHomeStrings } from './i18n/home';
 
 // withWholeLineProjection MUST be applied to every Text/RichText entity.
@@ -298,7 +299,7 @@ async function renderApp(): Promise<void> {
         path: string;
         date?: string;
       }[];
-      translations?: { title: string; permalink: string }[];
+      translations?: { lang: string; permalink: string }[];
       navigation?: {
         earlier?: { title: string; path: string } | null;
         later?: { title: string; path: string } | null;
@@ -378,6 +379,7 @@ async function renderApp(): Promise<void> {
     active,
     viewportWidth: viewportW,
     isMobile,
+    translationTargets: normalizeTranslationTargets(payload.data?.translations),
     onThemeChange: () => flipTheme(),
     onNavigate: (url: string) => navigateTo(url),
   });
