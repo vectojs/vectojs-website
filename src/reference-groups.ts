@@ -72,6 +72,7 @@ export const REFERENCE_GROUPS: ReadonlyArray<{
     header: 'graph3d',
     pages: ['graph3d-layout', 'graph3d-renderer'],
   },
+  { key: 'graph-layout', header: 'graph-layout', pages: [] },
   { key: 'video-exporter', header: 'video-exporter', pages: [] },
   {
     key: 'devtools',
