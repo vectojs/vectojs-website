@@ -72,6 +72,12 @@
     "lang": "zh-tw"
   },
   {
+    "title": "@vectojs/graph-layout",
+    "href": "/reference/graph-layout/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
     "title": "@vectojs/graph3d",
     "href": "/es/reference/graph3d/",
     "section": "reference",
@@ -112,6 +118,12 @@
     "href": "/zh-tw/reference/graph3d/",
     "section": "reference",
     "lang": "zh-tw"
+  },
+  {
+    "title": "@vectojs/knowledge-graph/model",
+    "href": "/reference/knowledge-graph-model/",
+    "section": "reference",
+    "lang": "en"
   },
   {
     "title": "@vectojs/three",
