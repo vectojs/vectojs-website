@@ -6,7 +6,7 @@ weight = 47
 
 # `@vectojs/graph-layout`
 
-Version documented: **0.1.0**
+Version documented: **0.2.0**
 
 `@vectojs/graph-layout` is a dependency-free 2D force simulation. It owns no
 renderer and no animation timer: the host supplies graph data, calls `step()`,
@@ -14,8 +14,8 @@ and reads interleaved XY coordinates from a `Float32Array`. The same layout can
 drive Canvas 2D, SVG, WebGL, WebGPU, a VectoJS scene, or an off-main-thread
 renderer.
 
-Version 0.1.0 has one implementation, the TypeScript `ForceLayout2D`. There is
-no WASM build, alternate backend, or `backend` option in 0.1.0. WASM remains a
+Version 0.2.0 has one implementation, the TypeScript `ForceLayout2D`. There is
+no WASM build, alternate backend, or `backend` option in 0.2.0. WASM remains a
 measurement-gated future option; the current cross-dimensional browser
 comparisons are not direct evidence that a WASM backend would help.
 
@@ -171,7 +171,7 @@ indices across append-only paging. Removing nodes compacts links, so a later
 append can reuse an index previously assigned to a removed link. Removing nodes
 does not reevaluate accessors for survivors; use a fresh `setGraph()` if values
 must be derived again. All options are constructor-only; there are no live force
-setters in 0.1.0.
+setters in 0.2.0.
 
 ## API
 
@@ -352,7 +352,7 @@ The conceptual mapping is direct but the API is intentionally smaller:
 
 Links use endpoint IDs rather than d3-mutated endpoint objects. Option accessors
 receive the original `GraphNode` or `GraphLink` and an insertion index, then are
-cached. There is no custom-force registry in 0.1.0; if your d3 layout depends on
+cached. There is no custom-force registry in 0.2.0; if your d3 layout depends on
 custom forces or live force setters, keep d3-force or recreate the layout with
 new options.
 
