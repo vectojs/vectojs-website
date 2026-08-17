@@ -2,7 +2,8 @@ import { Entity, type IRenderer, type Scene } from '@vectojs/core';
 import { Input, Text } from '@vectojs/ui';
 import { fillRect } from './entities';
 import { LAYOUT, type ThemeColors } from './theme';
-import { LOCALES, LOCALE_NAMES, localizedPath, parseLocale, type Locale } from './i18n/config';
+import { LOCALES, LOCALE_NAMES, localizedPath, type Locale } from './i18n/config';
+import { languageTarget, type TranslationTargets } from './i18n/language-target';
 import { useTranslations } from './i18n/ui';
 import { makeAllUnselectable } from './text-utils';
 
@@ -98,6 +99,8 @@ export interface NavbarOptions {
   viewportWidth: number;
   /** Mobile breakpoint decision from the caller (single source of truth). */
   isMobile: boolean;
+  /** Normalized, same-site paths for translations Zola says exist. */
+  translationTargets: TranslationTargets;
   /** Flip `data-theme` + localStorage, then rebuild (theme change). */
   onThemeChange: () => void;
   /** Navigate to a fully-qualified site URL (locale-switched). */
@@ -675,10 +678,7 @@ function createLangMenu(opts: NavbarOptions): Entity {
     item.width = panel.width - 24;
     item.height = itemH;
     item.on('click', () => {
-      const { rest } = parseLocale(window.location.pathname);
-      const target = ['learn', 'reference'].includes(rest.split('/')[1] ?? '')
-        ? localizedPath(rest, loc)
-        : localizedPath('/', loc);
+      const target = languageTarget(window.location.pathname, loc, opts.translationTargets);
       if (loc !== opts.lang) opts.onNavigate(target);
     });
     panel.add(item);
@@ -778,10 +778,7 @@ function createDrawer(parent: Scene, opts: NavbarOptions, close: () => void): En
     item.height = 26;
     item.on('click', () => {
       close();
-      const { rest } = parseLocale(window.location.pathname);
-      const target = ['learn', 'reference'].includes(rest.split('/')[1] ?? '')
-        ? localizedPath(rest, loc)
-        : localizedPath('/', loc);
+      const target = languageTarget(window.location.pathname, loc, opts.translationTargets);
       if (loc !== opts.lang) opts.onNavigate(target);
     });
     drawer.add(item);
