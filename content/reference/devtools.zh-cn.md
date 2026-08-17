@@ -6,7 +6,7 @@ weight = 48
 
 # `@vectojs/devtools`
 
-文档版本：**0.11.0**
+文档版本：**0.11.1**
 
 `@vectojs/devtools` 是对"元素面板在哪里？"的回答 — 一个用于 Virtual Math Tree 的页面内检查器，使得调试 VectoJS 场景停留在状态空间而非像素空间。它分为两半：
 

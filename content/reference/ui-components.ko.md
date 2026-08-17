@@ -7,7 +7,7 @@ weight = 11
 # `@vectojs/ui` — 컴포넌트 레퍼런스
 
 > VectoJS zero-DOM Canvas 엔진을 위한 재사용 가능한 고수준 컴포넌트입니다.
-> 문서 버전: **2.16.6**. 진실 공급원: `dist/index.d.ts`(공개 표면) 및 `packages/ui/src/*`(동작).
+> 문서 버전: **2.18.0**. 진실 공급원: `dist/index.d.ts`(공개 표면) 및 `packages/ui/src/*`(동작).
 
 모든 컴포넌트는 Virtual Math Tree(VMT)의 리프 또는 컨테이너입니다. 여기 있는 어떤 것도 실제 DOM이 아닙니다 — 컴포넌트는 `IRenderer`를 통해 Canvas에 자신을 그립니다. 접근성, 에이전트 자동화, 크롤링 가능성은 병렬 **A11y Shadow DOM**에서 제공됩니다: 컴포넌트가 `interactive`하면 `Scene`이 컴포넌트의 박스 위에 위치한 단일 숨겨진 투명한 실제 DOM 노드를 `getA11yAttributes()`에서 빌드하여 프로젝션합니다. 이것이 `page.getByRole('button', { name })` / `fill()` / 스크린 리더가 순수 Canvas UI에서 작동하는 이유입니다.
 
@@ -338,16 +338,33 @@ interface LinkOptions {
 new Image(src: string, opts: ImageOptions)
 
 interface ImageOptions {
-  width: number;          // 필수 (캔버스는 레이아웃/컬링을 위해 알려진 박스 필요)
-  height: number;         // 필수
-  alt?: string;           // 기본값 ''
-  placeholder?: string;   // 로드될 때까지 채움, 기본값 '#1e293b'
-  radius?: number;        // 플레이스홀더 모서리 반경, 기본값 0
-  onLoad?: () => void;    // 비트맵이 로드되면 실행
+  width: number;                // required (canvas needs a known box for layout/culling)
+  height: number;               // required
+  fit?: ImageFit;               // 'fill' | 'cover' | 'contain', default 'fill' (2.18.0+)
+  focalPoint?: ImageFocalPoint; // { x, y } each 0..1; consulted by 'cover', default { x: 0.5, y: 0.5 } (2.18.0+)
+  alt?: string;                 // default ''
+  placeholder?: string;         // fill until load, default '#1e293b'
+  radius?: number;              // corner radius on the placeholder AND loaded bitmap, default 0
+  onLoad?: () => void;          // fired once the bitmap loads
 }
+
+type ImageFit = 'fill' | 'cover' | 'contain';
+interface ImageFocalPoint { x: number; y: number; }
 ```
 
 `drawImage`를 통해 그립니다; `{ tag: 'img', src, alt, label: alt }`를 프로젝션합니다. 로딩은 비동기식입니다 — 준비될 때까지 플레이스홀더 박스가 그려집니다. `onDemand` 씬에서는 `onLoad: () => scene.markDirty()`를 전달하여 로드 시 다시 그리세요. (`globalThis.Image`를 그림자 처리함; 클래스를 `import { Image } from '@vectojs/ui'`로 참조하세요.)
+
+`fit`(2.18.0+)은 로드된 비트맵을 박스에 매핑합니다: `'fill'`(기본값)은 박스에 맞게 늘리고, `'cover'`는 종횡비를 유지하며 박스를 채우면서 넘치는 부분을 `focalPoint` 기준으로 크롭하고, `'contain'`은 종횡비를 유지한 채 전체 비트맵을 박스 안에 맞춥니다. `focalPoint`는 정규화된 `{ x, y }` 지점(`0` = 위/왼쪽, `1` = 아래/오른쪽, `[0, 1]`로 클램프됨)이며 `'cover'`만 읽습니다. `radius`는 이제 플레이스홀더뿐 아니라 로드된 비트맵의 둥근 모서리도 잘라냅니다.
+
+```ts
+const avatar = new Image('/avatar.jpg', {
+  width: 96,
+  height: 96,
+  fit: 'cover',
+  focalPoint: { x: 0.5, y: 0.25 }, // keep the subject's face, near the top
+  radius: 48, // circle-crop the loaded bitmap
+});
+```
 
 ### `Input`
 

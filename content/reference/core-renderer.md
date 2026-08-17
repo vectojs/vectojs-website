@@ -68,6 +68,23 @@ deliberately no `globalAlpha`, `strokeStyle`, `lineWidth`, `fillStyle`, or
 > with the same `Scene.devMode` / `globalThis.__DEV__` /
 > `NODE_ENV=development` detection used for the `SceneOptions` warning above;
 > production pays nothing.
+>
+> [!IMPORTANT]
+> There is **no `fillRect` / `rect` method** — a filled rectangle is three
+> calls: `beginPath()` → `roundRect(x, y, w, h, 0)` → `fill(color)`. There is
+> also **no radial gradient**: `createLinearGradient` is the only gradient
+> factory, so a radial glow must be approximated (e.g. concentric circles with
+> decreasing alpha). Both gaps are deliberate (the surface is backend-agnostic,
+> and a rect is a degenerate rounded rect), but code ported from Canvas2D
+> habits reaches for `fillRect` first and fails with `TypeError: r.fillRect is
+not a function`, which aborts the whole render pass mid-tree.
+>
+> [!NOTE]
+> `drawImage` with a **cross-origin SVG without CORS headers taints the
+> canvas**: every later `getImageData` / `toDataURL` throws a
+> `SecurityError`. Inline the SVG as a `data:image/svg+xml;charset=utf-8,`
+> URL (a same-origin document is never tainted) or host it with
+> `Access-Control-Allow-Origin: *` (e.g. the `cdn.vectojs.org` bucket).
 
 ### `pixelRatio` — rasterizing pixels that get blitted
 

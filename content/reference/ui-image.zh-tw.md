@@ -29,6 +29,31 @@ const logo = new Image('/logo.svg', {
 });
 ```
 
+## 縮放、焦點裁切與圓角
+
+`fit` 控制已載入點陣圖對應到 `width` × `height` 方塊的方式，而 `focalPoint` 進一步細化 `'cover'` 裁切 — 兩者皆為 2.18.0+。
+
+| `fit`       | 行為                                                   |
+| ----------- | ------------------------------------------------------ |
+| `'fill'`    | 拉伸填滿方塊（預設，舊有行為）。                       |
+| `'cover'`   | 保留長寬比、填滿方塊，並裁切 `focalPoint` 周圍的溢出。 |
+| `'contain'` | 保留長寬比，將整個點陣圖放入方塊內（置中）。           |
+
+`focalPoint` 是 `{ x, y }`，每個軸在 `0..1` 之間 — `0` 是上/左，`1` 是下/右，預設 `{ x: 0.5, y: 0.5 }`；只有 `'cover'` 會讀取它，且超出 `[0, 1]` 的值會被限制。`radius` 現在會對已載入點陣圖的邊角進行圓角處理，而不只是佔位符，因此搭配 `fit: 'cover'` 的圓形頭像會將裁切的溢出部分剪裁為相同的輪廓。
+
+```ts
+import { Image, type ImageFit, type ImageFocalPoint } from '@vectojs/ui';
+
+const avatar = new Image('/avatar.jpg', {
+  width: 96,
+  height: 96,
+  fit: 'cover',
+  focalPoint: { x: 0.5, y: 0.25 }, // bias toward the top of the frame
+  radius: 48, // circle-crop the loaded bitmap
+  alt: 'Profile photo',
+});
+```
+
 ## 維護者檢查清單
 
 - 一律提供 `width` 和 `height`。

@@ -7,7 +7,7 @@ weight = 11
 # `@vectojs/ui` — Component Reference
 
 > Reusable high-level components for the VectoJS zero-DOM Canvas engine.
-> Version documented: **2.16.6**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
+> Version documented: **2.18.0**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
 
 Every component is a leaf or container in the Virtual Math Tree (VMT). Nothing here is real DOM — components draw themselves to a Canvas via an `IRenderer`. Accessibility, agent automation, and crawlability come from a parallel **A11y Shadow DOM**: when a component is `interactive`, the `Scene` projects a single hidden, transparent real DOM node positioned over the component's box, built from `getA11yAttributes()`. That is why `page.getByRole('button', { name })` / `fill()` / screen readers work against a pure-Canvas UI.
 
@@ -349,16 +349,33 @@ Colored (optionally underlined) text. Auto-sizes to the label. Projects a real `
 new Image(src: string, opts: ImageOptions)
 
 interface ImageOptions {
-  width: number;          // required (canvas needs a known box for layout/culling)
-  height: number;         // required
-  alt?: string;           // default ''
-  placeholder?: string;   // fill until load, default '#1e293b'
-  radius?: number;        // placeholder corner radius, default 0
-  onLoad?: () => void;    // fired once the bitmap loads
+  width: number;                // required (canvas needs a known box for layout/culling)
+  height: number;               // required
+  fit?: ImageFit;               // 'fill' | 'cover' | 'contain', default 'fill' (2.18.0+)
+  focalPoint?: ImageFocalPoint; // { x, y } each 0..1; consulted by 'cover', default { x: 0.5, y: 0.5 } (2.18.0+)
+  alt?: string;                 // default ''
+  placeholder?: string;         // fill until load, default '#1e293b'
+  radius?: number;              // corner radius on the placeholder AND loaded bitmap, default 0
+  onLoad?: () => void;          // fired once the bitmap loads
 }
+
+type ImageFit = 'fill' | 'cover' | 'contain';
+interface ImageFocalPoint { x: number; y: number; }
 ```
 
 Draws via `drawImage`; projects `{ tag: 'img', src, alt, label: alt }`. Loading is async — a placeholder box is drawn until ready. In `onDemand` scenes pass `onLoad: () => scene.markDirty()` to repaint on load. (Shadows `globalThis.Image`; reference the class as `import { Image } from '@vectojs/ui'`.)
+
+`fit` (2.18.0+) maps the loaded bitmap into the box: `'fill'` (default) stretches to the box, `'cover'` preserves aspect ratio and fills the box while cropping the overflow around `focalPoint`, and `'contain'` fits the whole bitmap inside the box with the aspect ratio preserved. `focalPoint` is a normalized `{ x, y }` point (`0` = top/left, `1` = bottom/right, clamped to `[0, 1]`), read only by `'cover'`. `radius` now clips the rounded corners on the loaded bitmap, not just the placeholder.
+
+```ts
+const avatar = new Image('/avatar.jpg', {
+  width: 96,
+  height: 96,
+  fit: 'cover',
+  focalPoint: { x: 0.5, y: 0.25 }, // keep the subject's face, near the top
+  radius: 48, // circle-crop the loaded bitmap
+});
+```
 
 ### `Input`
 

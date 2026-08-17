@@ -6,7 +6,7 @@ weight = 48
 
 # `@vectojs/devtools`
 
-Version documentée : **0.11.0**
+Version documentée : **0.11.1**
 
 `@vectojs/devtools` est la réponse à « où est le panneau Éléments ? » — un inspecteur
 dans la page pour le Virtual Math Tree, afin que le débogage d'une scène VectoJS reste
@@ -67,7 +67,7 @@ L'en-tête comporte trois boutons icônes fantômes — **⌖** (sélection), **
 - **Relevé d'état + édition en ligne** (`Info`) : géométrie, échelle/rotation/opacité, la matrice de transformation monde complète, l'état d'animation, et toute sortie `getDevtoolsDescriptor()` que l'entité publie. Ajoute des éditeurs en ligne `x`/`y`/`opacity` et les boutons **Copy path** / **Copy JSON**.
 - **Onglet A11y** : le rôle projeté de l'entité sélectionnée, son nom accessible et sa source, l'index de tabulation, la position dans l'ordre de lecture, la boîte canvas-vs-DOM — plus les découvertes de l'[audit a11y](/reference/devtools-audit/#audit-a11y) à l'échelle de la scène.
 - **Édition par touches de déplacement** : avec une entité sélectionnée, les touches fléchées la déplacent de 1px (Maj : 10px) ; `+`/`-` modifient l'opacité par pas de 0.1. Utile pour confirmer _quelle_ entité possède un bug de mise en page avant de toucher au code.
-- **HUD de performance** : une bande en bas lit [`Scene.frameStats`](/reference/core-scene) — fps, ms/image, nombre d'entités, mode de rendu, et nombre d'images rendues/ignorées. Les fps sont la vraie cadence des _images rendues_, donc une scène `onDemand` inactive ou auto-bridée lit honnêtement ~2fps plutôt qu'un faux 60. Désactivez avec `showPerf: false`.
+- **HUD de performance** : une bande en bas lit [`Scene.frameStats`](/reference/core-scene) — fps, ms/image, nombre d'entités, mode de rendu, et nombre d'images rendues/ignorées. Les fps sont la vraie cadence des _images rendues_, donc une scène `onDemand` inactive lit honnêtement 0 fps — et une scène `'always'` auto-bridée lit son plancher d'inactivité (60 fps par défaut) — plutôt qu'un faux 60. Désactivez avec `showPerf: false`.
 - **Réglages** (`⚙`) : basculer la surbrillance de sélection, et changer l'intervalle de rafraîchissement et le côté d'ancrage (gauche/droite) en direct.
 
 Le panneau se reformate au redimensionnement de la fenêtre, donc la bande de performance du bas reste à l'écran à toute hauteur de viewport ou niveau de zoom. Le dock et son canvas utilisent `pointer-events: none` ; seuls leurs contrôles interactifs projetés réactivent l'opt-in — donc l'inspecteur ne vole jamais l'entrée des contrôles hôtes sous les pixels vides du dock, tandis que ses propres lignes, onglets, entrées et boutons restent cliquables.

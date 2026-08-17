@@ -6,7 +6,7 @@ weight = 48
 
 # `@vectojs/devtools`
 
-文件版本：**0.11.0**
+文件版本：**0.11.1**
 
 `@vectojs/devtools` 回答了「Elements 面板在哪裡？」的問題 — 一個用於 Virtual Math Tree 的頁內檢查器，讓 VectoJS 場景的除錯保持在狀態空間而非像素空間。它分為兩半：
 

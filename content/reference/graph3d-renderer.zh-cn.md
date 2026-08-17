@@ -8,6 +8,8 @@ weight = 46
 
 属于 [`@vectojs/graph3d`](/reference/graph3d/)。消费一个 [`GraphLayout`](/reference/graph3d-layout/) 的 `positions` 缓冲区。
 
+记录的版本：**0.6.0**
+
 ## `Graph3D` —— 渲染器
 
 ```ts
@@ -44,6 +46,9 @@ applyPositions(positions: Float32Array): void
 // Writes xyz triplets (e.g. a GraphLayout's `.positions`) into the instanced
 // node matrices and link endpoints. Call after every layout step that moved
 // something; cheap enough to call every frame while a simulation is running.
+// If `positions.length < nodeCount * 3`, it returns without writing anything
+// and warns once (latched per `setGraphData`), so a too-short buffer can never
+// write NaN transforms and blank the whole mesh.
 
 pickNode(raycaster: THREE.Raycaster): number | null   // since 0.2.0
 // Hit-test only the node cloud with a caller-configured raycaster (set from
@@ -107,9 +112,10 @@ const interaction = new GraphInteraction({
 interaction.dispose(); // removes the pointer listeners
 ```
 
-拖拽是**特性检测的**：没有一个具备固定能力的布局（一个 `pinNode` 实现，如 [`D3ForceLayout`](/reference/graph3d-layout/) 所提供），按压会回退到选择。`onDragStart`/`onDrag`/`onDragEnd`、`pinOnDrag`（默认 `true`）、`dragReheat`（默认 `0.3`）和 `dragThreshold`（默认 `4` px）补全了选项。
+拖拽是**特性检测的**：没有一个具备固定能力的布局（一个 `pinNode` 实现，如 [`VectoForceLayout` 和 `D3ForceLayout`](/reference/graph3d-layout/) 所提供），按压会回退到选择。`onDragStart`/`onDrag`/`onDragEnd`、`pinOnDrag`（默认 `true`）、`dragReheat`（默认 `0.3`）和 `dragThreshold`（默认 `4` px）补全了选项。
 
 ## 相关
 
 [`GraphLayout` & `D3ForceLayout`](/reference/graph3d-layout/)（产生此项消费的 `positions` 缓冲区，以及 `pinNode` 拖拽固定所依赖的）·
+[`GraphCamera`](/reference/graph3d/#graphcamera)（一站式的 2D/3D 相机控件）·
 [`@vectojs/graph3d` 概述](/reference/graph3d/)

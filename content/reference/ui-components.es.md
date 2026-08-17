@@ -7,7 +7,7 @@ weight = 11
 # `@vectojs/ui` — Referencia de Componentes
 
 > Componentes reutilizables de alto nivel para el motor Canvas zero-DOM de VectoJS.
-> Versión documentada: **2.16.6**. Fuente de verdad: `dist/index.d.ts` (superficie pública) y `packages/ui/src/*` (comportamiento).
+> Versión documentada: **2.18.0**. Fuente de verdad: `dist/index.d.ts` (superficie pública) y `packages/ui/src/*` (comportamiento).
 
 Cada componente es una hoja o contenedor en el Virtual Math Tree (VMT). Nada aquí es DOM real — los componentes se dibujan a sí mismos en un Canvas mediante un `IRenderer`. La accesibilidad, la automatización de agentes y la capacidad de rastreo provienen de un **A11y Shadow DOM** paralelo: cuando un componente es `interactive`, la `Scene` proyecta un único nodo DOM real oculto y transparente posicionado sobre la caja del componente, construido a partir de `getA11yAttributes()`. Es por eso que `page.getByRole('button', { name })` / `fill()` / los lectores de pantalla funcionan contra una UI de Canvas puro.
 
@@ -336,16 +336,33 @@ Texto coloreado (opcionalmente subrayado). Se auto-dimensiona a la etiqueta. Pro
 new Image(src: string, opts: ImageOptions)
 
 interface ImageOptions {
-  width: number;          // requerido (el canvas necesita una caja conocida para layout/culling)
-  height: number;         // requerido
-  alt?: string;           // por defecto ''
-  placeholder?: string;   // relleno hasta que cargue, por defecto '#1e293b'
-  radius?: number;        // radio de esquina del placeholder, por defecto 0
-  onLoad?: () => void;    // se dispara una vez que el bitmap carga
+  width: number;                // requerido (el canvas necesita una caja conocida para layout/culling)
+  height: number;               // requerido
+  fit?: ImageFit;               // 'fill' | 'cover' | 'contain', por defecto 'fill' (2.18.0+)
+  focalPoint?: ImageFocalPoint; // { x, y } cada uno 0..1; consultado por 'cover', por defecto { x: 0.5, y: 0.5 } (2.18.0+)
+  alt?: string;                 // por defecto ''
+  placeholder?: string;         // relleno hasta que cargue, por defecto '#1e293b'
+  radius?: number;              // radio de esquina en el placeholder Y en el bitmap cargado, por defecto 0
+  onLoad?: () => void;          // se dispara una vez que el bitmap carga
 }
+
+type ImageFit = 'fill' | 'cover' | 'contain';
+interface ImageFocalPoint { x: number; y: number; }
 ```
 
 Dibuja mediante `drawImage`; proyecta `{ tag: 'img', src, alt, label: alt }`. La carga es asíncrona — se dibuja una caja de placeholder hasta que esté lista. En escenas `onDemand` pasa `onLoad: () => scene.markDirty()` para repintar al cargar. (Sombrea `globalThis.Image`; referencia la clase como `import { Image } from '@vectojs/ui'`.)
+
+`fit` (2.18.0+) asigna el bitmap cargado a la caja: `'fill'` (predeterminado) lo estira a la caja, `'cover'` conserva la relación de aspecto y llena la caja mientras recorta el desbordamiento alrededor de `focalPoint`, y `'contain'` ajusta todo el bitmap dentro de la caja conservando la relación de aspecto. `focalPoint` es un punto normalizado `{ x, y }` (`0` = arriba/izquierda, `1` = abajo/derecha, limitado a `[0, 1]`), leído solo por `'cover'`. `radius` ahora recorta las esquinas redondeadas en el bitmap cargado, no solo en el placeholder.
+
+```ts
+const avatar = new Image('/avatar.jpg', {
+  width: 96,
+  height: 96,
+  fit: 'cover',
+  focalPoint: { x: 0.5, y: 0.25 }, // keep the subject's face, near the top
+  radius: 48, // circle-crop the loaded bitmap
+});
+```
 
 ### `Input`
 

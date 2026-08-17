@@ -352,16 +352,17 @@ fallback engages. Debug order: check the browser console for `worker-src` /
 actually runs `pointBackend: 'webgl'` — the Canvas2D fallback path needs
 `fallbackFont` set or there is nothing to draw.
 
-### The scene is stuck at ~2 fps
+### The scene renders at the idle floor while it should be animating
 
 That is the idle auto-throttle working as designed: a static scene (not dirty,
-no pending transitions) renders at ~2 fps to save power. If your content
-should be animating, either drive it through `entity.animate()` /
-`setTransition` (which keep the scene non-static), or call `scene.markDirty()`
-**between** frames — from an event handler, a separate `rAF`, or a timer —
-never from inside `update()`, where the post-render dirty reset wipes it. The
-nuclear option is `scene.autoThrottle = false` (or the `autoThrottle: false`
-option), which renders every frame regardless.
+no pending transitions) throttles to its idle floor — **60 fps since core
+1.36.0** (`idleFPS`; `2` restores the legacy hard sleep), a hard 2 fps before
+that. If your content should be animating, either drive it through
+`entity.animate()` / `setTransition` (which keep the scene non-static),
+override `hasPendingAnimations()` for hand-integrated motion in `update()`, or
+call `scene.markDirty()` when your own state changes. The nuclear option is
+`scene.autoThrottle = false` (or the `autoThrottle: false` option), which
+renders every frame regardless.
 
 ### An `onDemand` scene never repaints
 

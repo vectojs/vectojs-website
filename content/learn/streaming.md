@@ -126,8 +126,8 @@ const scene = new Scene(canvas, { renderMode: 'onDemand' });
 ```
 
 Every append marks the scene dirty, so frames render exactly while content
-flows and stop the moment the stream idles — no 2 fps auto-throttle surprises
-and no idle battery burn between responses. The append APIs and the built-in
+flows and stop the moment the stream idles — no idle-floor auto-throttle
+surprises and no idle battery burn between responses. The append APIs and the built-in
 scroll containers all report their in-flight motion (`hasPendingAnimations()`),
 so smooth-scrolling to the bottom keeps animating after the last token lands.
 

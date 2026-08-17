@@ -29,6 +29,31 @@ const logo = new Image('/logo.svg', {
 });
 ```
 
+## フィッティング、焦点クロッピング、角丸
+
+`fit` は、読み込まれたビットマップを `width` × `height` のボックスにどのようにマッピングするかを制御し、`focalPoint` は `'cover'` のクロッピングを調整します — いずれも2.18.0以降です。
+
+| `fit`       | 動作                                                                                |
+| ----------- | ----------------------------------------------------------------------------------- |
+| `'fill'`    | ボックスに引き伸ばします（デフォルト、従来の動作）。                                |
+| `'cover'`   | アスペクト比を保ち、ボックスを満たし、`focalPoint` の周囲で余剰分をクロップします。 |
+| `'contain'` | アスペクト比を保ち、ビットマップ全体をボックス内に収めます（中央揃え）。            |
+
+`focalPoint` は `{ x, y }` で、各軸は `0..1` — `0` が上/左、`1` が下/右、デフォルトは `{ x: 0.5, y: 0.5 }` です。これを読むのは `'cover'` のみで、`[0, 1]` の範囲外の値はクランプされます。`radius` はプレースホルダーだけでなく、読み込まれたビットマップの角も丸めるようになりました。そのため、`fit: 'cover'` の丸いアバターは、クロップされた余剰分を同じシルエットにクリップします。
+
+```ts
+import { Image, type ImageFit, type ImageFocalPoint } from '@vectojs/ui';
+
+const avatar = new Image('/avatar.jpg', {
+  width: 96,
+  height: 96,
+  fit: 'cover',
+  focalPoint: { x: 0.5, y: 0.25 }, // bias toward the top of the frame
+  radius: 48, // circle-crop the loaded bitmap
+  alt: 'Profile photo',
+});
+```
+
 ## メンテナー向けチェックリスト
 
 - 常に `width` と `height` を指定します。

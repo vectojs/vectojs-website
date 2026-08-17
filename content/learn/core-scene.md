@@ -48,7 +48,7 @@ scene.renderMode = 'onDemand';
 // Then call scene.markDirty() from event handlers to request a repaint.
 ```
 
-**The idle auto-throttle gotcha.** In `'always'` mode, a scene with no pending tweens and no dirty flag is throttled to ~2 fps to save battery. If you hand-animate by mutating `entity.x` in a custom `update()`, call `scene.markDirty()` **between frames** (from an event handler or separate `rAF`) — not inside `update()` itself, because the post-render reset wipes the flag before the next check.
+**The idle auto-throttle gotcha.** In `'always'` mode, a scene with no pending tweens and no dirty flag is throttled to its idle floor — 60 fps since core 1.36.0 (`idleFPS`; `2` restores the legacy hard sleep), ~2 fps on older cores — to save battery. If you hand-animate by mutating `entity.x` in a custom `update()`, either call `scene.markDirty()` each frame from `update()` (the flag is consumed before the update pass, so it survives into the next frame), or override `hasPendingAnimations()` to report the motion.
 
 ## The Entity System
 

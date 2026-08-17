@@ -8,6 +8,8 @@ weight = 46
 
 [`@vectojs/graph3d`](/reference/graph3d/) の一部です。[`GraphLayout`](/reference/graph3d-layout/) の `positions` バッファを消費します。
 
+文書化バージョン: **0.6.0**
+
 ## `Graph3D` — レンダラー
 
 ```ts
@@ -44,6 +46,9 @@ applyPositions(positions: Float32Array): void
 // xyzトリプレット（例：GraphLayoutの`.positions`）をインスタンス化された
 // ノード行列とリンクエンドポイントに書き込みます。何かを動かしたレイアウトステップの
 // 後に呼び出します。シミュレーション実行中は毎フレーム呼び出しても十分に安価です。
+// If `positions.length < nodeCount * 3`, it returns without writing anything
+// and warns once (latched per `setGraphData`), so a too-short buffer can never
+// write NaN transforms and blank the whole mesh.
 
 pickNode(raycaster: THREE.Raycaster): number | null   // 0.2.0以降
 // 呼び出し側が設定したレイキャスター（カメラ＋ポインターNDCから設定）で
@@ -107,9 +112,10 @@ const interaction = new GraphInteraction({
 interaction.dispose(); // ポインターリスナーを削除
 ```
 
-ドラッグは**機能検出されます**：ピン対応レイアウト（[`D3ForceLayout`](/reference/graph3d-layout/)が提供するような`pinNode`実装）がない場合、プレスは選択にフォールバックします。`onDragStart`/`onDrag`/`onDragEnd`、`pinOnDrag`（デフォルト`true`）、`dragReheat`（デフォルト`0.3`）、`dragThreshold`（デフォルト`4`px）でオプションを補完します。
+ドラッグは**機能検出されます**：ピン対応レイアウト（[`VectoForceLayout` と `D3ForceLayout`](/reference/graph3d-layout/)の両方が提供するような`pinNode`実装）がない場合、プレスは選択にフォールバックします。`onDragStart`/`onDrag`/`onDragEnd`、`pinOnDrag`（デフォルト`true`）、`dragReheat`（デフォルト`0.3`）、`dragThreshold`（デフォルト`4`px）でオプションを補完します。
 
 ## 関連
 
 [`GraphLayout` & `D3ForceLayout`](/reference/graph3d-layout/)（これが消費する`positions`バッファと、ドラッグ＆ピンが依存する`pinNode`を生成） ·
+[`GraphCamera`](/reference/graph3d/#graphcamera)（バッテリー同梱の2D/3Dカメラコントロール） ·
 [`@vectojs/graph3d` 概要](/reference/graph3d/)

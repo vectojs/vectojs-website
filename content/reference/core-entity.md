@@ -18,6 +18,16 @@ abstract class Entity {
 }
 ```
 
+> [!IMPORTANT]
+> Both methods are **abstract, not optional**. TypeScript's `abstract` methods
+> are dropped entirely at compile time, so a bare `new Entity()` has
+> `render === undefined` and **aborts the render pass mid-tree** the first time
+> the scene draws it — `node.render is not a function` — leaving everything
+> added after it unpainted with no visible error. A bare container therefore
+> needs `entity.render = () => {}`. The same applies to `isPointInside` for
+> any entity that must never capture pointer input:
+> assign `entity.isPointInside = () => false`.
+
 ## Public properties
 
 | Property                     | Type             | Default         | Notes                                                                                                                                                                                 |
@@ -96,9 +106,11 @@ and freezes a11y sync until it settles.
 `hasPendingAnimations()` is **overridable** and is the Scene's only window into
 custom motion: if a subclass integrates its own movement inside `update()` (a
 hand-rolled spring or velocity), override it to return `true` while that motion
-is in flight — `markDirty()` from inside `update()` is cleared again at the end
-of the same tick, so without the override the idle throttle drops the animation
-to 2 fps and `onDemand` mode freezes it.
+is in flight — without the override the idle throttle slows the animation to
+the idle floor (60 fps by default since 1.36.0, 2 fps on older cores) and
+`onDemand` mode freezes it. `markDirty()` from inside `update()` also works
+(the flag is consumed before the update pass), but the override states intent
+without a per-frame flag write.
 
 **0.2.0 animation system** — spring-first, unifying tweens and springs:
 

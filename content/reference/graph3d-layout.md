@@ -8,6 +8,8 @@ weight = 45
 
 Part of [`@vectojs/graph3d`](/reference/graph3d/).
 
+Version documented: **0.6.0**
+
 ## Data model — `GraphData`
 
 ```ts
@@ -65,13 +67,19 @@ that exact same buffer shape directly. `positions` is the **same array
 instance** reused across steps — copy it (`layout.positions.slice()`) if you
 need a stable snapshot instead of a live view.
 
-`@vectojs/graph3d` ships two implementations behind this contract today —
-[`D3ForceLayout`](#d3forcelayout) below and the in-house [`VectoForceLayout`](#vectoforcelayout)
-(Barnes–Hut, no d3 dependency) — plus DAG layout modes on the package roadmap,
-all behind this same interface so a renderer or worker host never needs to know
-which one is running.
+`@vectojs/graph3d` ships two implementations behind this contract today — the
+in-house [`VectoForceLayout`](#vectoforcelayout) (Barnes–Hut octree, no runtime
+dependency; the default) and [`D3ForceLayout`](#d3forcelayout) (a
+`d3-force-3d` adapter, kept for parity with an existing d3 tuning) — plus DAG
+layout modes on the package roadmap, all behind this same interface so a
+renderer or worker host never needs to know which one is running.
 
 ## `D3ForceLayout`
+
+The d3-force-3d-backed alternative to the default
+[`VectoForceLayout`](#vectoforcelayout). It requires `d3-force-3d`; prefer
+`VectoForceLayout` unless you are migrating a graph with tuned d3 forces and
+want the feel intact.
 
 ```ts
 new D3ForceLayout(options?: D3ForceLayoutOptions)
@@ -111,16 +119,20 @@ interface VectoForceLayoutOptions {
   alphaDecay?: number;     // cooling rate. Default 0.0228; 0 disables cooling.
   alphaMin?: number;       // alpha below which step() reports cooled. Default 0.001.
   seed?: number;           // RNG seed for deterministic placement. Default 1.
+  measurePhases?: boolean; // opt-in per-tick phase profiling. Default false.
 }
 ```
 
-The in-house layout (added 0.3.0): a force-directed simulation with a
-Barnes–Hut octree for the many-body term — no d3 dependency, deterministic
-under a `seed`, and safe inside a Web Worker (same `step(iterations)` contract
-as `D3ForceLayout`). Choose it when you want identical results across runs;
-tune with `repulsion`/`linkStrength`, and raise `alphaDecay` above zero
-carefully — it is already near the cooling edge, so a higher value freezes the
-graph earlier rather than later.
+The in-house layout (added 0.3.0, and the default): a force-directed simulation
+with a Barnes–Hut octree for the many-body term — no runtime dependency,
+deterministic under a `seed`, and safe inside a Web Worker (same
+`step(iterations)` contract as `D3ForceLayout`). Positions and velocities are
+kept in **f32** (matching the exposed `Float32Array`), while the octree
+accumulates centers of mass and the repulsion integral in **f64**. Choose it
+when you want identical results across runs; tune with
+`repulsion`/`linkStrength`, and raise `alphaDecay` above zero carefully — it is
+already near the cooling edge, so a higher value freezes the graph earlier
+rather than later.
 
 ```ts
 layout.step(); // one tick
@@ -129,8 +141,31 @@ layout.step(5); // 5 ticks in one call — cheaper per-frame amortization
 // than per-tick smoothness
 ```
 
-**Pinning (since 0.2.0).** `D3ForceLayout` implements the optional pin controls
-over d3-force's `fx`/`fy`/`fz`, which is what powers
+**Phase profiling (since 0.5.0).** Set `measurePhases: true` to make each tick
+record its wall-clock time split across `[octree build, force accumulate, link
+springs, integrate]` in `layout.tickPhases` (a `readonly` 4-tuple of
+milliseconds; `null` when profiling is off). The timing calls are elided
+otherwise, so the hot path pays nothing.
+
+**WASM force kernel (since 0.5.0).** An opt-in Rust/WASM kernel
+(`crates/vectojs-force-rs`) accelerates the octree build + repulsion
+accumulation — the dominant phase of a tick — while link springs, centering,
+integration, and pins stay in JS:
+
+```ts
+import { forceWasmUrl } from '@vectojs/graph3d/wasm';
+
+await layout.enableWasmForce(forceWasmUrl); // async; string | URL | Response
+layout.enableWasmForceSync(bytes); // sync; BufferSource, never fetches
+```
+
+Both return `false` on any failure (CSP, 404, corrupt module) and silently keep
+the bit-for-bit identical JS Barnes-Hut, which is the permanent fallback and the
+differential oracle. The kernel has no `@vectojs/core` dependency.
+
+**Pinning (since 0.2.0).** Both `D3ForceLayout` and `VectoForceLayout` implement
+the optional pin controls (d3 over `fx`/`fy`/`fz`, VectoForceLayout over its own
+pin arrays), which is what powers
 [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--hover--select--drag-to-pin)'s
 drag-to-pin:
 
@@ -141,7 +176,7 @@ layout.unpinNode(i); // clear fx/fy/fz — node i is free again
 ```
 
 Out-of-range indices are ignored (a stale pointer interaction can't crash the
-layout), and `reheat`'s alpha is clamped to d3's usual `[alphaMin, 1]` range.
+layout), and `reheat`'s alpha is clamped to `[alphaMin, 1]`.
 
 **Changing forces live.** `D3ForceLayoutOptions` are constructor-only; there is
 no live setter. To apply a new `chargeStrength`/`linkDistance` (for example
@@ -156,6 +191,9 @@ function restartLayout() {
   layout.setGraph(data);
 }
 ```
+
+`VectoForceLayoutOptions` are likewise constructor-only, so the same restart
+pattern applies when you change its forces.
 
 ## Related
 

@@ -8,6 +8,8 @@ weight = 46
 
 屬於 [`@vectojs/graph3d`](/reference/graph3d/)。使用 [`GraphLayout`](/reference/graph3d-layout/) 的 `positions` 緩衝區。
 
+文件版本：**0.6.0**
+
 ## `Graph3D` — 渲染器
 
 ```ts
@@ -44,6 +46,9 @@ applyPositions(positions: Float32Array): void
 // 將 xyz 三元組（例如 GraphLayout 的 `.positions`）寫入實例化的
 // 節點矩陣和連結端點。在每個移動了內容的佈局步驟後呼叫；
 // 成本足夠低，可在模擬執行時每影格呼叫。
+// 如果 `positions.length < nodeCount * 3`，它會直接返回而不寫入任何內容，
+// 並警告一次（每個 `setGraphData` 鎖存一次），因此過短的緩衝區永遠不會
+// 寫入 NaN 變換並讓整個網格變空白。
 
 pickNode(raycaster: THREE.Raycaster): number | null   // 自 0.2.0
 // 僅針對節點雲進行點擊測試，使用呼叫者設定的 raycaster（從
@@ -105,9 +110,10 @@ const interaction = new GraphInteraction({
 interaction.dispose(); // 移除指標監聽器
 ```
 
-拖曳是**功能檢測**的：沒有支援固定功能的佈局（實作 `pinNode`，如 [`D3ForceLayout`](/reference/graph3d-layout/) 所提供的），按下就會回退為選取。`onDragStart`/`onDrag`/`onDragEnd`、`pinOnDrag`（預設 `true`）、`dragReheat`（預設 `0.3`）和 `dragThreshold`（預設 4 px）完善了選項。
+拖曳是**功能檢測**的：沒有支援固定功能的佈局（實作 `pinNode`，如 [`VectoForceLayout` 和 `D3ForceLayout`](/reference/graph3d-layout/) 所提供的），按下就會回退為選取。`onDragStart`/`onDrag`/`onDragEnd`、`pinOnDrag`（預設 `true`）、`dragReheat`（預設 `0.3`）和 `dragThreshold`（預設 4 px）完善了選項。
 
 ## 相關
 
 [`GraphLayout` & `D3ForceLayout`](/reference/graph3d-layout/)（產生此處使用的 `positions` 緩衝區，以及 `pinNode` 拖曳固定所依賴的）·
+[`GraphCamera`](/reference/graph3d/#graphcamera)（內建的 2D/3D 攝影機控制項）·
 [`@vectojs/graph3d` 概覽](/reference/graph3d/)

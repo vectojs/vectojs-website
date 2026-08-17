@@ -88,6 +88,20 @@ const save = new Button('Save', { onClick: submit });
 save.disabled = true; // muted fill, projects `disabled`, drops hover/focus state
 ```
 
+### Mutable style fields
+
+`bg`, `hoverBg`, `color` and `font` are public mutable fields, so a theme
+swap repaints an existing button in place:
+
+```ts
+button.bg = palette.accent;
+button.hoverBg = palette.accentStrong;
+button.color = palette.onAccent;
+```
+
+This is how a theme-switching app avoids rebuilding its whole control tree on
+every toggle (the old-site hero re-skins its CTA buttons this way).
+
 It also blocks `onClick` from **both** input paths. The browser suppresses a DOM
 click on a disabled `<button>`, but the canvas hit-test dispatches independently
 — so the native attribute alone would not be enough.

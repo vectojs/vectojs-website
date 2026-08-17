@@ -8,6 +8,8 @@ weight = 45
 
 屬於 [`@vectojs/graph3d`](/reference/graph3d/)。
 
+文件版本：**0.6.0**
+
 ## 資料模型 — `GraphData`
 
 ```ts
@@ -55,9 +57,11 @@ interface GraphLayout {
 
 該合約刻意保持精簡且適合 Worker 使用：位置是一個平面 `Float32Array`，包含按 `GraphData.nodes` 順序排列的 xyz 三元組，因此實作可以完全存在於 Web Worker 內部，並將其緩衝區作為可轉移物件跨越執行緒邊界串流傳輸，無需每個節點的物件流量。[`Graph3D.applyPositions()`](/reference/graph3d-renderer/#方法) 直接使用完全相同的緩衝區形狀。`positions` 是跨步驟重複使用的**同一個陣列實例** — 如果您需要穩定的快照而非即時檢視，請複製它（`layout.positions.slice()`）。
 
-`@vectojs/graph3d` 今天提供兩個實作：下方的 [`D3ForceLayout`](#d3forcelayout) 和自有的 [`VectoForceLayout`](#vectoforcelayout)（Barnes–Hut，無 d3 依賴）—— 另外還有 DAG 佈局模式在套件路線圖上，所有這些都位於同一個介面之後，因此渲染器或 Worker 主機無需知道正在執行哪一個。
+`@vectojs/graph3d` 今天在此合約背後提供兩個實作 — 自有的 [`VectoForceLayout`](#vectoforcelayout)（Barnes–Hut 八叉樹，無執行時依賴；預設）和 [`D3ForceLayout`](#d3forcelayout)（`d3-force-3d` 轉接器，保留以與現有的 d3 調校維持一致）—— 另外還有 DAG 佈局模式在套件路線圖上，所有這些都位於同一個介面之後，因此渲染器或 Worker 主機無需知道正在執行哪一個。
 
 ## `D3ForceLayout`
+
+由 d3-force-3d 支援的替代方案，可替代預設的 [`VectoForceLayout`](#vectoforcelayout)。它需要 `d3-force-3d`；除非您正在遷移一個已調校 d3 力的圖形且希望保留原有手感，否則請優先使用 `VectoForceLayout`。
 
 ```ts
 new D3ForceLayout(options?: D3ForceLayoutOptions)
@@ -88,10 +92,11 @@ interface VectoForceLayoutOptions {
   alphaDecay?: number;     // cooling rate. Default 0.0228; 0 disables cooling.
   alphaMin?: number;       // alpha below which step() reports cooled. Default 0.001.
   seed?: number;           // RNG seed for deterministic placement. Default 1.
+  measurePhases?: boolean; // opt-in per-tick phase profiling. Default false.
 }
 ```
 
-自有佈局（0.3.0 新增）：一種力導向模擬，多體項使用 Barnes–Hut 八叉樹 —— 無 d3 依賴，在 `seed` 下具有確定性，且可在 Web Worker 內安全執行（與 `D3ForceLayout` 相同的 `step(iterations)` 合約）。當您希望多次執行獲得相同結果時選擇它；使用 `repulsion`/`linkStrength` 進行調整，並謹慎地將 `alphaDecay` 提升到零以上 —— 它已接近冷卻邊緣，因此較高的值會讓圖更早而非更晚凍結。
+自有佈局（0.3.0 新增，且為預設）：一種力導向模擬，多體項使用 Barnes–Hut 八叉樹 — 無執行時依賴，在 `seed` 下具有確定性，且可在 Web Worker 內安全執行（與 `D3ForceLayout` 相同的 `step(iterations)` 合約）。位置和速度以 **f32** 保存（與公開的 `Float32Array` 相符），而八叉樹以 **f64** 累積質心和排斥積分。當您希望多次執行獲得相同結果時選擇它；使用 `repulsion`/`linkStrength` 進行調整，並謹慎地將 `alphaDecay` 提升到零以上 — 它已接近冷卻邊緣，因此較高的值會讓圖更早而非更晚凍結。
 
 ```ts
 layout.step(); // 一次 tick
@@ -99,7 +104,20 @@ layout.step(5); // 一次呼叫中 5 個 tick — 更便宜的每影格攤銷
 // 適用於圖形視覺穩定時間比逐 tick 平滑度更重要的情況
 ```
 
-**固定點（自 0.2.0）。** `D3ForceLayout` 透過 d3-force 的 `fx`/`fy`/`fz` 實作可選的固定控制，這就是支援 [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--懸停--選取--拖曳固定) 拖曳固定的方式：
+**階段剖析（自 0.5.0）。** 設定 `measurePhases: true` 可讓每個 tick 將其牆鐘時間記錄到 `layout.tickPhases`（一個 `readonly` 的毫秒 4 元組；剖析關閉時為 `null`）中，拆分為 `[octree build, force accumulate, link springs, integrate]`。否則計時呼叫會被省略，因此熱路徑無需付出任何成本。
+
+**WASM 力核心（自 0.5.0）。** 一個可選的 Rust/WASM 核心（`crates/vectojs-force-rs`）加速八叉樹建構 + 排斥累積 — 一個 tick 的主要階段 — 而連結彈簧、置中、積分和固定仍留在 JS 中：
+
+```ts
+import { forceWasmUrl } from '@vectojs/graph3d/wasm';
+
+await layout.enableWasmForce(forceWasmUrl); // async; string | URL | Response
+layout.enableWasmForceSync(bytes); // sync; BufferSource, never fetches
+```
+
+兩者在任何失敗（CSP、404、損壞的模組）時都會返回 `false`，並靜默保留逐位元完全相同的 JS Barnes-Hut，它是永久的回退方案和差異化對照。該核心沒有 `@vectojs/core` 依賴。
+
+**固定點（自 0.2.0）。** `D3ForceLayout` 和 `VectoForceLayout` 都實作可選的固定控制（d3 透過 `fx`/`fy`/`fz`，VectoForceLayout 透過自己的固定陣列），這就是支援 [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--懸停--選取--拖曳固定) 拖曳固定的方式：
 
 ```ts
 layout.pinNode(i, x, y, z); // 將節點 i 固定在 (x,y,z) 並每次 tick 更新；同時立即更新 positions[i]
@@ -107,7 +125,7 @@ layout.reheat(0.3); // 喚醒已冷卻的模擬，使其餘部分圍繞固定點
 layout.unpinNode(i); // 清除 fx/fy/fz — 節點 i 恢復自由
 ```
 
-超出範圍的索引會被忽略（陳舊的指標互動不會導致佈局崩潰），且 `reheat` 的 alpha 會被限制在 d3 常規的 `[alphaMin, 1]` 範圍內。
+超出範圍的索引會被忽略（陳舊的指標互動不會導致佈局崩潰），且 `reheat` 的 alpha 會被限制在 `[alphaMin, 1]` 範圍內。
 
 **即時變更力。** `D3ForceLayoutOptions` 僅在建構時設定；沒有即時的 setter。要應用新的 `chargeStrength`/`linkDistance`（例如從滑桿調整），請 `dispose()` 舊的實例並 `setGraph()` 一個新的 — 對於拓撲本身不變的圖形來說成本很低，因為只有模擬被重建，而非 `Graph3D` 的 GPU 緩衝區：
 
@@ -119,7 +137,11 @@ function restartLayout() {
 }
 ```
 
+`VectoForceLayoutOptions` 同樣僅在建構時設定，因此當您變更其力時，同樣的重啟模式也適用。
+
 ## 相關
+
+如需與渲染器無關的 **2D** 力佈局、增量拓撲更新和交錯的 XY 位置，請使用 [`@vectojs/graph-layout`](/reference/graph-layout/)。它是一個獨立的套件；其 `ForceLayout2D` 和 XY 緩衝區並未實作本頁的 3D `GraphLayout` 合約或其 XYZ 位置形狀。兩個 API 都會從主機驅動的 `step()` 返回一個活躍/冷卻布林值，但它們的佈局類型和位置緩衝區不可互換。
 
 [`Graph3D` & 選取](/reference/graph3d-renderer/)（直接使用 `positions`）·
 [`@vectojs/graph3d` 概覽](/reference/graph3d/)

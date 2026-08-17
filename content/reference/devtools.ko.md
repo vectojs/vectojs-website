@@ -6,7 +6,7 @@ weight = 48
 
 # `@vectojs/devtools`
 
-문서화된 버전: **0.11.0**
+문서화된 버전: **0.11.1**
 
 `@vectojs/devtools`는 "Elements 패널은 어디 있지?"라는 질문에 대한 답입니다 — Virtual Math Tree용 인-페이지 인스펙터로, VectoJS Scene을 픽셀 공간 대신 상태 공간에서 디버깅할 수 있게 합니다. 두 부분으로 나뉩니다:
 

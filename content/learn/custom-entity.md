@@ -165,8 +165,9 @@ class Spinner extends Entity {
   }
 
   // Motion driven from update() is invisible to the Scene's idle checks unless
-  // you report it. This keeps the idle throttle from dropping the spinner to
-  // 2 fps and states the animation intent more clearly than a per-frame dirty flag.
+  // you report it. This keeps the idle throttle from slowing the spinner to
+  // the idle floor and states the animation intent more clearly than a
+  // per-frame dirty flag.
   hasPendingAnimations() {
     return true; // a spinner is always animating
   }

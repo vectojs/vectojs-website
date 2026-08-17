@@ -9,6 +9,8 @@ weight = 46
 Part of [`@vectojs/graph3d`](/reference/graph3d/). Consumes a
 [`GraphLayout`](/reference/graph3d-layout/)'s `positions` buffer.
 
+Version documented: **0.6.0**
+
 ## `Graph3D` — the renderer
 
 ```ts
@@ -45,6 +47,9 @@ applyPositions(positions: Float32Array): void
 // Writes xyz triplets (e.g. a GraphLayout's `.positions`) into the instanced
 // node matrices and link endpoints. Call after every layout step that moved
 // something; cheap enough to call every frame while a simulation is running.
+// If `positions.length < nodeCount * 3`, it returns without writing anything
+// and warns once (latched per `setGraphData`), so a too-short buffer can never
+// write NaN transforms and blank the whole mesh.
 
 pickNode(raycaster: THREE.Raycaster): number | null   // since 0.2.0
 // Hit-test only the node cloud with a caller-configured raycaster (set from
@@ -124,7 +129,8 @@ interaction.dispose(); // removes the pointer listeners
 ```
 
 Drag is **feature-detected**: without a pin-capable layout (a `pinNode`
-implementation, as [`D3ForceLayout`](/reference/graph3d-layout/) provides) a
+implementation, as both
+[`VectoForceLayout` and `D3ForceLayout`](/reference/graph3d-layout/) provide) a
 press falls back to select. `onDragStart`/`onDrag`/`onDragEnd`, `pinOnDrag`
 (default `true`), `dragReheat` (default `0.3`), and `dragThreshold` (default `4`
 px) round out the options.
@@ -132,4 +138,5 @@ px) round out the options.
 ## Related
 
 [`GraphLayout` & `D3ForceLayout`](/reference/graph3d-layout/) (produces the `positions` buffer this consumes, and the `pinNode` drag-to-pin relies on) ·
+[`GraphCamera`](/reference/graph3d/#graphcamera) (battery-included 2D/3D camera controls) ·
 [`@vectojs/graph3d` overview](/reference/graph3d/)

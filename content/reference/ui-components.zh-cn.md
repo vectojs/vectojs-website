@@ -7,7 +7,7 @@ weight = 11
 # `@vectojs/ui` — 组件参考
 
 > 适用于 VectoJS zero-DOM Canvas 引擎的可复用高级组件。
-> 文档版本：**2.16.6**。权威来源：`dist/index.d.ts`（公共表面）和 `packages/ui/src/*`（行为）。
+> 文档版本：**2.18.0**。权威来源：`dist/index.d.ts`（公共表面）和 `packages/ui/src/*`（行为）。
 
 每个组件都是 Virtual Math Tree (VMT) 中的叶节点或容器节点。这里没有真正的 DOM——组件通过 `IRenderer` 在 Canvas 上绘制自身。可访问性、智能体自动化和可爬取性来自一个并行的 **A11y Shadow DOM**：当一个组件是 `interactive` 时，`Scene` 会投影一个位于组件框上方的、隐藏的透明真实 DOM 节点，该节点由 `getA11yAttributes()` 构建。这就是为什么 `page.getByRole('button', { name })` / `fill()` / 屏幕阅读器可以在纯 Canvas UI 上工作的原因。
 
@@ -336,16 +336,33 @@ interface LinkOptions {
 new Image(src: string, opts: ImageOptions)
 
 interface ImageOptions {
-  width: number;          // 必填（canvas 需要已知框来进行布局/剔除）
-  height: number;         // 必填
-  alt?: string;           // 默认 ''
-  placeholder?: string;   // 加载前的填充色，默认 '#1e293b'
-  radius?: number;        // 占位符圆角半径，默认 0
-  onLoad?: () => void;    // 位图加载完成时触发
+  width: number;                // 必填（canvas 需要已知框来进行布局/剔除）
+  height: number;               // 必填
+  fit?: ImageFit;               // 'fill' | 'cover' | 'contain', default 'fill' (2.18.0+)
+  focalPoint?: ImageFocalPoint; // { x, y } each 0..1; consulted by 'cover', default { x: 0.5, y: 0.5 } (2.18.0+)
+  alt?: string;                 // 默认 ''
+  placeholder?: string;         // 加载前的填充色，默认 '#1e293b'
+  radius?: number;              // corner radius on the placeholder AND loaded bitmap, default 0
+  onLoad?: () => void;          // 位图加载完成时触发
 }
+
+type ImageFit = 'fill' | 'cover' | 'contain';
+interface ImageFocalPoint { x: number; y: number; }
 ```
 
 通过 `drawImage` 绘制；投影 `{ tag: 'img', src, alt, label: alt }`。加载是异步的——在就绪前会绘制一个占位框。在 `onDemand` 场景中，传递 `onLoad: () => scene.markDirty()` 以在加载时重绘。（遮蔽了 `globalThis.Image`；通过 `import { Image } from '@vectojs/ui'` 引用该类。）
+
+`fit`（2.18.0+）将加载的位图映射到框中：`'fill'`（默认）拉伸到框，`'cover'` 保持纵横比并填充框，同时围绕 `focalPoint` 裁剪溢出部分，而 `'contain'` 在保持纵横比的情况下将整个位图放入框内。`focalPoint` 是一个归一化的 `{ x, y }` 点（`0` = 顶部/左侧，`1` = 底部/右侧，钳制到 `[0, 1]`），仅由 `'cover'` 读取。`radius` 现在也会裁剪已加载位图上的圆角，而不仅仅是占位符。
+
+```ts
+const avatar = new Image('/avatar.jpg', {
+  width: 96,
+  height: 96,
+  fit: 'cover',
+  focalPoint: { x: 0.5, y: 0.25 }, // keep the subject's face, near the top
+  radius: 48, // circle-crop the loaded bitmap
+});
+```
 
 ### `Input`
 

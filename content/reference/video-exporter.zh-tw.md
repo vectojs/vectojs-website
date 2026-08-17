@@ -6,7 +6,7 @@ weight = 47
 
 # `@vectojs/video-exporter`
 
-文件版本：**0.2.2**
+文件版本：**0.2.3**
 
 `@vectojs/video-exporter` 在無頭 Chromium 中以固定的時間步長驅動 VectoJS 場景，將其 canvas 捕獲為 PNG 幀，並將這些幀傳送給 FFmpeg 進行 H.264 MP4 編碼。
 

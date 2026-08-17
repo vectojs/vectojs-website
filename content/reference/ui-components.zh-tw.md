@@ -7,7 +7,7 @@ weight = 11
 # `@vectojs/ui` — 元件參考
 
 > 適用於 VectoJS zero-DOM Canvas 引擎的可重複使用高層級元件。
-> 文件版本：**2.16.6**。事實來源：`dist/index.d.ts`（公開表面）和 `packages/ui/src/*`（行為）。
+> 文件版本：**2.18.0**。事實來源：`dist/index.d.ts`（公開表面）和 `packages/ui/src/*`（行為）。
 
 每個元件都是 Virtual Math Tree (VMT) 中的葉節點或容器。這裡沒有任何東西是真實的 DOM — 元件會透過 `IRenderer` 將自己繪製到 Canvas 上。無障礙、agent 自動化和可爬取性來自一個平行的 **A11y Shadow DOM**：當元件為 `interactive` 時，`Scene` 會投射一個單一隱藏、透明的真實 DOM 節點，定位在元件的方塊上方，根據 `getA11yAttributes()` 構建。這就是為什麼 `page.getByRole('button', { name })` / `fill()` / 螢幕閱讀器可以在純 Canvas UI 上運作的原因。
 
@@ -197,7 +197,7 @@ const spans: StyledSpan[] = [
 
 度量單位為最終大小的 px — 一個固定的方塊，不會依 run 的 `fontSize` 縮放。`box.y` 已針對基線和 `depth` 進行解析，因此繪製器不需要重複該算術運算。`paint` 在繪製期間被呼叫，因此它必須是同步的；仍在載入內容的物件應該甚麼都不畫，並在準備好時請求重新繪製。**省略 `paint` 會保留空間但不繪製任何內容** — 即一個空白間隙。請設定 `alt`，否則原始哨兵字元（sentinel）會到達無障礙層，並複製為隱形字元。
 
-無障礙：每個連續的**連結 run** 會獲得一個透明的 `<a>` 熱點子節點（在重新換行時協調 — 每個 run 一個熱點；位置原地更新，只有連結_數量_變更時才會重建陰影節點）。元件自身的可存取名稱是完整串聯的文字。
+無障礙：每個連續的**連結 run** 會獲得一個透明的 `<a>` 熱點子節點（在重新換行時協調 — 每個 run 一個熱點；位置原地更新，只有連結*數量*變更時才會重建陰影節點）。元件自身的可存取名稱是完整串聯的文字。
 
 ### `measureText`, `wrapLines`, `wrapText`（自由函式）
 
@@ -335,16 +335,33 @@ interface LinkOptions {
 new Image(src: string, opts: ImageOptions)
 
 interface ImageOptions {
-  width: number;          // 必填（canvas 需要已知方塊進行佈局/剔除）
-  height: number;         // 必填
-  alt?: string;           // 預設 ''
-  placeholder?: string;   // 載入前的填充色，預設 '#1e293b'
-  radius?: number;        // 佔位符圓角半徑，預設 0
-  onLoad?: () => void;    // 點陣圖載入完成時觸發
+  width: number;                // 必填（canvas 需要已知方塊進行佈局/剔除）
+  height: number;               // 必填
+  fit?: ImageFit;               // 'fill' | 'cover' | 'contain'，預設 'fill'（2.18.0+）
+  focalPoint?: ImageFocalPoint; // { x, y } 各在 0..1；由 'cover' 讀取，預設 { x: 0.5, y: 0.5 }（2.18.0+）
+  alt?: string;                 // 預設 ''
+  placeholder?: string;         // 載入前的填充色，預設 '#1e293b'
+  radius?: number;              // 佔位符和已載入點陣圖上的圓角半徑，預設 0
+  onLoad?: () => void;          // 點陣圖載入完成時觸發
 }
+
+type ImageFit = 'fill' | 'cover' | 'contain';
+interface ImageFocalPoint { x: number; y: number; }
 ```
 
 透過 `drawImage` 繪製；投射 `{ tag: 'img', src, alt, label: alt }`。載入是非同步的 — 在準備好之前會繪製一個佔位方塊。在 `onDemand` 場景中，傳遞 `onLoad: () => scene.markDirty()` 以在載入時重新繪製。（遮蔽了 `globalThis.Image`；將類別引用為 `import { Image } from '@vectojs/ui'`。）
+
+`fit`（2.18.0+）將已載入的點陣圖對應到方塊中：`'fill'`（預設）拉伸填滿方塊，`'cover'` 保留長寬比並填滿方塊，同時裁切 `focalPoint` 周圍的溢出部分，而 `'contain'` 在保留長寬比的情況下將整個點陣圖放入方塊內。`focalPoint` 是一個正規化的 `{ x, y }` 點（`0` = 上/左，`1` = 下/右，限制在 `[0, 1]` 範圍內），僅由 `'cover'` 讀取。`radius` 現在會在已載入的點陣圖上裁切圓角，而不只是佔位符。
+
+```ts
+const avatar = new Image('/avatar.jpg', {
+  width: 96,
+  height: 96,
+  fit: 'cover',
+  focalPoint: { x: 0.5, y: 0.25 }, // keep the subject's face, near the top
+  radius: 48, // circle-crop the loaded bitmap
+});
+```
 
 ### `Input`
 
@@ -494,7 +511,7 @@ new Dropdown(options: string[], props?: DropdownProps)  // props 為鬆散型別
 
 根節點的無障礙：`{ role: 'combobox', expanded, controls, haspopup: 'listbox', value, activedescendant }`。選單投射 `role="listbox"`，每個選項投射 `role="option"` 搭配 `selected`。
 
-**為開啟的選單設定主題，而不僅僅是觸發器**（2.7.0+）。在這些屬性出現之前，觸發器的 `bg`/`color` 可覆寫，而選單的顏色是硬編碼的，因此為淺色或暖色調調色盤設定主題的下拉式方塊會開啟一個帶有青色選取項的深色石板面板——這看起來像渲染錯誤，而不是樣式。請注意 `menuHighlightBg` 和 `menuSelectedBg` 可以同時生效，而且開啟選單會高亮選取的行，因此要讓高亮讀作兩者中較強的狀態。選項列本身可取得焦點（`role="option"`），因此 `focusColor` 焦點環繪製在_高亮的_列之上：讓焦點環與 `menuHighlightBg` 之間保持足夠的對比度，以超過 3:1 非文字下限（WCAG SC 1.4.11）。
+**為開啟的選單設定主題，而不僅僅是觸發器**（2.7.0+）。在這些屬性出現之前，觸發器的 `bg`/`color` 可覆寫，而選單的顏色是硬編碼的，因此為淺色或暖色調調色盤設定主題的下拉式方塊會開啟一個帶有青色選取項的深色石板面板——這看起來像渲染錯誤，而不是樣式。請注意 `menuHighlightBg` 和 `menuSelectedBg` 可以同時生效，而且開啟選單會高亮選取的行，因此要讓高亮讀作兩者中較強的狀態。選項列本身可取得焦點（`role="option"`），因此 `focusColor` 焦點環繪製在*高亮的*列之上：讓焦點環與 `menuHighlightBg` 之間保持足夠的對比度，以超過 3:1 非文字下限（WCAG SC 1.4.11）。
 
 ---
 
@@ -670,7 +687,7 @@ interface RadioOption {
 
 一個互斥的選項按鈕群組，投射 `{ role: 'radiogroup', label }`。標準化的 `'change'` 事件 payload 攜帶 `{ value }`。
 
-**當螢幕上不止一個群組時，請傳入 `label`**（2.8.0+）。每個選項都有自己的名稱，但群組的名稱才能說明_正在做出哪個選擇_。沒有它，每個群組都會以通用的預設 `'Radio group'` 播報，使用者會反覆聽到 "Radio group" 卻無法區分它們——只要識別群組的可視標題是繪製在 canvas 上而不是群組的一部分，就應該設定它（WCAG 4.1.2）。
+**當螢幕上不止一個群組時，請傳入 `label`**（2.8.0+）。每個選項都有自己的名稱，但群組的名稱才能說明*正在做出哪個選擇*。沒有它，每個群組都會以通用的預設 `'Radio group'` 播報，使用者會反覆聽到 "Radio group" 卻無法區分它們——只要識別群組的可視標題是繪製在 canvas 上而不是群組的一部分，就應該設定它（WCAG 4.1.2）。
 
 ---
 
@@ -710,7 +727,7 @@ interface TabItem {
 
 一個標籤頁選取容器。自動掛載活躍標籤的內容檢視，並在剩餘空間內平移它。為無障礙投射 `{ role: 'tablist', label }`。標準化的 `'change'` 事件 payload 攜帶 `{ value }`。
 
-**當螢幕上不止一個分頁列時，請傳入 `label`**（2.8.0+），原因與 `RadioGroup.label` 相同：每個分頁都有名稱，但分頁列的名稱才能說明分頁在切換_什麼_。預設為 `'Tab switching panel'`。
+**當螢幕上不止一個分頁列時，請傳入 `label`**（2.8.0+），原因與 `RadioGroup.label` 相同：每個分頁都有名稱，但分頁列的名稱才能說明分頁在切換*什麼*。預設為 `'Tab switching panel'`。
 
 Tabs 保持固定的首選 `tabWidth`，分頁列在溢出時水平滾動（滾輪，或自動滾動以使作用中分頁可見），而不是縮成碎片——從 1.9.4 開始，`tabWidth` 是分頁列滾動的目標寬度，不是拉伸填滿的寬度（之前這會導致寬條上的關閉命中定位錯誤）。啟用 `autoHideTabBar`（1.9.5）後，當分頁少於兩個時，分頁列及其點擊區域消失，內容佔據全部高度（Vim `showtabline=1` 語意）；`effectiveTabBarHeight` 獲取器報告分頁列的當前高度（隱藏時為 `0`），並且內容幾何資訊每影格重新同步，因此重新指派 `tabs` 不會留下陳舊或偏移的內容。
 

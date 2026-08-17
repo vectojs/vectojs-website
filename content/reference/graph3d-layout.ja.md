@@ -8,6 +8,8 @@ weight = 45
 
 [`@vectojs/graph3d`](/reference/graph3d/) の一部です。
 
+文書化バージョン: **0.6.0**
+
 ## データモデル — `GraphData`
 
 ```ts
@@ -55,9 +57,11 @@ interface GraphLayout {
 
 契約は意図的に最小限でワーカーフレンドリーです：位置は`GraphData.nodes`の順序でxyzトリプレットを持つ1つのフラットな`Float32Array`であるため、実装は完全にWeb Worker内で動作し、そのバッファを転送可能オブジェクトとしてスレッド境界を越えてストリーミングできます（ノードごとのオブジェクトトラフィックなし）。[`Graph3D.applyPositions()`](/reference/graph3d-renderer/#メソッド) はまったく同じバッファ形状を直接消費します。`positions` はステップ間で再利用される**同じ配列インスタンス**です — ライブビューではなく安定したスナップショットが必要な場合はコピー（`layout.positions.slice()`）してください。
 
-`@vectojs/graph3d` は現在、この契約の背後で2つの実装を同梱しています：下記の[`D3ForceLayout`](#d3forcelayout)と自社製の[`VectoForceLayout`](#vectoforcelayout)（Barnes–Hut、d3依存なし）— さらにDAGレイアウトモードがパッケージロードマップにあり、すべてこの同じインターフェースの背後にあるため、レンダラーやワーカーホストはどれが実行されているかを知る必要がありません。
+`@vectojs/graph3d` は現在、この契約の背後で2つの実装を同梱しています：自社製の [`VectoForceLayout`](#vectoforcelayout)（Barnes–Hutオクトツリー、ランタイム依存なし。デフォルト）と [`D3ForceLayout`](#d3forcelayout)（既存のd3チューニングとの同等性を保つための `d3-force-3d` アダプター）— さらにDAGレイアウトモードがパッケージロードマップにあり、すべてこの同じインターフェースの背後にあるため、レンダラーやワーカーホストはどれが実行されているかを知る必要がありません。
 
 ## `D3ForceLayout`
+
+デフォルトの [`VectoForceLayout`](#vectoforcelayout) に対する、d3-force-3dベースの代替実装です。`d3-force-3d` が必要です。調整済みのd3フォースを持つグラフを移行し、その感覚を保ちたい場合を除き、`VectoForceLayout` を優先してください。
 
 ```ts
 new D3ForceLayout(options?: D3ForceLayoutOptions)
@@ -88,10 +92,11 @@ interface VectoForceLayoutOptions {
   alphaDecay?: number;     // cooling rate. Default 0.0228; 0 disables cooling.
   alphaMin?: number;       // alpha below which step() reports cooled. Default 0.001.
   seed?: number;           // RNG seed for deterministic placement. Default 1.
+  measurePhases?: boolean; // opt-in per-tick phase profiling. Default false.
 }
 ```
 
-自社製レイアウト（0.3.0で追加）：多体項にBarnes–Hutオクトツリーを使用した力指向シミュレーション — d3依存なし、`seed`の下で決定的、Web Worker内で安全（`D3ForceLayout`と同じ`step(iterations)`契約）。実行間で同一の結果が欲しい場合にこれを選択します；`repulsion`/`linkStrength`で調整し、`alphaDecay`をゼロより上げる際は慎重に — すでに冷却の端に近いため、より高い値はグラフを後ではなく前に凍結させます。
+自社製レイアウト（0.3.0で追加、かつデフォルト）：多体項にBarnes–Hutオクトツリーを使用した力指向シミュレーション — ランタイム依存なし、`seed`の下で決定的、Web Worker内で安全（`D3ForceLayout`と同じ`step(iterations)`契約）。位置と速度は**f32**で保持され（公開される`Float32Array`に一致）、オクトツリーは質量中心と反発積分を**f64**で累積します。実行間で同一の結果が欲しい場合にこれを選択します；`repulsion`/`linkStrength`で調整し、`alphaDecay`をゼロより上げる際は慎重に — すでに冷却の端に近いため、より高い値はグラフを後ではなく前に凍結させます。
 
 ```ts
 layout.step(); // 1ティック
@@ -99,7 +104,20 @@ layout.step(5); // 1回の呼び出しで5ティック — フレームあたり
 // ビジュアルの収束時間がティックあたりの滑らかさよりも重要なグラフ向け
 ```
 
-**ピン留め（0.2.0以降）。** `D3ForceLayout` はd3-forceの`fx`/`fy`/`fz`を介してオプションのピンコントロールを実装しており、これが [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--ホバー--選択--ドラッグピン) のドラッグ＆ピンを支えています：
+**フェーズプロファイリング（0.5.0以降）。** `measurePhases: true` を設定すると、各ティックが壁時計時間を `[octree build, force accumulate, link springs, integrate]` に分割して `layout.tickPhases`（ミリ秒単位の `readonly` 4タプル；プロファイリングオフのときは `null`）に記録します。それ以外の場合、タイミング呼び出しは省略されるため、ホットパスにはコストがかかりません。
+
+**WASMフォースカーネル（0.5.0以降）。** オプトインのRust/WASMカーネル（`crates/vectojs-force-rs`）が、ティックの支配的なフェーズであるオクトツリー構築＋反発累積を加速します。一方、リンクスプリング、センタリング、積分、ピンはJSに残ります：
+
+```ts
+import { forceWasmUrl } from '@vectojs/graph3d/wasm';
+
+await layout.enableWasmForce(forceWasmUrl); // async; string | URL | Response
+layout.enableWasmForceSync(bytes); // sync; BufferSource, never fetches
+```
+
+両方とも、いかなる失敗（CSP、404、破損モジュール）でも `false` を返し、ビット単位で同一のJS Barnes-Hutを黙って維持します。これは恒久的なフォールバックであり差分オラクルです。カーネルには `@vectojs/core` 依存がありません。
+
+**ピン留め（0.2.0以降）。** `D3ForceLayout` と `VectoForceLayout` の両方がオプションのピンコントロールを実装しています（d3は`fx`/`fy`/`fz`、VectoForceLayoutは独自のピン配列を介して）。これが [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--ホバー--選択--ドラッグピン) のドラッグ＆ピンを支えています：
 
 ```ts
 layout.pinNode(i, x, y, z); // ノードiを(x,y,z)に毎ティック固定；positions[i]も即時更新
@@ -107,7 +125,7 @@ layout.reheat(0.3); // 冷却されたシミュレーションを起動し、残
 layout.unpinNode(i); // fx/fy/fzをクリア — ノードiは再び自由に
 ```
 
-範囲外のインデックスは無視され（古いポインター操作がレイアウトをクラッシュさせることはありません）、`reheat` のalphaはd3の通常の`[alphaMin, 1]`範囲にクランプされます。
+範囲外のインデックスは無視され（古いポインター操作がレイアウトをクラッシュさせることはありません）、`reheat` のalphaは `[alphaMin, 1]` にクランプされます。
 
 **ライブでの力の変更。** `D3ForceLayoutOptions` はコンストラクタのみです；ライブセッターはありません。新しい`chargeStrength`/`linkDistance`を適用するには（例えばスライダーから）、古いインスタンスを`dispose()`し、新しいもので`setGraph()`します — トポロジー自体が変わらないグラフでは安価です。シミュレーションのみが再構築され、`Graph3D`のGPUバッファはそのままです：
 
@@ -119,7 +137,11 @@ function restartLayout() {
 }
 ```
 
+`VectoForceLayoutOptions` も同様にコンストラクタのみであるため、そのフォースを変更する場合も同じ再起動パターンが適用されます。
+
 ## 関連
+
+レンダラー非依存の**2D**フォースレイアウト、インクリメンタルなトポロジ更新、インターリーブされたXY位置には、[`@vectojs/graph-layout`](/reference/graph-layout/) を使用してください。これは別パッケージであり、その `ForceLayout2D` とXYバッファは、このページの3D `GraphLayout` 契約やそのXYZ位置形状を実装していません。両方のAPIはホスト駆動の `step()` からアクティブ/冷却済みのブール値を返しますが、レイアウトタイプと位置バッファは交換可能ではありません。
 
 [`Graph3D` & ピッキング](/reference/graph3d-renderer/)（`positions`を直接消費） ·
 [`@vectojs/graph3d` 概要](/reference/graph3d/)

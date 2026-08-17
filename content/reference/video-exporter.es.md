@@ -6,7 +6,7 @@ weight = 47
 
 # `@vectojs/video-exporter`
 
-Versión documentada: **0.2.2**
+Versión documentada: **0.2.3**
 
 `@vectojs/video-exporter` impulsa una escena de VectoJS en Chromium headless un paso de tiempo fijo a la vez, captura su canvas como fotogramas PNG y envía esos fotogramas a FFmpeg para codificación H.264 MP4.
 

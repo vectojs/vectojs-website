@@ -6,7 +6,7 @@ weight = 46
 
 # `@vectojs/knowledge-graph/model`
 
-Version documented: **0.3.0**
+Version documented: **0.3.2**
 
 `KnowledgeGraphModel` owns a bounded, materialized cut of a larger knowledge
 graph. It loads seed entities and neighbor pages from a `KgDataSource`,

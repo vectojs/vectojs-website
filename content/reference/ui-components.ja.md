@@ -7,7 +7,7 @@ weight = 11
 # `@vectojs/ui` — コンポーネントリファレンス
 
 > VectoJS ゼロ DOM Canvas エンジン向けの再利用可能な高レベルコンポーネント。
-> ドキュメントバージョン：**2.16.6**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
+> ドキュメントバージョン：**2.18.0**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
 
 すべてのコンポーネントは、Virtual Math Tree（VMT）のリーフまたはコンテナです。ここにあるものは実際の DOM ではありません — コンポーネントは `IRenderer` を介して Canvas に自身を描画します。アクセシビリティ、エージェント自動化、クローラビリティは、並行する **A11y シャドウ DOM** から提供されます：コンポーネントが `interactive` の場合、`Scene` はコンポーネントのボックスの上に配置された単一の隠れた透明な実際の DOM ノードを投影します。これは `getA11yAttributes()` から構築されます。これが、`page.getByRole('button', { name })` / `fill()` / スクリーンリーダーが純粋な Canvas UI に対して機能する理由です。
 
@@ -335,16 +335,33 @@ interface LinkOptions {
 new Image(src: string, opts: ImageOptions)
 
 interface ImageOptions {
-  width: number;          // 必須（キャンバスはレイアウト/カリングに既知のボックスが必要）
-  height: number;         // 必須
-  alt?: string;           // デフォルト ''
-  placeholder?: string;   // 読み込みまで塗りつぶし、デフォルト '#1e293b'
-  radius?: number;        // プレースホルダーの角半径、デフォルト 0
-  onLoad?: () => void;    // ビットマップが読み込まれると 1 回発火
+  width: number;                // 必須（キャンバスはレイアウト/カリングに既知のボックスが必要）
+  height: number;               // 必須
+  fit?: ImageFit;               // 'fill' | 'cover' | 'contain', default 'fill' (2.18.0+)
+  focalPoint?: ImageFocalPoint; // { x, y } each 0..1; consulted by 'cover', default { x: 0.5, y: 0.5 } (2.18.0+)
+  alt?: string;                 // デフォルト ''
+  placeholder?: string;         // 読み込みまで塗りつぶし、デフォルト '#1e293b'
+  radius?: number;              // corner radius on the placeholder AND loaded bitmap, default 0
+  onLoad?: () => void;          // ビットマップが読み込まれると 1 回発火
 }
+
+type ImageFit = 'fill' | 'cover' | 'contain';
+interface ImageFocalPoint { x: number; y: number; }
 ```
 
 `drawImage` を介して描画します。`{ tag: 'img', src, alt, label: alt }` を投影します。読み込みは非同期です — 準備ができるまでプレースホルダーボックスが描画されます。`onDemand` シーンでは、`onLoad: () => scene.markDirty()` を渡して読み込み時に再描画します。（`globalThis.Image` をシャドウします；クラスは `import { Image } from '@vectojs/ui'` として参照してください。）
+
+`fit`（2.18.0以降）は読み込まれたビットマップをボックスにマッピングします：`'fill'`（デフォルト）はボックスに引き伸ばし、`'cover'` はアスペクト比を保ってボックスを満たしつつ `focalPoint` の周囲の余剰分をクロップし、`'contain'` はアスペクト比を保ったままビットマップ全体をボックス内に収めます。`focalPoint` は正規化された `{ x, y }` 点（`0` = 上/左、`1` = 下/右、`[0, 1]` にクランプ）で、`'cover'` のみがこれを読み取ります。`radius` はプレースホルダーだけでなく、読み込まれたビットマップの角も丸めるようになりました。
+
+```ts
+const avatar = new Image('/avatar.jpg', {
+  width: 96,
+  height: 96,
+  fit: 'cover',
+  focalPoint: { x: 0.5, y: 0.25 }, // keep the subject's face, near the top
+  radius: 48, // circle-crop the loaded bitmap
+});
+```
 
 ### `Input`
 

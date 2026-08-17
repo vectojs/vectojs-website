@@ -9,6 +9,8 @@ weight = 46
 Parte de [`@vectojs/graph3d`](/reference/graph3d/). Consume el búfer de `positions` de un
 [`GraphLayout`](/reference/graph3d-layout/).
 
+Versión documentada: **0.6.0**
+
 ## `Graph3D` — el renderizador
 
 ```ts
@@ -45,6 +47,9 @@ applyPositions(positions: Float32Array): void
 // Escribe tripletes xyz (ej. el `.positions` de un GraphLayout) en las matrices de nodos
 // instanciados y los puntos finales de enlace. Llama después de cada paso del layout que haya movido
 // algo; suficientemente económico para llamar cada fotograma mientras se ejecuta una simulación.
+// Si `positions.length < nodeCount * 3`, devuelve sin escribir nada y advierte una vez
+// (bloqueado por cada `setGraphData`), de modo que un búfer demasiado corto nunca pueda
+// escribir transformaciones NaN y dejar en blanco toda la malla.
 
 pickNode(raycaster: THREE.Raycaster): number | null   // desde 0.2.0
 // Prueba de impacto solo en la nube de nodos con un raycaster configurado por el llamante (establecido desde
@@ -108,9 +113,10 @@ const interaction = new GraphInteraction({
 interaction.dispose(); // elimina los listeners de puntero
 ```
 
-El arrastre se **detecta por característica**: sin un layout capaz de fijar (una implementación de `pinNode`, como la que proporciona [`D3ForceLayout`](/reference/graph3d-layout/)) una pulsación recurre a la selección. `onDragStart`/`onDrag`/`onDragEnd`, `pinOnDrag` (por defecto `true`), `dragReheat` (por defecto `0.3`) y `dragThreshold` (por defecto `4` px) completan las opciones.
+El arrastre se **detecta por característica**: sin un layout capaz de fijar (una implementación de `pinNode`, como la que proporcionan [`VectoForceLayout` y `D3ForceLayout`](/reference/graph3d-layout/)) una pulsación recurre a la selección. `onDragStart`/`onDrag`/`onDragEnd`, `pinOnDrag` (por defecto `true`), `dragReheat` (por defecto `0.3`) y `dragThreshold` (por defecto `4` px) completan las opciones.
 
 ## Relacionados
 
 [`GraphLayout` & `D3ForceLayout`](/reference/graph3d-layout/) (produce el búfer de `positions` que esto consume, y el `pinNode` del que depende arrastrar para fijar) ·
+[`GraphCamera`](/reference/graph3d/#graphcamera) (controles de cámara 2D/3D todo incluido) ·
 [`@vectojs/graph3d` visión general](/reference/graph3d/)

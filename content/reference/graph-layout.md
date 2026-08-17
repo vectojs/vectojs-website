@@ -6,7 +6,7 @@ weight = 47
 
 # `@vectojs/graph-layout`
 
-Version documented: **0.2.0**
+Version documented: **0.2.1**
 
 `@vectojs/graph-layout` is a dependency-free 2D force simulation. It owns no
 renderer and no animation timer: the host supplies graph data, calls `step()`,
@@ -14,8 +14,8 @@ and reads interleaved XY coordinates from a `Float32Array`. The same layout can
 drive Canvas 2D, SVG, WebGL, WebGPU, a VectoJS scene, or an off-main-thread
 renderer.
 
-Version 0.2.0 has one implementation, the TypeScript `ForceLayout2D`. There is
-no WASM build, alternate backend, or `backend` option in 0.2.0. WASM remains a
+Version 0.2.1 has one implementation, the TypeScript `ForceLayout2D`. There is
+no WASM build, alternate backend, or `backend` option in 0.2.1. WASM remains a
 measurement-gated future option; the current cross-dimensional browser
 comparisons are not direct evidence that a WASM backend would help.
 
@@ -171,7 +171,7 @@ indices across append-only paging. Removing nodes compacts links, so a later
 append can reuse an index previously assigned to a removed link. Removing nodes
 does not reevaluate accessors for survivors; use a fresh `setGraph()` if values
 must be derived again. All options are constructor-only; there are no live force
-setters in 0.2.0.
+setters in 0.2.1.
 
 ## API
 
@@ -286,6 +286,42 @@ interactive pin or unpin operations.
 `reheat(alpha = 0.3)` clamps the request to `[alphaMin, 1]` and applies
 `max(currentAlpha, requestedAlpha)`. It never cools a hotter simulation.
 
+### Dragging a node: reheat once, not per move
+
+The most common drag-related defect is calling `reheat()` on **every pointer
+move** while dragging a pinned node. That keeps alpha pinned near its maximum,
+so the dragged node's neighbors — yanked by their link springs — keep
+overshooting with almost no damping. The simulation then needs several seconds
+to cool after the pointer is released (alpha decays at ~`alphaDecay` per tick,
+roughly 300 ticks ≈ 5 s at 60 fps), during which the whole neighborhood visibly
+vibrates. With a text label rendered at each node, that fast oscillation reads
+as jitter and afterimage/ghosting.
+
+The correct pattern is to reheat only when the drag _starts_, then update the
+pin position on each move without reheating:
+
+```ts
+function onDragStart(node, x, y) {
+  const index = layout.getNodeIndex(node.id);
+  layout.setNodePin(index, { x, y }); // pin at the pointer
+  layout.reheat(0.3); // wake the simulation ONCE
+}
+
+function onDragMove(node, x, y) {
+  const index = layout.getNodeIndex(node.id);
+  layout.setNodePin(index, { x, y }); // move the pin — no reheat here
+}
+
+function onDragEnd(node) {
+  const index = layout.getNodeIndex(node.id);
+  layout.clearNodePin(index); // or keep it pinned for a permanent pin
+}
+```
+
+If a slowly-drifting follow feels desirable _during_ the drag, raise
+`velocityDecay` (more damping) rather than reheating on every move; reserve
+`reheat()` for topology changes, explicit wake-ups, and drag start.
+
 ### Disposal
 
 `dispose()` releases graph and quadtree storage, resets `positions` to an empty
@@ -352,7 +388,7 @@ The conceptual mapping is direct but the API is intentionally smaller:
 
 Links use endpoint IDs rather than d3-mutated endpoint objects. Option accessors
 receive the original `GraphNode` or `GraphLink` and an insertion index, then are
-cached. There is no custom-force registry in 0.2.0; if your d3 layout depends on
+cached. There is no custom-force registry in 0.2.1; if your d3 layout depends on
 custom forces or live force setters, keep d3-force or recreate the layout with
 new options.
 

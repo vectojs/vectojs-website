@@ -6,7 +6,7 @@ weight = 48
 
 # `@vectojs/devtools`
 
-Versión documentada: **0.11.0**
+Versión documentada: **0.11.1**
 
 `@vectojs/devtools` es la respuesta a "¿dónde está el panel de Elementos?" — un inspector en página para el Virtual Math Tree, de modo que depurar una escena de VectoJS permanezca en el espacio de estado en lugar del espacio de píxeles. Tiene dos mitades:
 

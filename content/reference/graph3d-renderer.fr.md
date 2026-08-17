@@ -8,6 +8,8 @@ weight = 46
 
 Partie de [`@vectojs/graph3d`](/reference/graph3d/). Consomme le tampon `positions` d'un [`GraphLayout`](/reference/graph3d-layout/).
 
+Version documentée : **0.6.0**
+
 ## `Graph3D` — le renderer
 
 ```ts
@@ -44,7 +46,9 @@ applyPositions(positions: Float32Array): void
 // Écrit les triplets xyz (par ex. le `.positions` d'un GraphLayout) dans les matrices
 // de nœuds instanciés et les extrémités de liens. À appeler après chaque étape de layout
 // qui a déplacé quelque chose ; assez peu coûteux pour être appelé à chaque trame
-// pendant qu'une simulation tourne.
+// pendant qu'une simulation tourne. Si `positions.length < nodeCount * 3`, il renvoie
+// sans rien écrire et avertit une seule fois (verrouillé par `setGraphData`), de sorte
+// qu'un tampon trop court ne puisse jamais écrire de transformations NaN et vider tout le maillage.
 
 pickNode(raycaster: THREE.Raycaster): number | null   // depuis 0.2.0
 // Teste d'intersection uniquement le nuage de nœuds avec un raycaster configuré par l'appelant
@@ -109,9 +113,10 @@ const interaction = new GraphInteraction({
 interaction.dispose(); // supprime les écouteurs de pointeur
 ```
 
-Le glissement est **détecté par fonctionnalité** : sans un layout capable d'épinglage (une implémentation de `pinNode`, comme la fournit [`D3ForceLayout`](/reference/graph3d-layout/)), une pression revient à une sélection. `onDragStart`/`onDrag`/`onDragEnd`, `pinOnDrag` (par défaut `true`), `dragReheat` (par défaut `0.3`), et `dragThreshold` (par défaut `4` px) complètent les options.
+Le glissement est **détecté par fonctionnalité** : sans un layout capable d'épinglage (une implémentation de `pinNode`, comme la fournissent [`VectoForceLayout` et `D3ForceLayout`](/reference/graph3d-layout/)), une pression revient à une sélection. `onDragStart`/`onDrag`/`onDragEnd`, `pinOnDrag` (par défaut `true`), `dragReheat` (par défaut `0.3`), et `dragThreshold` (par défaut `4` px) complètent les options.
 
 ## Voir aussi
 
 [`GraphLayout` & `D3ForceLayout`](/reference/graph3d-layout/) (produit le tampon `positions` que ce renderer consomme, et le `pinNode` sur lequel repose le glisser-épingler) ·
+[`GraphCamera`](/reference/graph3d/#graphcamera) (contrôles de caméra 2D/3D tout-en-un) ·
 [`@vectojs/graph3d` aperçu](/reference/graph3d/)

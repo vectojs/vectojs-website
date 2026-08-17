@@ -35,6 +35,20 @@ const heading = new Text('Mathematical canvas UI', {
 scene.add(heading.setPosition(24, 24));
 ```
 
+> [!IMPORTANT]
+> `lineHeight` is a **pixel value** (default `20`), not a CSS multiplier:
+> passing `1.6` collapses wrapped lines into a 1.6px pitch. Compute the value
+> you want — `lineHeight: 1.6 * 18` for 1.6 × an 18px font — or omit it and
+> let the default `20` apply. The reported `height` of a wrapped `Text` is
+> `lines × lineHeight`, so a too-small `lineHeight` also under-reports layout
+> height, which breaks card/column layout that sizes from `entity.height`.
+>
+> [!NOTE]
+> There is no `letterSpacing` option. Per-character tracking needs a custom
+> entity that measures and draws each glyph (`measureText` per glyph, then
+> `fillText` at accumulated offsets), as the old-site hero does in its
+> `TrackedText`.
+
 ## Maintainer checklist
 
 - Use `setMaxWidth()` for responsive width changes.

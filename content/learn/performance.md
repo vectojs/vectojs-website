@@ -61,8 +61,10 @@ In `'always'` mode, a scene is considered **static** when:
 - The `dirty` flag is `false`, AND
 - No entity has a pending `animate()` tween.
 
-A static scene is throttled to **~2 fps** to save battery and GPU. In the stable
-runtime, the `dirty` flag is consumed at the _start_ of each rendered frame, so
+A static scene is throttled to the **idle floor** to save battery and GPU —
+**60 fps by default since core 1.36.0** (`SceneOptions.idleFPS`; set `2` to
+restore the legacy hard sleep as an explicit choice), a hard 2 fps on older
+cores. The `dirty` flag is consumed at the _start_ of each rendered frame, so
 a `markDirty()` issued from inside `update()` survives into the next frame's
 static check.
 
@@ -117,11 +119,11 @@ setInterval(() => scene.markDirty(), 16); // external driver
 ```
 
 **Fix — option C:** Switch to `renderMode: 'always'` and set `maxFPS` to prevent
-the static throttle (the idle throttle only applies when `maxFPS > 0`; setting
+the idle throttle (it only applies when `maxFPS > 0`; setting
 `maxFPS = 0` uncaps and always rerenders):
 
 ```typescript
-scene.maxFPS = 0; // uncapped — never throttles to 2 fps
+scene.maxFPS = 0; // uncapped — never throttles to the idle floor
 ```
 
 ## `maxFPS` and reduced motion
@@ -553,19 +555,19 @@ left. For headroom, time the phases you control.
 
 ## Quick reference: which knob for which problem
 
-| Symptom                                  | Fix                                                                                                                       |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Scene throttles to 2 fps when idle       | Expected — call `markDirty()` on state changes, or use `renderMode: 'onDemand'` for mostly static scenes                  |
-| Manually animated entity drops to 2 fps  | Override `hasPendingAnimations()` or drive it through `animateTo()` / `springTo()` so the scene knows motion is in flight |
-| Static UI wastes battery                 | Switch to `renderMode: 'onDemand'`                                                                                        |
-| Many compatible circles are slow         | Benchmark `pointBackend: 'webgl'` + `getBatchCircle()` on the target device                                               |
-| Offscreen entities waste CPU             | Implement `getBounds()` on the entity                                                                                     |
-| DOM write overhead during animation      | Set `a11ySyncInterval: 100`                                                                                               |
-| Text reflow on resize is slow            | Use `setMaxWidth()` instead of `setText()`                                                                                |
-| Dense text causes allocation pressure    | Use `LayoutResultBuffer` + `layoutPreparedIntoBuffer()`                                                                   |
-| FPS differs in CI                        | Compare like-for-like CI runs; measure user-facing throughput on target hardware                                          |
-| FPS looks fine but motion feels uneven   | FPS is vsync-saturated — read frame-time p99 and the share of frames inside budget instead                                |
-| Changed something, FPS didn't move       | Expected when vsync-capped; time the phase you changed (JS fill vs GPU submit via `gl.finish()`)                          |
-| Dynamic particles exhaust the CPU budget | Benchmark `ComputeParticleEntity` to offload its fixed-point force model to WebGPU                                        |
-| Multi-line text reflow freezes thread    | Delegate `MSDFTextEntity` layout off-thread via `LayoutWorkerManager` (default `Text`/`RichText` stay on the main thread) |
-| Sea of entities interaction is $O(N^2)$  | Implement a `SpatialHashGrid` — reduces to average $O(k)$, not automatic under heavy clustering; size cells for your data |
+| Symptom                                                                    | Fix                                                                                                                                |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Scene throttles to the idle floor (60 fps by default; 2 on cores < 1.36.0) | Expected — call `markDirty()` on state changes, or use `renderMode: 'onDemand'` for mostly static scenes; `idleFPS` sets the floor |
+| Manually animated entity crawls at the idle floor                          | Override `hasPendingAnimations()` or drive it through `animateTo()` / `springTo()` so the scene knows motion is in flight          |
+| Static UI wastes battery                                                   | Switch to `renderMode: 'onDemand'`                                                                                                 |
+| Many compatible circles are slow                                           | Benchmark `pointBackend: 'webgl'` + `getBatchCircle()` on the target device                                                        |
+| Offscreen entities waste CPU                                               | Implement `getBounds()` on the entity                                                                                              |
+| DOM write overhead during animation                                        | Set `a11ySyncInterval: 100`                                                                                                        |
+| Text reflow on resize is slow                                              | Use `setMaxWidth()` instead of `setText()`                                                                                         |
+| Dense text causes allocation pressure                                      | Use `LayoutResultBuffer` + `layoutPreparedIntoBuffer()`                                                                            |
+| FPS differs in CI                                                          | Compare like-for-like CI runs; measure user-facing throughput on target hardware                                                   |
+| FPS looks fine but motion feels uneven                                     | FPS is vsync-saturated — read frame-time p99 and the share of frames inside budget instead                                         |
+| Changed something, FPS didn't move                                         | Expected when vsync-capped; time the phase you changed (JS fill vs GPU submit via `gl.finish()`)                                   |
+| Dynamic particles exhaust the CPU budget                                   | Benchmark `ComputeParticleEntity` to offload its fixed-point force model to WebGPU                                                 |
+| Multi-line text reflow freezes thread                                      | Delegate `MSDFTextEntity` layout off-thread via `LayoutWorkerManager` (default `Text`/`RichText` stay on the main thread)          |
+| Sea of entities interaction is $O(N^2)$                                    | Implement a `SpatialHashGrid` — reduces to average $O(k)$, not automatic under heavy clustering; size cells for your data          |

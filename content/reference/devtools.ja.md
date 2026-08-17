@@ -6,7 +6,7 @@ weight = 48
 
 # `@vectojs/devtools`
 
-文書化バージョン: **0.11.0**
+文書化バージョン: **0.11.1**
 
 `@vectojs/devtools` は「Elementsパネルはどこ？」という問いに対する答えです — Virtual Math Tree用のインスペクターで、VectoJSシーンのデバッグをピクセル空間ではなく状態空間で行えるようにします。これには2つの部分があります：
 

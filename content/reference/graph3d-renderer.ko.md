@@ -8,6 +8,8 @@ weight = 46
 
 [`@vectojs/graph3d`](/reference/graph3d/)의 일부입니다. [`GraphLayout`](/reference/graph3d-layout/)의 `positions` 버퍼를 사용합니다.
 
+문서 버전: **0.6.0**
+
 ## `Graph3D` — 렌더러
 
 ```ts
@@ -44,6 +46,9 @@ applyPositions(positions: Float32Array): void
 // xyz 삼중항(예: GraphLayout의 `.positions`)을 인스턴스
 // 노드 행렬과 링크 엔드포인트에 씁니다. 무언가를 이동시킨 레이아웃 단계 후마다
 // 호출하세요; 시뮬레이션이 실행 중일 때 매 프레임 호출해도 충분히 저렴합니다.
+// If `positions.length < nodeCount * 3`, it returns without writing anything
+// and warns once (latched per `setGraphData`), so a too-short buffer can never
+// write NaN transforms and blank the whole mesh.
 
 pickNode(raycaster: THREE.Raycaster): number | null   // 0.2.0부터
 // 호출자가 구성한 레이캐스터(카메라 + 포인터 NDC 기준)로 노드 클라우드만
@@ -107,9 +112,10 @@ const interaction = new GraphInteraction({
 interaction.dispose(); // 포인터 리스너 제거
 ```
 
-드래그는 **기능 감지(feature-detected)** 됩니다: 핀 가능한 레이아웃(`pinNode` 구현, [`D3ForceLayout`](/reference/graph3d-layout/)이 제공)이 없으면 누름(press)이 선택으로 대체됩니다. `onDragStart`/`onDrag`/`onDragEnd`, `pinOnDrag`(기본값 `true`), `dragReheat`(기본값 `0.3`), `dragThreshold`(기본값 `4`px)로 옵션을 구성할 수 있습니다.
+드래그는 **기능 감지(feature-detected)** 됩니다: 핀 가능한 레이아웃(`pinNode` 구현, [`VectoForceLayout`과 `D3ForceLayout`](/reference/graph3d-layout/) 모두 제공)이 없으면 누름(press)이 선택으로 대체됩니다. `onDragStart`/`onDrag`/`onDragEnd`, `pinOnDrag`(기본값 `true`), `dragReheat`(기본값 `0.3`), `dragThreshold`(기본값 `4`px)로 옵션을 구성할 수 있습니다.
 
 ## 관련 항목
 
 [`GraphLayout` & `D3ForceLayout`](/reference/graph3d-layout/) (이것이 사용하는 `positions` 버퍼를 생성하며, `pinNode` 드래그-투-핀이 의존함) ·
+[`GraphCamera`](/reference/graph3d/#graphcamera) (배터리 포함 2D/3D 카메라 컨트롤) ·
 [`@vectojs/graph3d` 개요](/reference/graph3d/)

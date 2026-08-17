@@ -6,7 +6,7 @@ weight = 47
 
 # `@vectojs/video-exporter`
 
-Version documentée : **0.2.2**
+Version documentée : **0.2.3**
 
 `@vectojs/video-exporter` pilote une scène VectoJS dans Chromium sans tête, pas à pas avec un pas de temps fixe, capture son canvas sous forme d'images PNG et transmet ces images à FFmpeg pour un encodage H.264 MP4.
 
