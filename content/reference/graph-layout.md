@@ -1,7 +1,6 @@
 +++
 title = "@vectojs/graph-layout"
 description = "Renderer-independent, dependency-free 2D force layout with Barnes-Hut repulsion, incremental topology updates, collision handling, and runtime pinning."
-# Zola page weights are integers; 47 is the buildable equivalent of source order 46.5.
 weight = 47
 +++
 
@@ -30,8 +29,9 @@ The package has no runtime or renderer peer dependency.
 
 ## Canvas 2D example
 
-This example uses contiguous numeric IDs so an ID is also its node index. For
-arbitrary IDs, keep your own `Map<NodeId, number>` matching node order.
+This example uses arbitrary string IDs and resolves their current position
+indices through the layout. Numeric IDs are identifiers too; do not assume a
+numeric ID equals its current node index.
 
 ```ts
 import { ForceLayout2D, type GraphData } from '@vectojs/graph-layout';
@@ -43,10 +43,10 @@ const context = canvas.getContext('2d');
 if (!context) throw new Error('Canvas 2D is unavailable');
 
 const graph: GraphData = {
-  nodes: [{ id: 0, fx: 0, fy: 0 }, { id: 1 }, { id: 2 }],
+  nodes: [{ id: 'center', fx: 0, fy: 0 }, { id: 'left' }, { id: 'right' }],
   links: [
-    { source: 0, target: 1 },
-    { source: 0, target: 2 },
+    { source: 'center', target: 'left' },
+    { source: 'center', target: 'right' },
   ],
 };
 
@@ -65,8 +65,11 @@ function draw(): void {
 
   context.beginPath();
   for (const link of graph.links) {
-    const source = Number(link.source) * 2;
-    const target = Number(link.target) * 2;
+    const sourceIndex = layout.getNodeIndex(link.source);
+    const targetIndex = layout.getNodeIndex(link.target);
+    if (sourceIndex === undefined || targetIndex === undefined) continue;
+    const source = sourceIndex * 2;
+    const target = targetIndex * 2;
     context.moveTo(positions[source], positions[source + 1]);
     context.lineTo(positions[target], positions[target + 1]);
   }
@@ -98,6 +101,7 @@ The package exports the following types and `ForceLayout2D` from its root:
 
 ```ts
 type NodeId = string | number;
+type LinkId = NodeId;
 
 interface GraphNode {
   id: NodeId;
@@ -132,6 +136,7 @@ interface ForceLayout2DOptions {
   centerStrength?: number;
   velocityDecay?: number;
   theta?: number;
+  repulsionDistanceMax?: number;
   alphaDecay?: number;
   alphaMin?: number;
   seed?: number;
@@ -143,19 +148,20 @@ the input records.
 
 ## Options
 
-| Option              |  Default | Meaning                                                                                                     |
-| ------------------- | -------: | ----------------------------------------------------------------------------------------------------------- |
-| `repulsion`         |    `300` | Non-negative many-body repulsion magnitude per node.                                                        |
-| `collisionRadius`   |      `0` | Non-negative radius per node. Two zero-radius nodes do not separate.                                        |
-| `collisionStrength` |      `1` | Non-negative collision correction multiplier. Zero disables collision correction.                           |
-| `linkDistance`      |     `30` | Non-negative resting length per link.                                                                       |
-| `linkStrength`      |    `0.3` | Non-negative spring stiffness per link.                                                                     |
-| `centerStrength`    |   `0.02` | Non-negative pull toward the origin.                                                                        |
-| `velocityDecay`     |    `0.6` | Per-tick velocity retention, clamped below `1`.                                                             |
-| `theta`             |    `0.9` | Non-negative Barnes-Hut opening angle. Lower values trade speed for accuracy; `0` performs exact traversal. |
-| `alphaDecay`        | `0.0228` | Temperature decay per tick, clamped to `[0, 1]`.                                                            |
-| `alphaMin`          |  `0.001` | Non-negative temperature below which the simulation is settled.                                             |
-| `seed`              |      `1` | Deterministic seed for nodes without finite initial coordinates.                                            |
+| Option                 |    Default | Meaning                                                                                                     |
+| ---------------------- | ---------: | ----------------------------------------------------------------------------------------------------------- |
+| `repulsion`            |      `300` | Non-negative many-body repulsion magnitude per node.                                                        |
+| `collisionRadius`      |        `0` | Non-negative radius per node. Two zero-radius nodes do not separate.                                        |
+| `collisionStrength`    |        `1` | Non-negative collision correction multiplier. Zero disables collision correction.                           |
+| `linkDistance`         |       `30` | Non-negative resting length per link.                                                                       |
+| `linkStrength`         |      `0.3` | Non-negative spring stiffness per link.                                                                     |
+| `centerStrength`       |     `0.02` | Non-negative pull toward the origin.                                                                        |
+| `velocityDecay`        |      `0.6` | Per-tick velocity retention, clamped below `1`.                                                             |
+| `theta`                |      `0.9` | Non-negative Barnes-Hut opening angle. Lower values trade speed for accuracy; `0` performs exact traversal. |
+| `repulsionDistanceMax` | `Infinity` | Maximum distance at which nodes repel. `0` disables repulsion; non-finite values disable the cutoff.        |
+| `alphaDecay`           |   `0.0228` | Temperature decay per tick, clamped to `[0, 1]`.                                                            |
+| `alphaMin`             |    `0.001` | Non-negative temperature below which the simulation is settled.                                             |
+| `seed`                 |        `1` | Deterministic seed for nodes without finite initial coordinates.                                            |
 
 Non-finite option values fall back to their defaults. Values documented as
 non-negative are clamped at zero. Node and link accessors are evaluated once
@@ -176,10 +182,17 @@ class ForceLayout2D {
   positions: Float32Array;
   nodeCount: number;
 
+  getNodeIndex(id: NodeId): number | undefined;
+  getNodeId(index: number): NodeId | undefined;
+  getNodeIds(): readonly NodeId[];
   setGraph(data: GraphData): void;
   appendGraph(data: GraphData): void;
   removeNodes(ids: Iterable<NodeId>): void;
+  removeLinks(items: Iterable<GraphLink | LinkId>): void;
+  updateLinks(links: readonly GraphLink[]): void;
   step(iterations?: number): boolean;
+  setNodePin(nodeIndex: number, pin: { x?: number; y?: number }): void;
+  clearNodePin(nodeIndex: number, axes?: { x?: boolean; y?: boolean }): void;
   pinNode(nodeIndex: number, x: number, y: number): void;
   unpinNode(nodeIndex: number): void;
   reheat(alpha?: number): void;
@@ -199,12 +212,18 @@ appending past internal capacity also reallocates the backing storage. Node
 indices can change after removal because survivors are compacted while retaining
 their relative order.
 
+Use `getNodeIndex(id)` to resolve an ID to its current index and `getNodeId(index)`
+for the reverse lookup. Both return `undefined` when no current node matches.
+`getNodeIds()` returns a snapshot in current position order; mutating that array
+does not affect the layout. Existing indices remain stable across append-only
+updates, while removal compacts survivors.
+
 `step(iterations = 1)` performs up to that many synchronous ticks and returns
 `true` if alpha is still at least `alphaMin` afterward. It stops early on
 cooling. Non-positive or non-finite iteration counts perform no ticks and report
 the current active state; counts are floored and capped at 10,000 per call.
 
-### Replacing, appending, and removing
+### Replacing, appending, and removing nodes
 
 `setGraph(data)` replaces all state, deterministically seeds the new graph, and
 sets alpha to `1`. Every node ID must be a string or finite number and must be
@@ -233,16 +252,36 @@ arrays. Malformed link data does not make positions non-finite.
 survivor state, recomputes degree bias, and reheats when something was removed.
 Unknown IDs and an empty iterable are no-ops.
 
+### Removing and updating links
+
+`removeLinks(items)` removes links without changing any node index, position,
+velocity, or pin. Pass a full link to match its directed endpoints plus optional
+ID, or pass a bare `LinkId` to remove every identified link carrying that ID.
+Surviving links retain their order and cached accessor values. Unknown and
+already-removed identities are no-ops. A successful batch recomputes link-degree
+bias and reheats once.
+
+`updateLinks(links)` re-evaluates `linkDistance` and `linkStrength` accessors for
+matching existing identities. Use it after changing application-owned link
+fields consumed by those accessors. The complete batch is validated first:
+unknown or identical endpoints throw without applying any update. An identity
+that is not already present is ignored. Because endpoints participate in link
+identity, rerouting requires `removeLinks()` followed by `appendGraph()`.
+Unchanged values do not reheat the simulation.
+
 ### Pinning and reheating
 
 Finite initial `fx` and `fy` values pin axes independently. A node can therefore
 have fixed X with free Y, fixed Y with free X, or both axes fixed. Initial `x`
 and `y` seed only their corresponding unpinned axes.
 
-At runtime, `pinNode(index, x, y)` pins both axes immediately, updates the live
-position, and clears velocity. `unpinNode(index)` releases both axes. Invalid
-indices are ignored. These calls do not reheat automatically, so call `reheat()`
-after interactive pin or unpin operations.
+At runtime, `setNodePin(index, { x?, y? })` pins only the supplied axes,
+immediately updates those live coordinates, and clears their velocity.
+`clearNodePin(index, { x?, y? })` releases selected axes while preserving the
+other axis; omitting the axes object releases both. `pinNode(index, x, y)` and
+`unpinNode(index)` remain both-axis convenience methods. Invalid indices are
+ignored. These calls do not reheat automatically, so call `reheat()` after
+interactive pin or unpin operations.
 
 `reheat(alpha = 0.3)` clamps the request to `[alphaMin, 1]` and applies
 `max(currentAlpha, requestedAlpha)`. It never cools a hotter simulation.
@@ -271,7 +310,10 @@ Barnes-Hut repulsion.
 
 `setGraph()` is `O(N + E)` apart from geometric capacity allocation and
 initialization. `appendGraph()` is proportional to the appended input plus an
-`O(N + E)` degree-bias recomputation when links are accepted. Storage grows
+`O(N + E)` degree-bias recomputation when links are accepted. `removeLinks()`
+compacts only link storage and is `O(E + R)` when requests are full links, or
+`O(E + RE)` in the worst case when `R` bare IDs each scan all links.
+`updateLinks()` is `O(E + U)` for `U` updates. Storage grows
 geometrically, so most small appends reuse capacity; a growth boundary copies
 existing typed arrays in `O(N + E)` time. `removeNodes()` compacts nodes and
 links and recomputes bias in `O(N + E)`. Removal does not shrink capacity.
@@ -299,14 +341,14 @@ be derived from them.
 
 The conceptual mapping is direct but the API is intentionally smaller:
 
-| `d3-force`                                       | `@vectojs/graph-layout`                             |
-| ------------------------------------------------ | --------------------------------------------------- |
-| `simulation.nodes(nodes)` and `forceLink(links)` | `layout.setGraph({ nodes, links })`                 |
-| `simulation.tick(k)`                             | `layout.step(k)`                                    |
-| Mutated node `x`/`y` fields                      | Interleaved `layout.positions` XY view              |
-| `simulation.alpha(value).restart()`              | `layout.reheat(value)` plus a host-scheduled frame  |
-| `node.fx` / `node.fy` mutation                   | Initial `fx`/`fy`, then `pinNode()` / `unpinNode()` |
-| d3's internal timer                              | No timer; the host owns scheduling                  |
+| `d3-force`                                       | `@vectojs/graph-layout`                                   |
+| ------------------------------------------------ | --------------------------------------------------------- |
+| `simulation.nodes(nodes)` and `forceLink(links)` | `layout.setGraph({ nodes, links })`                       |
+| `simulation.tick(k)`                             | `layout.step(k)`                                          |
+| Mutated node `x`/`y` fields                      | Interleaved `layout.positions` XY view                    |
+| `simulation.alpha(value).restart()`              | `layout.reheat(value)` plus a host-scheduled frame        |
+| `node.fx` / `node.fy` mutation                   | Initial `fx`/`fy`, then `setNodePin()` / `clearNodePin()` |
+| d3's internal timer                              | No timer; the host owns scheduling                        |
 
 Links use endpoint IDs rather than d3-mutated endpoint objects. Option accessors
 receive the original `GraphNode` or `GraphLink` and an insertion index, then are
