@@ -898,33 +898,8 @@ async function boot(): Promise<void> {
   const canvas = document.getElementById('vecto-canvas') as HTMLCanvasElement;
   if (!canvas) return;
 
-  let touchStartY = 0;
-  canvas.addEventListener(
-    'touchstart',
-    (e: TouchEvent) => {
-      if (e.touches?.[0]) {
-        touchStartY = e.touches[0].clientY;
-      }
-    },
-    { passive: true },
-  );
-
-  canvas.addEventListener(
-    'touchmove',
-    (e: TouchEvent) => {
-      if (e.touches?.[0]) {
-        const touchY = e.touches[0].clientY;
-        const deltaY = touchStartY - touchY;
-        touchStartY = touchY;
-        window.scrollBy(0, deltaY);
-      }
-    },
-    { passive: true },
-  );
-
   registerSearchShortcut();
-  currentScene = new Scene(canvas, { maxFPS: 60 });
-  currentScene.renderMode = 'onDemand';
+  currentScene = new Scene(canvas, { maxFPS: 0, renderMode: 'onDemand' });
   currentScene.start();
 
   // The styles layer must own the active theme before any var(--…) resolves.
