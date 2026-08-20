@@ -399,6 +399,7 @@ async function renderApp(): Promise<void> {
       scene: mainScroll,
       width: width,
       height: heroH,
+      title: getHomeStrings(lang).hero.title,
       galleryLabel: getHomeStrings(lang).hero.gallery,
       galleryUrl: payload.config?.gallery || 'https://gallery.vectojs.org',
     });

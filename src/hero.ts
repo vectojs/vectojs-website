@@ -540,8 +540,16 @@ export interface HeroSectionOptions {
   scene: Scene;
   width: number;
   height: number;
+  title: string;
   galleryLabel: string;
   galleryUrl: string;
+}
+
+/** Keep the hero title inside the canvas while retaining the locale's copy. */
+export function fitHeroTitleSize(text: string, width: number, mobile: boolean): number {
+  const baseSize = Math.min(mobile ? 68 : 132, width * 0.18);
+  const maxWidth = Math.max(1, width - (mobile ? 32 : 64));
+  return Math.min(baseSize, maxWidth / Math.max(text.length * 0.75, 1));
 }
 
 /**
@@ -551,7 +559,7 @@ export interface HeroSectionOptions {
  * (or resize) on window resize.
  */
 export function buildHeroSection(opts: HeroSectionOptions): () => void {
-  const { scene, width, height, galleryLabel, galleryUrl } = opts;
+  const { scene, width, height, title: titleText, galleryLabel, galleryUrl } = opts;
   // `scene` may be a container inside a scene; resolve the real Scene for
   // markDirty() and the keep-alive pump. Entities still attach to the passed
   // container so they scroll with the page.
@@ -573,7 +581,7 @@ export function buildHeroSection(opts: HeroSectionOptions): () => void {
   neural.place();
   scene.add(neural);
 
-  const title = new Title('VectoJS');
+  const title = new Title(titleText);
   scene.add(title);
 
   const subtitle = new TrackedText(
@@ -650,7 +658,7 @@ export function buildHeroSection(opts: HeroSectionOptions): () => void {
     field.w = w;
     field.h = h;
     const mobile = w < 720;
-    const titleSize = Math.min(mobile ? 68 : 132, w * 0.18);
+    const titleSize = fitHeroTitleSize(titleText, w, mobile);
     const cx = w / 2;
 
     const titleBaseline = h * 0.46;
