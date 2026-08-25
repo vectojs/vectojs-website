@@ -36,7 +36,7 @@ interface DevtoolsTreeNode {
 
 `label` vaut `` `${type} (${x},${y}) ${W}×${H} ⚡ ▶` `` — la taille est omise quand les deux dimensions valent 0, et les deux badges n'apparaissent que lorsque `interactive` et `hasPendingAnimations()` respectivement.
 
-`pickInScene` est la fonction qu'il vous faut pour « quelle entité possède ce pixel ». Elle vérifie **d'abord l'arborescence overlay**, puis l'arborescence principale, donc une modale ouverte l'emporte correctement sur le contenu derrière elle. `findEntityAt` est la primitive mono-arborescence en dessous : elle parcourt les enfants en ordre inverse, du plus profond au plus haut, donc elle renvoie la frappe peinte au premier plan, et elle retombe sur un test AABB quand `isPointInside` répond non — ce qui signifie que les entités décoratives non interactives restent sélectionnables.
+`pickInScene` est la fonction qu'il vous faut pour « quelle entité possède ce pixel ». Elle vérifie **d'abord l'arborescence overlay**, puis l'arborescence principale, donc une modale ouverte l'emporte correctement sur le contenu derrière elle. `findEntityAt` est la primitive mono-arborescence en dessous : elle parcourt les enfants en ordre inverse, du plus profond au plus haut, donc elle renvoie la frappe peinte au premier plan, et — à l'image du `HitTester` du moteur, sans repli propre — une entité ne gagne que là où son propre `isPointInside` accepte le point. Les entités décoratives ou clippées se résolvent donc à ce qui se trouve derrière elles, exactement comme un vrai clic.
 
 > [!IMPORTANT]
 > `findEntityAt` teste l'entité que vous lui passez ainsi que ses descendants, donc lui passer la racine de la scène peut renvoyer cette racine. `pickInScene` est le défaut plus sûr.

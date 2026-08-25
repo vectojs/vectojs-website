@@ -8,7 +8,7 @@ weight = 46
 
 Partie de [`@vectojs/graph3d`](/reference/graph3d/). Consomme le tampon `positions` d'un [`GraphLayout`](/reference/graph3d-layout/).
 
-Version documentée : **0.6.0**
+Version documentée : **0.6.1**
 
 ## `Graph3D` — le renderer
 

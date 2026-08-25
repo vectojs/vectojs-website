@@ -7,7 +7,7 @@ weight = 11
 # `@vectojs/ui` — Component Reference
 
 > Reusable high-level components for the VectoJS zero-DOM Canvas engine.
-> Version documented: **2.18.0**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
+> Version documented: **2.20.1**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
 
 Every component is a leaf or container in the Virtual Math Tree (VMT). Nothing here is real DOM — components draw themselves to a Canvas via an `IRenderer`. Accessibility, agent automation, and crawlability come from a parallel **A11y Shadow DOM**: when a component is `interactive`, the `Scene` projects a single hidden, transparent real DOM node positioned over the component's box, built from `getA11yAttributes()`. That is why `page.getByRole('button', { name })` / `fill()` / screen readers work against a pure-Canvas UI.
 
@@ -210,7 +210,7 @@ Metrics are px at final size — a fixed box, not scaled by the run's `fontSize`
 
 A11y: each contiguous **link run** gets a transparent `<a>` hotspot child (reconciled across re-wrap — one hotspot per run; position updates in place, only a change in link _count_ rebuilds the shadow nodes). The component's own accessible name is the full concatenated text.
 
-### `measureText`, `wrapLines`, `wrapText` (free functions)
+### `measureText` (free function)
 
 ```ts
 measureText(text: string, font: string): number
@@ -218,19 +218,7 @@ measureText(text: string, font: string): number
 
 Rendered pixel width in a CSS `font`, memoized via a bounded LRU (cap 1000). Arabic is shaped before measuring. Falls back to a `0.5em`-per-char estimate with no DOM.
 
-```ts
-wrapLines(text: string, font: string, maxWidth: number): string[]
-```
-
-Greedy word-wrap honoring explicit `\n`. Over-long words get their own line (not split).
-
-```ts
-wrapText(value: string, maxWidth: number, measure: (s: string) => number): WrappedLine[]
-
-interface WrappedLine { text: string; start: number; end: number; }  // absolute char range
-```
-
-Like `wrapLines` but tracks each line's absolute char range (so a linear caret offset maps to `(line, x)`), consumes hard `\n` (a trailing newline yields a trailing empty line the caret can sit on), and breaks an over-long single word at the character level. Used internally by `TextArea`.
+This is the package's only exported text-measurement helper. The greedy `wrapLines` export was removed in 2.20.0 — its wrapping diverged from the LayoutEngine every component actually uses, so lines it predicted never matched what rendered — and `wrapText` remains an internal `TextArea` utility rather than public API. For layout-critical wrapping use the LayoutEngine itself; for previews and measurement, `measureText` plus your own line-breaking is the supported path.
 
 ---
 

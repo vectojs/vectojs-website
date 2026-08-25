@@ -8,7 +8,7 @@ weight = 46
 
 [`@vectojs/graph3d`](/reference/graph3d/) の一部です。[`GraphLayout`](/reference/graph3d-layout/) の `positions` バッファを消費します。
 
-文書化バージョン: **0.6.0**
+文書化バージョン: **0.6.1**
 
 ## `Graph3D` — レンダラー
 

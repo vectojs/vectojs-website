@@ -55,7 +55,10 @@ interface PropertyDriver {
 
 - **`TweenDriver(from, to, config: TweenConfig)`** — eased interpolation from
   `from` to `to` over `duration` ms, with optional `delay`. `retarget()`
-  restarts the tween from the current value.
+  changes the destination without re-charging a consumed delay: segments run on
+  the monotonic elapsed clock (retargeting during the initial delay still waits
+  out only the remaining part), so rapid retargets cannot starve an animation
+  indefinitely.
 - **`SpringDriver(from, to, config?: SpringConfig)`** — mass-spring-damper
   integration (backed by `@vectojs/math` `SpringPhysics`). `retarget()` keeps
   velocity, so retargeting mid-flight is continuous. `target` is applied
@@ -63,6 +66,20 @@ interface PropertyDriver {
 - `syncExternal(value, extra)` adopts state advanced elsewhere (e.g. a WASM
   batched tick): `extra` is velocity for a spring, elapsed-ms for a tween —
   after the call, `value`/`tick()`/`isDone()`/`retarget()` all stay correct.
+
+**Loud construction and tick guards.** A driver that silently mis-configures
+never settles and hangs every `await` on its completion:
+
+- `TweenDriver` rejects unknown easing-name strings at construction (they
+  previously crashed with a bare `TypeError` on the first tick), and
+  `tick(dt)` ignores NaN, zero, and negative dt — the elapsed clock is never
+  poisoned, and the WASM batched tween kernel declines the same steps the same
+  way, so both engines recover on the next valid frame.
+- `SpringDriver` rejects non-finite or non-positive `stiffness`/`damping`/
+  `mass` at construction instead of silently falling back to physics defaults
+  — such springs diverge or never settle.
+- `isTweenConfig(null)` returns `false`; the discriminator exists to handle
+  untrusted runtime configs.
 
 ## Easing
 

@@ -319,22 +319,18 @@ const hebrew = new RichText([{ text: 'שלום ' }, { text: 'VectoJS', style: { 
 
 ## 輔助函式
 
-`measureText`、`wrapLines` 和 `fontSizePx` 從 `@vectojs/ui` 匯出，可用於自訂元件。
+`measureText` 從 `@vectojs/ui` 匯出，可用於自訂元件。
 
 ```typescript
-import { measureText, wrapLines, fontSizePx } from '@vectojs/ui';
+import { measureText } from '@vectojs/ui';
 
-// 渲染的像素寬度，LRU 快取（上限 1000）—— 以原始文字為鍵，因此快取命中
-// 只需一次 map 查找，不會重新執行阿拉伯文塑形
-//（未命中時阿拉伯文仍以其上下文塑形形式測量）
+// Rendered pixel width, LRU-cached (cap 1000) — keyed on the RAW text, so a
+// cache hit costs a map lookup and does not re-run Arabic shaping
+// (Arabic is still measured in its contextually-shaped form on a miss)
 const w = measureText('Hello world', '600 16px Inter');
-
-// 貪婪單詞換行 — 返回 string[]
-const lines = wrapLines('A longer text that wraps', '16px sans-serif', 200);
-
-// 從 CSS 字型縮寫中提取 px 大小
-const size = fontSizePx('600 16px Inter'); // → 16
 ```
+
+`measureText` 在測量前透過 `ArabicShaper` 處理阿拉伯文字形，因此它返回阿拉伯文的正確視覺寬度。沒有已匯出的換行輔助函式：元件透過 LayoutEngine 進行換行，而舊的貪婪式 `wrapLines` 匯出已在 ui 2.20.0 中移除，因為其斷行點與實際渲染的結果不一致 —— 元件之外的換行需求請基於 `measureText` 自行實作斷行邏輯。
 
 `measureText` 在測量前透過 `ArabicShaper` 處理阿拉伯文字形，因此它返回阿拉伯文的正確視覺寬度。
 

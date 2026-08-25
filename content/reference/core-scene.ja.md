@@ -99,9 +99,9 @@ scene.forcedColors: boolean             // getter — OS is in a forced-colors m
 - **`renderMode: 'always'`（デフォルト）** — 毎フレーム再レンダリング、実効FPSで制限。
 - **`renderMode: 'onDemand'`** — シーンが_ダーティ_（`markDirty()` を参照）であるか、アニメーション/トランジションドライバーが保留中のときにのみ描画します。静的なrAFティックは依然としてツリー内の保留中のモーションを検査しますが、エンティティの更新/レンダリングとGPUサブミッションをスキップします。静的なUI/イベント駆動型UIに最適です。
 
-**アイドル自動スロットル（重要な注意点）。** シーンは、ダーティではなく、メインツリー/オーバーレイツリー内のノードに保留中の `animate()` トゥイーンがない場合に**静的**と見なされます。`'always'` モードで `maxFPS > 0` の場合、静的なシーンはバッテリー/GPU節約のため**約2fps**にスロットルされます。`dirty` フラグはレンダリングされた各フレームの終わり（ポストレンダリング）に `false` にリセットされるため：
+**アイドル自動スロットル（重要な注意点）。** シーンは、ダーティではなく、メインツリー/オーバーレイツリー内のノードに保留中の `animate()` トゥイーンがない場合に**静的**と見なされます。`'always'` モードで `maxFPS > 0` の場合、静的なシーンはバッテリー/GPU節約のため**アイドルフロア**までスロットルされます — `1.36.0` 以降は **60 fps**（`idleFPS` で設定）、それ以前はハードな 2fps でした。`autoThrottle: false`（オプションまたはライブの `scene.autoThrottle`）を設定するとスロットルを完全に無効化でき、`idleFPS: 2` を設定すると従来の積極的なスリープに戻ります。`dirty` フラグは各レンダリングフレームの_開始時_に消費されるため、`update()` 内で発行された `markDirty()` は次フレームの静的チェックまで生き残ります：
 
-> カスタム `update()` 内で `entity.x` などを変更して手動アニメーションを行う場合、`update()` **内**で `markDirty()` を呼び出しても効果はありません — ポストレンダリングのリセットがそれを消去し、次のフレームの静的チェックは `dirty === false` を認識して2fpsにスロットルします。モーションを [`entity.animate()`](/reference/core-entity/#アニメーション) で駆動するか（トゥイーン実行中はシーンを非静的状態に保つ）、またはフレーム**間**（イベントハンドラー、別個の `rAF`、またはタイマーから）`scene.markDirty()` を呼び出して、フラグが次のループ反復まで生存するようにしてください。
+> 手動アニメーション（カスタム `update()` 内で `entity.x` などを変更する）は、報告しない限り静的チェックからは見えません — [`entity.animate()`](/reference/core-entity/#アニメーション) でモーションを駆動するか（トゥイーン実行中はシーンを非静的状態に保つ）、インテグレーターの実行中に `hasPendingAnimations()` をオーバーライドして `true` を返すか、`update()` から毎フレーム `scene.markDirty()` を呼び出してください（次フレームが再度作動します）。そうしないと、シーンはスロットルフロアまでアイドル状態に落ち、モーションがのろのろになります。
 
 `effectiveMaxFPS` = `maxFPS`。OSが動きの低減を要求し、`respectReducedMotion` がオンの場合、さらに30（`REDUCED_MOTION_FPS`）に引き下げられます。`0` は上限なしを意味します。
 
@@ -194,6 +194,29 @@ measureVectoUserTiming(name: string, durationMs: number): void
 ```
 
 ホストがマーク/メジャーを実装していない場合、`beginVectoUserTiming`は`null`を返し（`measureVectoUserTiming`はno-op）、オプションのプロファイリングは決してランタイム要件になりません。スパンは一意に名前付けされた開始/終了マークを使用し、`endVectoUserTiming`で解放されます。`measureVectoUserTiming`は、互いに素な呼び出しから蓄積された継続時間について、現在時刻に固定された1つのメジャーを発行します — すべてのエンティティを計測せずにフレームごとのエンティティペイント合計を報告するパスです。
+
+### WASM アクセラレータバックエンド
+
+4つの計算ホットスポットはWebAssemblyで実行できます。それぞれに、同期インストール/クリア（`set*Backend`）と非同期ホットスワップ（`enableWasm*`）があり、後者はモジュールをインスタンス化し、失敗時にはJSへフォールバックします。**失敗はデフォルト状態であり、決してエラーパスではありません**。`enable*` 形式はURL文字列、`URL`、`Response`、または生バイトを受け付けます。
+
+```ts
+await scene.enableWasmTransforms(new URL('./vectojs_core.wasm', import.meta.url)); // transforms (render walk)
+await scene.enableWasmHitTest(source);    // hit-testing
+await scene.enableWasmAnimBatching(source); // animation driver batching
+await scene.enableWasmParticles(source);  // CPU particle simulation fallback
+scene.setTransformBackend(backend | null); scene.setHitTestBackend(...);
+scene.setAnimBackend(...); scene.setParticleBackend(...);  // synchronous swap/clear
+scene.wasmRuntime: CoreWasmRuntime | null  // getter — loaded runtime, or null
+scene.particleSimBackend: 'js' | 'wasm'    // getter — which backend runs the CPU particle sim
+```
+
+バックエンドがそのフレームで実際に**実行された**かどうかは、それがインストールされているかどうかとは別の問いです。`@vectojs/devtools` の `inspectAccelerators()` はバックエンドごとの `activeThisFrame` を報告します。JSが本当に高速な場合の `'below-gate'` 判定も含まれます。wasmモジュールはmonorepoの `just wasm` によってビルドされ、`crates/vectojs-core-rs/` から出荷されます（`.wasm` はコミットされません。CIでビルドされnpmに公開されます）。
+
+これらのカーネルは1つの失敗契約に従い、`vectojs-force-rs` と数値レベルで共有しています:
+
+- **割り当て失敗はトラップではなくステータスを返す。** 各 `*_init` は割り当てを段階的に行い、アロケータが拒否した場合は部分的なセットを解放して `STATUS_OVERFLOW` を報告します。そのためJS呼び出し側は呼び出しごとにリファレンスパスへフォールバックできます。以前は割り当ての失敗が `panic = "abort"` の下でインスタンス全体を異常終了させていました。JSからは捕捉できません。
+- **ゴミ入力は汚染ではなく辞退。** バッチ化されたtweenカーネルは、NaN・ゼロ・負の `dt` を `TweenDriver.tick` とまったく同じように拒否します（`STATUS_OK`、何も書き込まない）。悪いフレームがtweenを永久に挟み込むことはありません。完了したtweenはJSドライバーの終端値にビット単位で一致して着地します。
+- **カーネル選択はエクスポートをプローブする。** SIMDエントリポイント（`compute_aabbs_simd`、`compose_simd`）は使用前にプローブされます。あるエクスポートより前の古いキャッシュモジュールは、レンダリング中にスローするのではなく、ビット単位で同一のスカラーパスにダウングレードします。
 
 ## プラガブルバックエンドレジストリ（静的）
 

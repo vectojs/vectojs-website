@@ -6,7 +6,7 @@ weight = 44
 
 # `@vectojs/graph3d`
 
-记录的版本：**0.6.0**
+记录的版本：**0.6.1**
 
 用于 VectoJS 的 3D 力导向图可视化：一个可插拔的 `GraphLayout` 约定（worker 友好，位置作为一个扁平的 `Float32Array`），外加 `Graph3D`，一个在恰好两次绘制调用中绘制任意图（无论多少节点）的实例化 Three.js 渲染器。参见实时的[《悲惨世界》演示](/demos/graph3d/)了解运动中的规范 77 节点/254 链接数据集。
 

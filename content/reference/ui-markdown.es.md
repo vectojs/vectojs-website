@@ -20,7 +20,7 @@ Los párrafos y encabezados se convierten en `RichText`, los bloques de código 
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Demostración en vivo de Markdown" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.39.0-ui-2.20.1" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Demostración en vivo de Markdown" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>La muestra mantiene prosa, enlaces, código en línea y un bloque de código en un viewport enfocado para que los defectos de diseño sean visibles.</figcaption>
 </figure>
 
@@ -89,6 +89,16 @@ markdown.setOptions({
 
 Una clave por tipo omitida hereda el `copy`/`download` de nivel superior, que a su vez hereda `true`. Los bloques de código también pueden enmarcarse con un borde estableciendo `theme.codeBorderColor` (opcional; si no se establece, se mantiene el renderizado anterior sin bordes) — útil en fondos de página claros donde el relleno del código se funde con el fondo.
 
+## Tematización: `setTheme()`
+
+```ts
+markdown.setTheme(theme: MarkdownThemePresetName | Partial<MarkdownTheme>): this
+```
+
+Cambia la paleta y vuelve a renderizar el documento (`0.23.0+`). Acepta un nombre de preajuste — `'githubDark' | 'githubLight' | 'dracula' | 'solarizedDark' | 'solarizedLight'` — o un objeto de tema parcial con solo las claves a cambiar, las mismas formas que la opción `theme` del constructor. Las entidades capturan colores, fuentes y tamaños en tiempo de construcción, así que no hay repintado en vivo de los bloques existentes: el re-renderizado pasa por `setContent`, que también transporta el nuevo `blockGap` a la pila de contenido.
+
+La asignación directa a `markdown.theme` es un error de compilación y ahora también lanza en tiempo de ejecución para los llamadores JS — asignar después de la construcción pintaba parte del documento con cada paleta. Pasa la paleta en la construcción o llama a `setTheme()`.
+
 ## Ancho adaptable: `setMaxWidth()`
 
 ```ts
@@ -125,7 +135,11 @@ caracteres adicionales entregados al analizador léxico.
 
 Si el ancho no cambia no hace nada, de modo que un redimensionado solo en altura
 no cuesta nada y quien llama no necesita una guarda. Un ancho negativo se acota
-a 0.
+a 0. Con `blockAffordances: true`, los bloques de código y las tablas llegan
+envueltos en un armazón de affordances — el reflow mira a través del armazón,
+redimensiona el bloque interno y actualiza sus controles, de modo que los bloques
+envueltos siguen el nuevo ancho como todo lo demás (`0.23.0+`; antes conservaban
+en silencio el ancho antiguo).
 
 > [!NOTE]
 > Antes de `0.9.0` el único apaño correcto era una reconstrucción completa:
@@ -247,6 +261,11 @@ fragmentos aceptados antes del siguiente rAF. `write()` se resuelve al admitirse
 búfer acotado, no al hacerse visible. Cuando la capacidad es insuficiente, una
 escritura espera; otra escritura mientras ese esperador existe se rechaza, de modo que
 un productor que ignora la contrapresión no puede hacer crecer una cola no acotada.
+
+El cierre de `close()` se observa exactamente una vez: si el hook de cierre del
+anfitrión lanzó o rechazó, un `close()` reintentado informa del fallo original en
+lugar de resolverse por el cortocircuito de cerrado (`0.23.0+` — los reintentos tras
+un cierre exitoso sí se resuelven).
 
 `pacing.graphemesPerSecond` añade un ritmo de máquina de escribir fijo en tiempo real
 manteniendo el techo de una confirmación por fotograma. `Intl.Segmenter` mantiene

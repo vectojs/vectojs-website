@@ -8,7 +8,7 @@ weight = 45
 
 [`@vectojs/graph3d`](/reference/graph3d/) の一部です。
 
-文書化バージョン: **0.6.0**
+文書化バージョン: **0.6.1**
 
 ## データモデル — `GraphData`
 
@@ -57,6 +57,10 @@ interface GraphLayout {
 
 契約は意図的に最小限でワーカーフレンドリーです：位置は`GraphData.nodes`の順序でxyzトリプレットを持つ1つのフラットな`Float32Array`であるため、実装は完全にWeb Worker内で動作し、そのバッファを転送可能オブジェクトとしてスレッド境界を越えてストリーミングできます（ノードごとのオブジェクトトラフィックなし）。[`Graph3D.applyPositions()`](/reference/graph3d-renderer/#メソッド) はまったく同じバッファ形状を直接消費します。`positions` はステップ間で再利用される**同じ配列インスタンス**です — ライブビューではなく安定したスナップショットが必要な場合はコピー（`layout.positions.slice()`）してください。
 
+**リンクエンドポイントの検証はスタック全体で統一されています（0.6.1）。** `Graph3D.setGraphData`、`VectoForceLayout.setGraph`、`D3ForceLayout.setGraph` はいずれも、エンドポイントがグラフ内のどのノードも指さないリンクに対して、同じ `references an unknown node id` エラーをスローします — 検証は状態が変更される前に実行されるため、拒否されたグラフでは以前のグラフがそのまま保たれます（以前の `D3ForceLayout` は生の id を d3-force-3d に渡してしまい、その tick がすべての位置を密かに NaN に崩壊させていました；以前の `VectoForceLayout` はリンクを黙ってスキップしていました）。自己ループは依然としてスプリングを持たない正当な入力です: `VectoForceLayout` はそれらをスキップします。
+
+この契約のオプションのピン制御はノードの**インデックス**で指定されるのに対し、2D の [`ForceLayout2D`](/reference/graph-layout/) はノード **ID** でピン留めし（そのためそのピンは `removeNodes` の圧縮後も有効です）、平行辺の同一性の扱いも異なります — このパッケージのスタックは平行リンクを別個の辺として扱いますが、node-editor などの利用者は重複するエンドポイントの四つ組を拒否します。スタック間でコードを移植するときはピンとリンク同一性を変換してください。
+
 `@vectojs/graph3d` は現在、この契約の背後で2つの実装を同梱しています：自社製の [`VectoForceLayout`](#vectoforcelayout)（Barnes–Hutオクトツリー、ランタイム依存なし。デフォルト）と [`D3ForceLayout`](#d3forcelayout)（既存のd3チューニングとの同等性を保つための `d3-force-3d` アダプター）— さらにDAGレイアウトモードがパッケージロードマップにあり、すべてこの同じインターフェースの背後にあるため、レンダラーやワーカーホストはどれが実行されているかを知る必要がありません。
 
 ## `D3ForceLayout`
@@ -89,14 +93,14 @@ interface VectoForceLayoutOptions {
   centerStrength?: number; // pull toward the centroid. Default 0.02.
   velocityDecay?: number;  // per-step velocity damping. Default 0.6.
   theta?: number;          // Barnes–Hut opening angle. Default 0.9.
-  alphaDecay?: number;     // cooling rate. Default 0.0228; 0 disables cooling.
+  alphaDecay?: number;     // cooling rate. Default 0.0228; non-positive falls back to the default.
   alphaMin?: number;       // alpha below which step() reports cooled. Default 0.001.
   seed?: number;           // RNG seed for deterministic placement. Default 1.
   measurePhases?: boolean; // opt-in per-tick phase profiling. Default false.
 }
 ```
 
-自社製レイアウト（0.3.0で追加、かつデフォルト）：多体項にBarnes–Hutオクトツリーを使用した力指向シミュレーション — ランタイム依存なし、`seed`の下で決定的、Web Worker内で安全（`D3ForceLayout`と同じ`step(iterations)`契約）。位置と速度は**f32**で保持され（公開される`Float32Array`に一致）、オクトツリーは質量中心と反発積分を**f64**で累積します。実行間で同一の結果が欲しい場合にこれを選択します；`repulsion`/`linkStrength`で調整し、`alphaDecay`をゼロより上げる際は慎重に — すでに冷却の端に近いため、より高い値はグラフを後ではなく前に凍結させます。
+自社製レイアウト（0.3.0で追加、かつデフォルト）：多体項にBarnes–Hutオクトツリーを使用した力指向シミュレーション — ランタイム依存なし、`seed`の下で決定的、Web Worker内で安全（`D3ForceLayout`と同じ`step(iterations)`契約）。位置と速度は**f32**で保持され（公開される`Float32Array`に一致）、オクトツリーは質量中心と反発積分を**f64**で累積します。実行間で同一の結果が欲しい場合にこれを選択します；`repulsion`/`linkStrength`で調整し、`alphaDecay`をゼロより上げる際は慎重に — すでに冷却の端に近いため、より高い値はグラフを後ではなく前に凍結させます。非正の `alphaDecay` はコンストラクションで拒否され、デフォルト値にフォールバックします（リテラルの `0` は、かつてシミュレーションを永遠に収束させずに走らせ続けていました）。
 
 ```ts
 layout.step(); // 1ティック

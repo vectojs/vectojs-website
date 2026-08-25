@@ -1,6 +1,6 @@
 +++
 title = "ThreeAdapter"
-description = "Render a VectoJS Scene onto a canvas, expose it as a THREE.CanvasTexture, and wire pointer events (including WebXR controllers and multi-touch) via UV raycasting."
+description = "Render a VectoJS Scene onto a canvas, expose it as a THREE.CanvasTexture, and wire pointer events (including WebXR controllers and multi-touch) plus panel focus and keyboard routing via UV raycasting."
 weight = 42
 +++
 
@@ -45,7 +45,7 @@ interface ThreeAdapterOptions {
 ```ts
 updateIntersection(
   raycaster: THREE.Raycaster,
-  type: 'pointerdown' | 'pointerup' | 'pointermove' | 'wheel' | 'click',
+  type: 'pointerdown' | 'pointerup' | 'pointermove' | 'pointercancel' | 'wheel' | 'click',
   originalEvent?: PointerEvent | WheelEvent
 ): boolean
 ```
@@ -67,13 +67,59 @@ resize(width: number, height: number): void
 
 Resize the canvas and the underlying logical `VectoScene`. Call when the panel's render resolution or 2D layout viewport changes; changing only the mesh's world-space scale does not require this.
 
+## Panel focus and keyboard input (0.1.10+)
+
+The adapter canvas is offscreen, so its projected accessibility mirrors can never become `document.activeElement` and the browser's focus model does not reach them. The adapter fills that gap with **panel focus** — Three-side state that pointer interaction and `focus()` drive, key routing consumes, and every transition bridges through synthetic `FocusEvent`s so core-side state (entity `focus`/`blur` emits, caret-blink wake) matches a connected canvas.
+
+```ts
+adapter.focusedEntity: Entity | null // read-only — the entity holding panel focus
+adapter.focus(entity: Entity | null): void // move focus, or blur with null
+adapter.blur(): void // release panel focus
+adapter.isFocusable(entity: Entity): boolean // projects as keyboard-reachable?
+```
+
+`isFocusable` is the panel-side analog of DOM tabbability: true when the projected mirror carries a `tabindex` attribute or renders as a natively-focusable tag (`button`/`input`/`textarea`/`select`/`a[href]`). A pointerdown focuses the nearest focusable ancestor of the hit — clicking a `<span>` inside a button focuses the button, and a hit chain projecting nothing reachable blurs.
+
+### `dispatchKey(key, mods?, phase?)`
+
+```ts
+dispatchKey(
+  key: string,
+  mods?: { ctrlKey?: boolean; altKey?: boolean; shiftKey?: boolean; metaKey?: boolean; code?: string },
+  phase?: 'press' | 'keydown' | 'keyup', // default 'press' — synthesizes keydown+keyup
+): void
+```
+
+The keyboard counterpart of `updateIntersection`: synthesize a key event and route it through the same dispatch path a connected canvas would use. Routing rules, in order:
+
+1. **Panel focus** — when an entity holds panel focus, the event is dispatched at its projected mirror, so core's own listeners run unchanged: entity `keydown`/`keyup` handlers receive it, and projected controls keep their activation contract (`Enter` activates on press, `Space` on release).
+2. **Ownership** — while the focused entity is a _keyboard owner_, the panel owns the keys exclusively and nothing leaks to the page. Owners are entities projecting an `input`/`textarea`/`select` tag or a role in core's `KEYBOARD_OWNING_ROLES`: the interactive roles (`button`, `switch`, `checkbox`, `radio`, `link`, `tab`, `menuitem`, `slider`, `combobox`) plus the keyboard-first roles `textbox`, `searchbox`, `spinbutton`, `option`, and `listbox`. Arrow keys move a slider instead of orbiting your camera; typing reaches a textbox instead of triggering page shortcuts.
+3. **Channel forwarding** — otherwise the event continues to `window`, where the scene-level key channel applies its native gates (`defaultPrevented`, key auto-repeat, `ownsKeyboard(document.activeElement)`), so scene shortcuts and page-level consumers see it unless a page-level keyboard owner holds focus. An entity handler calling `preventDefault()` on the synthetic event suppresses the forward, matching connected-canvas bubbling.
+4. **No panel focus** — the event goes straight to `window` and the same gates decide.
+
+`code` defaults to a best-effort inference (`'a'` → `'KeyA'`, `' '` → `'Space'`, digits → `'DigitN'`). Pass `mods.code` to override for layouts the inference cannot name.
+
+### `dispatchPointer(type, x, y, init?)`
+
+```ts
+dispatchPointer(
+  type: 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'click',
+  x: number, // logical scene-space X (origin top-left)
+  y: number, // logical scene-space Y
+  init?: { pointerId?: number; button?: number; buttons?: number;
+           ctrlKey?: boolean; altKey?: boolean; shiftKey?: boolean; metaKey?: boolean },
+): boolean // whether the point hit an entity
+```
+
+Synthesize pointer input at **logical scene coordinates** — the space entity layout and `findEntityAt` speak. The event flows through the identical downstream path as a raycast-driven `updateIntersection`: hover transitions, entity dispatch, pointerdown-driven focus, and texture-dirty scheduling all behave the same, which makes this the entry point for tests and automation that have no raycaster. Wheel input is deliberately not covered — wheel deltas have no neutral defaults, so route those through `updateIntersection` with the real `WheelEvent`.
+
 ### `dispose()`
 
 ```ts
 dispose(): void
 ```
 
-Idempotently disposes the `THREE.CanvasTexture`, geometry, and material on the mesh, detaches the mesh, restores the Scene render method, destroys the `VectoScene`, and clears all per-pointer state. An adapter-created canvas is released to `0×0`; a caller-provided canvas keeps its dimensions.
+Idempotently disposes the `THREE.CanvasTexture`, geometry, and material on the mesh, detaches the mesh, restores the Scene render method, destroys the `VectoScene`, and clears all per-pointer state (panel focus dies with the scene). An adapter-created canvas is released to `0×0`; a caller-provided canvas keeps its dimensions.
 
 ## Complete example
 
@@ -97,7 +143,10 @@ camera.position.set(0, 0, 3);
 // --- VectoJS panel adapter (512×256 logical pixels, displayed on a 2×1 plane) ---
 const adapter = new ThreeAdapter({ width: 512, height: 256 });
 
-const heading = new Text('Settings', { font: '600 24px Inter', color: '#f8fafc' });
+const heading = new Text('Settings', {
+  font: '600 24px Inter',
+  color: '#f8fafc',
+});
 const applyBtn = new Button('Apply', { width: 120, height: 40 });
 applyBtn.on('click', () => console.log('apply clicked'));
 

@@ -36,7 +36,7 @@ interface DevtoolsTreeNode {
 
 `label` es `` `${type} (${x},${y}) ${W}×${H} ⚡ ▶` `` — el tamaño se omite cuando ambas dimensiones son 0, y los dos badges aparecen solo cuando `interactive` y `hasPendingAnimations()`, respectivamente.
 
-`pickInScene` es la función que quieres para "qué entidad es dueña de este píxel". Comprueba **primero el árbol de overlay** y después el árbol principal, de modo que un modal abierto gana correctamente sobre el contenido que hay detrás. `findEntityAt` es la primitiva de un solo árbol que hay debajo: recorre los hijos en orden inverso, de más profundo a menos, así que devuelve el acierto pintado en la parte superior, y cae a una prueba AABB cuando `isPointInside` dice que no — lo que significa que las entidades decorativas no interactivas siguen siendo seleccionables.
+`pickInScene` es la función que quieres para "qué entidad es dueña de este píxel". Comprueba **primero el árbol de overlay** y después el árbol principal, de modo que un modal abierto gana correctamente sobre el contenido que hay detrás. `findEntityAt` es la primitiva de un solo árbol que hay debajo: recorre los hijos en orden inverso, de más profundo a menos, así que devuelve el acierto pintado en la parte superior, y — coincidiendo con el `HitTester` del motor, sin reserva propia — una entidad gana solo donde su propio `isPointInside` acepta el punto. Las entidades decorativas o recortadas se resuelven por tanto a lo que hay detrás de ellas, exactamente como lo haría un clic real.
 
 > [!IMPORTANT]
 > `findEntityAt` prueba la entidad que le pasas además de sus descendientes, así que pasarle una raíz de escena puede devolver esa raíz. `pickInScene` es el valor por defecto más seguro.

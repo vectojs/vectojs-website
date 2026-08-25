@@ -6,7 +6,7 @@ weight = 44
 
 # `@vectojs/graph3d`
 
-Version documented: **0.6.0**
+Version documented: **0.6.1**
 
 3D force-directed graph visualization for VectoJS: a pluggable `GraphLayout` contract (worker-friendly, positions as one flat `Float32Array`) plus `Graph3D`, an instanced Three.js renderer that draws any graph — however many nodes — in exactly two draw calls. See the live [Les Misérables demo](/demos/graph3d/) for the canonical 77-node/254-link dataset in motion.
 

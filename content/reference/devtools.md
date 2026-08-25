@@ -6,7 +6,7 @@ weight = 48
 
 # `@vectojs/devtools`
 
-Version documented: **0.11.1**
+Version documented: **0.11.2**
 
 `@vectojs/devtools` is the answer to "where's the Elements panel?" — an inspector for the Virtual Math Tree, so debugging a VectoJS scene stays in state space instead of pixel space. It has two halves:
 
@@ -60,7 +60,7 @@ if (import.meta.env.DEV) {
 The header carries three ghost icon buttons — **⌖** (pick), **⟳** (refresh), **⚠** (audit) — and three count badges: total entities, interactive (**⚡**), and audit findings (**⚠**). A `Tabs` bar splits the tools into **Tree · Info · Audit · A11y · Log · ⚙**, plus one tab per registered [plugin inspector](/reference/devtools-extend/#plugin-protocol). A perf strip is pinned at the bottom.
 
 - **Live tree view** (`Tree`) of `scene.rootEntity` and `scene.overlayRootEntity`, refreshed on an interval (default 500ms). Each row shows the entity's constructor name, position, size, and two badges: **⚡** (`interactive`) and **▶** (`hasPendingAnimations()`). A **filter** field narrows rows by type/id substring; it is view-only, so the id→entity index still resolves everything. Programmatic: `panel.setFilter(text)`.
-- **Pick mode**: click **⌖**, then click anywhere on the page. The inspector resolves the click to the deepest entity under that point using the same walk order the Scene uses for pointer input, with an AABB fallback for decorative, non-interactive entities.
+- **Pick mode**: click **⌖**, then click anywhere on the page. The inspector resolves the click to the deepest entity under that point using the same walk order (and the same acceptance rule) the Scene uses for pointer input — an entity is pickable only where its own shape accepts the point, exactly like the engine, so particles and other non-interactive entities are never false owners.
 - **Selection highlight**: the selected entity's geometry is outlined on the _host_ scene's overlay layer, so you see exactly what is selected relative to the live render. By default it draws the layout box; `panel.setHighlightLayers()` switches it to any of the seven [geometry layers](/reference/devtools-inspect/#highlight-geometry) — including `'hit'`, which samples the entity's real hit region rather than its box.
 - **State readout + inline editing** (`Info`): geometry, scale/rotation/opacity, the full world transform matrix, animation state, and any `getDevtoolsDescriptor()` output the entity publishes. Adds inline `x`/`y`/`opacity` editors and **Copy path** / **Copy JSON** buttons.
 - **A11y tab**: the selected entity's projected role, accessible name and its source, tab index, reading-order position, and the canvas-vs-DOM box — plus the scene-wide [a11y audit](/reference/devtools-audit/#a11y-audit) findings.

@@ -6,7 +6,7 @@ weight = 46
 
 # `@vectojs/knowledge-graph/model`
 
-Version documented: **0.3.2**
+Version documented: **0.4.0**
 
 `KnowledgeGraphModel` owns a bounded, materialized cut of a larger knowledge
 graph. It loads seed entities and neighbor pages from a `KgDataSource`,
@@ -42,7 +42,7 @@ interface KgNeighborOptions {
 }
 
 interface KgNeighborhood {
-  entity: KgEntity;
+  entity?: KgEntity;
   facts: readonly KgFact[];
   neighbors: readonly KgEntity[];
   total?: number;
@@ -53,21 +53,25 @@ interface KgNeighborhood {
 interface KgDataSource {
   getNodes(ids?: readonly NodeId[]): readonly KgEntity[] | Promise<readonly KgEntity[]>;
   getNeighbors(id: NodeId, options?: KgNeighborOptions): KgNeighborhood | Promise<KgNeighborhood>;
-  getLabels?(
-    ids: readonly NodeId[],
-    lang?: string,
-  ): ReadonlyMap<NodeId, string> | Promise<ReadonlyMap<NodeId, string>>;
 }
 ```
 
 Treat `cursor` as opaque. A source should apply `limit`, honor `direction`, pass
 the supplied abort signal to downstream work, and return `nextCursor` plus
 `hasMore` when another page exists. `total` is optional and describes the total
-facts available for that node expansion, not merely the current page.
+facts available for that node expansion, not merely the current page. With
+`direction: "both"`, a fact whose source and target are the same node is listed
+once per page, not twice.
+
+`entity` is optional: a source that does not know the requested id returns a
+neighborhood without one, and the model fails that expansion with a targeted
+error instead of permanently ingesting a fabricated placeholder node.
 
 `MemoryDataSource` implements this contract for tests and small in-memory
-graphs. Its cursors are decimal offsets, neighbor lookup is `O(degree)`, and an
-invalid cursor throws.
+graphs. Its cursors are version-stamped offsets (`<version>:<offset>`), so
+calling `load()` mid-pagination invalidates outstanding cursors loudly — they
+throw rather than silently slicing a different fact list. Neighbor lookup is
+`O(degree)`, and an invalid cursor throws.
 
 ## Creating and expanding a model
 
@@ -115,8 +119,9 @@ interface ExpansionState {
 }
 ```
 
-Read a defensive copy with `getExpansionState(id)`. `loaded` is the number of
-accepted page facts reported across that expansion. `partial` means another
+Read a defensive copy with `getExpansionState(id)`. `loaded` counts every fact
+delivered per batch, so paginated progress does not stall when neighborhoods
+overlap across pages. `partial` means another
 page is available; calling `expand(id)` resumes from its stored cursor.
 
 `cancelExpand(id)` aborts the active request and marks it `cancelled`. The data
@@ -151,22 +156,43 @@ unsupported snapshot version throws before replacement.
 ## Optional layout integration
 
 `KnowledgeGraphModelOptions.layout` accepts the XYZ `GraphLayout` contract from
-`@vectojs/graph3d`. When supplied, each materialization rebuild calls
-`layout.setGraph()`, preserves finite XYZ positions by node ID as warm starts,
-and reheats after a loaded page when the layout exposes `reheat()`.
+`@vectojs/graph3d`. The model is the single layout driver: each materialization
+rebuild calls `layout.setGraph()` once, preserves finite XYZ positions by node
+ID as warm starts, and reheats after a loaded page when the layout exposes
+`reheat()`. Warm-start positions are captured when the layout settles (and at
+rebuild time) rather than every hot frame.
 
 Call `captureLayoutPositions()` before an external operation that needs the
 latest layout coordinates retained. This optional contract is three-dimensional:
 do not pass the XY `ForceLayout2D` from `@vectojs/graph-layout` directly. A 2D
 renderer can omit `layout` and run its own renderer-neutral layout over
-`getGraphData()`.
+`getGraphData()`. Note that this contract pins by node **index** while 2D
+`ForceLayout2D` pins by node ID — translate pins when crossing over.
 
 ## Disposal
 
-`dispose()` aborts active requests, disposes the optional layout, and releases
-materialized state. It is idempotent. Methods that require a live model throw
+`dispose()` aborts active requests and releases materialized state. It is
+idempotent. Methods that require a live model throw
 `KnowledgeGraphModel is disposed` afterward; late async completions cannot
-repopulate disposed or snapshot-replaced state.
+repopulate disposed or snapshot-replaced state. Ownership is creator-owns:
+the model only borrows its optional layout, so disposing the model cannot kill
+a layout still shared with a live session — whoever constructed the layout
+disposes it.
+
+## Session-layer guarantees
+
+The package root also exports `KnowledgeGraphSession`, which drives a renderer
+from a model. Its behavioral contract, kept in step with the model's:
+
+- **One expansion per in-flight id.** Repeated selects on a node whose expand
+  fetch is still in flight are swallowed by an in-flight gate instead of firing
+  `onExpand`/`onError` once per click for a single network fetch.
+- **Errors are observable.** Select-triggered expand failures route to an
+  `onError(error, entity)` option (with a `console.error` fallback) and never
+  escape as unhandled rejections; async continuations stop once the session is
+  disposed.
+- **Unknown ids fail loudly.** Expanding an id no source knows fails with a
+  targeted error rather than materializing a phantom entity.
 
 ## Complexity
 

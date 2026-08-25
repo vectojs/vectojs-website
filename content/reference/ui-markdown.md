@@ -20,7 +20,7 @@ Paragraphs and headings become `RichText`, fenced code becomes `CodeBlock`, and 
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.39.0-ui-2.20.1" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>The sample keeps prose, links, inline code and a fenced block in one focused viewport so layout defects are visible.</figcaption>
 </figure>
 
@@ -91,6 +91,25 @@ An omitted per-kind key inherits the top-level `copy`/`download`, which inherit
 `theme.codeBorderColor` (optional; unset keeps the previous borderless
 rendering) — useful on light page backgrounds where the code fill blends in.
 
+## Theming: `setTheme()`
+
+```ts
+markdown.setTheme(theme: MarkdownThemePresetName | Partial<MarkdownTheme>): this
+```
+
+Swaps the palette and re-renders the document (`0.23.0+`). Accepts a preset
+name — `'githubDark' | 'githubLight' | 'dracula' | 'solarizedDark' |
+'solarizedLight'` — or a partial theme object with just the keys to change, the
+same shapes as the constructor's `theme` option. Entities capture colors, fonts
+and sizes at build time, so there is no live repaint of existing blocks: the
+re-render goes through `setContent`, which also carries the new `blockGap` onto
+the content stack.
+
+Direct assignment to `markdown.theme` is a compile-time error and now also
+throws at runtime for JS callers — assigning after construction used to paint
+part of the document in each palette. Pass the palette at construction or call
+`setTheme()`.
+
 ## Responsive width: `setMaxWidth()`
 
 ```ts
@@ -123,7 +142,11 @@ instances, with the writer still `open` and **zero** additional characters hande
 to the lexer.
 
 It no-ops on an unchanged width, so a height-only resize costs nothing and a
-caller does not need to guard the call. A negative width clamps to 0.
+caller does not need to guard the call. A negative width clamps to 0. With
+`blockAffordances: true`, code blocks and tables arrive wrapped in an
+affordances shell — the reflow looks through the wrapper, resizes the inner
+block, and refreshes its controls, so wrapped blocks track the new width like
+everything else (`0.23.0+`; they silently kept the old width before).
 
 > [!NOTE]
 > Before `0.9.0` the only correct workaround was a full rebuild — release the
@@ -276,6 +299,11 @@ parse/layout commit. `write()` resolves on bounded-buffer admission, not
 visibility. When capacity is insufficient, one write waits; another write while
 that waiter exists rejects, so a producer that ignores backpressure cannot grow
 an unbounded queue.
+
+`close()` settlement is observed exactly once: if the host's close hook threw
+or rejected, a retried `close()` reports the original failure instead of
+resolving through the closed short-circuit (`0.23.0+` — retries after a
+successful close still resolve).
 
 `pacing.graphemesPerSecond` adds fixed wall-clock typewriter pacing while
 retaining the one-commit-per-frame ceiling. `Intl.Segmenter` keeps ordinary

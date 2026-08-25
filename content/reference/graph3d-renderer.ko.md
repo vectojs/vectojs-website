@@ -8,7 +8,7 @@ weight = 46
 
 [`@vectojs/graph3d`](/reference/graph3d/)의 일부입니다. [`GraphLayout`](/reference/graph3d-layout/)의 `positions` 버퍼를 사용합니다.
 
-문서 버전: **0.6.0**
+문서 버전: **0.6.1**
 
 ## `Graph3D` — 렌더러
 

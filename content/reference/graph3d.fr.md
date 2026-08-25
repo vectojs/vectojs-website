@@ -6,7 +6,7 @@ weight = 44
 
 # `@vectojs/graph3d`
 
-Version documentée : **0.6.0**
+Version documentée : **0.6.1**
 
 Visualisation de graphes 3D à ressort pour VectoJS : un contrat `GraphLayout` enfichable (compatible avec les workers, positions sous forme d'un seul `Float32Array`) associé à `Graph3D`, un renderer Three.js instancié qui dessine n'importe quel graphe — peu importe le nombre de nœuds — en exactement deux appels de dessin. Voir la démo live [Les Misérables](/demos/graph3d/) pour le jeu de données canonique de 77 nœuds et 254 liens en mouvement.
 

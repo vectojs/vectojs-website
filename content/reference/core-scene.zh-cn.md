@@ -99,9 +99,9 @@ scene.forcedColors: boolean             // getter — OS is in a forced-colors m
 - **`renderMode: 'always'`（默认）** —— 每帧重新渲染，受有效 FPS 限制。
 - **`renderMode: 'onDemand'`** —— 仅当场景为_脏_（参见 `markDirty()`）或有待定的动画/过渡驱动器时才绘制。静态 rAF tick 仍检查树中的待定运动，但跳过实体更新/渲染和 GPU 提交。适合静态 / 事件驱动的 UI。
 
-**空闲自动节流（关键陷阱）。** 当场景不为脏且主/覆盖层树中没有节点有待定的 `animate()` 补间时，场景被视为**静态**。在 `maxFPS > 0` 的 `'always'` 模式下，静态场景被节流到 **~2 fps** 以节省电池/GPU。`dirty` 标志在每个渲染帧结束时（渲染后）重置为 `false`，因此：
+**空闲自动节流（关键陷阱）。** 当场景不为脏且主/覆盖层树中没有节点有待定的 `animate()` 补间时，场景被视为**静态**。在 `maxFPS > 0` 的 `'always'` 模式下，静态场景被节流到**空闲下限** —— 自 `1.36.0` 起为 **60 fps**（由 `idleFPS` 设定），在此之前是硬性 2 fps —— 以节省电池/GPU。设置 `autoThrottle: false`（选项或实时 `scene.autoThrottle`）可完全禁用节流，或设置 `idleFPS: 2` 恢复旧有的激进休眠。`dirty` 标志在每个渲染帧_开始_时即被消费，因此在 `update()` 内部发出的 `markDirty()` 能存活到下一帧的静态检查：
 
-> 如果你在自定义 `update()` 内部通过修改 `entity.x` 等手动制作动画，在 `update()` **内部**调用 `markDirty()` 无济于事 —— 渲染后重置会清除它，下一帧的静态检查看到 `dirty === false` 并将你节流到 2 fps。要么通过 [`entity.animate()`](/reference/core-entity/#动画)（它在补间运行时保持场景非静态）驱动运动，要么在帧**之间**调用 `scene.markDirty()`（从事件处理器、单独的 `rAF` 或计时器），以便该标志存活到下一次循环迭代。
+> 手动制作的动画（在自定义 `update()` 内部修改 `entity.x` 等）对静态检查不可见，除非你将它上报 —— 通过 [`entity.animate()`](/reference/core-entity/#动画) 驱动运动（补间运行时保持场景非静态）、重写 `hasPendingAnimations()` 在积分器运行期间返回 `true`，或在 `update()` 中每帧调用 `scene.markDirty()`（它会重新触发下一帧）。否则场景会闲置下降到节流下限，你的动画会变得极为缓慢。
 
 `effectiveMaxFPS` = `maxFPS`，当操作系统请求减弱动效且 `respectReducedMotion` 开启时，进一步降低到 30（`REDUCED_MOTION_FPS`）。`0` 表示不限制。
 
@@ -194,6 +194,29 @@ measureVectoUserTiming(name: string, durationMs: number): void
 ```
 
 当宿主不实现标记/测量时，`beginVectoUserTiming` 返回 `null`（而 `measureVectoUserTiming` 为空操作），因此可选的性能分析永远不会成为运行时要求。跨度使用唯一命名的开始/结束标记，这些标记在 `endVectoUserTiming` 时释放。`measureVectoUserTiming` 发出一个锚定在当前时间、时长为从不相交调用累积而来的测量——这是无需对每个实体埋点即可报告每帧实体绘制总计的路径。
+
+### WASM 加速器后端
+
+四个计算热点可以运行在 WebAssembly 中。每个热点都有一个同步的安装/清除接口（`set*Backend`）和一个异步热替换接口（`enableWasm*`），后者会实例化模块并在失败时回退到 JS——**失败是默认状态，绝不是错误路径**。`enable*` 形式接受 URL 字符串、`URL`、`Response` 或原始字节。
+
+```ts
+await scene.enableWasmTransforms(new URL('./vectojs_core.wasm', import.meta.url)); // transforms (render walk)
+await scene.enableWasmHitTest(source);    // hit-testing
+await scene.enableWasmAnimBatching(source); // animation driver batching
+await scene.enableWasmParticles(source);  // CPU particle simulation fallback
+scene.setTransformBackend(backend | null); scene.setHitTestBackend(...);
+scene.setAnimBackend(...); scene.setParticleBackend(...);  // synchronous swap/clear
+scene.wasmRuntime: CoreWasmRuntime | null  // getter — loaded runtime, or null
+scene.particleSimBackend: 'js' | 'wasm'    // getter — which backend runs the CPU particle sim
+```
+
+某个后端在这一帧是否真正**运行过**，与它是否已安装是两个独立的问题——`@vectojs/devtools` 的 `inspectAccelerators()` 会报告每个后端的 `activeThisFrame`，包括在 JS 确实更快时的 `'below-gate'` 判定。wasm 模块由 monorepo 中的 `just wasm` 构建，并从 `crates/vectojs-core-rs/` 发布（`.wasm` 绝不提交；由 CI 构建并发布到 npm）。
+
+这些内核遵循同一份失败契约，与 `vectojs-force-rs` 逐条对应：
+
+- **分配失败返回状态码而不是陷阱。** 每个 `*_init` 都会暂存其分配，当分配器拒绝时，释放已完成的部分并报告 `STATUS_OVERFLOW`，因此 JS 调用方按次调用回退到其参考路径。以前分配失败会在 `panic = "abort"` 下中止整个实例——从 JS 无法捕获。
+- **垃圾输入会被拒收而不是造成污染。** 批量 tween 内核像 `TweenDriver.tick` 一样精确拒绝 NaN、零和负的 `dt`（`STATUS_OK`，不写入任何内容），因此坏帧不能永远卡死一个 tween；完成的 tween 会逐位落在 JS 驱动器的终止值上。
+- **内核选择会探测导出。** SIMD 入口点（`compute_aabbs_simd`、`compose_simd`）在使用前会被探测；早于某个导出的过期缓存模块会降级到逐位相同的标量路径，而不是在渲染中途抛出异常。
 
 ## 可插拔后端注册表（静态）
 

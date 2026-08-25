@@ -347,6 +347,23 @@ genuinely faster. The wasm module is built by `just wasm` in the monorepo and
 shipped from `crates/vectojs-core-rs/` (`.wasm` never committed; built in CI,
 published to npm).
 
+The kernels follow one failure contract, shared number-for-number with
+`vectojs-force-rs`:
+
+- **Allocation failure returns a status instead of trapping.** Every `*_init`
+  stages its allocations and, when the allocator refuses, releases the partial
+  set and reports `STATUS_OVERFLOW`, so the JS caller falls back to its
+  reference path per call. A failed allocation used to abort the whole instance
+  under `panic = "abort"` — uncatchable from JS.
+- **Garbage input declines instead of poisoning.** The batched tween kernel
+  rejects NaN, zero, and negative `dt` exactly like `TweenDriver.tick`
+  (`STATUS_OK`, nothing written), so a bad frame cannot wedge a tween forever;
+  completed tweens land bit-for-bit on the JS driver's terminal value.
+- **Kernel selection probes exports.** The SIMD entry points
+  (`compute_aabbs_simd`, `compose_simd`) are probed before use; a stale cached
+  module that predates an export downgrades to the bit-identical scalar path
+  instead of throwing mid-render.
+
 ## Frame telemetry (`frameStats`, 1.13.0)
 
 ```ts

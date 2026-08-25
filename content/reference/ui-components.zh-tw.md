@@ -7,7 +7,7 @@ weight = 11
 # `@vectojs/ui` — 元件參考
 
 > 適用於 VectoJS zero-DOM Canvas 引擎的可重複使用高層級元件。
-> 文件版本：**2.18.0**。事實來源：`dist/index.d.ts`（公開表面）和 `packages/ui/src/*`（行為）。
+> 文件版本：**2.20.1**。事實來源：`dist/index.d.ts`（公開表面）和 `packages/ui/src/*`（行為）。
 
 每個元件都是 Virtual Math Tree (VMT) 中的葉節點或容器。這裡沒有任何東西是真實的 DOM — 元件會透過 `IRenderer` 將自己繪製到 Canvas 上。無障礙、agent 自動化和可爬取性來自一個平行的 **A11y Shadow DOM**：當元件為 `interactive` 時，`Scene` 會投射一個單一隱藏、透明的真實 DOM 節點，定位在元件的方塊上方，根據 `getA11yAttributes()` 構建。這就是為什麼 `page.getByRole('button', { name })` / `fill()` / 螢幕閱讀器可以在純 Canvas UI 上運作的原因。
 
@@ -199,7 +199,7 @@ const spans: StyledSpan[] = [
 
 無障礙：每個連續的**連結 run** 會獲得一個透明的 `<a>` 熱點子節點（在重新換行時協調 — 每個 run 一個熱點；位置原地更新，只有連結*數量*變更時才會重建陰影節點）。元件自身的可存取名稱是完整串聯的文字。
 
-### `measureText`, `wrapLines`, `wrapText`（自由函式）
+### `measureText`（自由函式）
 
 ```ts
 measureText(text: string, font: string): number
@@ -207,19 +207,7 @@ measureText(text: string, font: string): number
 
 以 CSS `font` 渲染的像素寬度，透過有界 LRU（上限 1000）記憶化。阿拉伯文在量測前會先塑形。在無 DOM 的情況下回退到每個字元 `0.5em` 的估計值。
 
-```ts
-wrapLines(text: string, font: string, maxWidth: number): string[]
-```
-
-貪婪單字換行，尊重顯式的 `\\n`。過長的單字會獲得自己的行（不拆分）。
-
-```ts
-wrapText(value: string, maxWidth: number, measure: (s: string) => number): WrappedLine[]
-
-interface WrappedLine { text: string; start: number; end: number; }  // 絕對字元範圍
-```
-
-類似 `wrapLines`，但追蹤每行的絕對字元範圍（因此線性游標偏移可對應到 `(line, x)`），處理硬換行 `\\n`（尾隨換行會產生一個游標可以停留的空行），並在字元層級拆分過長的單字。由 `TextArea` 內部使用。
+這是本套件唯一匯出的文字量測輔助函式。貪婪式的 `wrapLines` 匯出已在 2.20.0 中移除 —— 它的換行與每個元件實際使用的 LayoutEngine 不一致，它預測的行與實際渲染的內容從不匹配 —— 而 `wrapText` 仍是 `TextArea` 的內部工具而非公開 API。對佈局關鍵的換行請直接使用 LayoutEngine 本身；對於預覽與量測，`measureText` 加上你自己的斷行邏輯是受支援的路徑。
 
 ---
 

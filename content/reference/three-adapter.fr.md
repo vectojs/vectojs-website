@@ -1,6 +1,6 @@
 +++
 title = "ThreeAdapter"
-description = "Rendre une Scene VectoJS sur un canvas, l'exposer en tant que THREE.CanvasTexture, et câbler les événements de pointeur (y compris les contrôleurs WebXR et le multi-touch) via du raycasting UV."
+description = "Rendre une Scene VectoJS sur un canvas, l'exposer en tant que THREE.CanvasTexture, et câbler les événements de pointeur (y compris les contrôleurs WebXR et le multi-touch) ainsi que le focus de panneau et le routage clavier via du raycasting UV."
 weight = 42
 +++
 
@@ -45,7 +45,7 @@ interface ThreeAdapterOptions {
 ```ts
 updateIntersection(
   raycaster: THREE.Raycaster,
-  type: 'pointerdown' | 'pointerup' | 'pointermove' | 'wheel' | 'click',
+  type: 'pointerdown' | 'pointerup' | 'pointermove' | 'pointercancel' | 'wheel' | 'click',
   originalEvent?: PointerEvent | WheelEvent
 ): boolean
 ```
@@ -66,13 +66,59 @@ resize(width: number, height: number): void
 
 Redimensionne le canvas et la `VectoScene` logique sous-jacente. À appeler lorsque la résolution de rendu du panneau ou la fenêtre de mise en page 2D change ; changer uniquement l'échelle du maillage dans l'espace monde ne nécessite pas cela.
 
+## Focus de panneau et entrée clavier (0.1.10+)
+
+Le canvas de l'adaptateur est hors écran, si bien que ses miroirs d'accessibilité projetés ne peuvent jamais devenir `document.activeElement` et que le modèle de focus du navigateur ne les atteint pas. L'adaptateur comble ce vide avec le **focus de panneau** — un état côté Three, piloté par l'interaction pointeur et `focus()`, consommé par le routage des touches, et dont chaque transition est pontée par des `FocusEvent` synthétiques afin que l'état côté core (émission de `focus`/`blur` d'entité, réveil du clignotement du curseur) corresponde à un canvas connecté.
+
+```ts
+adapter.focusedEntity: Entity | null // read-only — the entity holding panel focus
+adapter.focus(entity: Entity | null): void // move focus, or blur with null
+adapter.blur(): void // release panel focus
+adapter.isFocusable(entity: Entity): boolean // projects as keyboard-reachable?
+```
+
+`isFocusable` est l'analogue côté panneau de la tabulabilité DOM : vrai lorsque le miroir projeté porte un attribut `tabindex` ou se rend comme une balise nativement focalisable (`button`/`input`/`textarea`/`select`/`a[href]`). Un pointerdown focus l'ancêtre focalisable le plus proche du hit — cliquer un `<span>` dans un bouton focus le bouton, et une chaîne de hit ne projetant rien d'atteignable provoque un blur.
+
+### `dispatchKey(key, mods?, phase?)`
+
+```ts
+dispatchKey(
+  key: string,
+  mods?: { ctrlKey?: boolean; altKey?: boolean; shiftKey?: boolean; metaKey?: boolean; code?: string },
+  phase?: 'press' | 'keydown' | 'keyup', // default 'press' — synthesizes keydown+keyup
+): void
+```
+
+L'équivalent clavier de `updateIntersection` : synthétiser un événement clavier et le router par le même chemin de dispatch qu'utiliserait un canvas connecté. Règles de routage, dans l'ordre :
+
+1. **Focus de panneau** — lorsqu'une entité détient le focus de panneau, l'événement est dispatché sur son miroir projeté, si bien que les propres écouteurs du core s'exécutent à l'identique : les gestionnaires `keydown`/`keyup` d'entité le reçoivent, et les contrôles projetés conservent leur contrat d'activation (`Enter` au press, `Space` au release).
+2. **Propriété** — tant que l'entité focalisée est un _propriétaire clavier_, le panel possède les touches exclusivement et rien ne fuit vers la page. Les propriétaires sont des entités projetant une balise `input`/`textarea`/`select` ou un rôle du `KEYBOARD_OWNING_ROLES` du core : les rôles interactifs (`button`, `switch`, `checkbox`, `radio`, `link`, `tab`, `menuitem`, `slider`, `combobox`) plus les rôles clavier d'abord `textbox`, `searchbox`, `spinbutton`, `option` et `listbox`. Les flèches déplacent un slider au lieu d'orbiter votre caméra ; la frappe atteint une zone de texte au lieu de déclencher des raccourcis de page.
+3. **Transfert de canal** — sinon l'événement continue vers `window`, où le canal clavier de niveau scène applique ses gates natives (`defaultPrevented`, auto-répétition des touches, `ownsKeyboard(document.activeElement)`), si bien que les raccourcis de scène et les consommateurs de niveau page le voient sauf si un propriétaire clavier de niveau page détient le focus. Un gestionnaire d'entité appelant `preventDefault()` sur l'événement synthétique supprime le transfert, à l'image du bouillonnement d'un canvas connecté.
+4. **Pas de focus de panneau** — l'événement va directement à `window` et les mêmes gates décident.
+
+`code` utilise par défaut une inférence au mieux (`'a'` → `'KeyA'`, `' '` → `'Space'`, chiffres → `'DigitN'`). Passez `mods.code` pour couvrir les dispositions que l'inférence ne sait pas nommer.
+
+### `dispatchPointer(type, x, y, init?)`
+
+```ts
+dispatchPointer(
+  type: 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'click',
+  x: number, // logical scene-space X (origin top-left)
+  y: number, // logical scene-space Y
+  init?: { pointerId?: number; button?: number; buttons?: number;
+           ctrlKey?: boolean; altKey?: boolean; shiftKey?: boolean; metaKey?: boolean },
+): boolean // whether the point hit an entity
+```
+
+Synthétise une entrée pointeur en **coordonnées logiques de scène** — l'espace que parlent la mise en page des entités et `findEntityAt`. L'événement emprunte le chemin aval identique à celui d'un `updateIntersection` piloté par raycasting : transitions de survol, dispatch d'entité, focus piloté par pointerdown et planification du marquage sale de la texture se comportent pareil, ce qui en fait le point d'entrée des tests et automatisations dépourvus de raycaster. L'entrée molette n'est délibérément pas couverte — les deltas de molette n'ont pas de valeurs neutres par défaut ; routez-les donc via `updateIntersection` avec le véritable `WheelEvent`.
+
 ### `dispose()`
 
 ```ts
 dispose(): void
 ```
 
-Libère de manière idempotente la `THREE.CanvasTexture`, la géométrie et le matériau du maillage, détache le maillage, restaure la méthode de rendu de la Scene, détruit la `VectoScene` et efface tout l'état par pointeur. Un canvas créé par l'adaptateur est réduit à `0×0` ; un canvas fourni par l'appelant conserve ses dimensions.
+Libère de manière idempotente la `THREE.CanvasTexture`, la géométrie et le matériau du maillage, détache le maillage, restaure la méthode de rendu de la Scene, détruit la `VectoScene` et efface tout l'état par pointeur (le focus de panneau meurt avec la scène). Un canvas créé par l'adaptateur est réduit à `0×0` ; un canvas fourni par l'appelant conserve ses dimensions.
 
 ## Exemple complet
 
@@ -96,7 +142,10 @@ camera.position.set(0, 0, 3);
 // --- Adaptateur de panneau VectoJS (512×256 pixels logiques, affiché sur un plan 2×1) ---
 const adapter = new ThreeAdapter({ width: 512, height: 256 });
 
-const heading = new Text('Settings', { font: '600 24px Inter', color: '#f8fafc' });
+const heading = new Text('Settings', {
+  font: '600 24px Inter',
+  color: '#f8fafc',
+});
 const applyBtn = new Button('Apply', { width: 120, height: 40 });
 applyBtn.on('click', () => console.log('apply clicked'));
 

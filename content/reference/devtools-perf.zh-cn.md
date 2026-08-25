@@ -135,7 +135,9 @@ VectoJS 的 WASM 内核是一个不可见的后端 — JS 是永久的回退，�
 | `not-applicable` | 没有此类事情可做。                               | 否         |
 | `rejected`       | 已安装、已通过门限，然后内核**拒绝了它的参数**。 | **是**     |
 
-`faulted` 恰恰就是 `reason === 'rejected'`，而 `auditAccelerators` 只报告这些。这是有意的：一扇保持关闭的门是系统按预期工作，报告它只会训练你去忽略这个审计。一个健康的场景，以及一个完全用 JS 的场景，两者都会审计为干净。
+对于动画加速器，按类别的判定会指明是哪一类驱动器拒绝了：当一个动画内核拒绝某一帧而另一个仍通过 WASM 步进时，`reason` 会报告 `springs-rejected` 或 `tweens-rejected`（且 `activeThisFrame: true`，因为一半的工作已经运行）。单纯的 `rejected` 保留给两类都拒绝的情况。
+
+`faulted` 恰恰就是 `reason === 'rejected'`（包括按类别判定），而 `auditAccelerators` 只报告这些。这是有意的：一扇保持关闭的门是系统按预期工作，报告它只会训练你去忽略这个审计。一个健康的场景，以及一个完全用 JS 的场景，两者都会审计为干净。
 
 `rejected` 意味着内核已安装、通过了门限，然后什么都没写，这一帧回退到了 JS — 这是上游的尺寸或容量 bug，而不是调优的结果。
 

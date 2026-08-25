@@ -1,6 +1,6 @@
 +++
 title = "ThreeAdapter"
-description = "將 VectoJS Scene 渲染到 canvas 上，公開為 THREE.CanvasTexture，並透過 UV 光線投射連接指標事件（包括 WebXR 控制器和多點觸控）。"
+description = "將 VectoJS Scene 渲染到 canvas 上，公開為 THREE.CanvasTexture，並透過 UV 光線投射連接指標事件（包括 WebXR 控制器和多點觸控）以及面板焦點與鍵盤路由。"
 weight = 42
 +++
 
@@ -45,7 +45,7 @@ interface ThreeAdapterOptions {
 ```ts
 updateIntersection(
   raycaster: THREE.Raycaster,
-  type: 'pointerdown' | 'pointerup' | 'pointermove' | 'wheel' | 'click',
+  type: 'pointerdown' | 'pointerup' | 'pointermove' | 'pointercancel' | 'wheel' | 'click',
   originalEvent?: PointerEvent | WheelEvent
 ): boolean
 ```
@@ -66,13 +66,59 @@ resize(width: number, height: number): void
 
 調整 canvas 和底層邏輯 `VectoScene` 的大小。當面板的渲染解析度或 2D 佈局視口變更時呼叫；僅變更網格的世界空間縮放不需要此操作。
 
+## 面板焦點與鍵盤輸入（0.1.10+）
+
+適配器 canvas 是離屏的，其投影的無障礙鏡像永遠不會成為 `document.activeElement`，瀏覽器的焦點模型也無法觸及它們。適配器以**面板焦點**填補這一空缺——這是 Three 側的狀態，由指標互動和 `focus()` 驅動、由按鍵路由消費，並且每次轉換都透過合成 `FocusEvent` 橋接，使 core 側的狀態（實體 `focus`/`blur` 事件、游標閃爍喚醒）與已連接的 canvas 保持一致。
+
+```ts
+adapter.focusedEntity: Entity | null // read-only — the entity holding panel focus
+adapter.focus(entity: Entity | null): void // move focus, or blur with null
+adapter.blur(): void // release panel focus
+adapter.isFocusable(entity: Entity): boolean // projects as keyboard-reachable?
+```
+
+`isFocusable` 是 DOM 可定位焦點性（tabbability）的面板側類比：當投影鏡像帶有 `tabindex` 屬性或呈現為原生可聚焦標籤（`button`/`input`/`textarea`/`select`/`a[href]`）時為真。pointerdown 會聚焦命中目標中最近的可達祖先——點擊按鈕內的 `<span>` 會聚焦該按鈕，而投影中沒有任何可達元素的命中鏈會導致失焦。
+
+### `dispatchKey(key, mods?, phase?)`
+
+```ts
+dispatchKey(
+  key: string,
+  mods?: { ctrlKey?: boolean; altKey?: boolean; shiftKey?: boolean; metaKey?: boolean; code?: string },
+  phase?: 'press' | 'keydown' | 'keyup', // default 'press' — synthesizes keydown+keyup
+): void
+```
+
+`updateIntersection` 的鍵盤對應物：合成一個按鍵事件，並將其透過與已連接 canvas 相同的分發路徑進行路由。路由規則依序為：
+
+1. **面板焦點** —— 當某個實體持有面板焦點時，事件被分發到其投影鏡像，因此 core 自己的監聽器原樣執行：實體的 `keydown`/`keyup` 處理器收到事件，投影控件保持其啟動契約（press 觸發 `Enter`、release 觸發 `Space`）。
+2. **所有權** —— 當被聚焦實體是_鍵盤所有者_時，面板獨佔這些按鍵，任何內容都不會洩漏到頁面。所有者是投影 `input`/`textarea`/`select` 標籤或 core 的 `KEYBOARD_OWNING_ROLES` 中角色的實體：互動角色（`button`、`switch`、`checkbox`、`radio`、`link`、`tab`、`menuitem`、`slider`、`combobox`）加上鍵盤優先角色 `textbox`、`searchbox`、`spinbutton`、`option` 和 `listbox`。方向鍵移動滑桿而不是旋轉你的相機；鍵入到達文字框而不是觸發頁面快捷鍵。
+3. **通道轉發** —— 否則事件繼續前往 `window`，由場景級按鍵通道套用其原生閘控（`defaultPrevented`、按鍵自動重複、`ownsKeyboard(document.activeElement)`），因此除非頁面級鍵盤所有者持有焦點，場景快捷鍵和頁面級消費者都能看到事件。實體處理器在合成事件上呼叫 `preventDefault()` 會抑制轉發，與已連接 canvas 的氣泡一致。
+4. **無面板焦點** —— 事件直接前往 `window`，由相同的閘控決定。
+
+`code` 預設採用盡力推斷（`'a'` → `'KeyA'`，`' '` → `'Space'`，數字 → `'DigitN'`）。對於推斷無法命名的布局，傳入 `mods.code` 覆寫。
+
+### `dispatchPointer(type, x, y, init?)`
+
+```ts
+dispatchPointer(
+  type: 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'click',
+  x: number, // logical scene-space X (origin top-left)
+  y: number, // logical scene-space Y
+  init?: { pointerId?: number; button?: number; buttons?: number;
+           ctrlKey?: boolean; altKey?: boolean; shiftKey?: boolean; metaKey?: boolean },
+): boolean // whether the point hit an entity
+```
+
+以**邏輯場景座標**合成指標輸入——這正是實體佈局和 `findEntityAt` 所使用的空間。事件流經與光線投射驅動的 `updateIntersection` 完全相同的下游路徑：懸停轉換、實體分發、由 pointerdown 驅動的聚焦和紋理髒標記排程行為完全一致，這使其成為沒有 raycaster 的測試和自動化的入口點。滾輪輸入被刻意排除在外——滾輪增量沒有中立預設值，因此請透過 `updateIntersection` 並攜帶真實 `WheelEvent` 來路由它們。
+
 ### `dispose()`
 
 ```ts
 dispose(): void
 ```
 
-冪等地釋放網格上的 `THREE.CanvasTexture`、幾何圖形和材質，分離網格，恢復 Scene 渲染方法，銷毀 `VectoScene`，並清除所有每個指標的狀態。轉接器建立的 canvas 會被釋放為 `0×0`；呼叫者提供的 canvas 保留其尺寸。
+冪等地釋放網格上的 `THREE.CanvasTexture`、幾何圖形和材質，分離網格，恢復 Scene 渲染方法，銷毀 `VectoScene`，並清除所有每個指標的狀態（面板焦點隨場景一起消亡）。轉接器建立的 canvas 會被釋放為 `0×0`；呼叫者提供的 canvas 保留其尺寸。
 
 ## 完整範例
 
@@ -96,7 +142,10 @@ camera.position.set(0, 0, 3);
 // --- VectoJS 面板轉接器（512×256 邏輯像素，顯示在 2×1 平面上）---
 const adapter = new ThreeAdapter({ width: 512, height: 256 });
 
-const heading = new Text('Settings', { font: '600 24px Inter', color: '#f8fafc' });
+const heading = new Text('Settings', {
+  font: '600 24px Inter',
+  color: '#f8fafc',
+});
 const applyBtn = new Button('Apply', { width: 120, height: 40 });
 applyBtn.on('click', () => console.log('apply clicked'));
 

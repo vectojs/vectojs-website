@@ -6,7 +6,7 @@ weight = 48
 
 # `@vectojs/devtools`
 
-Versión documentada: **0.11.1**
+Versión documentada: **0.11.2**
 
 `@vectojs/devtools` es la respuesta a "¿dónde está el panel de Elementos?" — un inspector en página para el Virtual Math Tree, de modo que depurar una escena de VectoJS permanezca en el espacio de estado en lugar del espacio de píxeles. Tiene dos mitades:
 
@@ -60,7 +60,7 @@ if (import.meta.env.DEV) {
 La cabecera lleva tres botones icono fantasma — **⌖** (seleccionar), **⟳** (refrescar), **⚠** (auditar) — y tres badges de contador: total de entidades, interactivas (**⚡**), y hallazgos de auditoría (**⚠**). Una barra `Tabs` divide las herramientas en **Tree · Info · Audit · A11y · Log · ⚙**, más una pestaña por cada [inspector de plugin](/reference/devtools-extend/#protocolo-de-plugin) registrado. Una tira de rendimiento está fijada en la parte inferior.
 
 - **Vista de árbol en vivo** (`Tree`) de `scene.rootEntity` y `scene.overlayRootEntity`, actualizada en un intervalo (por defecto 500ms). Cada fila muestra el nombre del constructor de la entidad, posición, tamaño y dos badges: **⚡** (`interactive`) y **▶** (`hasPendingAnimations()`). Un campo **filtro** estrecha las filas por subcadena de tipo/id; es de solo vista, así que el índice id→entidad sigue resolviendo todo. Programáticamente: `panel.setFilter(text)`.
-- **Modo selección**: haz clic en **⌖**, luego haz clic en cualquier parte de la página. El inspector resuelve el clic en la entidad más profunda bajo ese punto usando el mismo orden de recorrido que la Scene usa para la entrada del puntero, con un respaldo AABB para entidades decorativas no interactivas.
+- **Modo selección**: haz clic en **⌖**, luego haz clic en cualquier parte de la página. El inspector resuelve el clic en la entidad más profunda bajo ese punto usando el mismo orden de recorrido (y la misma regla de aceptación) que la Scene usa para la entrada del puntero — una entidad es seleccionable solo donde su propia forma acepta el punto, exactamente como el motor, de modo que las partículas y otras entidades no interactivas nunca son propietarias falsas.
 - **Resaltado de selección**: la geometría de la entidad seleccionada se dibuja como un contorno en la capa de overlay de la escena _anfitriona_, para que veas exactamente qué está seleccionado en relación con el renderizado en vivo. Por defecto dibuja la caja de layout; `panel.setHighlightLayers()` lo cambia a cualquiera de las siete [capas de geometría de resaltado](/reference/devtools-inspect/#geometría-de-resaltado) — incluyendo `'hit'`, que muestrea la región de hit real de la entidad en lugar de su caja.
 - **Lectura de estado + edición en línea** (`Info`): geometría, escala/rotación/opacidad, la matriz de transformación mundial completa, estado de animación, y cualquier salida `getDevtoolsDescriptor()` que la entidad publique. Añade editores en línea `x`/`y`/`opacity` y botones **Copy path** / **Copy JSON**.
 - **Pestaña A11y**: el rol proyectado de la entidad seleccionada, nombre accesible y su fuente, índice de tab, posición en orden de lectura, caja canvas-vs-DOM — más los hallazgos de la [auditoría a11y](/reference/devtools-audit/#auditoría-a11y) de toda la escena.

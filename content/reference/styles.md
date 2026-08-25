@@ -44,12 +44,16 @@ applyStyle(stack, style({ flexDirection: 'row', gap: '8px', alignItems: 'center'
 - `style()` — identity factory that types an object literal as `Style`.
 - `css(...styles)` — merge factory (0.2.0): later sources win; `null`,
   `undefined`, `false` sources are skipped, so variants can be conditional.
-  Inputs are not mutated.
+  Inputs are not mutated — per-axis `padding` objects are copied too, so the
+  "fresh plain object" contract holds for nested values.
 - `applyStyle(entity, style)` — writes the mapped fields, returns
   `{ applied: string[] }` (the CSS keys actually written, in object order).
 - `tokens(set)` — create a `Theme` from a flat token set.
 - `setTheme(theme)` / `getTheme()` — switch/read the active theme; styles
   that reference `var()` are re-resolved and re-applied on switch.
+- `untrackVarStyles(entity)` — drop the entity's `var()` tracking immediately
+  (0.3.x); call from destroy teardown for deterministic release instead of
+  waiting for the weak-reference sweep on the next theme switch.
 - `PRESET_THEMES` — `light` (the default theme), `dark`, `github`,
   `dracula` token sets.
 - `Style` — the style interface. All keys optional.
@@ -93,11 +97,25 @@ setTheme(theme);
 applyStyle(btn, style({ backgroundColor: 'var(--accent)', borderRadius: 'var(--radius-md)' }));
 ```
 
-- `var(--key)` is resolved **exactly** (whole-string) against the active
-  theme's tokens before the value converter runs, so a token may hold a color,
-  a px string, or a bare number. An unknown token throws with its name.
-- Styles that reference tokens are **tracked** (WeakMap per theme — no leaks)
-  and re-applied when `setTheme(next)` switches, so a theme swap recolours the
+- `var(--key)` is resolved against the active theme's tokens before the value
+  converter runs, so a token may hold a color, a px string, or a bare number.
+  Whole-string references (`backgroundColor: "var(--accent)"`) resolve exactly;
+  references **embedded** in a larger string (`color: "rgba(var(--rgb), 0.4)"`)
+  resolve by substitution, chains of token-references-token resolve
+  transitively with path-based cycle detection, and the referencing key is
+  tracked so theme switches re-resolve composites. An unknown token throws with
+  its name; so does a cycle, with the offending chain.
+- `var(--token, fallback)` has **no fallback resolution** and never passes
+  through silently: the form is detected anywhere it can arrive (a direct
+  value, embedded in a composite string, inside a padding axis, or through a
+  token chain) and throws a `TypeError` naming the offending value. The
+  detector tolerates whitespace after `var(`, so `var( --accent, #fff)` is
+  caught too. Silence here was the defect: an unresolved string used to reach
+  mapped fields while Canvas2D quietly kept the previous paint.
+- Styles that reference tokens are **tracked** per theme (destroyed entities
+  are no longer retained — tracking holds them weakly, with
+  `untrackVarStyles(entity)` for an eager release in destroy teardown) and
+  re-applied when `setTheme(next)` switches, so a theme swap recolours the
   whole scene with zero caller-side changes. Styles without `var()` are not
   tracked. If a token value fails the mapped property's validation on switch
   (e.g. `--radius-md: "50%"`), `setTheme` throws.
@@ -132,6 +150,17 @@ composeFont(
 `composeFont` parses a CSS font shorthand, replaces only the segments present
 in `changes`, and recomposes; a missing size/family is filled with `16px` /
 `sans-serif` so the result is always a valid canvas font string.
+
+The parser understands the full canvas prefix grammar
+(`[style || variant || weight]? size[/line-height]? family`), so
+`italic 700 16px Georgia` and `16px/24px Inter` compose correctly and a later
+segment change cannot recompose an invalid string — size-like segments that
+cannot be placed fail loudly instead. After the weight slot takes the first
+`normal` (the documented compat choice), further `normal`s fill style then
+variant, so the valid CSS form `normal normal 16px Inter` parses instead of
+throwing. `fontSize` enforces its `${number}px` shape at runtime: non-px units
+arriving through tokens or JS callers throw rather than silently composing a
+shorthand Canvas2D would drop.
 
 ## Semantics
 

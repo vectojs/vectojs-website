@@ -315,20 +315,18 @@ const hebrew = new RichText([{ text: 'שלום ' }, { text: 'VectoJS', style: { 
 
 ## 헬퍼 함수
 
-`measureText`, `wrapLines`, `fontSizePx`는 커스텀 컴포넌트에서 사용할 수 있도록 `@vectojs/ui`에서 내보내집니다.
+`measureText`는 커스텀 컴포넌트에서 사용할 수 있도록 `@vectojs/ui`에서 내보내집니다.
 
 ```typescript
-import { measureText, wrapLines, fontSizePx } from '@vectojs/ui';
+import { measureText } from '@vectojs/ui';
 
-// Rendered pixel width, LRU-cached (cap 1000)
+// Rendered pixel width, LRU-cached (cap 1000) — keyed on the RAW text, so a
+// cache hit costs a map lookup and does not re-run Arabic shaping
+// (Arabic is still measured in its contextually-shaped form on a miss)
 const w = measureText('Hello world', '600 16px Inter');
-
-// Greedy word-wrap — returns string[]
-const lines = wrapLines('A longer text that wraps', '16px sans-serif', 200);
-
-// Extract the px size from a CSS font shorthand
-const size = fontSizePx('600 16px Inter'); // → 16
 ```
+
+`measureText`는 측정 전에 `ArabicShaper`를 통해 아랍어 텍스트를 시핑하므로 아랍어 실행에 대해 올바른 시각적 너비를 반환합니다. 내보내지는 줄바꿈 헬퍼는 없습니다: 컴포넌트는 LayoutEngine을 통해 줄바꿈하며, 오래된 탐욕적 `wrapLines` 내보내기는 그 분기 지점이 실제 렌더링 결과와 어긋나서 ui 2.20.0에서 제거되었습니다 — 컴포넌트 밖의 필요에는 `measureText` 위에 자체 줄바꿈 로직을 구현하세요.
 
 `measureText`는 측정 전에 `ArabicShaper`를 통해 아랍어 텍스트를 시핑하므로 아랍어 실행에 대해 올바른 시각적 너비를 반환합니다.
 

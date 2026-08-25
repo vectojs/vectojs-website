@@ -135,7 +135,14 @@ Los kernels WASM de VectoJS son un backend invisible — JS es el fallback perma
 | `not-applicable` | No hay nada de este tipo que hacer.                                      | no            |
 | `rejected`       | Instalado, pasado el gate, y luego el kernel **rechazó sus argumentos**. | **sí**        |
 
-`faulted` es exactamente `reason === 'rejected'`, y `auditAccelerators` reporta solo esos. Esto es deliberado: un gate que permanece cerrado es el sistema funcionando como se pretende, y reportarlo te entrenaría para ignorar la auditoría. Una escena sana, y una escena enteramente-JS, ambas auditan limpio.
+Para el acelerador de animación, un veredicto por tipo nombra qué familia de
+drivers rechazó: cuando un kernel de animación rechaza un fotograma mientras el
+otro todavía avanzó vía WASM, `reason` reporta `springs-rejected` o
+`tweens-rejected` (con `activeThisFrame: true`, ya que la mitad del trabajo se
+ejecutó). El simple `rejected` queda reservado para cuando ambos tipos rechazan.
+
+`faulted` es exactamente `reason === 'rejected'` (veredictos por tipo
+incluidos), y `auditAccelerators` reporta solo esos. Esto es deliberado: un gate que permanece cerrado es el sistema funcionando como se pretende, y reportarlo te entrenaría para ignorar la auditoría. Una escena sana, y una escena enteramente-JS, ambas auditan limpio.
 
 `rejected` significa que el kernel estaba instalado, pasó su gate, luego no escribió nada y el fotograma cayó a JS — un bug de dimensionado o capacidad aguas arriba, no un resultado de ajuste.
 

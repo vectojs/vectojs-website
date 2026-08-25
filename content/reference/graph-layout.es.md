@@ -6,11 +6,11 @@ weight = 47
 
 # `@vectojs/graph-layout`
 
-Versión documentada: **0.2.1**
+Versión documentada: **0.3.0**
 
 `@vectojs/graph-layout` es una simulación de fuerzas 2D sin dependencias. No posee ningún renderizador ni temporizador de animación: el anfitrión proporciona los datos del grafo, llama a `step()` y lee coordenadas XY intercaladas de un `Float32Array`. El mismo layout puede impulsar Canvas 2D, SVG, WebGL, WebGPU, una escena de VectoJS o un renderizador fuera del hilo principal.
 
-La versión 0.2.1 tiene una única implementación, el `ForceLayout2D` en TypeScript. No hay compilación WASM, backend alternativo ni opción `backend` en 0.2.1. WASM sigue siendo una opción futura condicionada a mediciones; las comparaciones entre dimensiones de navegador actuales no son evidencia directa de que un backend WASM ayudaría.
+La versión 0.3.0 tiene una única implementación, el `ForceLayout2D` en TypeScript. No hay compilación WASM, backend alternativo ni opción `backend` en 0.3.0. WASM sigue siendo una opción futura condicionada a mediciones; las comparaciones entre dimensiones de navegador actuales no son evidencia directa de que un backend WASM ayudaría.
 
 ## Instalación
 
@@ -79,7 +79,7 @@ function draw(): void {
 draw();
 ```
 
-`step()` es síncrono. Devuelve `true` mientras la simulación permanece activa y `false` después de haberse enfriado por debajo de `alphaMin` (o cuando el grafo está vacío). El valor de retorno indica si la física necesita otro tick; no dice nada sobre si tu aplicación debería seguir renderizando para el movimiento de cámara, la entrada u otra animación. `alphaDecay: 0` desactiva el enfriamiento, por lo que una simulación no vacía no se asienta por sí sola.
+`step()` es síncrono. Devuelve `true` mientras la simulación permanece activa y `false` después de haberse enfriado por debajo de `alphaMin` (o cuando el grafo está vacío). El valor de retorno indica si la física necesita otro tick; no dice nada sobre si tu aplicación debería seguir renderizando para el movimiento de cámara, la entrada u otra animación. Un `alphaDecay` no positivo se rechaza en la construcción y recurre al valor por defecto, por lo que una simulación no vacía siempre se asienta por sí sola.
 
 ## Tipos públicos
 
@@ -133,22 +133,22 @@ Los campos extra de nodos y enlaces permanecen propiedad de la aplicación. El l
 
 ## Opciones
 
-| Opción                 | Por defecto | Significado                                                                                                         |
-| ---------------------- | ----------: | ------------------------------------------------------------------------------------------------------------------- |
-| `repulsion`            |       `300` | Magnitud no negativa de repulsión de muchos cuerpos por nodo.                                                       |
-| `collisionRadius`      |         `0` | Radio no negativo por nodo. Dos nodos de radio cero no se separan.                                                  |
-| `collisionStrength`    |         `1` | Multiplicador no negativo de corrección de colisión. Cero desactiva la corrección de colisión.                      |
-| `linkDistance`         |        `30` | Longitud de reposo no negativa por enlace.                                                                          |
-| `linkStrength`         |       `0.3` | Rigidez de muelle no negativa por enlace.                                                                           |
-| `centerStrength`       |      `0.02` | Atracción no negativa hacia el origen.                                                                              |
-| `velocityDecay`        |       `0.6` | Retención de velocidad por tick, limitada por debajo de `1`.                                                        |
-| `theta`                |       `0.9` | Ángulo de apertura Barnes-Hut no negativo. Valores más bajos cambian velocidad por precisión; `0` recorre exacto.   |
-| `repulsionDistanceMax` |  `Infinity` | Distancia máxima a la que los nodos se repelen. `0` desactiva la repulsión; valores no finitos desactivan el corte. |
-| `alphaDecay`           |    `0.0228` | Decaimiento de temperatura por tick, limitado a `[0, 1]`.                                                           |
-| `alphaMin`             |     `0.001` | Temperatura no negativa por debajo de la cual la simulación está asentada.                                          |
-| `seed`                 |         `1` | Semilla determinista para nodos sin coordenadas iniciales finitas.                                                  |
+| Opción                 | Por defecto | Significado                                                                                                       |
+| ---------------------- | ----------: | ----------------------------------------------------------------------------------------------------------------- |
+| `repulsion`            |       `300` | Magnitud no negativa de repulsión de muchos cuerpos por nodo.                                                     |
+| `collisionRadius`      |         `0` | Radio no negativo por nodo. Dos nodos de radio cero no se separan.                                                |
+| `collisionStrength`    |         `1` | Multiplicador no negativo de corrección de colisión. Cero desactiva la corrección de colisión.                    |
+| `linkDistance`         |        `30` | Longitud de reposo no negativa por enlace.                                                                        |
+| `linkStrength`         |       `0.3` | Rigidez de muelle no negativa por enlace.                                                                         |
+| `centerStrength`       |      `0.02` | Atracción no negativa hacia el origen.                                                                            |
+| `velocityDecay`        |       `0.6` | Retención de velocidad por tick, limitada por debajo de `1`.                                                      |
+| `theta`                |       `0.9` | Ángulo de apertura Barnes-Hut no negativo. Valores más bajos cambian velocidad por precisión; `0` recorre exacto. |
+| `repulsionDistanceMax` |  `Infinity` | Distancia máxima a la que los nodos se repelen. Un valor no positivo significa sin corte (igual que `Infinity`).  |
+| `alphaDecay`           |    `0.0228` | Decaimiento de temperatura por tick, limitado a `[0, 1]`; un valor no positivo recurre al valor por defecto.      |
+| `alphaMin`             |     `0.001` | Temperatura no negativa por debajo de la cual la simulación está asentada.                                        |
+| `seed`                 |         `1` | Semilla determinista para nodos sin coordenadas iniciales finitas.                                                |
 
-Los valores de opción no finitos recurren a sus valores por defecto. Los valores documentados como no negativos se limitan a cero. Los accessors de nodos y enlaces se evalúan una vez cuando cada registro se acepta en el layout, no en cada tick. Los índices de los accessors de nodo son índices de inserción. Los índices de los accessors de enlace son índices estables y contiguos a lo largo del paginado de solo adición. Eliminar nodos compacta los enlaces, por lo que una adición posterior puede reutilizar un índice previamente asignado a un enlace eliminado. Eliminar nodos no reevalúa los accessors de los supervivientes; usa un nuevo `setGraph()` si los valores deben derivarse de nuevo. Todas las opciones son solo del constructor; no hay setters de fuerza en vivo en 0.2.1.
+Los valores de opción no finitos recurren a sus valores por defecto. Los valores documentados como no negativos se limitan a cero, con dos excepciones deliberadas que recurren en lugar de limitar: un `alphaDecay` no positivo toma el valor por defecto `0.0228` (un `0` literal haría del decaimiento por tick una no-op y la simulación nunca se asentaría), y un `repulsionDistanceMax` no positivo significa sin corte (antes apagaba la repulsión por completo). Los accessors de nodos y enlaces se evalúan una vez cuando cada registro se acepta en el layout, no en cada tick. Los índices de los accessors de nodo son índices de inserción. Los índices de los accessors de enlace son índices estables y contiguos a lo largo del paginado de solo adición. Eliminar nodos compacta los enlaces, por lo que una adición posterior puede reutilizar un índice previamente asignado a un enlace eliminado. Eliminar nodos no reevalúa los accessors de los supervivientes; usa un nuevo `setGraph()` si los valores deben derivarse de nuevo. Todas las opciones son solo del constructor; no hay setters de fuerza en vivo en 0.3.0.
 
 ## API
 
@@ -168,10 +168,10 @@ class ForceLayout2D {
   removeLinks(items: Iterable<GraphLink | LinkId>): void;
   updateLinks(links: readonly GraphLink[]): void;
   step(iterations?: number): boolean;
-  setNodePin(nodeIndex: number, pin: { x?: number; y?: number }): void;
-  clearNodePin(nodeIndex: number, axes?: { x?: boolean; y?: boolean }): void;
-  pinNode(nodeIndex: number, x: number, y: number): void;
-  unpinNode(nodeIndex: number): void;
+  setNodePin(id: NodeId, pin: { x?: number; y?: number }): void;
+  clearNodePin(id: NodeId, axes?: { x?: boolean; y?: boolean }): void;
+  pinNode(id: NodeId, x: number, y: number): void;
+  unpinNode(id: NodeId): void;
   reheat(alpha?: number): void;
   dispose(): void;
 }
@@ -197,12 +197,11 @@ Los enlaces son seguros frente a reproducción por par de extremos dirigido más
 
 - Sin `id`, los enlaces `source` a `target` repetidos son un solo enlace.
 - La dirección importa: `a` a `b` y `b` a `a` tienen identidades diferentes.
-- Los enlaces paralelos necesitan IDs de cadena o número finito distintos.
+- Los enlaces paralelos necesitan IDs de cadena o número finito distintos; las pilas de grafo tratan los enlaces paralelos como aristas distintas en lugar de rechazarlos.
 - Reproducir un enlace identificado se ignora.
-- Los enlaces con un extremo desconocido o con el mismo source y target se ignoran.
 - Un ID de enlace opcional malformado se trata como ausente a efectos de identidad.
 
-Los enlaces con IDs opcionales malformados siguen entrando como enlaces no identificados cuando sus extremos son válidos; los extremos desconocidos y los auto-enlaces no entran en los arrays de fuerza. Los datos de enlace malformados no hacen que las posiciones sean no finitas.
+La validación de extremos es estricta y uniforme: un enlace cuyos extremos referencian un nodo desconocido o el mismo nodo dos veces hace que `setGraph()` y `appendGraph()` lancen, y `appendGraph()` valida todo el lote antes de mutar, así que una llamada rechazada deja el grafo anterior intacto (las referencias hacia adelante a nodos aceptados en el mismo lote siguen siendo válidas). Esto coincide con la política de `updateLinks()` — los enlaces colgantes antes se descartaban silenciosamente, lo que escondía errores de datos como estructura misteriosamente ausente. Los enlaces con IDs opcionales malformados siguen entrando como enlaces no identificados cuando sus extremos son válidos. Los datos de enlace malformados no hacen que las posiciones sean no finitas.
 `removeNodes(ids)` elimina los nodos coincidentes y cada enlace incidente, compacta el estado de los supervivientes, recalcula el sesgo de grado y recalienta cuando se eliminó algo. Los IDs desconocidos y un iterable vacío son no-ops.
 
 ### Eliminar y actualizar enlaces
@@ -215,7 +214,11 @@ Los enlaces con IDs opcionales malformados siguen entrando como enlaces no ident
 
 Los valores finitos iniciales `fx` y `fy` fijan ejes de forma independiente. Un nodo puede, por tanto, tener X fija con Y libre, Y fija con X libre, o ambos ejes fijos. Los `x` y `y` iniciales solo siembran sus correspondientes ejes no fijados.
 
-En tiempo de ejecución, `setNodePin(index, { x?, y? })` fija solo los ejes proporcionados, actualiza inmediatamente esas coordenadas en vivo y limpia su velocidad. `clearNodePin(index, { x?, y? })` libera los ejes seleccionados conservando el otro eje; omitir el objeto de ejes libera ambos. `pinNode(index, x, y)` y `unpinNode(index)` siguen siendo métodos de conveniencia de ambos ejes. Los índices inválidos se ignoran. Estas llamadas no recalientan automáticamente, así que llama a `reheat()` después de operaciones interactivas de fijar o liberar.
+En tiempo de ejecución, `setNodePin(id, { x?, y? })` fija solo los ejes proporcionados, actualiza inmediatamente esas coordenadas en vivo y limpia su velocidad. `clearNodePin(id, { x?, y? })` libera los ejes seleccionados conservando el otro eje; omitir el objeto de ejes libera ambos. `pinNode(id, x, y)` y `unpinNode(id)` siguen siendo métodos de conveniencia de ambos ejes. Los IDs desconocidos se ignoran.
+
+**Las fijaciones se direccionan por ID** (0.3.0) como cualquier otra referencia a nodo en esta clase, de modo que siguen apuntando al mismo nodo tras la compactación de `removeNodes()` — una fijación direccionada por índice cambiaría silenciosamente de objetivo al nodo que entrara en ese hueco. Nota de divergencia para código portado entre pilas: el contrato de la familia [`GraphLayout`](/reference/graph3d-layout/) 3D fija por **índice** de nodo en su lugar, y el manejo de aristas paralelas también difiere — los consumidores de este paquete rechazan cuádruples de extremos duplicados (`duplicate-link` del node-editor) mientras que las pilas graph/knowledge tratan los enlaces paralelos como aristas distintas. Traduce fijaciones e identidad de enlaces al cruzar de pila.
+
+Estas llamadas no recalientan automáticamente, así que llama a `reheat()` después de operaciones interactivas de fijar o liberar.
 
 `reheat(alpha = 0.3)` limita la solicitud a `[alphaMin, 1]` y aplica `max(currentAlpha, requestedAlpha)`. Nunca enfría una simulación más caliente.
 
@@ -227,19 +230,16 @@ El patrón correcto es recalentar solo cuando el arrastre _comienza_, y luego ac
 
 ```ts
 function onDragStart(node, x, y) {
-  const index = layout.getNodeIndex(node.id);
-  layout.setNodePin(index, { x, y }); // pin at the pointer
+  layout.setNodePin(node.id, { x, y }); // pin at the pointer
   layout.reheat(0.3); // wake the simulation ONCE
 }
 
 function onDragMove(node, x, y) {
-  const index = layout.getNodeIndex(node.id);
-  layout.setNodePin(index, { x, y }); // move the pin — no reheat here
+  layout.setNodePin(node.id, { x, y }); // move the pin — no reheat here
 }
 
 function onDragEnd(node) {
-  const index = layout.getNodeIndex(node.id);
-  layout.clearNodePin(index); // or keep it pinned for a permanent pin
+  layout.clearNodePin(node.id); // or keep it pinned for a permanent pin
 }
 ```
 
@@ -253,9 +253,9 @@ Si un seguimiento que deriva lentamente se siente deseable _durante_ el arrastre
 
 Para `N` nodos y `E` enlaces aceptados, un tick normal construye un quadtree Barnes-Hut y evalúa la repulsión en `O(N log N)` esperado, aplica los muelles en `O(E)`, y sanea, centra e integra en `O(N)`. Así, el coste usual de un tick sin colisiones es `O(N log N + E)`. Esto no es una promesa de peor caso: distribuciones espaciales patológicas o `theta: 0` pueden acercarse al trabajo de todos los pares.
 
-Cuando la colisión está habilitada, el layout construye el quadtree una segunda vez sobre posiciones predichas y realiza consultas de vecindario por radio. Los vecindarios dispersos y localmente acotados son comúnmente cercanos a `O(N log N + K)`, donde `K` es el trabajo candidato/solapamiento, pero los clústeres densos o radios muy grandes pueden hacer `K` cuadrático. La colisión no hereda una cota incondicional `O(N log N)` de la repulsión Barnes-Hut.
+Cuando la colisión está habilitada, el layout construye el quadtree una segunda vez sobre posiciones predichas y realiza consultas de vecindario por radio a través de una fase amplia que ubica los puntos en niveles de radio potencia de dos, cada uno con su propia rejilla — el coste de sondeo queda acotado por la densidad local en lugar de que cada nodo caiga en celdas dimensionadas por el radio más grande. Los vecindarios dispersos y localmente acotados son comúnmente cercanos a `O(N log N + K)`, donde `K` es el trabajo candidato/solapamiento, pero los clústeres densos o radios muy grandes aún pueden hacer `K` cuadrático. La colisión no hereda una cota incondicional `O(N log N)` de la repulsión Barnes-Hut.
 
-`setGraph()` es `O(N + E)` aparte de la asignación de capacidad geométrica y la inicialización. `appendGraph()` es proporcional a la entrada añadida más un recálculo del sesgo de grado `O(N + E)` cuando se aceptan enlaces. `removeLinks()` compacta solo el almacenamiento de enlaces y es `O(E + R)` cuando las solicitudes son enlaces completos, u `O(E + RE)` en el peor caso cuando `R` IDs simples escanean todos los enlaces. `updateLinks()` es `O(E + U)` para `U` actualizaciones. El almacenamiento crece geométricamente, por lo que la mayoría de las adiciones pequeñas reutilizan capacidad; un límite de crecimiento copia los arrays tipados existentes en tiempo `O(N + E)`. `removeNodes()` compacta nodos y enlaces y recalcula el sesgo en `O(N + E)`. La eliminación no reduce la capacidad.
+`setGraph()` es `O(N + E)` aparte de la asignación de capacidad geométrica y la inicialización. `appendGraph()` es proporcional a la entrada añadida más un recálculo del sesgo de grado `O(N + E)` cuando se aceptan enlaces. `removeLinks()` compacta solo el almacenamiento de enlaces y es `O(E + R)` — los IDs simples se resuelven a través de un índice construido perezosamente en lugar de escanear todos los enlaces por solicitud. `updateLinks()` es `O(E + U)` para `U` actualizaciones. El almacenamiento crece geométricamente, por lo que la mayoría de las adiciones pequeñas reutilizan capacidad; un límite de crecimiento copia los arrays tipados existentes en tiempo `O(N + E)`. `removeNodes()` compacta nodos y enlaces y recalcula el sesgo en `O(N + E)`. La eliminación no reduce la capacidad.
 
 ## Evidencia medida en navegadores
 
@@ -281,7 +281,7 @@ El mapeo conceptual es directo pero la API es intencionalmente más pequeña:
 | Mutación `node.fx` / `node.fy`                 | `fx`/`fy` iniciales, luego `setNodePin()` / `clearNodePin()`        |
 | Temporizador interno de d3                     | Sin temporizador; el anfitrión es dueño de la programación          |
 
-Los enlaces usan IDs de extremo en lugar de objetos de extremo mutados por d3. Los accessors de opción reciben el `GraphNode` o `GraphLink` original y un índice de inserción, y luego se cachean. No hay registro de fuerzas personalizadas en 0.2.1; si tu layout d3 depende de fuerzas personalizadas o setters de fuerza en vivo, conserva d3-force o recrea el layout con nuevas opciones.
+Los enlaces usan IDs de extremo en lugar de objetos de extremo mutados por d3. Los accessors de opción reciben el `GraphNode` o `GraphLink` original y un índice de inserción, y luego se cachean. No hay registro de fuerzas personalizadas en 0.3.0; si tu layout d3 depende de fuerzas personalizadas o setters de fuerza en vivo, conserva d3-force o recrea el layout con nuevas opciones.
 
 ## 2D frente a `@vectojs/graph3d`
 

@@ -6,7 +6,7 @@ weight = 46
 
 # `@vectojs/knowledge-graph/model`
 
-Versión documentada: **0.3.2**
+Versión documentada: **0.4.0**
 
 `KnowledgeGraphModel` posee un corte materializado y acotado de un grafo de conocimiento mayor. Carga entidades semilla y páginas de vecinos desde un `KgDataSource`, deduplica entidades y hechos, rastrea el progreso de expansión por nodo y expone un `GraphData` estable para un renderizador. No crea DOM, canvas, escena de Three.js ni temporizador de animación.
 
@@ -35,7 +35,7 @@ interface KgNeighborOptions {
 }
 
 interface KgNeighborhood {
-  entity: KgEntity;
+  entity?: KgEntity;
   facts: readonly KgFact[];
   neighbors: readonly KgEntity[];
   total?: number;
@@ -46,16 +46,14 @@ interface KgNeighborhood {
 interface KgDataSource {
   getNodes(ids?: readonly NodeId[]): readonly KgEntity[] | Promise<readonly KgEntity[]>;
   getNeighbors(id: NodeId, options?: KgNeighborOptions): KgNeighborhood | Promise<KgNeighborhood>;
-  getLabels?(
-    ids: readonly NodeId[],
-    lang?: string,
-  ): ReadonlyMap<NodeId, string> | Promise<ReadonlyMap<NodeId, string>>;
 }
 ```
 
-Trata `cursor` como opaco. Una fuente debe aplicar `limit`, respetar `direction`, pasar la señal de aborto proporcionada al trabajo posterior y devolver `nextCursor` más `hasMore` cuando exista otra página. `total` es opcional y describe el total de hechos disponibles para esa expansión de nodo, no meramente la página actual.
+Trata `cursor` como opaco. Una fuente debe aplicar `limit`, respetar `direction`, pasar la señal de aborto proporcionada al trabajo posterior y devolver `nextCursor` más `hasMore` cuando exista otra página. `total` es opcional y describe el total de hechos disponibles para esa expansión de nodo, no meramente la página actual. Con `direction: "both"`, un hecho cuyo origen y destino son el mismo nodo se lista una vez por página, no dos.
 
-`MemoryDataSource` implementa este contrato para pruebas y grafos pequeños en memoria. Sus cursores son desplazamientos decimales, la búsqueda de vecinos es `O(degree)` y un cursor inválido lanza.
+`entity` es opcional: una fuente que no conoce el id solicitado devuelve un vecindario sin él, y el modelo hace fallar esa expansión con un error dirigido en lugar de ingerir permanentemente un nodo placeholder fabricado.
+
+`MemoryDataSource` implementa este contrato para pruebas y grafos pequeños en memoria. Sus cursores son desplazamientos sellados por versión (`<version>:<offset>`), de modo que llamar a `load()` a mitad de paginación invalida ruidosamente los cursores pendientes — lanzan en lugar de recortar silenciosamente otra lista de hechos. La búsqueda de vecinos es `O(degree)` y un cursor inválido lanza.
 
 ## Crear y expandir un modelo
 
@@ -97,7 +95,7 @@ interface ExpansionState {
 }
 ```
 
-Lee una copia defensiva con `getExpansionState(id)`. `loaded` es el número de hechos de página aceptados reportados a lo largo de esa expansión. `partial` significa que hay otra página disponible; llamar a `expand(id)` reanuda desde su cursor almacenado.
+Lee una copia defensiva con `getExpansionState(id)`. `loaded` cuenta cada hecho entregado por lote, de modo que el progreso paginado no se estanca cuando los vecindarios se solapan entre páginas. `partial` significa que hay otra página disponible; llamar a `expand(id)` reanuda desde su cursor almacenado.
 
 `cancelExpand(id)` aborta la solicitud activa y la marca como `cancelled`. La fuente de datos debe respetar `options.signal` para que la cancelación detenga su I/O subyacente. Un `expand(id)` posterior reanuda desde el último cursor completado. Un fallo de la fuente marca el estado `failed`, conserva el progreso previo y rechaza la promesa; una llamada posterior reintenta desde ese mismo cursor.
 
@@ -120,13 +118,21 @@ Las instantáneas están versionadas. La versión 1 almacena entidades, hechos y
 
 ## Integración de layout opcional
 
-`KnowledgeGraphModelOptions.layout` acepta el contrato XYZ `GraphLayout` de `@vectojs/graph3d`. Cuando se proporciona, cada reconstrucción de materialización llama a `layout.setGraph()`, conserva las posiciones XYZ finitas por ID de nodo como arranques en caliente y recalienta después de una página cargada cuando el layout expone `reheat()`.
+`KnowledgeGraphModelOptions.layout` acepta el contrato XYZ `GraphLayout` de `@vectojs/graph3d`. El modelo es el único conductor del layout: cada reconstrucción de materialización llama a `layout.setGraph()` una vez, conserva las posiciones XYZ finitas por ID de nodo como arranques en caliente y recalienta después de una página cargada cuando el layout expone `reheat()`. Las posiciones de arranque en caliente se capturan cuando el layout se asienta (y en el momento de la reconstrucción), no en cada fotograma activo.
 
-Llama a `captureLayoutPositions()` antes de una operación externa que necesite que se conserven las coordenadas de layout más recientes. Este contrato opcional es tridimensional: no pases el `ForceLayout2D` XY de `@vectojs/graph-layout` directamente. Un renderizador 2D puede omitir `layout` y ejecutar su propio layout neutral al renderizador sobre `getGraphData()`.
+Llama a `captureLayoutPositions()` antes de una operación externa que necesite que se conserven las coordenadas de layout más recientes. Este contrato opcional es tridimensional: no pases el `ForceLayout2D` XY de `@vectojs/graph-layout` directamente. Un renderizador 2D puede omitir `layout` y ejecutar su propio layout neutral al renderizador sobre `getGraphData()`. Ten en cuenta que este contrato fija por **índice** de nodo mientras que el `ForceLayout2D` 2D fija por ID de nodo — traduce los fijados al cruzar de una pila a otra.
 
 ## Liberación de recursos
 
-`dispose()` aborta las solicitudes activas, libera el layout opcional y libera el estado materializado. Es idempotente. Los métodos que requieren un modelo vivo lanzan `KnowledgeGraphModel is disposed` después; las completaciones async tardías no pueden repoblar el estado liberado o reemplazado por instantánea.
+`dispose()` aborta las solicitudes activas y libera el estado materializado. Es idempotente. Los métodos que requieren un modelo vivo lanzan `KnowledgeGraphModel is disposed` después; las completaciones async tardías no pueden repoblar el estado liberado o reemplazado por instantánea. La propiedad es del creador: el modelo solo toma prestado su layout opcional, así que liberar el modelo no puede matar un layout aún compartido con una sesión viva — quien construyó el layout lo libera.
+
+## Garantías de la capa de sesión
+
+La raíz del paquete también exporta `KnowledgeGraphSession`, que maneja un renderizador a partir de un modelo. Su contrato de comportamiento, mantenido en sintonía con el del modelo:
+
+- **Una expansión por id en vuelo.** Las selecciones repetidas sobre un nodo cuya recuperación de expansión sigue en vuelo las absorbe una compuerta de en-vuelo en lugar de disparar `onExpand`/`onError` por cada clic para una única recuperación de red.
+- **Los errores son observables.** Los fallos de expansión desencadenados por selección se enrutan a una opción `onError(error, entity)` (con respaldo en `console.error`) y nunca escapan como rechazos no gestionados; las continuaciones async se detienen una vez que la sesión se libera.
+- **Los ids desconocidos fallan ruidosamente.** Expandir un id que ninguna fuente conoce falla con un error dirigido en lugar de materializar una entidad fantasma.
 
 ## Complejidad
 

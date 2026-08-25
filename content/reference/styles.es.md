@@ -44,12 +44,16 @@ applyStyle(stack, style({ flexDirection: 'row', gap: '8px', alignItems: 'center'
 - `style()` — factoría de identidad que tipa un literal de objeto como `Style`.
 - `css(...styles)` — factoría de fusión (0.2.0): las fuentes posteriores ganan; las fuentes
   `null`, `undefined` y `false` se omiten, por lo que las variantes pueden ser condicionales.
-  Las entradas no se mutan.
+  Las entradas no se mutan — los objetos `padding` por eje también se copian, de modo que el
+  contrato de «objeto plano fresco» se sostiene también para los valores anidados.
 - `applyStyle(entity, style)` — escribe los campos mapeados y devuelve
   `{ applied: string[] }` (las claves CSS realmente escritas, en orden de objeto).
 - `tokens(set)` — crea un `Theme` a partir de un conjunto de tokens plano.
 - `setTheme(theme)` / `getTheme()` — cambia/lee el tema activo; los estilos
   que referencian `var()` se vuelven a resolver y reaplicar al cambiar.
+- `untrackVarStyles(entity)` — descarta de inmediato el rastreo `var()` de la entidad
+  (0.3.x); llámalo desde la limpieza de destroy para una liberación determinista en lugar de
+  esperar el barrido por referencia débil del próximo cambio de tema.
 - `PRESET_THEMES` — conjuntos de tokens `light` (el tema predeterminado), `dark`, `github` y
   `dracula`.
 - `Style` — la interfaz de estilo. Todas las claves son opcionales.
@@ -93,13 +97,25 @@ setTheme(theme);
 applyStyle(btn, style({ backgroundColor: 'var(--accent)', borderRadius: 'var(--radius-md)' }));
 ```
 
-- `var(--key)` se resuelve **exactamente** (cadena completa) contra los tokens del
-  tema activo antes de que se ejecute el conversor de valores, por lo que un token puede contener un color,
-  una cadena `px` o un número simple. Un token desconocido lanza una excepción con su nombre.
-- Los estilos que referencian tokens se **rastrean** (WeakMap por tema — sin fugas)
-  y se vuelven a aplicar cuando `setTheme(next)` cambia, por lo que un cambio de tema recolorea
-  toda la escena sin cambios del lado de la persona que llama. Los estilos sin `var()` no se
-  rastrean. Si un valor de token falla la validación de la propiedad mapeada al cambiar
+- `var(--key)` se resuelve contra los tokens del tema activo antes de que se ejecute el
+  conversor de valores, por lo que un token puede contener un color, una cadena `px` o un número
+  simple. Las referencias de cadena completa (`backgroundColor: "var(--accent)"`) se resuelven
+  exactamente; las referencias **incrustadas** en una cadena mayor
+  (`color: "rgba(var(--rgb), 0.4)"`) se resuelven por sustitución, las cadenas de token-referencia-token
+  se resuelven transitivamente con detección de ciclos basada en rutas, y la clave que referencia se
+  rastrea para que los cambios de tema re-resuelvan los compuestos. Un token desconocido lanza una
+  excepción con su nombre; un ciclo también, con la cadena infractora.
+- `var(--token, fallback)` **no tiene resolución de respaldo** y nunca pasa en silencio: la forma se
+  detecta dondequiera que pueda llegar (un valor directo, incrustado en una cadena compuesta, dentro de
+  un eje de padding o a través de una cadena de tokens) y lanza un `TypeError` que nombra el valor
+  infractor. El detector tolera espacios después de `var(`, así que `var( --accent, #fff)` también se
+  captura. El silencio aquí era el defecto: una cadena no resuelta llegaba a los campos mapeados mientras
+  Canvas2D conservaba silenciosamente la pintura anterior.
+- Los estilos que referencian tokens se **rastrean** por tema (las entidades destruidas ya no se
+  retienen — el rastreo las mantiene débilmente, con `untrackVarStyles(entity)` para una liberación
+  inmediata en la limpieza de destroy) y se vuelven a aplicar cuando `setTheme(next)` cambia, por lo que
+  un cambio de tema recolorea toda la escena sin cambios del lado de la persona que llama. Los estilos sin
+  `var()` no se rastrean. Si un valor de token falla la validación de la propiedad mapeada al cambiar
   (p. ej. `--radius-md: "50%"`), `setTheme` lanza una excepción.
 - El tema predeterminado es el preset `light`; los conjuntos de `tokens()` son objetos simples,
   por lo que el tema de la persona que llama es una extensión: `tokens({ ...PRESET_THEMES.dark, accent: "#f00" })`.
@@ -132,6 +148,16 @@ composeFont(
 `composeFont` analiza una abreviación de fuente CSS, reemplaza solo los segmentos presentes
 en `changes` y recompone; un tamaño/familia ausente se completa con `16px` /
 `sans-serif` para que el resultado sea siempre una cadena de fuente de canvas válida.
+
+El analizador entiende la gramática completa de prefijos de canvas
+(`[style || variant || weight]? size[/line-height]? family`), así que
+`italic 700 16px Georgia` y `16px/24px Inter` se componen correctamente y un cambio posterior de
+segmento no puede recomponer una cadena inválida — los segmentos con apariencia de tamaño que no
+puedan colocarse fallan ruidosamente en lugar de pasar en silencio. Después de que el hueco de weight toma
+el primer `normal` (la elección de compatibilidad documentada), los `normal` siguientes llenan style y luego
+variant, de modo que la forma válida de CSS `normal normal 16px Inter` se analiza en lugar de lanzar.
+`fontSize` impone su forma `${number}px` en tiempo de ejecución: las unidades que no son px que llegan a través
+de tokens o de llamantes JS lanzan en lugar de componer en silencio una abreviación que Canvas2D descartaría.
 
 ## Semántica
 

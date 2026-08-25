@@ -35,10 +35,11 @@ applyStyle(stack, style({ flexDirection: 'row', gap: '8px', alignItems: 'center'
 ## 匯出
 
 - `style()` — 識別工廠，將物件字面值型別化為 `Style`。
-- `css(...styles)` — 合併工廠（0.2.0）：後面的來源優先；`null`、`undefined`、`false` 來源會被略過，因此變體可以是條件式的。不會修改輸入。
+- `css(...styles)` — 合併工廠（0.2.0）：後面的來源優先；`null`、`undefined`、`false` 來源會被略過，因此變體可以是條件式的。不會修改輸入——按軸的 `padding` 物件也會被複製，因此「全新普通物件」契約對巢狀值同樣成立。
 - `applyStyle(entity, style)` — 寫入對應的欄位，回傳 `{ applied: string[] }`（實際寫入的 CSS 鍵，依物件順序）。
 - `tokens(set)` — 從扁平的權杖集合建立 `Theme`。
 - `setTheme(theme)` / `getTheme()` — 切換／讀取現用主題；參考 `var()` 的樣式會在切換時重新解析並重新套用。
+- `untrackVarStyles(entity)` — 立即丟棄該實體的 `var()` 追蹤（0.3.x）；在銷毀清理中呼叫它以確定性地釋放，而不是等待下一次主題切換時的弱引用清掃。
 - `PRESET_THEMES` — `light`（預設主題）、`dark`、`github`、`dracula` 權杖集合。
 - `Style` — 樣式介面。所有鍵皆為可選。
 - `composeFont(current, changes)` — 重新組成 CSS font 簡寫字串（參見[字型組成](#字型組成)）。
@@ -78,8 +79,9 @@ setTheme(theme);
 applyStyle(btn, style({ backgroundColor: 'var(--accent)', borderRadius: 'var(--radius-md)' }));
 ```
 
-- `var(--key)` 會在數值轉換器執行前，針對現用主題的權杖**精確**（整串）解析，因此權杖可能保存色彩、px 字串或裸數字。未知的權杖會以其名稱擲出例外。
-- 參考權杖的樣式會被**追蹤**（每個主題一個 WeakMap — 無洩漏），並在 `setTheme(next)` 切換時重新套用，因此主題交換會在呼叫端零修改的情況下重新著色整個場景。不含 `var()` 的樣式不會被追蹤。若權杖值在切換時未通過對應屬性的驗證（例如 `--radius-md: "50%"`），`setTheme` 會擲出例外。
+- `var(--key)` 會在數值轉換器執行前，針對現用主題的權杖解析，因此權杖可能保存色彩、px 字串或裸數字。整串參考（`backgroundColor: "var(--accent)"`）精確解析；嵌入在更大字串中的參考（`color: "rgba(var(--rgb), 0.4)"`）以替換方式解析，權杖參考權杖的鏈會藉助基於路徑的環偵測傳遞解析，且被參考的鍵會被追蹤，以便主題切換時重新解析組合值。未知的權杖會連同其名稱擲出例外；環也是如此，並附上違規鏈。
+- `var(--token, fallback)` **沒有回退解析**，也絕不會靜默通過：無論該形式從何處抵達（直接值、嵌在複合字串中、padding 軸內或透過權杖鏈），都會被偵測到並擲出指明違規值的 `TypeError`。偵測器容忍 `var(` 之後的空白，因此 `var( --accent, #fff)` 同樣會被捕獲。靜默正是缺陷所在：未解析的字串曾會抵達映射欄位，而 Canvas2D 悄悄保留了上一次的繪製。
+- 參考權杖的樣式會按主題被**追蹤**（被銷毀的實體不再被保留——追蹤以弱引用持有它們，並提供 `untrackVarStyles(entity)` 用於銷毀清理中的即時釋放），並在 `setTheme(next)` 切換時重新套用，因此主題交換會在呼叫端零修改的情況下重新著色整個場景。不含 `var()` 的樣式不會被追蹤。若權杖值在切換時未通過對應屬性的驗證（例如 `--radius-md: "50%"`），`setTheme` 會擲出例外。
 - 預設主題是 `light` 預設集；`tokens()` 集合是普通物件，因此呼叫端主題是展開：`tokens({ ...PRESET_THEMES.dark, accent: "#f00" })`。
 
 ## 字型組成
@@ -104,6 +106,8 @@ composeFont(
 ```
 
 `composeFont` 剖析 CSS font 簡寫，僅取代 `changes` 中存在的片段，並重新組成；缺少的大小／family 會以 `16px` / `sans-serif` 填補，因此結果永遠是有效的 canvas font 字串。
+
+剖析器理解完整的 canvas 前綴語法（`[style || variant || weight]? size[/line-height]? family`），因此 `italic 700 16px Georgia` 和 `16px/24px Inter` 都能正確組成，且後續片段變更不會重新組成出無效字串——無法安放的大小樣片段會明確失敗而不是悄悄通過。在 weight 槽位取得第一個 `normal` 之後（這是有文件記載的相容選擇），後續的 `normal` 依次填充 style 和 variant，因此合法的 CSS 形式 `normal normal 16px Inter` 會被剖析而不是擲出例外。`fontSize` 在執行時強制其 `${number}px` 形狀：經由權杖或 JS 呼叫者抵達的非 px 單位會擲出例外，而不是悄悄組成一個 Canvas2D 會丟棄的簡寫。
 
 ## 語意
 

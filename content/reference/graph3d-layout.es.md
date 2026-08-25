@@ -8,7 +8,7 @@ weight = 45
 
 Parte de [`@vectojs/graph3d`](/reference/graph3d/).
 
-Versión documentada: **0.6.0**
+Versión documentada: **0.6.1**
 
 ## Modelo de datos — `GraphData`
 
@@ -58,6 +58,24 @@ interface GraphLayout {
 El contrato es deliberadamente mínimo y apto para workers: las posiciones son un único `Float32Array` plano de tripletes xyz en el orden de `GraphData.nodes`, por lo que una implementación puede vivir completamente dentro de un Web Worker y transmitir su búfer a través del límite del hilo como transferible, sin tráfico de objetos por nodo.
 [`Graph3D.applyPositions()`](/reference/graph3d-renderer/#métodos) consume ese mismo formato de búfer directamente. `positions` es la **misma instancia de array** reutilizada entre pasos — cópiala (`layout.positions.slice()`) si necesitas una instantánea estable en lugar de una vista en vivo.
 
+**La validación de extremos de enlaces es uniforme en toda la pila (0.6.1).**
+`Graph3D.setGraphData`, `VectoForceLayout.setGraph` y `D3ForceLayout.setGraph`
+lanzan todos el mismo error `references an unknown node id` para un enlace cuyo
+extremo no nombra ningún nodo del grafo — la validación se ejecuta antes de
+mutar cualquier estado, por lo que un grafo rechazado deja el anterior intacto
+(`D3ForceLayout` dejaba antes que el id crudo llegara a d3-force-3d, cuyo tick
+colapsaba silenciosamente todas las posiciones a NaN; `VectoForceLayout`
+omitía el enlace en silencio). Los bucles sobre un mismo nodo siguen siendo
+entrada legal sin muelle: `VectoForceLayout` los omite.
+
+Ten en cuenta también que los controles opcionales de fijación de este contrato
+se direccionan por **índice** de nodo, mientras que [`ForceLayout2D`](/reference/graph-layout/)
+2D fija por **ID** de nodo (sus fijaciones sobreviven a la compactación de
+`removeNodes`), y la identidad de aristas paralelas también difiere — las pilas
+de este paquete tratan los enlaces paralelos como aristas distintas, mientras
+que consumidores como el node-editor rechazan cuádruples de extremos duplicados.
+Traduce fijaciones e identidad de enlaces al portar código entre pilas.
+
 `@vectojs/graph3d` incluye dos implementaciones detrás de este contrato hoy — la propia [`VectoForceLayout`](#vectoforcelayout) (octree Barnes–Hut, sin dependencia en tiempo de ejecución; la predeterminada) y [`D3ForceLayout`](#d3forcelayout) (un adaptador de `d3-force-3d`, conservado para mantener la paridad con un ajuste d3 existente) — además de modos de layout DAG en la hoja de ruta del paquete, todos detrás de esta misma interfaz para que un renderizador o un host de worker nunca necesiten saber cuál se está ejecutando.
 
 ## `D3ForceLayout`
@@ -90,14 +108,14 @@ interface VectoForceLayoutOptions {
   centerStrength?: number; // pull toward the centroid. Default 0.02.
   velocityDecay?: number;  // per-step velocity damping. Default 0.6.
   theta?: number;          // Barnes–Hut opening angle. Default 0.9.
-  alphaDecay?: number;     // cooling rate. Default 0.0228; 0 disables cooling.
+  alphaDecay?: number;     // cooling rate. Default 0.0228; non-positive falls back to the default.
   alphaMin?: number;       // alpha below which step() reports cooled. Default 0.001.
   seed?: number;           // RNG seed for deterministic placement. Default 1.
   measurePhases?: boolean; // opt-in per-tick phase profiling. Default false.
 }
 ```
 
-El layout propio (añadido en 0.3.0, y el predeterminado): una simulación dirigida por fuerzas con un octree Barnes–Hut para el término de muchos cuerpos — sin dependencia en tiempo de ejecución, determinista bajo un `seed`, y seguro dentro de un Web Worker (el mismo contrato `step(iterations)` que `D3ForceLayout`). Las posiciones y velocidades se mantienen en **f32** (coincidiendo con el `Float32Array` expuesto), mientras que el octree acumula los centros de masa y la integral de repulsión en **f64**. Elígelo cuando quieras resultados idénticos entre ejecuciones; ajústalo con `repulsion`/`linkStrength`, y eleva `alphaDecay` por encima de cero con cuidado — ya está cerca del borde de enfriamiento, por lo que un valor más alto congela el grafo antes en lugar de después.
+El layout propio (añadido en 0.3.0, y el predeterminado): una simulación dirigida por fuerzas con un octree Barnes–Hut para el término de muchos cuerpos — sin dependencia en tiempo de ejecución, determinista bajo un `seed`, y seguro dentro de un Web Worker (el mismo contrato `step(iterations)` que `D3ForceLayout`). Las posiciones y velocidades se mantienen en **f32** (coincidiendo con el `Float32Array` expuesto), mientras que el octree acumula los centros de masa y la integral de repulsión en **f64**. Elígelo cuando quieras resultados idénticos entre ejecuciones; ajústalo con `repulsion`/`linkStrength`, y eleva `alphaDecay` por encima de cero con cuidado — ya está cerca del borde de enfriamiento, por lo que un valor más alto congela el grafo antes en lugar de después. Un `alphaDecay` no positivo se rechaza en la construcción y recurre al valor predeterminado (un `0` literal hacía antes que la simulación corriera para siempre sin asentarse jamás).
 
 ```ts
 layout.step(); // un tick

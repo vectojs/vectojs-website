@@ -6,7 +6,7 @@ weight = 48
 
 # `@vectojs/devtools`
 
-Version documentée : **0.11.1**
+Version documentée : **0.11.2**
 
 `@vectojs/devtools` est la réponse à « où est le panneau Éléments ? » — un inspecteur
 dans la page pour le Virtual Math Tree, afin que le débogage d'une scène VectoJS reste
@@ -62,7 +62,7 @@ if (import.meta.env.DEV) {
 L'en-tête comporte trois boutons icônes fantômes — **⌖** (sélection), **⟳** (rafraîchir), **⚠** (audit) — et trois badges de compteur : total d'entités, interactives (**⚡**), et découvertes d'audit (**⚠**). Une barre `Tabs` divise les outils en **Tree · Info · Audit · A11y · Log · ⚙**, plus un onglet par [inspecteur de plugin](/reference/devtools-extend/#protocole-de-plugin) enregistré. Une bande de performance est épinglée en bas.
 
 - **Vue arborescente en direct** (`Tree`) de `scene.rootEntity` et `scene.overlayRootEntity`, rafraîchie à intervalle (défaut 500 ms). Chaque ligne montre le nom du constructeur de l'entité, sa position, sa taille, et deux badges : **⚡** (`interactive`) et **▶** (`hasPendingAnimations()`). Un champ **filtre** restreint les lignes par sous-chaîne de type/id ; il est en lecture seule, donc l'index id→entité résout toujours tout. Programmatiquement : `panel.setFilter(text)`.
-- **Mode sélection** : cliquez sur **⌖**, puis cliquez n'importe où sur la page. L'inspecteur résout le clic vers l'entité la plus profonde sous ce point en utilisant le même ordre de parcours que la Scene utilise pour l'entrée du pointeur, avec un repli AABB pour les entités décoratives, non interactives.
+- **Mode sélection** : cliquez sur **⌖**, puis cliquez n'importe où sur la page. L'inspecteur résout le clic vers l'entité la plus profonde sous ce point en utilisant le même ordre de parcours (et la même règle d'acceptation) que la Scene utilise pour l'entrée du pointeur — une entité n'est sélectionnable que là où sa propre forme accepte le point, exactement comme le moteur, si bien que les particules et les autres entités non interactives ne sont jamais de faux propriétaires.
 - **Surbrillance de sélection** : la géométrie de l'entité sélectionnée est dessinée en contour sur la couche d'overlay de la scène _hôte_, pour que vous voyiez exactement ce qui est sélectionné par rapport au rendu en direct. Par défaut, il dessine la boîte de mise en page ; `panel.setHighlightLayers()` le bascule vers n'importe laquelle des sept [couches de géométrie de surbrillance](/reference/devtools-inspect/#géométrie-de-surbrillance) — y compris `'hit'`, qui échantillonne la vraie région de hit de l'entité plutôt que sa boîte.
 - **Relevé d'état + édition en ligne** (`Info`) : géométrie, échelle/rotation/opacité, la matrice de transformation monde complète, l'état d'animation, et toute sortie `getDevtoolsDescriptor()` que l'entité publie. Ajoute des éditeurs en ligne `x`/`y`/`opacity` et les boutons **Copy path** / **Copy JSON**.
 - **Onglet A11y** : le rôle projeté de l'entité sélectionnée, son nom accessible et sa source, l'index de tabulation, la position dans l'ordre de lecture, la boîte canvas-vs-DOM — plus les découvertes de l'[audit a11y](/reference/devtools-audit/#audit-a11y) à l'échelle de la scène.

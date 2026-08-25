@@ -135,7 +135,14 @@ Les noyaux WASM de VectoJS sont un backend invisible — JS est le repli permane
 | `not-applicable` | Rien de ce genre à faire.                                           | non           |
 | `rejected`       | Installé, passé la porte, puis le noyau a **refusé ses arguments**. | **oui**       |
 
-`faulted` est exactement `reason === 'rejected'`, et `auditAccelerators` ne signale que ceux-là. C'est délibéré : une porte qui reste fermée est le système fonctionnant comme prévu, et la rapporter vous entraînerait à ignorer l'audit. Une scène saine, et une scène entièrement JS, auditent toutes deux proprement.
+Pour l'accélérateur d'animation, un verdict par type nomme la famille de
+drivers qui a refusé : quand un noyau d'animation refuse une image pendant que
+l'autre progresse encore via WASM, `reason` rapporte `springs-rejected` ou
+`tweens-rejected` (avec `activeThisFrame: true`, puisque la moitié du travail a
+tourné). Le simple `rejected` est réservé au cas où les deux types refusent.
+
+`faulted` est exactement `reason === 'rejected'` (verdicts par type compris), et
+`auditAccelerators` ne signale que ceux-là. C'est délibéré : une porte qui reste fermée est le système fonctionnant comme prévu, et la rapporter vous entraînerait à ignorer l'audit. Une scène saine, et une scène entièrement JS, auditent toutes deux proprement.
 
 `rejected` signifie que le noyau a été installé, a passé sa porte, puis n'a rien écrit et l'image est retombée sur JS — un bogue de dimensionnement ou de capacité en amont, pas un résultat de réglage.
 

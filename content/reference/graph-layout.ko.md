@@ -6,11 +6,11 @@ weight = 47
 
 # `@vectojs/graph-layout`
 
-문서 버전: **0.2.1**
+문서 버전: **0.3.0**
 
 `@vectojs/graph-layout`는 의존성 없는 2D 힘 시뮬레이션입니다. 렌더러나 애니메이션 타이머를 소유하지 않습니다: 호스트가 그래프 데이터를 제공하고, `step()`을 호출하고, `Float32Array`에서 인터리브된 XY 좌표를 읽습니다. 동일한 레이아웃이 Canvas 2D, SVG, WebGL, WebGPU, VectoJS 씬 또는 메인 스레드 밖 렌더러를 구동할 수 있습니다.
 
-버전 0.2.1에는 하나의 구현체, TypeScript `ForceLayout2D`가 있습니다. 0.2.1에는 WASM 빌드, 대체 백엔드, 또는 `backend` 옵션이 없습니다. WASM은 측정으로 검증된 미래 옵션으로 남아 있습니다; 현재의 교차 차원 브라우저 비교는 WASM 백엔드가 도움이 될 것이라는 직접적인 증거가 아닙니다.
+버전 0.3.0에는 하나의 구현체, TypeScript `ForceLayout2D`가 있습니다. 0.3.0에는 WASM 빌드, 대체 백엔드, 또는 `backend` 옵션이 없습니다. WASM은 측정으로 검증된 미래 옵션으로 남아 있습니다; 현재의 교차 차원 브라우저 비교는 WASM 백엔드가 도움이 될 것이라는 직접적인 증거가 아닙니다.
 
 ## 설치
 
@@ -79,7 +79,7 @@ function draw(): void {
 draw();
 ```
 
-`step()`은 동기식입니다. 시뮬레이션이 활성 상태를 유지하는 동안 `true`를 반환하고, `alphaMin` 아래로 식은 후(또는 그래프가 비어 있을 때) `false`를 반환합니다. 반환 값은 물리가 다른 틱이 필요한지 여부를 나타냅니다; 카메라 이동, 입력 또는 기타 애니메이션을 위해 애플리케이션이 렌더링을 계속해야 하는지에 대해서는 아무것도 말하지 않습니다. `alphaDecay: 0`은 냉각을 비활성화하므로, 비어 있지 않은 시뮬레이션은 스스로 안정화되지 않습니다.
+`step()`은 동기식입니다. 시뮬레이션이 활성 상태를 유지하는 동안 `true`를 반환하고, `alphaMin` 아래로 식은 후(또는 그래프가 비어 있을 때) `false`를 반환합니다. 반환 값은 물리가 다른 틱이 필요한지 여부를 나타냅니다; 카메라 이동, 입력 또는 기타 애니메이션을 위해 애플리케이션이 렌더링을 계속해야 하는지에 대해서는 아무것도 말하지 않습니다. 음수 또는 0인 `alphaDecay`는 생성 시 거부되고 기본값으로 폴백하므로, 비어 있지 않은 시뮬레이션은 항상 스스로 안정화됩니다.
 
 ## 공개 유형
 
@@ -143,12 +143,12 @@ interface ForceLayout2DOptions {
 | `centerStrength`       |     `0.02` | 원점을 향한 음이 아닌 당김.                                                                                |
 | `velocityDecay`        |      `0.6` | 틱당 속도 유지율, `1` 미만으로 클램프됨.                                                                   |
 | `theta`                |      `0.9` | 음이 아닌 Barnes-Hut 열림 각도. 낮은 값은 정확도를 위해 속도를 희생합니다; `0`은 정확한 순회를 수행합니다. |
-| `repulsionDistanceMax` | `Infinity` | 노드가 반발하는 최대 거리. `0`은 반발을 비활성화합니다; 비유한 값은 컷오프를 비활성화합니다.               |
-| `alphaDecay`           |   `0.0228` | 틱당 온도 감쇠, `[0, 1]`로 클램프됨.                                                                       |
+| `repulsionDistanceMax` | `Infinity` | 노드가 반발하는 최대 거리. 양수가 아닌 값은 컷오프 없음을 의미합니다(`Infinity`와 동일).                   |
+| `alphaDecay`           |   `0.0228` | 틱당 온도 감쇠, `[0, 1]`로 클램프됨; 양수가 아닌 값은 기본값으로 폴백합니다.                               |
 | `alphaMin`             |    `0.001` | 시뮬레이션이 안정화된 것으로 간주되는 음이 아닌 온도.                                                      |
 | `seed`                 |        `1` | 유한한 초기 좌표가 없는 노드를 위한 결정적 시드.                                                           |
 
-비유한 옵션 값은 기본값으로 대체됩니다. 음이 아닌 것으로 문서화된 값은 0에서 클램프됩니다. 노드와 링크 접근자는 각 레코드가 레이아웃에 수용될 때 한 번 평가되며, 매 틱마다 평가되지 않습니다. 노드 접근자 인덱스는 삽입 인덱스입니다. 링크 접근자 인덱스는 추가 전용 페이징에 걸쳐 안정적이고 연속적인 인덱스입니다. 노드를 제거하면 링크가 압축되므로, 이후의 추가가 이전에 제거된 링크에 할당된 인덱스를 재사용할 수 있습니다. 노드 제거는 생존자에 대한 접근자를 재평가하지 않습니다; 값을 다시 파생해야 한다면 새 `setGraph()`를 사용하세요. 모든 옵션은 생성자 전용입니다; 0.2.1에는 실시간 힘 설정자가 없습니다.
+비유한 옵션 값은 기본값으로 대체됩니다. 음이 아닌 것으로 문서화된 값은 0에서 클램프되지만, 클램프 대신 폴백하는 두 가지 의도적인 예외가 있습니다: 양수가 아닌 `alphaDecay`는 기본값 `0.0228`을 취하고(리터럴 `0`은 틱당 감쇠를 no-op로 만들어 시뮬레이션이 결코 안정화되지 않음), 양수가 아닌 `repulsionDistanceMax`는 컷오프 없음을 의미합니다(이전에는 반발을 완전히 껐습니다). 노드와 링크 접근자는 각 레코드가 레이아웃에 수용될 때 한 번 평가되며, 매 틱마다 평가되지 않습니다. 노드 접근자 인덱스는 삽입 인덱스입니다. 링크 접근자 인덱스는 추가 전용 페이징에 걸쳐 안정적이고 연속적인 인덱스입니다. 노드를 제거하면 링크가 압축되므로, 이후의 추가가 이전에 제거된 링크에 할당된 인덱스를 재사용할 수 있습니다. 노드 제거는 생존자에 대한 접근자를 재평가하지 않습니다; 값을 다시 파생해야 한다면 새 `setGraph()`를 사용하세요. 모든 옵션은 생성자 전용입니다; 0.3.0에는 실시간 힘 설정자가 없습니다.
 
 ## API
 
@@ -168,10 +168,10 @@ class ForceLayout2D {
   removeLinks(items: Iterable<GraphLink | LinkId>): void;
   updateLinks(links: readonly GraphLink[]): void;
   step(iterations?: number): boolean;
-  setNodePin(nodeIndex: number, pin: { x?: number; y?: number }): void;
-  clearNodePin(nodeIndex: number, axes?: { x?: boolean; y?: boolean }): void;
-  pinNode(nodeIndex: number, x: number, y: number): void;
-  unpinNode(nodeIndex: number): void;
+  setNodePin(id: NodeId, pin: { x?: number; y?: number }): void;
+  clearNodePin(id: NodeId, axes?: { x?: boolean; y?: boolean }): void;
+  pinNode(id: NodeId, x: number, y: number): void;
+  unpinNode(id: NodeId): void;
   reheat(alpha?: number): void;
   dispose(): void;
 }
@@ -197,12 +197,11 @@ class ForceLayout2D {
 
 - `id`가 없으면, 반복되는 `source`→`target` 링크는 하나의 링크입니다.
 - 방향이 중요합니다: `a`→`b`와 `b`→`a`는 서로 다른 정체성을 가집니다.
-- 병렬 링크는 서로 다른 문자열 또는 유한 숫자 ID가 필요합니다.
+- 병렬 링크는 서로 다른 문자열 또는 유한 숫자 ID가 필요합니다; 그래프 스택은 병렬 링크를 거부하는 대신 서로 다른 엣지로 취급합니다.
 - 식별된 링크를 재생하는 것은 무시됩니다.
-- 알 수 없는 엔드포인트나 동일한 source와 target을 가진 링크는 무시됩니다.
 - 잘못된 형식의 선택적 링크 ID는 정체성 목적상 없는 것으로 취급됩니다.
 
-잘못된 형식의 선택적 ID를 가진 링크도 엔드포인트가 유효하면 미식별 링크로 진입합니다; 알 수 없는 엔드포인트와 자기 링크는 힘 배열에 진입하지 않습니다. 잘못된 형식의 링크 데이터가 positions를 비유한 값으로 만들지는 않습니다.
+엔드포인트 검증은 엄격하고 균일합니다: 알 수 없는 노드나 같은 노드를 두 번 참조하는 엔드포인트를 가진 링크는 `setGraph()`와 `appendGraph()`가 오류를 던지게 만들고, `appendGraph()`는 변경 전에 전체 배치를 검증하여 거부된 호출도 이전 그래프를 그대로 유지합니다(같은 배치에서 수용된 노드에 대한 전방 참조는 유효합니다). 이것은 `updateLinks()`의 정책과 일치합니다 — 걸린 링크는 조용히 버려져 데이터 버그가 불가사의하게 사라진 구조로 숨겨졌습니다. 잘못된 형식의 선택적 ID를 가진 링크도 엔드포인트가 유효하면 미식별 링크로 진입합니다. 잘못된 형식의 링크 데이터가 positions를 비유한 값으로 만들지는 않습니다.
 
 `removeNodes(ids)`는 일치하는 노드와 모든 부수 링크를 제거하고, 생존자 상태를 압축하고, 차수 편향을 재계산하며, 무언가 제거되었을 때 재가열합니다. 알 수 없는 ID와 빈 iterable은 no-op입니다.
 
@@ -216,7 +215,11 @@ class ForceLayout2D {
 
 유한한 초기 `fx`와 `fy` 값은 축을 독립적으로 고정합니다. 따라서 노드는 고정된 X와 자유로운 Y, 고정된 Y와 자유로운 X, 또는 두 축 모두 고정될 수 있습니다. 초기 `x`와 `y`는 해당하는 비고정 축만 시드합니다.
 
-런타임에 `setNodePin(index, { x?, y? })`은 제공된 축만 고정하고, 해당 라이브 좌표를 즉시 업데이트하며, 속도를 지웁니다. `clearNodePin(index, { x?, y? })`은 다른 축을 보존하면서 선택된 축을 해제합니다; axes 객체를 생략하면 둘 다 해제합니다. `pinNode(index, x, y)`와 `unpinNode(index)`는 두 축 모두를 다루는 편의 메서드로 남습니다. 유효하지 않은 인덱스는 무시됩니다. 이 호출들은 자동으로 재가열하지 않으므로, 대화형 핀 또는 언핀 작업 후 `reheat()`를 호출하세요.
+런타임에 `setNodePin(id, { x?, y? })`은 제공된 축만 고정하고, 해당 라이브 좌표를 즉시 업데이트하며, 속도를 지웁니다. `clearNodePin(id, { x?, y? })`은 다른 축을 보존하면서 선택된 축을 해제합니다; axes 객체를 생략하면 둘 다 해제합니다. `pinNode(id, x, y)`와 `unpinNode(id)`는 두 축 모두를 다루는 편의 메서드로 남습니다. 알 수 없는 ID는 무시됩니다.
+
+**핀은 ID 주소 지정입니다**(0.3.0). 이 클래스의 다른 모든 노드 참조와 마찬가지로, `removeNodes()` 압축 후에도 같은 노드를 계속 가리킵니다 — 인덱스 주소 지정 핀은 그 슬롯으로 이동한 노드로 조용히 재조준됩니다. 스택 간 포팅 코드를 위한 분기 노트: 3D [`GraphLayout`](/reference/graph3d-layout/) 패밀리 계약은 대신 노드 **인덱스**로 핀을 고정하고 병렬 엣지 처리도 다릅니다 — 이 패키지의 소비자는 중복 엔드포인트 사중항(node-editor의 `duplicate-link`)을 거부하는 반면 graph/knowledge 스택은 병렬 링크를 서로 다른 엣지로 취급합니다. 스택을 넘어갈 때는 핀과 링크 정체성을 변환하세요.
+
+이 호출들은 자동으로 재가열하지 않으므로, 대화형 핀 또는 언핀 작업 후 `reheat()`를 호출하세요.
 
 `reheat(alpha = 0.3)`은 요청을 `[alphaMin, 1]`로 클램프하고 `max(currentAlpha, requestedAlpha)`를 적용합니다. 더 뜨거운 시뮬레이션을 식히지 않습니다.
 
@@ -228,19 +231,16 @@ class ForceLayout2D {
 
 ```ts
 function onDragStart(node, x, y) {
-  const index = layout.getNodeIndex(node.id);
-  layout.setNodePin(index, { x, y }); // pin at the pointer
+  layout.setNodePin(node.id, { x, y }); // pin at the pointer
   layout.reheat(0.3); // wake the simulation ONCE
 }
 
 function onDragMove(node, x, y) {
-  const index = layout.getNodeIndex(node.id);
-  layout.setNodePin(index, { x, y }); // move the pin — no reheat here
+  layout.setNodePin(node.id, { x, y }); // move the pin — no reheat here
 }
 
 function onDragEnd(node) {
-  const index = layout.getNodeIndex(node.id);
-  layout.clearNodePin(index); // or keep it pinned for a permanent pin
+  layout.clearNodePin(node.id); // or keep it pinned for a permanent pin
 }
 ```
 
@@ -254,9 +254,9 @@ function onDragEnd(node) {
 
 `N`개의 노드와 `E`개의 수용된 링크에 대해, 일반적인 틱은 Barnes-Hut 쿼드트리를 구축하고 기대 `O(N log N)`으로 반발을 평가하며, 스프링을 `O(E)`로 적용하고, `O(N)`으로 정리·중심화·적분합니다. 따라서 충돌이 없을 때의 일반적인 틱 비용은 `O(N log N + E)`입니다. 이것은 최악의 경우를 보장하지 않습니다: 병리적인 공간 분포나 `theta: 0`은 전체 쌍 작업에 근접할 수 있습니다.
 
-충돌이 활성화되면, 레이아웃은 예측된 위치에 대해 쿼드트리를 두 번째로 구축하고 반경 이웃 쿼리를 수행합니다. 희소하고 국소적으로 유계인 이웃은 일반적으로 `O(N log N + K)`에 가깝습니다 — 여기서 `K`는 후보/겹침 작업입니다 — 하지만 밀집 클러스터나 매우 큰 반경은 `K`를 2차로 만들 수 있습니다. 충돌은 Barnes-Hut 반발로부터 무조건적인 `O(N log N)` 한계를 상속받지 않습니다.
+충돌이 활성화되면, 레이아웃은 예측된 위치에 대해 쿼드트리를 두 번째로 구축하고 브로드 페이즈를 통해 반경 이웃 쿼리를 수행합니다 — 이 브로드 페이즈는 점을 2의 거듭제곱 반경 계층으로 빈에 담고 각 계층은 자체 그리드를 가집니다 — 탐색 비용은 최대 반경으로 크기가 정해진 셀에 모든 노드가 떨어지는 대신 국소 밀도에 의해 제한됩니다. 희소하고 국소적으로 유계인 이웃은 일반적으로 `O(N log N + K)`에 가깝습니다 — 여기서 `K`는 후보/겹침 작업입니다 — 하지만 밀집 클러스터나 매우 큰 반경은 여전히 `K`를 2차로 만들 수 있습니다. 충돌은 Barnes-Hut 반발로부터 무조건적인 `O(N log N)` 한계를 상속받지 않습니다.
 
-`setGraph()`는 기하학적 용량 할당과 초기화를 제외하면 `O(N + E)`입니다. `appendGraph()`는 추가된 입력에 비례하며, 링크가 수용될 때 `O(N + E)` 차수 편향 재계산이 더해집니다. `removeLinks()`는 링크 스토리지만 압축하며, 요청이 전체 링크이면 `O(E + R)`, `R`개의 베어 ID가 각각 모든 링크를 스캔하는 최악의 경우 `O(E + RE)`입니다. `updateLinks()`는 `U`개의 업데이트에 대해 `O(E + U)`입니다. 스토리지는 기하급수적으로 증가하므로, 대부분의 작은 추가는 용량을 재사용합니다; 성장 경계에서는 기존 typed array를 `O(N + E)` 시간에 복사합니다. `removeNodes()`는 노드와 링크를 압축하고 `O(N + E)`로 편향을 재계산합니다. 제거는 용량을 축소하지 않습니다.
+`setGraph()`는 기하학적 용량 할당과 초기화를 제외하면 `O(N + E)`입니다. `appendGraph()`는 추가된 입력에 비례하며, 링크가 수용될 때 `O(N + E)` 차수 편향 재계산이 더해집니다. `removeLinks()`는 링크 스토리지만 압축하며 `O(E + R)`입니다 — 베어 ID는 요청마다 모든 링크를 스캔하는 대신 지연 구축된 인덱스를 통해 해석됩니다. `updateLinks()`는 `U`개의 업데이트에 대해 `O(E + U)`입니다. 스토리지는 기하급수적으로 증가하므로, 대부분의 작은 추가는 용량을 재사용합니다; 성장 경계에서는 기존 typed array를 `O(N + E)` 시간에 복사합니다. `removeNodes()`는 노드와 링크를 압축하고 `O(N + E)`로 편향을 재계산합니다. 제거는 용량을 축소하지 않습니다.
 
 ## 측정된 브라우저 증거
 
@@ -282,7 +282,7 @@ function onDragEnd(node) {
 | `node.fx` / `node.fy` 변경                       | 초기 `fx`/`fy`, 그다음 `setNodePin()` / `clearNodePin()` |
 | d3의 내부 타이머                                 | 타이머 없음; 호스트가 스케줄링을 소유                    |
 
-링크는 d3가 변경한 엔드포인트 객체가 아니라 엔드포인트 ID를 사용합니다. 옵션 접근자는 원래 `GraphNode` 또는 `GraphLink`와 삽입 인덱스를 받은 후 캐시됩니다. 0.2.1에는 커스텀 힘 레지스트리가 없습니다; d3 레이아웃이 커스텀 힘이나 실시간 힘 설정자에 의존한다면, d3-force를 유지하거나 새 옵션으로 레이아웃을 다시 만드세요.
+링크는 d3가 변경한 엔드포인트 객체가 아니라 엔드포인트 ID를 사용합니다. 옵션 접근자는 원래 `GraphNode` 또는 `GraphLink`와 삽입 인덱스를 받은 후 캐시됩니다. 0.3.0에는 커스텀 힘 레지스트리가 없습니다; d3 레이아웃이 커스텀 힘이나 실시간 힘 설정자에 의존한다면, d3-force를 유지하거나 새 옵션으로 레이아웃을 다시 만드세요.
 
 ## 2D vs `@vectojs/graph3d`
 

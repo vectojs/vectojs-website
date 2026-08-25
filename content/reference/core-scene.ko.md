@@ -111,16 +111,19 @@ scene.forcedColors: boolean             // getter — OS is in a forced-colors m
 **유휴 자동 스로틀 (핵심 주의사항).** Scene은 더티가 아니고
 메인/오버레이 트리의 노드에 보류 중인 `animate()` 트윈이 없을 때
 **정적**으로 간주됩니다. `'always'` 모드에서 `maxFPS > 0`인 경우, 정적 Scene은
-배터리/GPU 절약을 위해 **~2 fps**로 스로틀됩니다. `dirty` 플래그는 렌더링된
-모든 프레임의 끝(포스트-렌더)에서 `false`로 리셋되므로:
+배터리/GPU 절약을 위해 **유휴 하한선**까지 스로틀됩니다 — `1.36.0`부터는
+**60 fps**(`idleFPS`가 설정), 그 이전에는 하드 리밋 2 fps였습니다.
+`autoThrottle: false`(옵션 또는 라이브 `scene.autoThrottle`)로 설정하면 스로틀을
+완전히 끌 수 있고, `idleFPS: 2`로 설정하면 기존의 공격적인 슬립이 복원됩니다.
+`dirty` 플래그는 렌더링된 각 프레임의 _시작_에서 소비되므로, `update()` 내부에서
+발행된 `markDirty()`는 다음 프레임의 정적 검사까지 살아남습니다:
 
-> 커스텀 `update()` 내부에서 `entity.x` 등을 변경하여 수동 애니메이션을 하는 경우,
-> `update()` **내부**에서 `markDirty()`를 호출해도 소용없습니다 — 포스트-렌더
-> 리셋이 이를 지우고, 다음 프레임의 정적 검사는 `dirty === false`를 보고
-> 2fps로 스로틀합니다. [`entity.animate()`](/reference/core-entity/#애니메이션)(트윈이 실행되는 동안
-> Scene을 비-정적으로 유지)를 통해 모션을 구동하거나, 프레임 **사이**에서
-> (이벤트 핸들러, 별도의 `rAF` 또는 타이머에서) `scene.markDirty()`를 호출하여
-> 플래그가 다음 루프 반복까지 살아남도록 하세요.
+> 수동 애니메이션(커스텀 `update()` 내부에서 `entity.x` 등을 변경)은 보고하지 않으면
+> 정적 검사에 보이지 않습니다 — [`entity.animate()`](/reference/core-entity/#애니메이션)으로
+> 모션을 구동하거나(트윈이 실행되는 동안 Scene을 비-정적으로 유지), 인테그레이터가 실행되는
+> 동안 `hasPendingAnimations()`를 오버라이드해 `true`를 반환하게 하거나, `update()`에서
+> 매 프레임 `scene.markDirty()`를 호출하세요(다음 프레임을 다시 무장합니다). 그렇지 않으면
+> Scene은 스로틀 하한선까지 유휴 상태로 떨어져 모션이 느려집니다.
 
 `effectiveMaxFPS` = `maxFPS`, OS가 감소된 모션을 요청하고 `respectReducedMotion`이 켜져 있으면 30(`REDUCED_MOTION_FPS`)으로 더 낮아집니다. `0`은 무제한을 의미합니다.
 
@@ -223,6 +226,29 @@ measureVectoUserTiming(name: string, durationMs: number): void
 ```
 
 호스트가 마크/측정을 구현하지 않으면 `beginVectoUserTiming`은 `null`을 반환하고(`measureVectoUserTiming`은 no-op) 선택적 프로파일링은 결코 런타임 요구사항이 아닙니다. 스팬은 고유하게 명명된 시작/끝 마크를 사용하며 `endVectoUserTiming`에서 해제됩니다. `measureVectoUserTiming`은 분리된 호출에서 누적된 지속 시간에 대해 현재 시간에 고정된 하나의 측정을 발생시킵니다 — 모든 엔터티를 계측하지 않고 프레임당 엔터티 페인트 합계를 보고하는 경로입니다.
+
+### WASM 가속기 백엔드
+
+네 개의 연산 핫스팟은 WebAssembly에서 실행될 수 있습니다. 각각에는 동기 설치/해제(`set*Backend`)와 비동기 핫스왑(`enableWasm*`)이 있으며, 후자는 모듈을 인스턴스화하고 실패 시 JS로 폴백합니다 — **실패는 기본 상태이지 절대 오류 경로가 아닙니다**. `enable*` 형태는 URL 문자열, `URL`, `Response` 또는 원시 바이트를 받습니다.
+
+```ts
+await scene.enableWasmTransforms(new URL('./vectojs_core.wasm', import.meta.url)); // transforms (render walk)
+await scene.enableWasmHitTest(source);    // hit-testing
+await scene.enableWasmAnimBatching(source); // animation driver batching
+await scene.enableWasmParticles(source);  // CPU particle simulation fallback
+scene.setTransformBackend(backend | null); scene.setHitTestBackend(...);
+scene.setAnimBackend(...); scene.setParticleBackend(...);  // synchronous swap/clear
+scene.wasmRuntime: CoreWasmRuntime | null  // getter — loaded runtime, or null
+scene.particleSimBackend: 'js' | 'wasm'    // getter — which backend runs the CPU particle sim
+```
+
+백엔드가 이 프레임에서 실제로 **실행했는지** 여부는 설치되었는지 여부와 별개의 질문입니다 — `@vectojs/devtools`의 `inspectAccelerators()`는 백엔드별 `activeThisFrame`을 보고하며, JS가 정말로 더 빠를 때의 `'below-gate'` 판정도 포함합니다. wasm 모듈은 모노레포의 `just wasm`으로 빌드되어 `crates/vectojs-core-rs/`에서 배포됩니다(`.wasm`은 커밋되지 않습니다; CI에서 빌드되어 npm에 게시됩니다).
+
+이 커널들은 하나의 실패 계약을 따르며, `vectojs-force-rs`와 수 단위로 공유합니다:
+
+- **할당 실패는 트랩 대신 상태를 반환합니다.** 각 `*_init`은 할당을 단계적으로 준비하고, 할당자가 거부하면 부분 집합을 해제하고 `STATUS_OVERFLOW`를 보고합니다. 따라서 JS 호출자는 호출별로 참조 경로로 폴백할 수 있습니다. 이전에는 할당 실패가 `panic = "abort"` 하에서 인스턴스 전체를 비정상 종료시켰습니다 — JS에서 잡을 수 없습니다.
+- **쓰레기 입력은 오염시키는 대신 거절합니다.** 배치 tween 커널은 NaN, 0, 음수 `dt`를 `TweenDriver.tick`과 정확히 같게 거절합니다(`STATUS_OK`, 아무것도 쓰지 않음). 따라서 나쁜 프레임이 tween을 영원히 끼게 만들 수 없습니다; 완료된 tween은 JS 드라이버의 최종 값에 비트 단위로 일치하여 착지합니다.
+- **커널 선택은 내보내기를 탐색합니다.** SIMD 진입점(`compute_aabbs_simd`, `compose_simd`)은 사용 전에 탐색됩니다; 어떤 내보내기보다 오래된 캐시 모듈은 렌더링 도중 던지는 대신 비트 단위로 동일한 스칼라 경로로 다운그레이드합니다.
 
 ## 플러그형 백엔드 레지스트리 (정적)
 

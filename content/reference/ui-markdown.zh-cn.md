@@ -14,7 +14,7 @@ weight = 14
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.39.0-ui-2.20.1" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>该示例将散文、链接、内联代码和一个围栏块保持在一个聚焦的视口中，使布局缺陷可见。</figcaption>
 </figure>
 
@@ -73,6 +73,16 @@ markdown.setOptions({
 
 省略的种类键会继承顶层 `copy`/`download`，而后者默认继承 `true`。代码块还可以通过设置 `theme.codeBorderColor` 添加边框（可选；未设置则保持之前无边框的渲染）——在浅色页面背景上代码填充色容易融入时很有用。
 
+## 主题化：`setTheme()`
+
+```ts
+markdown.setTheme(theme: MarkdownThemePresetName | Partial<MarkdownTheme>): this
+```
+
+切换调色板并重新渲染文档（`0.23.0+`）。接受一个预设名称——`'githubDark' | 'githubLight' | 'dracula' | 'solarizedDark' | 'solarizedLight'`——或只包含要修改的键的部分主题对象，与构造函数 `theme` 选项相同的形状。实体在构建时捕获颜色、字体和尺寸，因此现有块不会被实时重绘：重渲染经由 `setContent` 进行，后者还会把新的 `blockGap` 应用到内容栈上。
+
+直接给 `markdown.theme` 赋值是编译期错误，现在对 JS 调用者也会在运行时抛出——构造后赋值曾会把文档的一部分涂成每种调色板。请在构造时传入调色板，或调用 `setTheme()`。
+
 ## 响应式宽度：`setMaxWidth()`
 
 ```ts
@@ -96,7 +106,7 @@ window.addEventListener('resize', () => {
 
 在两个引擎上对一份五个块的文档实测：520 → 260 px 使投影行数从 2 变为 4、高度从 88 变为 160，且落在相同的两个段落实例上，写入器仍为 `open`，交给词法分析器的字符数增加量为**零**。
 
-宽度未变时它是空操作，因此仅高度变化的尺寸调整不产生成本，调用方也无需自行加保护判断。负宽度会被钳制为 0。
+宽度未变时它是空操作，因此仅高度变化的尺寸调整不产生成本，调用方也无需自行加保护判断。负宽度会被钳制为 0。当 `blockAffordances: true` 时，代码块和表格被包在操作控件外壳中送达——重排会看穿这层包装，调整内部块的尺寸并刷新其控件，因此被包装的块和其他内容一样跟随新宽度（`0.23.0+`；在此之前它们会默默保持旧宽度）。
 
 > [!NOTE]
 > 在 `0.9.0` 之前，唯一正确的替代做法是完整重建——释放流、把已揭示的源码通过 `setContent()` 重放、打开一个新的写入器，并手工把滚动偏移搬过去。它确实能正确复现文档，这也正是它容易被保留下来的原因：重建同样会产出正确的几何。它的代价是每次调整尺寸都要对整篇文档重新做词法分析，并丢弃每一个实体实例。
@@ -183,6 +193,8 @@ interface StreamController {
 默认模式会把下一个 rAF 之前接受的所有分块合并为一次解析/布局提交。`write()`
 在有界缓冲区接纳时解析，而不是在可见时解析。容量不足时，一次写入会等待；若在该等待者
 存在期间再写入则会拒绝，因此忽略背压的生产者无法让队列无限增长。
+
+`close()` 的完成恰好被观察一次：如果宿主的 close 钩子抛出或拒绝，重试的 `close()` 会报告原始失败，而不是经由已关闭的短路路径直接解决（`0.23.0+`——成功关闭之后的重试仍会解决）。
 
 `pacing.graphemesPerSecond` 在保持每帧一次提交上限的同时，加入固定的挂钟打字机节奏。
 `Intl.Segmenter` 会让普通组合序列、emoji ZWJ 簇、旗帜和代理对在分块/帧边界上保持完整。

@@ -1,6 +1,6 @@
 +++
 title = "ThreeAdapter"
-description = "VectoJS の Scene をキャンバスにレンダリングし、THREE.CanvasTexture として公開し、UV レイキャスティングを介してポインタイベント（WebXR コントローラーやマルチタッチを含む）を配線します。"
+description = "VectoJS の Scene をキャンバスにレンダリングし、THREE.CanvasTexture として公開し、UV レイキャスティングを介してポインタイベント（WebXR コントローラーやマルチタッチを含む）に加えてパネルフォーカスとキーボードルーティングを配線します。"
 weight = 42
 +++
 
@@ -45,7 +45,7 @@ interface ThreeAdapterOptions {
 ```ts
 updateIntersection(
   raycaster: THREE.Raycaster,
-  type: 'pointerdown' | 'pointerup' | 'pointermove' | 'wheel' | 'click',
+  type: 'pointerdown' | 'pointerup' | 'pointermove' | 'pointercancel' | 'wheel' | 'click',
   originalEvent?: PointerEvent | WheelEvent
 ): boolean
 ```
@@ -67,13 +67,59 @@ resize(width: number, height: number): void
 
 キャンバスとその基になる論理的な `VectoScene` をリサイズします。パネルのレンダリング解像度または 2D レイアウトビューポートが変更されたときに呼び出します。メッシュのワールド空間スケールのみを変更する場合は、これは必要ありません。
 
+## パネルフォーカスとキーボード入力（0.1.10+）
+
+アダプターのキャンバスはオフスクリーンであるため、その投影されたアクセシビリティミラーが `document.activeElement` になることは決してなく、ブラウザのフォーカスモデルもそれらには届きません。アダプターは**パネルフォーカス**でそのギャップを埋めます。Three 側の状態であり、ポインター操作と `focus()` によって駆動され、キールーティングが消費し、すべての遷移は合成された `FocusEvent` でブリッジされるため、コア側の状態（エンティティの `focus`/`blur` 発火、キャレット点滅のウェイク）が接続されたキャンバスと一致します。
+
+```ts
+adapter.focusedEntity: Entity | null // read-only — the entity holding panel focus
+adapter.focus(entity: Entity | null): void // move focus, or blur with null
+adapter.blur(): void // release panel focus
+adapter.isFocusable(entity: Entity): boolean // projects as keyboard-reachable?
+```
+
+`isFocusable` は DOM のタブ可能性（tabbability）のパネル側アナログです。投影されたミラーが `tabindex` 属性を持つか、ネイティブにフォーカス可能なタグ（`button`/`input`/`textarea`/`select`/`a[href]`）として描画される場合に true です。pointerdown はヒットの中で最も近いフォーカス可能な祖先をフォーカスします。ボタン内の `<span>` をクリックするとボタンがフォーカスされ、到達可能なものを何も投影しないヒットチェーンはブラーになります。
+
+### `dispatchKey(key, mods?, phase?)`
+
+```ts
+dispatchKey(
+  key: string,
+  mods?: { ctrlKey?: boolean; altKey?: boolean; shiftKey?: boolean; metaKey?: boolean; code?: string },
+  phase?: 'press' | 'keydown' | 'keyup', // default 'press' — synthesizes keydown+keyup
+): void
+```
+
+`updateIntersection` のキーボード版です。キーイベントを合成し、接続されたキャンバスが使用するのと同じディスパッチパスを通じてルーティングします。ルーティング規則は次の順序です:
+
+1. **パネルフォーカス** — エンティティがパネルフォーカスを保持している場合、イベントはその投影ミラーにディスパッチされます。コア自身のリスナーがそのまま実行されます。エンティティの `keydown`/`keyup` ハンドラがそれを受け取り、投影されたコントロールはアクティベーション契約（press での `Enter`、release での `Space`）を維持します。
+2. **所有権** — フォーカスされたエンティティが_キーボードオーナー_である間、パネルがキーを排他的に所有し、ページには何も漏れません。オーナーとは、`input`/`textarea`/`select` タグまたはコアの `KEYBOARD_OWNING_ROLES` にあるロールを投影するエンティティです。インタラクティブロール（`button`、`switch`、`checkbox`、`radio`、`link`、`tab`、`menuitem`、`slider`、`combobox`）に加えてキーボードファーストのロール `textbox`、`searchbox`、`spinbutton`、`option`、`listbox` です。矢印キーはカメラを回転させるのではなくスライダーを動かし、タイピングはページショートカットを引き起こすのではなくテキストボックスに届きます。
+3. **チャネル転送** — そうでなければ、イベントは `window` へ続きます。そこでシーンレベルのキーチャネルがネイティブゲート（`defaultPrevented`、キーの自動リピート、`ownsKeyboard(document.activeElement)`）を適用するため、ページレベルのキーボードオーナーがフォーカスを保持していない限り、シーンショートカットとページレベルのコンシューマはそれを見ます。合成イベントで `preventDefault()` を呼び出すエンティティハンドラは転送を抑制します。接続キャンバスのバブリングと一致します。
+4. **パネルフォーカスなし** — イベントは直接 `window` へ行き、同じゲートが判定します。
+
+`code` のデフォルトはベストエフォートの推論です（`'a'` → `'KeyA'`、`' '` → `'Space'`、数字 → `'DigitN'`）。推論が名付けられないレイアウトのためには、`mods.code` を渡して上書きしてください。
+
+### `dispatchPointer(type, x, y, init?)`
+
+```ts
+dispatchPointer(
+  type: 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'click',
+  x: number, // logical scene-space X (origin top-left)
+  y: number, // logical scene-space Y
+  init?: { pointerId?: number; button?: number; buttons?: number;
+           ctrlKey?: boolean; altKey?: boolean; shiftKey?: boolean; metaKey?: boolean },
+): boolean // whether the point hit an entity
+```
+
+**論理シーン座標**でポインター入力を合成します。これはエンティティレイアウトと `findEntityAt` が扱う空間です。イベントは、レイキャスト駆動の `updateIntersection` と同一の下流パスを流れます。ホバー遷移、エンティティディスパッチ、pointerdown 駆動のフォーカス、テクスチャダーティスケジューリングはすべて同じように振る舞います。これにより、レイキャスターを持たないテストや自動化のエントリポイントになります。ホイール入力は意図的にカバーされていません。ホイールデルタには中立のデフォルトがないため、実際の `WheelEvent` と共に `updateIntersection` 経由でルーティングしてください。
+
 ### `dispose()`
 
 ```ts
 dispose(): void
 ```
 
-冪等に `THREE.CanvasTexture`、ジオメトリ、マテリアルをメッシュから破棄し、メッシュをデタッチし、Scene のレンダリングメソッドを復元し、`VectoScene` を破棄し、すべてのポインター単位の状態をクリアします。アダプターが作成したキャンバスは `0×0` に解放されます。呼び出し元が指定したキャンバスはその寸法を保持します。
+冪等に `THREE.CanvasTexture`、ジオメトリ、マテリアルをメッシュから破棄し、メッシュをデタッチし、Scene のレンダリングメソッドを復元し、`VectoScene` を破棄し、すべてのポインター単位の状態をクリアします（パネルフォーカスはシーンと共に消滅します）。アダプターが作成したキャンバスは `0×0` に解放されます。呼び出し元が指定したキャンバスはその寸法を保持します。
 
 ## 完全な例
 
@@ -97,7 +143,10 @@ camera.position.set(0, 0, 3);
 // --- VectoJS パネルアダプター（512×256 論理ピクセル、2×1 プレーンに表示） ---
 const adapter = new ThreeAdapter({ width: 512, height: 256 });
 
-const heading = new Text('Settings', { font: '600 24px Inter', color: '#f8fafc' });
+const heading = new Text('Settings', {
+  font: '600 24px Inter',
+  color: '#f8fafc',
+});
 const applyBtn = new Button('Apply', { width: 120, height: 40 });
 applyBtn.on('click', () => console.log('apply clicked'));
 

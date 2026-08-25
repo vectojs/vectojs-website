@@ -45,9 +45,15 @@ interface PropertyDriver {
 }
 ```
 
-- **`TweenDriver(from, to, config: TweenConfig)`** — `from` から `to` へのイージング補間を `duration` ミリ秒で行い、オプションで `delay` を指定します。`retarget()` は現在の値からトゥイーンを再開します。
+- **`TweenDriver(from, to, config: TweenConfig)`** — `from` から `to` へのイージング補間を `duration` ミリ秒で行い、オプションで `delay` を指定します。`retarget()` は、消費済みの遅延を再課徴することなく宛先を変更します: セグメントは単調な経過クロックで実行され（初期遅延中の再ターゲットでも残りの部分だけを待機する）、高速な連続再ターゲットがアニメーションを無期限に飢えさせることはありません。
 - **`SpringDriver(from, to, config?: SpringConfig)`** — 質量-スプリング-ダンパー積分（`@vectojs/math` の `SpringPhysics` を基盤）。`retarget()` は速度を維持するため、途中での再ターゲットは連続的です。`target` は静止イプシロン内ではなく、完了時に**正確に**適用されます。
 - `syncExternal(value, extra)` は他の場所（例: WASM バッチ処理されたティック）で進行した状態を取り込みます: `extra` はスプリングでは速度、トゥイーンでは経過ミリ秒 — 呼び出し後も `value`/`tick()`/`isDone()`/`retarget()` はすべて正しいままです。
+
+**構築時とtick時の防御的チェック。** 静かに誤設定されるドライバーは決して収束せず、その完了を待つすべての `await` をハングさせます：
+
+- `TweenDriver` は未知のイージング名文字列を構築時に拒否し（以前は最初のtickで素の `TypeError` でクラッシュしていました）、`tick(dt)` はNaN・ゼロ・負のdtを無視します — 経過クロックは決して汚染されず、WASMのバッチトゥイーンカーネルも同じステップを同じように拒否するため、両エンジンとも次の有効なフレームで回復します。
+- `SpringDriver` は非有限または非正の `stiffness`/`damping`/`mass` を構築時に拒否し、物理デフォルトへ静かにフォールバックすることはありません — そのようなスプリングは発散するか、決して収束しません。
+- `isTweenConfig(null)` は `false` を返します；この識別子は信頼できないランタイム設定を扱うために存在します。
 
 ## Easing
 

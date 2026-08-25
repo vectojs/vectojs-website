@@ -315,20 +315,18 @@ const hebrew = new RichText([{ text: 'שלום ' }, { text: 'VectoJS', style: { 
 
 ## Fonctions d'assistance
 
-`measureText`, `wrapLines` et `fontSizePx` sont exportés depuis `@vectojs/ui` pour être utilisés dans des composants personnalisés.
+`measureText` est exporté depuis `@vectojs/ui` pour être utilisé dans des composants personnalisés.
 
 ```typescript
-import { measureText, wrapLines, fontSizePx } from '@vectojs/ui';
+import { measureText } from '@vectojs/ui';
 
-// Rendered pixel width, LRU-cached (cap 1000)
+// Rendered pixel width, LRU-cached (cap 1000) — keyed on the RAW text, so a
+// cache hit costs a map lookup and does not re-run Arabic shaping
+// (Arabic is still measured in its contextually-shaped form on a miss)
 const w = measureText('Hello world', '600 16px Inter');
-
-// Greedy word-wrap — returns string[]
-const lines = wrapLines('A longer text that wraps', '16px sans-serif', 200);
-
-// Extract the px size from a CSS font shorthand
-const size = fontSizePx('600 16px Inter'); // → 16
 ```
+
+`measureText` met en forme le texte arabe via `ArabicShaper` avant de mesurer, il renvoie donc la largeur visuelle correcte pour les runs arabes. Il n'existe aucun assistant de coupure de lignes exporté : les composants coupent via le LayoutEngine, et l'ancien export glouton `wrapLines` a été supprimé en ui 2.20.0 car ses points de coupure divergeaient de ce qui était réellement rendu — pour des besoins hors composant, écrivez votre propre découpe de lignes par-dessus `measureText`.
 
 `measureText` met en forme le texte arabe via `ArabicShaper` avant de mesurer, il renvoie donc la largeur visuelle correcte pour les runs arabes.
 

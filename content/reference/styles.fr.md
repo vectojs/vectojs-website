@@ -46,13 +46,19 @@ applyStyle(stack, style({ flexDirection: 'row', gap: '8px', alignItems: 'center'
 - `style()` — fabrique d'identité qui type un littéral d'objet comme `Style`.
 - `css(...styles)` — fabrique de fusion (0.2.0) : les sources ultérieures
   l'emportent ; les sources `null`, `undefined`, `false` sont ignorées, donc
-  les variantes peuvent être conditionnelles. Les entrées ne sont pas modifiées.
+  les variantes peuvent être conditionnelles. Les entrées ne sont pas modifiées —
+  les objets `padding` par axe sont copiés eux aussi, si bien que le contrat
+  « objet brut frais » vaut aussi pour les valeurs imbriquées.
 - `applyStyle(entity, style)` — écrit les champs mappés, renvoie
   `{ applied: string[] }` (les clés CSS réellement écrites, dans l'ordre de
   l'objet).
 - `tokens(set)` — crée un `Theme` à partir d'un ensemble de jetons plat.
 - `setTheme(theme)` / `getTheme()` — change/lit le thème actif ; les styles
   qui référencent `var()` sont re-résolus et ré-appliqués au changement.
+- `untrackVarStyles(entity)` — abandonne immédiatement le suivi `var()` de
+  l'entité (0.3.x) ; appelez-la depuis le teardown de destroy pour une libération
+  déterministe au lieu d'attendre le balayage par référence faible du prochain
+  changement de thème.
 - `PRESET_THEMES` — les ensembles de jetons `light` (le thème par défaut),
   `dark`, `github`, `dracula`.
 - `Style` — l'interface de style. Toutes les clés sont optionnelles.
@@ -97,12 +103,28 @@ setTheme(theme);
 applyStyle(btn, style({ backgroundColor: 'var(--accent)', borderRadius: 'var(--radius-md)' }));
 ```
 
-- `var(--key)` est résolue **exactement** (chaîne entière) contre les jetons du
-  thème actif avant que le convertisseur de valeur ne s'exécute, donc un jeton
-  peut contenir une couleur, une chaîne px, ou un nombre nu. Un jeton inconnu
-  lance une erreur avec son nom.
-- Les styles qui référencent des jetons sont **suivis** (WeakMap par thème —
-  sans fuite) et ré-appliqués lorsque `setTheme(next)` change, donc un échange
+- `var(--key)` est résolue contre les jetons du thème actif avant que le
+  convertisseur de valeur ne s'exécute, donc un jeton peut contenir une couleur,
+  une chaîne px, ou un nombre nu. Une référence à la chaîne entière
+  (`backgroundColor: "var(--accent)"`) se résout exactement ; une référence
+  **imbriquée** dans une chaîne plus grande (`color: "rgba(var(--rgb), 0.4)"`)
+  se résout par substitution, les chaînes jeton-vers-jeton se résoluent de façon
+  transitive avec une détection de cycle basée sur les chemins, et la clé
+  référençante est suivie afin que les changements de thème re-résolvent les
+  composites. Un jeton inconnu lance une erreur avec son nom ; un cycle aussi,
+  avec la chaîne fautive.
+- `var(--token, fallback)` n'a **aucune résolution de repli** et ne passe jamais
+  silencieusement : la forme est détectée partout où elle peut arriver (valeur
+  directe, imbriquée dans une chaîne composite, dans un axe de padding, ou via
+  une chaîne de jetons) et lève un `TypeError` nommant la valeur fautive. Le
+  détecteur tolère les espaces après `var(`, donc `var( --accent, #fff)` est
+  attrapé aussi. Le silence était ici le défaut : une chaîne non résolue
+  atteignait les champs mappés tandis que Canvas2D gardait tranquillement la
+  peinture précédente.
+- Les styles qui référencent des jetons sont **suivis** par thème (les entités
+  détruites ne sont plus retenues — le suivi les porte faiblement, avec
+  `untrackVarStyles(entity)` pour une libération immédiate dans le teardown de
+  destroy) et ré-appliqués lorsque `setTheme(next)` change, donc un échange
   de thème recolore toute la scène sans aucun changement côté appelant. Les
   styles sans `var()` ne sont pas suivis. Si une valeur de jeton échoue à la
   validation de la propriété mappée au moment du changement (par ex.
@@ -141,6 +163,19 @@ composeFont(
 segments présents dans `changes`, et recompose ; une taille/famille manquante
 est remplie avec `16px` / `sans-serif` afin que le résultat soit toujours une
 chaîne de police canvas valide.
+
+L'analyseur comprend la grammaire complète des préfixes canvas
+(`[style || variant || weight]? size[/line-height]? family`), ainsi
+`italic 700 16px Georgia` et `16px/24px Inter` se composent correctement et un
+changement de segment ultérieur ne peut recomposer une chaîne invalide — les
+segments ressemblant à une taille qui ne peuvent être placés échouent bruyamment
+au lieu de passer en silence. Une fois que l'emplacement de weight a pris le
+premier `normal` (le choix de compatibilité documenté), les `normal` suivants
+remplissent style puis variant, de sorte que la forme CSS valide
+`normal normal 16px Inter` s'analyse au lieu de lever. `fontSize` impose sa forme
+`${number}px` à l'exécution : des unités non px arrivant par des jetons ou des
+appelants JS lèvent au lieu de composer en silence une abréviation que Canvas2D
+abandonnerait.
 
 ## Sémantique
 

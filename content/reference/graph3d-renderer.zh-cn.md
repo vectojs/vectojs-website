@@ -8,7 +8,7 @@ weight = 46
 
 属于 [`@vectojs/graph3d`](/reference/graph3d/)。消费一个 [`GraphLayout`](/reference/graph3d-layout/) 的 `positions` 缓冲区。
 
-记录的版本：**0.6.0**
+记录的版本：**0.6.1**
 
 ## `Graph3D` —— 渲染器
 

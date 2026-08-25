@@ -12,7 +12,7 @@ weight = 30
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · ProgressBar</span></div>
-  <iframe src="/sandbox/ui/component.html?name=progressbar&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de ProgressBar" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=progressbar&v=core-1.39.0-ui-2.20.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de ProgressBar" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Utilisez `setValue()` pour limiter et repeindre les changements de progression.</figcaption>
 </figure>
 

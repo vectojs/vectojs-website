@@ -8,7 +8,7 @@ weight = 45
 
 属于 [`@vectojs/graph3d`](/reference/graph3d/)。
 
-记录的版本：**0.6.0**
+记录的版本：**0.6.1**
 
 ## 数据模型 —— `GraphData`
 
@@ -57,6 +57,10 @@ interface GraphLayout {
 
 该约定刻意保持最小化且 worker 友好：位置是一个扁平的 `Float32Array`，按 `GraphData.nodes` 顺序排列 xyz 三元组，因此一个实现可以完全存在于 Web Worker 内部，并将其缓冲区作为可传输对象跨线程边界流式传输，无需每节点对象流量。[`Graph3D.applyPositions()`](/reference/graph3d-renderer/#方法) 直接消费那个完全相同的缓冲区形状。`positions` 是跨步进重用的**同一个数组实例** —— 如果你需要稳定的快照而非实时视图，请复制它（`layout.positions.slice()`）。
 
+**链路端点校验在整个技术栈中是一致的（0.6.1）。** `Graph3D.setGraphData`、`VectoForceLayout.setGraph` 与 `D3ForceLayout.setGraph` 对端点指向图中不存在节点的链路都会抛出同样的 `references an unknown node id` 错误 —— 校验在任何状态被修改之前运行，因此被拒绝的图会保持前一个图完好无损（`D3ForceLayout` 过去会把裸 id 直接送入 d3-force-3d，其 tick 会悄悄把所有位置坍缩为 NaN；`VectoForceLayout` 过去会静默跳过该链路）。自环仍然是合法输入，只是不携带弹簧：`VectoForceLayout` 会跳过它们。
+
+另请注意，本契约的可选固定（pin）控件以节点**索引**寻址，而 2D 的 [`ForceLayout2D`](/reference/graph-layout/) 以节点 **ID** 固定（因此其固定在 `removeNodes` 压缩后仍然有效），平行边的身份判定也不同 —— 本包的技术栈把平行链路视为不同的边，而诸如节点编辑器之类的消费者则拒绝重复的端点四元组。在技术栈之间移植代码时请转换固定与链路身份。
+
 `@vectojs/graph3d` 今天在这同一约定之后提供两个实现 —— 自研的 [`VectoForceLayout`](#vectoforcelayout)（Barnes–Hut 八叉树，无运行时依赖；默认实现）和 [`D3ForceLayout`](#d3forcelayout)（一个 `d3-force-3d` 适配器，为与现有 d3 调优保持对等而保留）—— 另外还有 DAG 布局模式在包的路线图上，全都在这同一个接口之后，因此渲染器或 worker 宿主永远无需知道哪一个在运行。
 
 ## `D3ForceLayout`
@@ -89,14 +93,14 @@ interface VectoForceLayoutOptions {
   centerStrength?: number; // pull toward the centroid. Default 0.02.
   velocityDecay?: number;  // per-step velocity damping. Default 0.6.
   theta?: number;          // Barnes–Hut opening angle. Default 0.9.
-  alphaDecay?: number;     // cooling rate. Default 0.0228; 0 disables cooling.
+  alphaDecay?: number;     // cooling rate. Default 0.0228; non-positive falls back to the default.
   alphaMin?: number;       // alpha below which step() reports cooled. Default 0.001.
   seed?: number;           // RNG seed for deterministic placement. Default 1.
   measurePhases?: boolean; // opt-in per-tick phase profiling. Default false.
 }
 ```
 
-自研布局（0.3.0 新增，且为默认实现）：一种力导向模拟，多体项使用 Barnes–Hut 八叉树 —— 无运行时依赖，在 `seed` 下可确定，且可在 Web Worker 内安全运行（与 `D3ForceLayout` 相同的 `step(iterations)` 约定）。位置和速度以 **f32** 保持（与暴露的 `Float32Array` 匹配），而八叉树以 **f64** 累加质心和斥力积分。当你想在多次运行中获得相同结果时选择它；用 `repulsion`/`linkStrength` 调优，并谨慎地将 `alphaDecay` 提升到零以上 —— 它已经接近冷却边缘，因此更高的值会让图更早而不是更晚冻结。
+自研布局（0.3.0 新增，且为默认实现）：一种力导向模拟，多体项使用 Barnes–Hut 八叉树 —— 无运行时依赖，在 `seed` 下可确定，且可在 Web Worker 内安全运行（与 `D3ForceLayout` 相同的 `step(iterations)` 约定）。位置和速度以 **f32** 保持（与暴露的 `Float32Array` 匹配），而八叉树以 **f64** 累加质心和斥力积分。当你想在多次运行中获得相同结果时选择它；用 `repulsion`/`linkStrength` 调优，并谨慎地将 `alphaDecay` 提升到零以上 —— 它已经接近冷却边缘，因此更高的值会让图更早而不是更晚冻结。非正值的 `alphaDecay` 会在构造时被拒绝并回退到默认值（字面量 `0` 曾会让模拟永远运行、永不收敛）。
 
 ```ts
 layout.step(); // one tick

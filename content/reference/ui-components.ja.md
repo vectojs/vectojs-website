@@ -7,7 +7,7 @@ weight = 11
 # `@vectojs/ui` — コンポーネントリファレンス
 
 > VectoJS ゼロ DOM Canvas エンジン向けの再利用可能な高レベルコンポーネント。
-> ドキュメントバージョン：**2.18.0**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
+> ドキュメントバージョン：**2.20.1**。ソースオブトゥルース：`dist/index.d.ts`（パブリックサーフェス）および `packages/ui/src/*`（動作）。
 
 すべてのコンポーネントは、Virtual Math Tree（VMT）のリーフまたはコンテナです。ここにあるものは実際の DOM ではありません — コンポーネントは `IRenderer` を介して Canvas に自身を描画します。アクセシビリティ、エージェント自動化、クローラビリティは、並行する **A11y シャドウ DOM** から提供されます：コンポーネントが `interactive` の場合、`Scene` はコンポーネントのボックスの上に配置された単一の隠れた透明な実際の DOM ノードを投影します。これは `getA11yAttributes()` から構築されます。これが、`page.getByRole('button', { name })` / `fill()` / スクリーンリーダーが純粋な Canvas UI に対して機能する理由です。
 
@@ -199,7 +199,7 @@ const spans: StyledSpan[] = [
 
 A11y：各連続する**リンクラン**は、透過的な `<a>` ホットスポット子を取得します（再ラップ間で調整 — ランごとに 1 つのホットスポット；位置はその場で更新され、リンクの_数_が変更された場合のみシャドウノードが再構築されます）。コンポーネント自身のアクセシブルな名前は、完全な連結テキストです。
 
-### `measureText`、`wrapLines`、`wrapText`（フリー関数）
+### `measureText`（フリー関数）
 
 ```ts
 measureText(text: string, font: string): number
@@ -207,19 +207,7 @@ measureText(text: string, font: string): number
 
 CSS `font` でのレンダリングピクセル幅。境界 LRU（キャップ 1000）を介してメモ化されます。アラビア語は測定前に整形されます。DOM がない場合、文字あたり `0.5em` の推定値にフォールバックします。
 
-```ts
-wrapLines(text: string, font: string, maxWidth: number): string[]
-```
-
-明示的な `\\n` を尊重する欲張りワードラップ。長すぎる単語は独自の行になります（分割されません）。
-
-```ts
-wrapText(value: string, maxWidth: number, measure: (s: string) => number): WrappedLine[]
-
-interface WrappedLine { text: string; start: number; end: number; }  // 絶対文字範囲
-```
-
-`wrapLines` と似ていますが、各行の絶対文字範囲を追跡し（そのため線形キャレットオフセットが `(line, x)` にマッピングされます）、ハード `\\n` を消費し（末尾の改行はキャレットが置かれる空の行を生成します）、長すぎる単語を文字レベルで分割します。`TextArea` によって内部的に使用されます。
+これはパッケージでエクスポートされる唯一のテキスト計測ヘルパーです。欲張り法の `wrapLines` エクスポートは 2.20.0 で削除されました — その折り返しは、どのコンポーネントも実際に使用しているLayoutEngineと乖離しており、予測された行は実際にレンダリングされるものと決して一致しませんでした — そして `wrapText` は公開APIではなく、内部の `TextArea` ユーティリティのままです。レイアウトが重要な折り返しにはLayoutEngine自体を使用してください。プレビューと計測には、`measureText` と独自の改行処理がサポートされるパスです。
 
 ---
 

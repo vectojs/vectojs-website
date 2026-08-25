@@ -13,7 +13,7 @@ clipsée, et `PanelResizeHandle` est inséré automatiquement entre les panneaux
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · PanelGroup</span></div>
-  <iframe src="/sandbox/ui/component.html?name=resizablepanel&v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de panneau redimensionnable" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/component.html?name=resizablepanel&v=core-1.39.0-ui-2.20.1" class="sandbox-frame component-demo-frame-tall" loading="eager" title="Démonstration live de panneau redimensionnable" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Faites glisser le séparateur entre les panneaux pour inspecter le survol de la poignée et le comportement de redimensionnement.</figcaption>
 </figure>
 

@@ -8,7 +8,7 @@ weight = 45
 
 Part of [`@vectojs/graph3d`](/reference/graph3d/).
 
-Version documented: **0.6.0**
+Version documented: **0.6.1**
 
 ## Data model — `GraphData`
 
@@ -67,6 +67,22 @@ that exact same buffer shape directly. `positions` is the **same array
 instance** reused across steps — copy it (`layout.positions.slice()`) if you
 need a stable snapshot instead of a live view.
 
+**Link endpoint validation is uniform across the stack (0.6.1).**
+`Graph3D.setGraphData`, `VectoForceLayout.setGraph`, and `D3ForceLayout.setGraph`
+all throw the same `references an unknown node id` error for a link whose
+endpoint names no node in the graph — validation runs before any state mutates,
+so a rejected graph leaves the previous one intact (`D3ForceLayout` used to let
+the raw id reach d3-force-3d, whose tick silently collapsed every position to
+NaN; `VectoForceLayout` used to skip the link silently). Self-loops remain
+legal input that carries no spring: `VectoForceLayout` skips them.
+
+Note also that this contract's optional pin controls are addressed by node
+**index**, while 2D [`ForceLayout2D`](/reference/graph-layout/) pins by node
+**ID** (so its pins survive `removeNodes` compaction), and parallel-edge
+identity differs too — this package's stacks treat parallel links as distinct
+edges, while consumers such as the node-editor reject duplicate endpoint
+quadruples. Translate pins and link identity when porting code between stacks.
+
 `@vectojs/graph3d` ships two implementations behind this contract today — the
 in-house [`VectoForceLayout`](#vectoforcelayout) (Barnes–Hut octree, no runtime
 dependency; the default) and [`D3ForceLayout`](#d3forcelayout) (a
@@ -116,7 +132,7 @@ interface VectoForceLayoutOptions {
   centerStrength?: number; // pull toward the centroid. Default 0.02.
   velocityDecay?: number;  // per-step velocity damping. Default 0.6.
   theta?: number;          // Barnes–Hut opening angle. Default 0.9.
-  alphaDecay?: number;     // cooling rate. Default 0.0228; 0 disables cooling.
+  alphaDecay?: number;     // cooling rate. Default 0.0228; non-positive falls back to the default.
   alphaMin?: number;       // alpha below which step() reports cooled. Default 0.001.
   seed?: number;           // RNG seed for deterministic placement. Default 1.
   measurePhases?: boolean; // opt-in per-tick phase profiling. Default false.
@@ -132,7 +148,9 @@ accumulates centers of mass and the repulsion integral in **f64**. Choose it
 when you want identical results across runs; tune with
 `repulsion`/`linkStrength`, and raise `alphaDecay` above zero carefully — it is
 already near the cooling edge, so a higher value freezes the graph earlier
-rather than later.
+rather than later. A non-positive `alphaDecay` is rejected at construction and
+falls back to the default (a literal `0` used to make the simulation run
+forever without ever settling).
 
 ```ts
 layout.step(); // one tick

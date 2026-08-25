@@ -7,7 +7,7 @@ weight = 11
 # `@vectojs/ui` — Référence des composants
 
 > Composants réutilisables de haut niveau pour le moteur Canvas zero-DOM VectoJS.
-> Version documentée : **2.18.0**. Source de vérité : `dist/index.d.ts` (surface publique) et `packages/ui/src/*` (comportement).
+> Version documentée : **2.20.1**. Source de vérité : `dist/index.d.ts` (surface publique) et `packages/ui/src/*` (comportement).
 
 Chaque composant est une feuille ou un conteneur dans l'Arbre Mathématique Virtuel (VMT). Rien ici n'est du vrai DOM — les composants se dessinent eux-mêmes sur un Canvas via un `IRenderer`. L'accessibilité, l'automatisation par agent et la crawlabilité proviennent d'un **A11y Shadow DOM** parallèle : lorsqu'un composant est `interactive`, la `Scene` projette un seul nœud DOM réel caché et transparent positionné au-dessus de la boîte du composant, construit à partir de `getA11yAttributes()`. C'est pourquoi `page.getByRole('button', { name })` / `fill()` / les lecteurs d'écran fonctionnent sur une UI pure-Canvas.
 
@@ -200,7 +200,7 @@ Les métriques sont en px à la taille finale — une boîte fixe, non redimensi
 
 A11y : chaque **segment de lien** contigu obtient un enfant `<a>` transparent comme point d'accès (réconcilié après ré-encapsulation — un point d'accès par segment ; la position se met à jour sur place, seul un changement du _nombre_ de liens reconstruit les nœuds d'ombre). Le nom accessible du composant lui-même est le texte complet concaténé.
 
-### `measureText`, `wrapLines`, `wrapText` (fonctions libres)
+### `measureText` (fonction libre)
 
 ```ts
 measureText(text: string, font: string): number
@@ -208,19 +208,14 @@ measureText(text: string, font: string): number
 
 Largeur pixel rendue dans une police CSS, mémoïsée via un LRU borné (capacité 1000). L'arabe est mis en forme avant la mesure. Se replie sur une estimation de `0.5em` par caractère sans DOM.
 
-```ts
-wrapLines(text: string, font: string, maxWidth: number): string[]
-```
-
-Césure gourmande respectant les `\\n` explicites. Les mots trop longs obtiennent leur propre ligne (non coupée).
-
-```ts
-wrapText(value: string, maxWidth: number, measure: (s: string) => number): WrappedLine[]
-
-interface WrappedLine { text: string; start: number; end: number; }  // plage de caractères absolue
-```
-
-Comme `wrapLines` mais suit la plage de caractères absolue de chaque ligne (afin qu'un décalage de caret linéaire corresponde à `(ligne, x)`), consomme les `\\n` explicites (un saut de ligne final produit une ligne vide finale sur laquelle le caret peut se positionner), et coupe un mot unique trop long au niveau du caractère. Utilisé en interne par `TextArea`.
+C'est le seul assistant de mesure de texte exporté par le paquet. L'export
+glouton `wrapLines` a été supprimé en 2.20.0 — sa césure divergeait du
+LayoutEngine que chaque composant utilise réellement, si bien que les lignes
+qu'il prédisait ne correspondaient jamais au rendu — et `wrapText` reste un
+utilitaire interne de `TextArea` plutôt qu'une API publique. Pour une césure
+critique pour la mise en page, utilisez le LayoutEngine lui-même ; pour des
+aperçus et des mesures, `measureText` accompagné de votre propre découpe de
+lignes est la voie prise en charge.
 
 ---
 

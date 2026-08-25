@@ -36,7 +36,7 @@ interface DevtoolsTreeNode {
 
 `label` is `` `${type} (${x},${y}) ${W}×${H} ⚡ ▶` `` — the size is omitted when both dimensions are 0, and the two badges appear only when `interactive` and `hasPendingAnimations()` respectively.
 
-`pickInScene` is the function you want for "which entity owns this pixel". It checks the **overlay tree first**, then the main tree, so an open modal correctly wins over the content behind it. `findEntityAt` is the single-tree primitive underneath: it walks children in reverse order, deepest-first, so it returns the topmost-painted hit, and it falls back to an AABB test when `isPointInside` says no — which means decorative, non-interactive entities are still pickable.
+`pickInScene` is the function you want for "which entity owns this pixel". It checks the **overlay tree first**, then the main tree, so an open modal correctly wins over the content behind it. `findEntityAt` is the single-tree primitive underneath: it walks children in reverse order, deepest-first, so it returns the topmost-painted hit, and — matching the engine's `HitTester`, with no fallback of its own — an entity wins only where its own `isPointInside` accepts the point. Decorative or clipped entities therefore resolve to whatever is behind them, exactly as a real click would.
 
 > [!IMPORTANT]
 > `findEntityAt` tests the entity you pass it as well as its descendants, so handing it a scene root can return that root. `pickInScene` is the safer default.

@@ -19,7 +19,7 @@ weight = 14
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.39.0-ui-2.20.1" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown 라이브 데모" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>샘플은 산문, 링크, 인라인 코드 및 펜스 블록을 하나의 집중된 뷰포트에 유지하여 레이아웃 결함을 확인할 수 있습니다.</figcaption>
 </figure>
 
@@ -82,6 +82,16 @@ markdown.setOptions({
 
 생략된 종류 키는 최상위 `copy`/`download`를 상속하며, 이는 다시 `true`를 상속합니다. 코드 블록에는 `theme.codeBorderColor`를 설정해 테두리를 추가할 수도 있습니다(선택 사항; 설정하지 않으면 기존의 테두리 없는 렌더링을 유지) — 코드 채우기가 배경과 섞이는 밝은 페이지 배경에서 유용합니다.
 
+## 테마 설정: `setTheme()`
+
+```ts
+markdown.setTheme(theme: MarkdownThemePresetName | Partial<MarkdownTheme>): this
+```
+
+팔레트를 교체하고 문서를 다시 렌더링합니다(`0.23.0+`). 프리셋 이름 —— `'githubDark' | 'githubLight' | 'dracula' | 'solarizedDark' | 'solarizedLight'` —— 또는 변경할 키만 담은 부분 테마 객체(생성자의 `theme` 옵션과 동일한 형태)를 받습니다. 엔티티는 빌드 시점에 색상·글꼴·크기를 캡처하므로 기존 블록이 실시간으로 다시 그려지지는 않습니다: 재렌더링은 `setContent`를 거치며, 여기에는 새로운 `blockGap`이 콘텐츠 스택까지 전달됩니다.
+
+`markdown.theme`에 직접 할당하는 것은 컴파일 타임 오류이며, 이제 JS 호출자에게도 런타임에 던집니다 — 생성 후 할당은 문서의 일부를 각 팔레트로 칠해 버렸습니다. 팔레트는 생성 시점에 전달하거나 `setTheme()`를 호출하세요.
+
 ## 반응형 너비: `setMaxWidth()`
 
 ```ts
@@ -105,7 +115,7 @@ window.addEventListener('resize', () => {
 
 두 엔진에서 5개 블록 문서로 실측: 520 → 260 px에서 투영 줄 수가 2 → 4, 높이가 88 → 160으로 바뀌었고, 동일한 두 단락 인스턴스 위에서 라이터는 여전히 `open`이었으며 어휘 분석기에 넘어간 문자 수 증가는 **0**이었습니다.
 
-너비가 변하지 않으면 아무 일도 하지 않으므로 높이만 바뀌는 크기 변경에는 비용이 없고, 호출자가 별도 가드를 둘 필요도 없습니다. 음수 너비는 0으로 제한됩니다.
+너비가 변하지 않으면 아무 일도 하지 않으므로 높이만 바뀌는 크기 변경에는 비용이 없고, 호출자가 별도 가드를 둘 필요도 없습니다. 음수 너비는 0으로 제한됩니다. `blockAffordances: true`이면 코드 블록과 테이블이 어포던스 셸에 싸여 도착합니다 — 재배치는 그 래퍼를 투시해 내부 블록의 크기를 조정하고 컨트롤을 새로 고치므로, 감싸진 블록도 다른 것들처럼 새 너비를 따라갑니다(`0.23.0+`; 그 전에는 조용히 이전 너비를 유지했습니다).
 
 > [!NOTE]
 > `0.9.0` 이전에는 유일하게 올바른 우회책이 전체 재구축이었습니다 — 스트림을 해제하고, 드러난 소스를 `setContent()`로 재생하고, 새 라이터를 열고, 스크롤 오프셋을 손으로 옮기는 것. 이는 문서를 정확히 재현하며, 그래서 계속 남아 있기 쉬웠습니다: 재구축도 올바른 지오메트리를 만들어 냅니다. 그 대가는 크기 변경마다 문서 전체를 다시 어휘 분석하는 것과 모든 엔티티 인스턴스였습니다.
@@ -208,6 +218,10 @@ interface StreamController {
 묶습니다. `write()`는 가시성이 아니라 유계 버퍼 수락 시점에 resolve 됩니다. 용량이
 부족하면 하나의 write가 대기하며, 그 대기자가 있는 동안의 다른 write는 reject 되므로
 백프레셔를 무시하는 프로듀서가 큐를 무한히 키울 수는 없습니다.
+
+`close()`의 결말은 정확히 한 번 관찰됩니다: 호스트의 close 훅이 던지거나 reject 했다면,
+재시도된 `close()`는 닫힘 단락회로를 통해 resolve 되는 대신 원래 실패를 보고합니다
+(`0.23.0+` — 성공한 close 이후의 재시도는 여전히 resolve 됩니다).
 
 `pacing.graphemesPerSecond`는 프레임당 한 번의 커밋이라는 상한을 유지하면서 고정된
 실시간 타이프라이터 페이싱을 더합니다. `Intl.Segmenter`는 일반 결합 시퀀스, 이모지 ZWJ

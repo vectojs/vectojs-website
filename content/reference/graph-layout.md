@@ -6,7 +6,7 @@ weight = 47
 
 # `@vectojs/graph-layout`
 
-Version documented: **0.2.1**
+Version documented: **0.3.0**
 
 `@vectojs/graph-layout` is a dependency-free 2D force simulation. It owns no
 renderer and no animation timer: the host supplies graph data, calls `step()`,
@@ -14,8 +14,8 @@ and reads interleaved XY coordinates from a `Float32Array`. The same layout can
 drive Canvas 2D, SVG, WebGL, WebGPU, a VectoJS scene, or an off-main-thread
 renderer.
 
-Version 0.2.1 has one implementation, the TypeScript `ForceLayout2D`. There is
-no WASM build, alternate backend, or `backend` option in 0.2.1. WASM remains a
+Version 0.3.0 has one implementation, the TypeScript `ForceLayout2D`. There is
+no WASM build, alternate backend, or `backend` option in 0.3.0. WASM remains a
 measurement-gated future option; the current cross-dimensional browser
 comparisons are not direct evidence that a WASM backend would help.
 
@@ -92,8 +92,8 @@ draw();
 and `false` after it has cooled below `alphaMin` (or when the graph is empty).
 The return value says whether physics needs another tick; it says nothing about
 whether your application should continue rendering for camera movement, input,
-or other animation. `alphaDecay: 0` disables cooling, so a non-empty simulation
-does not settle on its own.
+or other animation. A non-positive `alphaDecay` is rejected at construction and
+falls back to the default, so a non-empty simulation always settles on its own.
 
 ## Public types
 
@@ -158,20 +158,24 @@ the input records.
 | `centerStrength`       |     `0.02` | Non-negative pull toward the origin.                                                                        |
 | `velocityDecay`        |      `0.6` | Per-tick velocity retention, clamped below `1`.                                                             |
 | `theta`                |      `0.9` | Non-negative Barnes-Hut opening angle. Lower values trade speed for accuracy; `0` performs exact traversal. |
-| `repulsionDistanceMax` | `Infinity` | Maximum distance at which nodes repel. `0` disables repulsion; non-finite values disable the cutoff.        |
-| `alphaDecay`           |   `0.0228` | Temperature decay per tick, clamped to `[0, 1]`.                                                            |
+| `repulsionDistanceMax` | `Infinity` | Maximum distance at which nodes repel. Non-positive values mean no cutoff (same as `Infinity`).             |
+| `alphaDecay`           |   `0.0228` | Temperature decay per tick, clamped to `[0, 1]`; a non-positive value falls back to the default.            |
 | `alphaMin`             |    `0.001` | Non-negative temperature below which the simulation is settled.                                             |
 | `seed`                 |        `1` | Deterministic seed for nodes without finite initial coordinates.                                            |
 
 Non-finite option values fall back to their defaults. Values documented as
-non-negative are clamped at zero. Node and link accessors are evaluated once
-when each record is accepted into the layout, not on every tick. Node accessor
-indices are insertion indices. Link accessor indices are stable, contiguous
-indices across append-only paging. Removing nodes compacts links, so a later
-append can reuse an index previously assigned to a removed link. Removing nodes
-does not reevaluate accessors for survivors; use a fresh `setGraph()` if values
-must be derived again. All options are constructor-only; there are no live force
-setters in 0.2.1.
+non-negative are clamped at zero, with two deliberate exceptions that fall back
+instead of clamping: a non-positive `alphaDecay` takes the default `0.0228`
+(a literal `0` would make the per-tick decay a no-op and the simulation would
+never settle), and a non-positive `repulsionDistanceMax` means no cutoff (it
+used to switch repulsion off entirely). Node and link accessors are evaluated
+once when each record is accepted into the layout, not on every tick. Node
+accessor indices are insertion indices. Link accessor indices are stable,
+contiguous indices across append-only paging. Removing nodes compacts links, so
+a later append can reuse an index previously assigned to a removed link.
+Removing nodes does not reevaluate accessors for survivors; use a fresh
+`setGraph()` if values must be derived again. All options are constructor-only;
+there are no live force setters in 0.3.0.
 
 ## API
 
@@ -191,10 +195,10 @@ class ForceLayout2D {
   removeLinks(items: Iterable<GraphLink | LinkId>): void;
   updateLinks(links: readonly GraphLink[]): void;
   step(iterations?: number): boolean;
-  setNodePin(nodeIndex: number, pin: { x?: number; y?: number }): void;
-  clearNodePin(nodeIndex: number, axes?: { x?: boolean; y?: boolean }): void;
-  pinNode(nodeIndex: number, x: number, y: number): void;
-  unpinNode(nodeIndex: number): void;
+  setNodePin(id: NodeId, pin: { x?: number; y?: number }): void;
+  clearNodePin(id: NodeId, axes?: { x?: boolean; y?: boolean }): void;
+  pinNode(id: NodeId, x: number, y: number): void;
+  unpinNode(id: NodeId): void;
   reheat(alpha?: number): void;
   dispose(): void;
 }
@@ -240,14 +244,21 @@ Links are replay-safe by directed endpoint pair plus optional `id`:
 
 - Without an `id`, repeated `source` to `target` links are one link.
 - Direction matters: `a` to `b` and `b` to `a` have different identities.
-- Parallel links need distinct string or finite-number IDs.
+- Parallel links need distinct string or finite-number IDs; the graph stacks
+  treat parallel links as distinct edges rather than rejecting them.
 - Replaying an identified link is ignored.
-- Links with an unknown endpoint or the same source and target are ignored.
 - A malformed optional link ID is treated as absent for identity purposes.
 
-Links with malformed optional IDs still enter as unidentified links when their
-endpoints are valid; unknown endpoints and self-links do not enter the force
-arrays. Malformed link data does not make positions non-finite.
+Endpoint validation is strict and uniform: a link whose endpoints reference an
+unknown node or the same node twice makes `setGraph()` and `appendGraph()`
+throw, and `appendGraph()` validates the whole batch before mutating, so a
+rejected call leaves the previous graph intact (forward references to nodes
+accepted in the same batch stay valid). This matches `updateLinks()`'s policy —
+dangling links used to be dropped silently, which hid data bugs as mysteriously
+missing structure. Links with malformed optional IDs still enter as
+unidentified links when their endpoints are valid. Malformed link data does not
+make positions non-finite.
+
 `removeNodes(ids)` removes matching nodes and every incident link, compacts
 survivor state, recomputes degree bias, and reheats when something was removed.
 Unknown IDs and an empty iterable are no-ops.
@@ -275,13 +286,24 @@ Finite initial `fx` and `fy` values pin axes independently. A node can therefore
 have fixed X with free Y, fixed Y with free X, or both axes fixed. Initial `x`
 and `y` seed only their corresponding unpinned axes.
 
-At runtime, `setNodePin(index, { x?, y? })` pins only the supplied axes,
+At runtime, `setNodePin(id, { x?, y? })` pins only the supplied axes,
 immediately updates those live coordinates, and clears their velocity.
-`clearNodePin(index, { x?, y? })` releases selected axes while preserving the
-other axis; omitting the axes object releases both. `pinNode(index, x, y)` and
-`unpinNode(index)` remain both-axis convenience methods. Invalid indices are
-ignored. These calls do not reheat automatically, so call `reheat()` after
-interactive pin or unpin operations.
+`clearNodePin(id, { x?, y? })` releases selected axes while preserving the
+other axis; omitting the axes object releases both. `pinNode(id, x, y)` and
+`unpinNode(id)` remain both-axis convenience methods. Unknown IDs are ignored.
+
+**Pins are ID-addressed** (0.3.0) like every other node reference in this
+class, so they keep pointing at the same node across `removeNodes()`
+compaction — an index-addressed pin would silently retarget to whichever node
+moved into that slot. Divergence note for code ported between stacks: the 3D
+[`GraphLayout`](/reference/graph3d-layout/)-family contract pins by node
+**index** instead, and parallel-edge handling differs too — this package's
+consumers reject duplicate endpoint quadruples (node-editor `duplicate-link`)
+while the graph/knowledge stacks treat parallel links as distinct edges.
+Translate pins and link identity when crossing over.
+
+These calls do not reheat automatically, so call `reheat()` after interactive
+pin or unpin operations.
 
 `reheat(alpha = 0.3)` clamps the request to `[alphaMin, 1]` and applies
 `max(currentAlpha, requestedAlpha)`. It never cools a hotter simulation.
@@ -302,19 +324,16 @@ pin position on each move without reheating:
 
 ```ts
 function onDragStart(node, x, y) {
-  const index = layout.getNodeIndex(node.id);
-  layout.setNodePin(index, { x, y }); // pin at the pointer
+  layout.setNodePin(node.id, { x, y }); // pin at the pointer
   layout.reheat(0.3); // wake the simulation ONCE
 }
 
 function onDragMove(node, x, y) {
-  const index = layout.getNodeIndex(node.id);
-  layout.setNodePin(index, { x, y }); // move the pin — no reheat here
+  layout.setNodePin(node.id, { x, y }); // move the pin — no reheat here
 }
 
 function onDragEnd(node) {
-  const index = layout.getNodeIndex(node.id);
-  layout.clearNodePin(index); // or keep it pinned for a permanent pin
+  layout.clearNodePin(node.id); // or keep it pinned for a permanent pin
 }
 ```
 
@@ -338,17 +357,19 @@ collisions is `O(N log N + E)`. This is not a worst-case promise: pathological
 spatial distributions or `theta: 0` can approach all-pairs work.
 
 When collision is enabled, the layout builds the quadtree a second time over
-predicted positions and performs radius-neighborhood queries. Sparse, locally
-bounded neighborhoods are commonly near `O(N log N + K)`, where `K` is the
-candidate/overlap work, but dense clusters or very large radii can make `K`
-quadratic. Collision does not inherit an unconditional `O(N log N)` bound from
-Barnes-Hut repulsion.
+predicted positions and performs radius-neighborhood queries through a
+broad-phase that bins points into power-of-two radius tiers, each with its own
+grid — probe cost is bounded by local density instead of every node landing in
+cells sized by the largest radius. Sparse, locally bounded neighborhoods are
+commonly near `O(N log N + K)`, where `K` is the candidate/overlap work, but
+dense clusters or very large radii can still make `K` quadratic. Collision does
+not inherit an unconditional `O(N log N)` bound from Barnes-Hut repulsion.
 
 `setGraph()` is `O(N + E)` apart from geometric capacity allocation and
 initialization. `appendGraph()` is proportional to the appended input plus an
 `O(N + E)` degree-bias recomputation when links are accepted. `removeLinks()`
-compacts only link storage and is `O(E + R)` when requests are full links, or
-`O(E + RE)` in the worst case when `R` bare IDs each scan all links.
+compacts only link storage and is `O(E + R)` — bare IDs resolve through a
+lazily built index rather than scanning all links per request.
 `updateLinks()` is `O(E + U)` for `U` updates. Storage grows
 geometrically, so most small appends reuse capacity; a growth boundary copies
 existing typed arrays in `O(N + E)` time. `removeNodes()` compacts nodes and
@@ -388,7 +409,7 @@ The conceptual mapping is direct but the API is intentionally smaller:
 
 Links use endpoint IDs rather than d3-mutated endpoint objects. Option accessors
 receive the original `GraphNode` or `GraphLink` and an insertion index, then are
-cached. There is no custom-force registry in 0.2.1; if your d3 layout depends on
+cached. There is no custom-force registry in 0.3.0; if your d3 layout depends on
 custom forces or live force setters, keep d3-force or recreate the layout with
 new options.
 

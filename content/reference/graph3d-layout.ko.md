@@ -8,7 +8,7 @@ weight = 45
 
 [`@vectojs/graph3d`](/reference/graph3d/)의 일부입니다.
 
-문서 버전: **0.6.0**
+문서 버전: **0.6.1**
 
 ## 데이터 모델 — `GraphData`
 
@@ -57,6 +57,23 @@ interface GraphLayout {
 
 계약은 의도적으로 최소화되고 worker 친화적입니다: positions는 `GraphData.nodes` 순서의 xyz 삼중항으로 된 하나의 평평한 `Float32Array`이므로, 구현체가 Web Worker 내부에 완전히 존재하고 전송 가능한 버퍼를 스레드 경계를 통해 노드별 객체 트래픽 없이 스트리밍할 수 있습니다. [`Graph3D.applyPositions()`](/reference/graph3d-renderer/#메서드)는 동일한 버퍼 형태를 직접 사용합니다. `positions`는 단계마다 **재사용되는 동일한 배열 인스턴스**입니다 — 안정적인 스냅샷이 필요하면 복사(`layout.positions.slice()`)하세요.
 
+**링크 엔드포인트 검증은 스택 전반에서 동일합니다 (0.6.1).**
+`Graph3D.setGraphData`, `VectoForceLayout.setGraph`, `D3ForceLayout.setGraph`는
+엔드포인트가 그래프의 어떤 노드도 가리키지 않는 링크에 대해 모두 같은
+`references an unknown node id` 오류를 던집니다 — 검증은 상태가 변경되기 전에
+실행되므로 거부된 그래프는 이전 그래프를 그대로 유지합니다(이전의 `D3ForceLayout`은
+날 ID가 d3-force-3d에까지 도달하게 두었고, 그 tick은 모든 위치를 조용히 NaN으로
+붕괴시켰습니다; 이전의 `VectoForceLayout`은 링크를 조용히 건너뛰었습니다).
+셀프 루프는 여전히 스프링을 갖지 않는 합법적 입력입니다: `VectoForceLayout`은 그것들을
+건너뜁니다.
+
+또한 이 계약의 선택적 고정(pin) 제어는 노드 **인덱스**로 주소 지정되는 반면,
+2D [`ForceLayout2D`](/reference/graph-layout/)는 노드 **ID**로 고정하며(그래서 그
+고정은 `removeNodes` 압축 후에도 유지됩니다), 평행 엣지 식별 방식도 다릅니다 —
+이 패키지의 스택은 평행 링크를 서로 다른 엣지로 취급하지만, node-editor 같은
+소비자는 중복 엔드포인트 4-튜플을 거부합니다. 스택 간에 코드를 포팅할 때는
+고정과 링크 식별 방식을 변환하세요.
+
 `@vectojs/graph3d`는 현재 이 계약 뒤에 두 가지 구현체를 제공합니다 — 자체 개발한 [`VectoForceLayout`](#vectoforcelayout)(Barnes–Hut 옥트리, 런타임 의존성 없음; 기본값)과 [`D3ForceLayout`](#d3forcelayout)(`d3-force-3d` 어댑터, 기존 d3 튜닝과의 동등성 유지를 위해 유지됨) — 그리고 DAG 레이아웃 모드가 패키지 로드맵에 있으며, 모두 이 동일한 인터페이스 뒤에 있으므로 렌더러나 worker 호스트는 어떤 것이 실행 중인지 알 필요가 없습니다.
 
 ## `D3ForceLayout`
@@ -89,14 +106,14 @@ interface VectoForceLayoutOptions {
   centerStrength?: number; // pull toward the centroid. Default 0.02.
   velocityDecay?: number;  // per-step velocity damping. Default 0.6.
   theta?: number;          // Barnes–Hut opening angle. Default 0.9.
-  alphaDecay?: number;     // cooling rate. Default 0.0228; 0 disables cooling.
+  alphaDecay?: number;     // cooling rate. Default 0.0228; non-positive falls back to the default.
   alphaMin?: number;       // alpha below which step() reports cooled. Default 0.001.
   seed?: number;           // RNG seed for deterministic placement. Default 1.
   measurePhases?: boolean; // opt-in per-tick phase profiling. Default false.
 }
 ```
 
-자체 개발 레이아웃(0.3.0에서 추가, 기본값): 다체 항에 Barnes–Hut 옥트리를 사용하는 힘 기반 시뮬레이션 — 런타임 의존성이 없고, `seed` 하에서 결정적이며, Web Worker 내부에서 안전합니다(`D3ForceLayout`과 동일한 `step(iterations)` 계약). 위치와 속도는 **f32**(노출된 `Float32Array`와 일치)로 유지되는 반면, 옥트리는 질량 중심과 반발 적분을 **f64**로 누적합니다. 실행 간에 동일한 결과가 필요할 때 선택하세요; `repulsion`/`linkStrength`로 조정하고 `alphaDecay`를 0보다 높게 올릴 때는 주의하세요 — 이미 냉각 경계에 가깝기 때문에 더 높은 값은 그래프를 나중이 아니라 더 일찍 고정시킵니다.
+자체 개발 레이아웃(0.3.0에서 추가, 기본값): 다체 항에 Barnes–Hut 옥트리를 사용하는 힘 기반 시뮬레이션 — 런타임 의존성이 없고, `seed` 하에서 결정적이며, Web Worker 내부에서 안전합니다(`D3ForceLayout`과 동일한 `step(iterations)` 계약). 위치와 속도는 **f32**(노출된 `Float32Array`와 일치)로 유지되는 반면, 옥트리는 질량 중심과 반발 적분을 **f64**로 누적합니다. 실행 간에 동일한 결과가 필요할 때 선택하세요; `repulsion`/`linkStrength`로 조정하고 `alphaDecay`를 0보다 높게 올릴 때는 주의하세요 — 이미 냉각 경계에 가깝기 때문에 더 높은 값은 그래프를 나중이 아니라 더 일찍 고정시킵니다. 음수 또는 0인 `alphaDecay`는 생성 시 거부되며 기본값으로 폴백합니다(리터럴 `0`은 과거에 시뮬레이션이 영원히 수렴하지 않고 실행되게 만들었습니다).
 
 ```ts
 layout.step(); // 한 틱

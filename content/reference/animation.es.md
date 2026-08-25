@@ -55,7 +55,10 @@ interface PropertyDriver {
 
 - **`TweenDriver(from, to, config: TweenConfig)`** — interpolación con easing desde
   `from` hasta `to` durante `duration` ms, con `delay` opcional. `retarget()`
-  reinicia el tween desde el valor actual.
+  cambia el destino sin recobrar un `delay` ya consumido: los segmentos corren sobre
+  el reloj monótono del tiempo transcurrido (reencuadrar durante el `delay` inicial
+  sigue esperando solo la parte restante), de modo que una ráfaga de reencuadres no
+  puede dejar una animación en espera indefinidamente.
 - **`SpringDriver(from, to, config?: SpringConfig)`** — integración masa-resorte-amortiguador
   (respaldada por `SpringPhysics` de `@vectojs/math`). `retarget()` conserva la
   velocidad, por lo que reencuadrar en pleno vuelo es continuo. `target` se aplica
@@ -63,6 +66,21 @@ interface PropertyDriver {
 - `syncExternal(value, extra)` adopta el estado avanzado en otro lugar (p. ej. un tick por lotes
   WASM): `extra` es la velocidad para un spring y los ms transcurridos para un tween —
   tras la llamada, `value`/`tick()`/`isDone()`/`retarget()` siguen siendo correctos.
+
+**Construcción ruidosa y guardas de tick.** Un driver mal configurado en silencio
+nunca se asienta y deja colgado cada `await` que espere su finalización:
+
+- `TweenDriver` rechaza en la construcción las cadenas con nombres de easing
+  desconocidos (antes fallaban con un `TypeError` desnudo en el primer tick), y
+  `tick(dt)` ignora NaN, cero y los dt negativos — el reloj transcurrido nunca
+  queda envenenado, y el kernel WASM de tweens por lotes rechaza los mismos pasos
+  de la misma manera, así que ambos motores se recuperan en el siguiente
+  fotograma válido.
+- `SpringDriver` rechaza en la construcción `stiffness`/`damping`/`mass` no finitos
+  o no positivos en lugar de recurrir en silencio a los valores físicos
+  predeterminados — tales resortes divergen o nunca se asientan.
+- `isTweenConfig(null)` devuelve `false`; el discriminador existe para manejar
+  configuraciones de runtime no confiables.
 
 ## Easing
 

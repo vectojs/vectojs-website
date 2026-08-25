@@ -6,7 +6,7 @@ weight = 47
 
 # `@vectojs/video-exporter`
 
-Version documentée : **0.2.3**
+Version documentée : **0.2.4**
 
 `@vectojs/video-exporter` pilote une scène VectoJS dans Chromium sans tête, pas à pas avec un pas de temps fixe, capture son canvas sous forme d'images PNG et transmet ces images à FFmpeg pour un encodage H.264 MP4.
 
@@ -74,6 +74,17 @@ await exportVideo({
 ```
 
 La page rendue doit exposer une Scene VectoJS démarrée ou démarrable comme `window.vectoScene`. L'exportateur attend jusqu'à 10 secondes qu'elle soit disponible, nécessite des méthodes `stop()` et `step(dt)` appelables, puis l'avance avec des pas fixes. Le premier `<canvas>` est redimensionné aux dimensions de sortie demandées et capturé.
+
+**Contrat de réinitialisation de scène (`0.2.4+`).** Entre le chargement de la
+page et `stop()`, la boucle rAF de la page tourne librement : l'état horloge
+murale (tweens d'introduction, entrées animées) était arbitraire au moment où la
+capture commençait, et chaque image ultérieure n'était déterministe qu'à partir
+de cette base non déterministe. L'exportateur appelle désormais un `reset()`
+optionnel sur `window.vectoScene` une fois, juste après `stop()`, avant que
+l'image 0 soit avancée ou capturée. Les scènes qui rendent statique jusqu'à leur
+premier `step(dt)` ne sont pas concernées et n'ont pas besoin de `reset()` ; les
+scènes qui portent un état au chargement **doivent** l'exposer pour revenir à
+leur présentation t=0. Une scène sans `reset()` est exportée telle quelle.
 
 ```typescript
 const scene = new Scene(document.querySelector('canvas')!);

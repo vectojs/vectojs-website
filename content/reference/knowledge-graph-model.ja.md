@@ -6,7 +6,7 @@ weight = 46
 
 # `@vectojs/knowledge-graph/model`
 
-文書化バージョン: **0.3.2**
+文書化バージョン: **0.4.0**
 
 `KnowledgeGraphModel` は、より大きな知識グラフの境界付きでマテリアライズされた断面を所有します。`KgDataSource` からシードエンティティと近傍ページを読み込み、エンティティとファクトを重複排除し、ノードごとの展開進捗を追跡し、レンダラー向けに安定した `GraphData` を公開します。DOM、Canvas、Three.jsシーン、アニメーションタイマーは一切作成しません。
 
@@ -35,7 +35,7 @@ interface KgNeighborOptions {
 }
 
 interface KgNeighborhood {
-  entity: KgEntity;
+  entity?: KgEntity;
   facts: readonly KgFact[];
   neighbors: readonly KgEntity[];
   total?: number;
@@ -46,16 +46,14 @@ interface KgNeighborhood {
 interface KgDataSource {
   getNodes(ids?: readonly NodeId[]): readonly KgEntity[] | Promise<readonly KgEntity[]>;
   getNeighbors(id: NodeId, options?: KgNeighborOptions): KgNeighborhood | Promise<KgNeighborhood>;
-  getLabels?(
-    ids: readonly NodeId[],
-    lang?: string,
-  ): ReadonlyMap<NodeId, string> | Promise<ReadonlyMap<NodeId, string>>;
 }
 ```
 
-`cursor` は不透明なものとして扱ってください。ソースは `limit` を適用し、`direction` を尊重し、供給された中止シグナルを下流の作業に渡し、別のページが存在する場合は `nextCursor` と `hasMore` を返すべきです。`total` はオプションで、現在のページだけでなく、そのノード展開で利用可能なファクトの総数を表します。
+`cursor` は不透明なものとして扱ってください。ソースは `limit` を適用し、`direction` を尊重し、供給された中止シグナルを下流の作業に渡し、別のページが存在する場合は `nextCursor` と `hasMore` を返すべきです。`total` はオプションで、現在のページだけでなく、そのノード展開で利用可能なファクトの総数を表します。`direction: "both"` の場合、ソースとターゲットが同じノードであるファクトはページごとに 1 回だけ列挙され、重複しません。
 
-`MemoryDataSource` は、テストや小規模なインメモリグラフ向けにこの契約を実装します。そのカーソルは10進オフセットで、近傍ルックアップは `O(degree)` であり、無効なカーソルはスローします。
+`entity` はオプションです。要求された id を知らないソースは、それを含まない近傍を返すことができ、モデルはその展開を明確なエラーで失敗させます。偽のプレースホルダーノードを永続的に取り込むことはありません。
+
+`MemoryDataSource` は、テストや小規模なインメモリグラフ向けにこの契約を実装します。そのカーソルはバージョン付きのオフセット（`<version>:<offset>`）で、ページネーションの途中で `load()` を呼び出すと、未処理のカーソルは明確に無効化されます。別のファクトリストを静かに切り出すのではなく、スローします。近傍ルックアップは `O(degree)` であり、無効なカーソルはスローします。
 
 ## モデルの作成と展開
 
@@ -97,7 +95,7 @@ interface ExpansionState {
 }
 ```
 
-`getExpansionState(id)` で防御的コピーを読み取ります。`loaded` は、その展開で報告された受け入れ済みページファクトの数です。`partial` は別のページが利用可能であることを意味し、`expand(id)` を呼び出すと保存されたカーソルから再開します。
+`getExpansionState(id)` で防御的コピーを読み取ります。`loaded` はバッチごとに届いたすべてのファクトを数えるため、近傍がページ間で重なってもページネーションの進捗が停滞することはありません。`partial` は別のページが利用可能であることを意味し、`expand(id)` を呼び出すと保存されたカーソルから再開します。
 
 `cancelExpand(id)` はアクティブなリクエストを中止し、`cancelled` とマークします。キャンセルが基盤となるI/Oを停止するには、データソースが `options.signal` を尊重する必要があります。後続の `expand(id)` は最後に完了したカーソルから再開します。ソースの失敗は状態を `failed` とマークし、以前の進捗を保持し、Promiseを拒否します。後続の呼び出しは同じカーソルから再試行します。
 
@@ -120,13 +118,21 @@ model.importSnapshot(snapshot);
 
 ## オプションのレイアウト統合
 
-`KnowledgeGraphModelOptions.layout` は、`@vectojs/graph3d` のXYZ `GraphLayout` 契約を受け入れます。供給された場合、各マテリアライゼーション再構築は `layout.setGraph()` を呼び出し、ノードIDごとに有限のXYZ位置をウォームスタートとして保持し、レイアウトが `reheat()` を公開している場合は読み込まれたページの後に再加熱します。
+`KnowledgeGraphModelOptions.layout` は、`@vectojs/graph3d` のXYZ `GraphLayout` 契約を受け入れます。モデルが唯一のレイアウト駆動者です。各マテリアライゼーション再構築は `layout.setGraph()` を一度呼び出し、ノードIDごとに有限のXYZ位置をウォームスタートとして保持し、レイアウトが `reheat()` を公開している場合は読み込まれたページの後に再加熱します。ウォームスタート位置は、レイアウトが落ち着いた時点（および再構築時）にキャプチャされ、毎ホットフレームごとではありません。
 
-最新のレイアウト座標を保持する必要がある外部操作の前に `captureLayoutPositions()` を呼び出してください。このオプション契約は三次元です。`@vectojs/graph-layout` のXY `ForceLayout2D` を直接渡さないでください。2Dレンダラーは `layout` を省略し、`getGraphData()` に対して独自のレンダラー中立レイアウトを実行できます。
+最新のレイアウト座標を保持する必要がある外部操作の前に `captureLayoutPositions()` を呼び出してください。このオプション契約は三次元です。`@vectojs/graph-layout` のXY `ForceLayout2D` を直接渡さないでください。2Dレンダラーは `layout` を省略し、`getGraphData()` に対して独自のレンダラー中立レイアウトを実行できます。この契約はノード**インデックス**でピン留めするのに対し、2D `ForceLayout2D` はノードIDでピン留めすることに注意してください。スタックをまたぐときはピンを変換してください。
 
 ## 破棄
 
-`dispose()` はアクティブなリクエストを中止し、オプションのレイアウトを破棄し、マテリアライズされた状態を解放します。冪等です。ライブモデルを必要とするメソッドは、その後 `KnowledgeGraphModel is disposed` をスローします。遅延した非同期完了が、破棄された状態やスナップショットで置換された状態を再投入することはできません。
+`dispose()` はアクティブなリクエストを中止し、マテリアライズされた状態を解放します。冪等です。ライブモデルを必要とするメソッドは、その後 `KnowledgeGraphModel is disposed` をスローします。遅延した非同期完了が、破棄された状態やスナップショットで置換された状態を再投入することはできません。所有権は作成者にあります。モデルはオプションのレイアウトを借りるだけなので、モデルを破棄しても、ライブセッションと共有されているレイアウトは破棄されません。レイアウトを構築した者がそれを破棄します。
+
+## セッション層の保証
+
+パッケージのルートは、モデルからレンダラーを駆動する `KnowledgeGraphSession` もエクスポートします。その振る舞いの契約は、モデルのものと足並みを揃えています。
+
+- **in-flight な id につき展開は 1 回。** 展開フェッチがまだ進行中のノードへの繰り返し選択は、in-flight ゲートに吸収されます。1 回のネットワークフェッチに対してクリックごとに `onExpand`/`onError` を発火することはありません。
+- **エラーは観測可能。** 選択によって引き起こされた展開の失敗は `onError(error, entity)` オプション（フォールバックは `console.error`）にルーティングされ、未処理の拒否として脱出することはありません。セッションが破棄されると非同期の続行は停止します。
+- **不明な id は明確に失敗する。** どのソースも知らない id を展開すると、幽霊エンティティをマテリアライズするのではなく、明確なエラーで失敗します。
 
 ## 計算量
 

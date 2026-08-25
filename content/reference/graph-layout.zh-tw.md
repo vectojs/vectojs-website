@@ -6,11 +6,11 @@ weight = 47
 
 # `@vectojs/graph-layout`
 
-文件版本：**0.2.1**
+文件版本：**0.3.0**
 
 `@vectojs/graph-layout` 是一個零依賴的 2D 力模擬。它不擁有任何渲染器或動畫計時器：主機提供圖形資料、呼叫 `step()`，並從 `Float32Array` 讀取交錯的 XY 座標。同一個佈局可以驅動 Canvas 2D、SVG、WebGL、WebGPU、VectoJS 場景，或離主執行緒的渲染器。
 
-版本 0.2.1 有一個實作，即 TypeScript 的 `ForceLayout2D`。0.2.1 中沒有 WASM 建置、替代後端或 `backend` 選項。WASM 仍是一個以量測為門檻的未來選項；目前的跨維度瀏覽器比較並非 WASM 後端會有幫助的直接證據。
+版本 0.3.0 有一個實作，即 TypeScript 的 `ForceLayout2D`。0.3.0 中沒有 WASM 建置、替代後端或 `backend` 選項。WASM 仍是一個以量測為門檻的未來選項；目前的跨維度瀏覽器比較並非 WASM 後端會有幫助的直接證據。
 
 ## 安裝
 
@@ -79,7 +79,7 @@ function draw(): void {
 draw();
 ```
 
-`step()` 是同步的。當模擬仍處於活躍狀態時返回 `true`，在冷卻到低於 `alphaMin`（或圖形為空時）之後返回 `false`。返回值說明物理是否需要另一個 tick；它並不說明您的應用程式是否應該為了攝影機移動、輸入或其他動畫而繼續渲染。`alphaDecay: 0` 會停用冷卻，因此非空的模擬不會自行穩定。
+`step()` 是同步的。當模擬仍處於活躍狀態時返回 `true`，在冷卻到低於 `alphaMin`（或圖形為空時）之後返回 `false`。返回值說明物理是否需要另一個 tick；它並不說明您的應用程式是否應該為了攝影機移動、輸入或其他動畫而繼續渲染。非正的 `alphaDecay` 會在建構時被拒絕並回退到預設值，因此非空的模擬總會自行穩定。
 
 ## 公開型別
 
@@ -143,12 +143,12 @@ interface ForceLayout2DOptions {
 | `centerStrength`       |     `0.02` | 朝原點的非負拉力。                                                 |
 | `velocityDecay`        |      `0.6` | 每個 tick 的速度保留，限制在 `1` 以下。                            |
 | `theta`                |      `0.9` | 非負 Barnes-Hut 開角。較低的值以速度換取精確度；`0` 執行精確走訪。 |
-| `repulsionDistanceMax` | `Infinity` | 節點排斥的最大距離。`0` 停用排斥；非有限值停用截止。               |
-| `alphaDecay`           |   `0.0228` | 每個 tick 的溫度衰減，限制在 `[0, 1]`。                            |
+| `repulsionDistanceMax` | `Infinity` | 節點排斥的最大距離。非正值表示無截止（與 `Infinity` 相同）。       |
+| `alphaDecay`           |   `0.0228` | 每個 tick 的溫度衰減，限制在 `[0, 1]`；非正值回退到預設值。        |
 | `alphaMin`             |    `0.001` | 模擬穩定所需的非負溫度臨界值。                                     |
 | `seed`                 |        `1` | 對沒有有限初始座標的節點使用的確定性種子。                         |
 
-非有限的選項值會回退到其預設值。標示為非負的值會限制在零。節點和連結的存取器會在每個記錄被接受進入佈局時評估一次，而非每個 tick。節點存取器索引是插入索引。連結存取器索引在僅追加的分頁中是穩定且連續的索引。移除節點會壓縮連結，因此後續的追加可以重用先前指派給已移除連結的索引。移除節點不會重新評估倖存者的存取器；如果必須重新推導值，請使用全新的 `setGraph()`。所有選項都僅在建構時設定；0.2.1 中沒有即時的力 setter。
+非有限的選項值會回退到其預設值。標示為非負的值會限制在零，但有兩個刻意的例外改為回退：非正的 `alphaDecay` 取預設值 `0.0228`（字面量 `0` 會讓每 tick 衰減變成空操作，模擬將永不穩定），非正的 `repulsionDistanceMax` 表示無截止（它曾會把排斥整個關掉）。節點和連結的存取器會在每個記錄被接受進入佈局時評估一次，而非每個 tick。節點存取器索引是插入索引。連結存取器索引在僅追加的分頁中是穩定且連續的索引。移除節點會壓縮連結，因此後續的追加可以重用先前指派給已移除連結的索引。移除節點不會重新評估倖存者的存取器；如果必須重新推導值，請使用全新的 `setGraph()`。所有選項都僅在建構時設定；0.3.0 中沒有即時的力 setter。
 
 ## API
 
@@ -168,10 +168,10 @@ class ForceLayout2D {
   removeLinks(items: Iterable<GraphLink | LinkId>): void;
   updateLinks(links: readonly GraphLink[]): void;
   step(iterations?: number): boolean;
-  setNodePin(nodeIndex: number, pin: { x?: number; y?: number }): void;
-  clearNodePin(nodeIndex: number, axes?: { x?: boolean; y?: boolean }): void;
-  pinNode(nodeIndex: number, x: number, y: number): void;
-  unpinNode(nodeIndex: number): void;
+  setNodePin(id: NodeId, pin: { x?: number; y?: number }): void;
+  clearNodePin(id: NodeId, axes?: { x?: boolean; y?: boolean }): void;
+  pinNode(id: NodeId, x: number, y: number): void;
+  unpinNode(id: NodeId): void;
   reheat(alpha?: number): void;
   dispose(): void;
 }
@@ -197,12 +197,11 @@ class ForceLayout2D {
 
 - 沒有 `id` 時，重複的 `source` 到 `target` 連結是同一個連結。
 - 方向很重要：`a` 到 `b` 和 `b` 到 `a` 具有不同的身分。
-- 平行連結需要不同的字串或有限數字 ID。
+- 平行連結需要不同的字串或有限數字 ID；圖形堆疊將平行連結視為相異的邊，而不是拒絕它們。
 - 重播一個已識別的連結會被忽略。
-- 具有未知端點或相同來源與目標的連結會被忽略。
 - 格式錯誤的選用連結 ID 在身分識別上會被視為不存在。
 
-當端點有效時，具有格式錯誤選用 ID 的連結仍會以未識別連結的身分進入；未知端點和自連結不會進入力陣列。格式錯誤的連結資料不會讓位置變成非有限值。`removeNodes(ids)` 移除符合的節點和每個相連的連結，壓縮倖存者狀態，重新計算度數偏差，並在移除內容時重新加熱。未知 ID 和空的可迭代物件是無操作。
+端點驗證嚴格而統一：端點參照未知節點或兩次參照同一節點的連結會讓 `setGraph()` 和 `appendGraph()` 拋出錯誤，且 `appendGraph()` 在變更前驗證整個批次，因此被拒絕的呼叫會讓先前的圖形保持原樣（同批次中接受的向前節點參照仍然有效）。這與 `updateLinks()` 的政策一致——懸空連結過去會被靜默丟棄，把資料缺陷隱藏成神祕缺失的結構。當端點有效時，具有格式錯誤選用 ID 的連結仍會以未識別連結的身分進入。格式錯誤的連結資料不會讓位置變成非有限值。`removeNodes(ids)` 移除符合的節點和每個相連的連結，壓縮倖存者狀態，重新計算度數偏差，並在移除內容時重新加熱。未知 ID 和空的可迭代物件是無操作。
 
 ### 移除與更新連結
 
@@ -214,7 +213,11 @@ class ForceLayout2D {
 
 有限的初始 `fx` 和 `fy` 值會獨立地固定軸。因此節點可以有固定 X 且自由 Y、固定 Y 且自由 X，或兩個軸都固定。初始 `x` 和 `y` 只會種子化其對應的未固定軸。
 
-在執行時，`setNodePin(index, { x?, y? })` 只固定提供的軸，立即更新這些即時座標，並清除其速度。`clearNodePin(index, { x?, y? })` 釋放選定的軸，同時保留另一個軸；省略 axes 物件會釋放兩個軸。`pinNode(index, x, y)` 和 `unpinNode(index)` 仍然是雙軸的便利方法。無效的索引會被忽略。這些呼叫不會自動重新加熱，因此在互動式固定或解除固定操作之後請呼叫 `reheat()`。
+在執行時，`setNodePin(id, { x?, y? })` 只固定提供的軸，立即更新這些即時座標，並清除其速度。`clearNodePin(id, { x?, y? })` 釋放選定的軸，同時保留另一個軸；省略 axes 物件會釋放兩個軸。`pinNode(id, x, y)` 和 `unpinNode(id)` 仍然是雙軸的便利方法。未知 ID 會被忽略。
+
+**固定按 ID 定址**（0.3.0），與此類別中所有其他節點參照一致，因此在 `removeNodes()` 壓縮後固定仍指向同一節點——按索引定址的固定會悄悄改指到移入該槽位的任何節點。給跨堆疊移植程式碼的分歧提示：3D [`GraphLayout`](/reference/graph3d-layout/) 家族契約改為按節點**索引**固定，且平行邊處理也不同——本套件的消費者拒絕重複的端點四元組（node-editor 的 `duplicate-link`），而 graph/knowledge 堆疊把平行連結視為相異的邊。跨堆疊遷移時請轉換固定方式與連結身分。
+
+這些呼叫不會自動重新加熱，因此在互動式固定或解除固定操作之後請呼叫 `reheat()`。
 
 `reheat(alpha = 0.3)` 將請求限制在 `[alphaMin, 1]` 並套用 `max(currentAlpha, requestedAlpha)`。它永遠不會冷卻較熱的模擬。
 
@@ -226,19 +229,16 @@ class ForceLayout2D {
 
 ```ts
 function onDragStart(node, x, y) {
-  const index = layout.getNodeIndex(node.id);
-  layout.setNodePin(index, { x, y }); // pin at the pointer
+  layout.setNodePin(node.id, { x, y }); // pin at the pointer
   layout.reheat(0.3); // wake the simulation ONCE
 }
 
 function onDragMove(node, x, y) {
-  const index = layout.getNodeIndex(node.id);
-  layout.setNodePin(index, { x, y }); // move the pin — no reheat here
+  layout.setNodePin(node.id, { x, y }); // move the pin — no reheat here
 }
 
 function onDragEnd(node) {
-  const index = layout.getNodeIndex(node.id);
-  layout.clearNodePin(index); // or keep it pinned for a permanent pin
+  layout.clearNodePin(node.id); // or keep it pinned for a permanent pin
 }
 ```
 
@@ -252,9 +252,9 @@ function onDragEnd(node) {
 
 對 `N` 個節點和 `E` 個被接受的連結而言，一個正常的 tick 會建構 Barnes-Hut 四叉樹並以預期的 `O(N log N)` 評估排斥，以 `O(E)` 套用彈簧，並以 `O(N)` 進行消毒、置中和積分。因此沒有碰撞時的通常 tick 成本是 `O(N log N + E)`。這不是最壞情況的承諾：病態的空間分佈或 `theta: 0` 可能接近全對工作。
 
-當啟用碰撞時，佈局會在預測位置上第二次建構四叉樹，並執行半徑鄰域查詢。稀疏、局部有界的鄰域通常接近 `O(N log N + K)`，其中 `K` 是候選/重疊工作，但密集叢集或非常大的半徑可能讓 `K` 變成二次方。碰撞並未從 Barnes-Hut 排斥繼承無條件的 `O(N log N)` 界限。
+當啟用碰撞時，佈局會在預測位置上第二次建構四叉樹，並透過一個寬相階段執行半徑鄰域查詢——該階段把點分入二的冪半徑層級，每個層級有自己的網格——探測成本由局部密度決定，而不是讓每個節點都落進按最大半徑劃分尺寸的儲存格。稀疏、局部有界的鄰域通常接近 `O(N log N + K)`，其中 `K` 是候選/重疊工作，但密集叢集或非常大的半徑仍可能讓 `K` 變成二次方。碰撞並未從 Barnes-Hut 排斥繼承無條件的 `O(N log N)` 界限。
 
-`setGraph()` 除了幾何容量分配和初始化之外是 `O(N + E)`。`appendGraph()` 與追加的輸入成正比，加上在接受連結時 `O(N + E)` 的度數偏差重新計算。`removeLinks()` 只壓縮連結儲存，當請求是完整連結時是 `O(E + R)`，或在最壞情況下（`R` 個裸 ID 各自掃描所有連結）是 `O(E + RE)`。`updateLinks()` 對 `U` 個更新是 `O(E + U)`。儲存以幾何方式增長，因此大多數小型追加會重用容量；增長邊界會以 `O(N + E)` 時間複製現有的型別化陣列。`removeNodes()` 壓縮節點和連結，並以 `O(N + E)` 重新計算偏差。移除不會縮小容量。
+`setGraph()` 除了幾何容量分配和初始化之外是 `O(N + E)`。`appendGraph()` 與追加的輸入成正比，加上在接受連結時 `O(N + E)` 的度數偏差重新計算。`removeLinks()` 只壓縮連結儲存，為 `O(E + R)` ——裸 ID 透過惰性建構的索引解析，而不是每個請求掃描所有連結。`updateLinks()` 對 `U` 個更新是 `O(E + U)`。儲存以幾何方式增長，因此大多數小型追加會重用容量；增長邊界會以 `O(N + E)` 時間複製現有的型別化陣列。`removeNodes()` 壓縮節點和連結，並以 `O(N + E)` 重新計算偏差。移除不會縮小容量。
 
 ## 量測的瀏覽器證據
 
@@ -280,7 +280,7 @@ function onDragEnd(node) {
 | `node.fx` / `node.fy` 修改                      | 初始 `fx`/`fy`，然後 `setNodePin()` / `clearNodePin()` |
 | d3 的內部計時器                                 | 無計時器；主機擁有排程                                 |
 
-連結使用端點 ID 而非 d3 修改的端點物件。選項存取器接收原始的 `GraphNode` 或 `GraphLink` 和插入索引，然後被快取。0.2.1 中沒有自訂力註冊表；如果您的 d3 佈局依賴自訂力或即時的力 setter，請保留 d3-force 或以新選項重建佈局。
+連結使用端點 ID 而非 d3 修改的端點物件。選項存取器接收原始的 `GraphNode` 或 `GraphLink` 和插入索引，然後被快取。0.3.0 中沒有自訂力註冊表；如果您的 d3 佈局依賴自訂力或即時的力 setter，請保留 d3-force 或以新選項重建佈局。
 
 ## 2D 與 `@vectojs/graph3d` 的比較
 

@@ -1,6 +1,6 @@
 +++
 title = "ThreeAdapter"
-description = "将 VectoJS Scene 渲染到 canvas 上，将其暴露为 THREE.CanvasTexture，并通过 UV 光线投射连接指针事件（包括 WebXR 控制器和多点触控）。"
+description = "将 VectoJS Scene 渲染到 canvas 上，将其暴露为 THREE.CanvasTexture，并通过 UV 光线投射连接指针事件（包括 WebXR 控制器和多点触控）以及面板焦点与键盘路由。"
 weight = 42
 +++
 
@@ -45,7 +45,7 @@ interface ThreeAdapterOptions {
 ```ts
 updateIntersection(
   raycaster: THREE.Raycaster,
-  type: 'pointerdown' | 'pointerup' | 'pointermove' | 'wheel' | 'click',
+  type: 'pointerdown' | 'pointerup' | 'pointermove' | 'pointercancel' | 'wheel' | 'click',
   originalEvent?: PointerEvent | WheelEvent
 ): boolean
 ```
@@ -66,13 +66,59 @@ resize(width: number, height: number): void
 
 调整 canvas 和底层逻辑 `VectoScene` 的大小。当面板的渲染分辨率或 2D 布局视口变化时调用；仅更改网格的世界空间缩放不需要此项。
 
+## 面板焦点与键盘输入（0.1.10+）
+
+适配器 canvas 是离屏的，其投影的无障碍镜像永远不会成为 `document.activeElement`，浏览器的焦点模型也无法触及它们。适配器用**面板焦点**填补这一空缺——这是 Three 侧的状态，由指针交互和 `focus()` 驱动、由按键路由消费，并且每次转换都通过合成 `FocusEvent` 桥接，使 core 侧的状态（实体 `focus`/`blur` 事件、光标闪烁唤醒）与连接的 canvas 保持一致。
+
+```ts
+adapter.focusedEntity: Entity | null // read-only — the entity holding panel focus
+adapter.focus(entity: Entity | null): void // move focus, or blur with null
+adapter.blur(): void // release panel focus
+adapter.isFocusable(entity: Entity): boolean // projects as keyboard-reachable?
+```
+
+`isFocusable` 是 DOM 可制表性（tabbability）的面板侧类比：当投影镜像带有 `tabindex` 属性或呈现为原生可聚焦标签（`button`/`input`/`textarea`/`select`/`a[href]`）时为真。pointerdown 会聚焦命中目标中最近的可达祖先——点击按钮内的 `<span>` 会聚焦该按钮，而投影中没有任何可达元素的命中链会导致失焦。
+
+### `dispatchKey(key, mods?, phase?)`
+
+```ts
+dispatchKey(
+  key: string,
+  mods?: { ctrlKey?: boolean; altKey?: boolean; shiftKey?: boolean; metaKey?: boolean; code?: string },
+  phase?: 'press' | 'keydown' | 'keyup', // default 'press' — synthesizes keydown+keyup
+): void
+```
+
+`updateIntersection` 的键盘对应物：合成一个按键事件，并将其通过与已连接 canvas 相同的分发路径进行路由。路由规则依次为：
+
+1. **面板焦点** —— 当某个实体持有面板焦点时，事件被分发到其投影镜像，因此 core 自己的监听器原样运行：实体的 `keydown`/`keyup` 处理器收到事件，投影控件保持其激活契约（按 press 触发 `Enter`、按 release 触发 `Space`）。
+2. **所有权** —— 当被聚焦实体是_键盘所有者_时，面板独占这些按键，任何内容都不会泄漏到页面。所有者是投影 `input`/`textarea`/`select` 标签或 core 的 `KEYBOARD_OWNING_ROLES` 中角色的实体：交互角色（`button`、`switch`、`checkbox`、`radio`、`link`、`tab`、`menuitem`、`slider`、`combobox`）加上键盘优先角色 `textbox`、`searchbox`、`spinbutton`、`option` 和 `listbox`。方向键移动滑块而不是旋转你的相机；键入到达文本框而不是触发页面快捷键。
+3. **通道转发** —— 否则事件继续前往 `window`，由场景级按键通道应用其原生门控（`defaultPrevented`、按键自动重复、`ownsKeyboard(document.activeElement)`），因此除非页面级键盘所有者持有焦点，场景快捷键和页面级消费者都能看到事件。实体处理器在合成事件上调用 `preventDefault()` 会抑制转发，与连接 canvas 的冒泡一致。
+4. **无面板焦点** —— 事件直接前往 `window`，由相同的门控决定。
+
+`code` 默认采用尽力推断（`'a'` → `'KeyA'`，`' '` → `'Space'`，数字 → `'DigitN'`）。对于推断无法命名的布局，传入 `mods.code` 覆盖。
+
+### `dispatchPointer(type, x, y, init?)`
+
+```ts
+dispatchPointer(
+  type: 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'click',
+  x: number, // logical scene-space X (origin top-left)
+  y: number, // logical scene-space Y
+  init?: { pointerId?: number; button?: number; buttons?: number;
+           ctrlKey?: boolean; altKey?: boolean; shiftKey?: boolean; metaKey?: boolean },
+): boolean // whether the point hit an entity
+```
+
+以**逻辑场景坐标**合成指针输入——这正是实体布局和 `findEntityAt` 所使用的空间。事件流经与光线投射驱动的 `updateIntersection` 完全相同的下游路径：悬停转换、实体分发、由 pointerdown 驱动的聚焦和纹理脏标记调度行为完全一致，这使其成为没有 raycaster 的测试和自动化的入口点。滚轮输入被刻意排除在外——滚轮增量没有中立默认值，因此请通过 `updateIntersection` 并携带真实 `WheelEvent` 来路由它们。
+
 ### `dispose()`
 
 ```ts
 dispose(): void
 ```
 
-幂等地销毁网格上的 `THREE.CanvasTexture`、几何和材质，分离网格，恢复 Scene 渲染方法，销毁 `VectoScene`，并清除所有每指针状态。适配器创建的 canvas 被释放到 `0×0`；调用者提供的 canvas 保持其尺寸。
+幂等地销毁网格上的 `THREE.CanvasTexture`、几何和材质，分离网格，恢复 Scene 渲染方法，销毁 `VectoScene`，并清除所有每指针状态（面板焦点随场景一起消亡）。适配器创建的 canvas 被释放到 `0×0`；调用者提供的 canvas 保持其尺寸。
 
 ## 完整示例
 
@@ -96,7 +142,10 @@ camera.position.set(0, 0, 3);
 // --- VectoJS panel adapter (512×256 logical pixels, displayed on a 2×1 plane) ---
 const adapter = new ThreeAdapter({ width: 512, height: 256 });
 
-const heading = new Text('Settings', { font: '600 24px Inter', color: '#f8fafc' });
+const heading = new Text('Settings', {
+  font: '600 24px Inter',
+  color: '#f8fafc',
+});
 const applyBtn = new Button('Apply', { width: 120, height: 40 });
 applyBtn.on('click', () => console.log('apply clicked'));
 

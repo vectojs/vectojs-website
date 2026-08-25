@@ -1,6 +1,6 @@
 +++
 title = "ThreeAdapter"
-description = "VectoJS Scene을 캔버스에 렌더링하고 THREE.CanvasTexture로 노출하며, UV 레이캐스팅을 통해 포인터 이벤트(WebXR 컨트롤러 및 멀티터치 포함)를 연결합니다."
+description = "VectoJS Scene을 캔버스에 렌더링하고 THREE.CanvasTexture로 노출하며, UV 레이캐스팅을 통해 포인터 이벤트(WebXR 컨트롤러 및 멀티터치 포함)와 패널 포커스 및 키보드 라우팅을 연결합니다."
 weight = 42
 +++
 
@@ -45,7 +45,7 @@ interface ThreeAdapterOptions {
 ```ts
 updateIntersection(
   raycaster: THREE.Raycaster,
-  type: 'pointerdown' | 'pointerup' | 'pointermove' | 'wheel' | 'click',
+  type: 'pointerdown' | 'pointerup' | 'pointermove' | 'pointercancel' | 'wheel' | 'click',
   originalEvent?: PointerEvent | WheelEvent
 ): boolean
 ```
@@ -67,13 +67,59 @@ resize(width: number, height: number): void
 
 캔버스와 기본 논리 `VectoScene`의 크기를 조정합니다. 패널의 렌더 해상도 또는 2D 레이아웃 뷰포트가 변경될 때 호출하세요; 메시의 월드 공간 스케일만 변경하는 경우에는 필요하지 않습니다.
 
+## 패널 포커스와 키보드 입력 (0.1.10+)
+
+어댑터 캔버스는 오프스크린이므로, 투영된 접근성 미러가 `document.activeElement`가 될 수 없고 브라우저의 포커스 모델도 닿지 않습니다. 어댑터는 **패널 포커스**로 그 간극을 메웁니다 — Three 측 상태로, 포인터 상호작용과 `focus()`가 구동하고 키 라우팅이 소비하며, 모든 전환은 합성 `FocusEvent`로 브리지되어 core 측 상태(엔터티 `focus`/`blur` 발생, 캐럿 깜빡임 깨우기)가 연결된 캔버스와 일치하도록 합니다.
+
+```ts
+adapter.focusedEntity: Entity | null // read-only — the entity holding panel focus
+adapter.focus(entity: Entity | null): void // move focus, or blur with null
+adapter.blur(): void // release panel focus
+adapter.isFocusable(entity: Entity): boolean // projects as keyboard-reachable?
+```
+
+`isFocusable`은 DOM 탭 가능성(tabbability)의 패널 측 아날로그입니다: 투영된 미러가 `tabindex` 속성을 가지거나 기본적으로 포커스 가능한 태그(`button`/`input`/`textarea`/`select`/`a[href]`)로 렌더될 때 참입니다. pointerdown은 히트 중 가장 가까운 포커스 가능 조상을 포커스합니다 — 버튼 안의 `<span>`을 클릭하면 버튼이 포커스되고, 도달 가능한 것을 아무것도 투영하지 않는 히트 체인은 블러를 유발합니다.
+
+### `dispatchKey(key, mods?, phase?)`
+
+```ts
+dispatchKey(
+  key: string,
+  mods?: { ctrlKey?: boolean; altKey?: boolean; shiftKey?: boolean; metaKey?: boolean; code?: string },
+  phase?: 'press' | 'keydown' | 'keyup', // default 'press' — synthesizes keydown+keyup
+): void
+```
+
+`updateIntersection`의 키보드 대응물입니다: 키 이벤트를 합성하고 연결된 캔버스가 사용하는 것과 동일한 디스패치 경로를 통해 라우팅합니다. 라우팅 규칙, 순서대로:
+
+1. **패널 포커스** — 엔터티가 패널 포커스를 보유 중이면 이벤트는 해당 엔터티의 투영 미터로 디스패치되어, core 자체 리스너가 그대로 실행됩니다: 엔터티의 `keydown`/`keyup` 핸들러가 이를 받고, 투영된 컨트롤은 활성화 계약(press에서 `Enter`, release에서 `Space`)을 유지합니다.
+2. **소유권** — 포커스된 엔터티가 _키보드 소유자_인 동안에는 패널이 해당 키를 독점하며 페이지로 새어 나가지 않습니다. 소유자는 `input`/`textarea`/`select` 태그나 core의 `KEYBOARD_OWNING_ROLES`에 있는 역할을 투영하는 엔터티입니다: 인터랙티브 역할(`button`, `switch`, `checkbox`, `radio`, `link`, `tab`, `menuitem`, `slider`, `combobox`)과 키보드 우선 역할 `textbox`, `searchbox`, `spinbutton`, `option`, `listbox`입니다. 화살표 키는 카메라를 궤도 회전시키는 대신 슬라이더를 움직이고, 타이핑은 페이지 단축키를 유발하는 대신 텍스트박스에 닿습니다.
+3. **채널 전달** — 그 외의 경우 이벤트는 `window`로 계속 진행하며, 씬 수준 키 채널이 네이티브 게이트(`defaultPrevented`, 키 자동 반복, `ownsKeyboard(document.activeElement)`)를 적용합니다. 따라서 페이지 수준 키보드 소유자가 포커스를 보유하지 않는 한 씬 단축키와 페이지 수준 소비자가 이를 봅니다. 합성 이벤트에서 `preventDefault()`를 호출하는 엔터티 핸들러는 전달을 억제하며, 연결된 캔버스의 버블링과 일치합니다.
+4. **패널 포커스 없음** — 이벤트는 곧장 `window`로 가며 같은 게이트가 판단합니다.
+
+`code`의 기본값은 최선의 추론입니다(`'a'` → `'KeyA'`, `' '` → `'Space'`, 숫자 → `'DigitN'`). 추론이 이름 지을 수 없는 배열에는 `mods.code`를 전달해 재정의하세요.
+
+### `dispatchPointer(type, x, y, init?)`
+
+```ts
+dispatchPointer(
+  type: 'pointerdown' | 'pointerup' | 'pointercancel' | 'pointermove' | 'click',
+  x: number, // logical scene-space X (origin top-left)
+  y: number, // logical scene-space Y
+  init?: { pointerId?: number; button?: number; buttons?: number;
+           ctrlKey?: boolean; altKey?: boolean; shiftKey?: boolean; metaKey?: boolean },
+): boolean // whether the point hit an entity
+```
+
+**논리 씬 좌표**로 포인터 입력을 합성합니다 — 엔터티 레이아웃과 `findEntityAt`이 다루는 공간입니다. 이벤트는 레이캐스트 구동 `updateIntersection`과 동일한 하류 경로를 흐릅니다: 호버 전환, 엔터티 디스패치, pointerdown 구동 포커스, 텍스처 더티 스케줄링이 모두 같게 동작하여, 레이캐스터가 없는 테스트와 자동화의 진입점이 됩니다. 휠 입력은 의도적으로 다루지 않습니다 — 휠 델타에는 중립적인 기본값이 없으므로 실제 `WheelEvent`와 함께 `updateIntersection`으로 라우팅하세요.
+
 ### `dispose()`
 
 ```ts
 dispose(): void
 ```
 
-멱등적으로 `THREE.CanvasTexture`, geometry, material을 메시에서 해제하고, 메시를 분리하며, Scene 렌더 메서드를 복원하고, `VectoScene`을 제거하며, 모든 포인터별 상태를 지웁니다. 어댑터가 생성한 캔버스는 `0×0`으로 해제됩니다; 호출자가 제공한 캔버스는 치수를 유지합니다.
+멱등적으로 `THREE.CanvasTexture`, geometry, material을 메시에서 해제하고, 메시를 분리하며, Scene 렌더 메서드를 복원하고, `VectoScene`을 제거하며, 모든 포인터별 상태를 지웁니다(패널 포커스는 씬과 함께 사라집니다). 어댑터가 생성한 캔버스는 `0×0`으로 해제됩니다; 호출자가 제공한 캔버스는 치수를 유지합니다.
 
 ## 전체 예제
 
@@ -97,7 +143,10 @@ camera.position.set(0, 0, 3);
 // --- VectoJS 패널 어댑터 (512×256 논리 픽셀, 2×1 평면에 표시) ---
 const adapter = new ThreeAdapter({ width: 512, height: 256 });
 
-const heading = new Text('Settings', { font: '600 24px Inter', color: '#f8fafc' });
+const heading = new Text('Settings', {
+  font: '600 24px Inter',
+  color: '#f8fafc',
+});
 const applyBtn = new Button('Apply', { width: 120, height: 40 });
 applyBtn.on('click', () => console.log('apply clicked'));
 

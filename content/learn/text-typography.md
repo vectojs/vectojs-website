@@ -340,22 +340,18 @@ const hebrew = new RichText([{ text: 'שלום ' }, { text: 'VectoJS', style: { 
 
 ## Helper functions
 
-`measureText`, `wrapLines`, and `fontSizePx` are exported from `@vectojs/ui` for use in custom components.
+`measureText` is exported from `@vectojs/ui` for use in custom components.
 
 ```typescript
-import { measureText, wrapLines, fontSizePx } from '@vectojs/ui';
+import { measureText } from '@vectojs/ui';
 
 // Rendered pixel width, LRU-cached (cap 1000) — keyed on the RAW text, so a
 // cache hit costs a map lookup and does not re-run Arabic shaping
 // (Arabic is still measured in its contextually-shaped form on a miss)
 const w = measureText('Hello world', '600 16px Inter');
-
-// Greedy word-wrap — returns string[]
-const lines = wrapLines('A longer text that wraps', '16px sans-serif', 200);
-
-// Extract the px size from a CSS font shorthand
-const size = fontSizePx('600 16px Inter'); // → 16
 ```
+
+`measureText` shapes Arabic text via `ArabicShaper` before measuring, so it returns the correct visual width for Arabic runs. There is no exported wrap helper: components wrap through the LayoutEngine, and the old greedy `wrapLines` export was removed in ui 2.20.0 because its break points diverged from what actually rendered — roll your own line-breaking over `measureText` for off-component needs.
 
 `measureText` shapes Arabic text via `ArabicShaper` before measuring, so it returns the correct visual width for Arabic runs.
 

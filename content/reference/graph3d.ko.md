@@ -6,7 +6,7 @@ weight = 44
 
 # `@vectojs/graph3d`
 
-문서 버전: **0.6.0**
+문서 버전: **0.6.1**
 
 VectoJS용 3D 힘-기반 그래프 시각화: 플러그 가능한 `GraphLayout` 계약(worker 친화적, 하나의 평평한 `Float32Array`로 위치 지정)과 `Graph3D`(인스턴싱된 Three.js 렌더러로 노드 수와 관계없이 정확히 두 번의 드로 콜로 그래프를 그립니다). 움직이는 77개 노드/254개 링크 데이터셋의 표준 [Les Misérables 데모](/demos/graph3d/)를 확인하세요.
 

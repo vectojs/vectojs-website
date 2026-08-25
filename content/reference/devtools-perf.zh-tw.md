@@ -135,7 +135,9 @@ VectoJS 的 WASM 核心是不可見的後端 — JS 是永久的回退，因此�
 | `not-applicable` | 沒有這種類型的工作要做。                       | 否         |
 | `rejected`       | 已安裝、通過門控，然後核心**拒絕了它的參數**。 | **是**     |
 
-`faulted` 恰好是 `reason === 'rejected'`，而 `auditAccelerators` 只回報這些。這是刻意的：保持關閉的門控是系統如預期運作，回報它會訓練您忽略稽核。健康的場景與完全 JS 的場景，稽核起來都是乾淨的。
+對於動畫加速器，按類別的判定會指明是哪一類驅動器拒絕了：當一個動畫核心拒絕某一幀而另一個仍透過 WASM 步進時，`reason` 會回報 `springs-rejected` 或 `tweens-rejected`（且 `activeThisFrame: true`，因為一半的工作已經執行）。單純的 `rejected` 保留給兩類都拒絕的情況。
+
+`faulted` 恰好是 `reason === 'rejected'`（包括按類別判定），而 `auditAccelerators` 只回報這些。這是刻意的：保持關閉的門控是系統如預期運作，回報它會訓練您忽略稽核。健康的場景與完全 JS 的場景，稽核起來都是乾淨的。
 
 `rejected` 表示核心已安裝、通過其門控，然後什麼都沒寫，幀回退到 JS — 這是上游的尺寸或容量錯誤，而非調整的結果。
 

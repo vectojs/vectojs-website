@@ -36,7 +36,7 @@ interface DevtoolsTreeNode {
 
 `label` 為 `` `${type} (${x},${y}) ${W}×${H} ⚡ ▶` `` — 當兩個維度皆為 0 時會省略尺寸，而兩個徽章分別只在 `interactive` 與 `hasPendingAnimations()` 為真時出現。
 
-`pickInScene` 正是您處理「哪個實體擁有這個像素」時要用的函式。它**先檢查 overlay 樹**，然後才是主樹，因此開啟的 modal 會正確勝過其後的內容。`findEntityAt` 是底層的單樹基本操作：它以相反的順序、由最深處優先走訪子節點，因此會回傳最上層繪製的命中結果；當 `isPointInside` 回傳否時，它會回退到 AABB 測試 — 這意味著裝飾性、非互動的實體仍然可以被選取。
+`pickInScene` 正是您處理「哪個實體擁有這個像素」時要用的函式。它**先檢查 overlay 樹**，然後才是主樹，因此開啟的 modal 會正確勝過其後的內容。`findEntityAt` 是底層的單樹基本操作：它以相反的順序、由最深處優先走訪子節點，因此會回傳最上層繪製的命中結果；並且 —— 與引擎的 `HitTester` 一致且本身沒有回退 —— 只有當實體自身的 `isPointInside` 接受該點時它才勝出。因此裝飾性或被裁剪的實體會解析為其背後的實體，與真實點擊的行為完全一致。
 
 > [!IMPORTANT]
 > `findEntityAt` 會測試您傳入的實體及其後代，因此傳入場景根節點可能會回傳該根節點本身。`pickInScene` 是較安全的預設選擇。

@@ -45,9 +45,15 @@ interface PropertyDriver {
 }
 ```
 
-- **`TweenDriver(from, to, config: TweenConfig)`** —— 在 `duration` 毫秒内从 `from` 到 `to` 进行缓动插值，可带可选的 `delay`。`retarget()` 从当前值重新启动补间。
+- **`TweenDriver(from, to, config: TweenConfig)`** —— 在 `duration` 毫秒内从 `from` 到 `to` 进行缓动插值，可带可选的 `delay`。`retarget()` 更改目标而不会重新计收已消耗的延迟：各段在单调流逝时钟上运行（初始延迟期间的重新定位仍只需等待剩余部分），因此快速的连续重新定位不会让动画无限期饿死。
 - **`SpringDriver(from, to, config?: SpringConfig)`** —— 质量-弹簧-阻尼器积分（由 `@vectojs/math` 的 `SpringPhysics` 支持）。`retarget()` 保留速度，因此中途重定目标是无缝连续的。`target` 在完成时被**精确**应用，而不是在静止容差范围内。
 - `syncExternal(value, extra)` 采纳在其他地方推进的状态（例如 WASM 批处理 tick）：对于弹簧 `extra` 是速度，对于补间是已流逝的毫秒数——调用之后，`value`/`tick()`/`isDone()`/`retarget()` 都保持正确。
+
+**响亮的构造与 tick 防护。** 静默配置错误的驱动器永远不会收敛，并会让等待其完成的每个 `await` 挂起：
+
+- `TweenDriver` 在构造时拒绝未知的缓动名称字符串（它们过去会在第一次 tick 时因裸 `TypeError` 而崩溃），并且 `tick(dt)` 会忽略 NaN、零和负 dt —— 流逝时钟永远不会被污染，WASM 批处理补间内核以相同方式拒绝相同的步进，因此两个引擎都会在下一个有效帧恢复。
+- `SpringDriver` 在构造时拒绝非有限或非正的 `stiffness`/`damping`/`mass`，而不是静默回退到物理默认值 —— 这样的弹簧会发散或永不收敛。
+- `isTweenConfig(null)` 返回 `false`；这个判别器的存在就是为了处理不可信的运行时配置。
 
 ## Easing
 

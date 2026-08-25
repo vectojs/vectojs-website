@@ -20,7 +20,7 @@ Les paragraphes et titres deviennent des `RichText`, le code délimité devient 
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Démonstration live de Markdown" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.39.0-ui-2.20.1" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Démonstration live de Markdown" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>Lʼéchantillon conserve prose, liens, code en ligne et un bloc délimité dans une seule zone dʼaffichage ciblée afin que les défauts de mise en page soient visibles.</figcaption>
 </figure>
 
@@ -89,6 +89,16 @@ markdown.setOptions({
 
 Une clé par type omise hérite du `copy`/`download` de niveau supérieur, qui héritent à leur tour de `true`. Les blocs de code peuvent en outre être entourés d'une bordure en définissant `theme.codeBorderColor` (facultatif ; non défini conserve le rendu précédent sans bordure) — utile sur des fonds de page clairs où le remplissage du code se fond.
 
+## Thématisation : `setTheme()`
+
+```ts
+markdown.setTheme(theme: MarkdownThemePresetName | Partial<MarkdownTheme>): this
+```
+
+Échange la palette et re-rend le document (`0.23.0+`). Accepte un nom de préréglage — `'githubDark' | 'githubLight' | 'dracula' | 'solarizedDark' | 'solarizedLight'` — ou un objet de thème partiel ne contenant que les clés à changer, avec les mêmes formes que l'option `theme` du constructeur. Les entités capturent couleurs, polices et tailles au moment de la construction : il n'y a donc pas de repeinture en direct des blocs existants ; le re-rendu passe par `setContent`, qui reporte aussi le nouveau `blockGap` sur la pile de contenu.
+
+L'affectation directe à `markdown.theme` est une erreur de compilation et lève désormais aussi à l'exécution pour les appelants JS — affecter après la construction peignait une partie du document dans chaque palette. Passez la palette à la construction ou appelez `setTheme()`.
+
 ## Largeur responsive : `setMaxWidth()`
 
 ```ts
@@ -125,7 +135,12 @@ caractère supplémentaire transmis à l'analyseur lexical.
 
 Sans changement de largeur, l'appel ne fait rien : un redimensionnement en
 hauteur seule ne coûte donc rien et l'appelant n'a pas besoin de garde. Une
-largeur négative est bornée à 0.
+largeur négative est bornée à 0. Avec `blockAffordances: true`, les blocs de code
+et les tableaux arrivent enveloppés dans une coque d'affordances — le reflow
+regarde à travers l'enveloppe, redimensionne le bloc interne et rafraîchit ses
+contrôles, si bien que les blocs enveloppés suivent la nouvelle largeur comme tout
+le reste (`0.23.0+` ; auparavant ils conservaient silencieusement l'ancienne
+largeur).
 
 > [!NOTE]
 > Avant `0.9.0`, le seul contournement correct était une reconstruction
@@ -142,7 +157,7 @@ la largeur disponible, donc l'étirer déformerait la formule. Le code délimit�
 n'est pas ré-enroulé non plus — il a une grille monospace fixe et les lignes
 longues débordent par conception — seul son arrière-plan est redimensionné.
 
-L'appeler depuis un rappel [`onStable`](#achèvement-unique--onstable) lève une exception, pour la
+L'appeler depuis un rappel [`onStable`](#le-rappel-unique-onstable) lève une exception, pour la
 même raison que `setContent()` : ce rappel s'exécute à l'intérieur du commit
 qu'il invaliderait.
 
@@ -248,6 +263,11 @@ borné, pas à l'affichage. Quand la capacité est insuffisante, une écriture a
 une autre écriture pendant que cet attendant existe est rejetée, si bien qu'un
 producteur qui ignore la contre-pression ne peut pas faire croître une file non bornée.
 
+Le règlement de `close()` est observé exactement une fois : si le hook de fermeture
+de l'hôte a levé ou rejeté, un `close()` réitéré rapporte l'échec d'origine au lieu
+de se résoudre via le court-circuit fermé (`0.23.0+` — les réessais après une
+fermeture réussie se résolvent toujours).
+
 `pacing.graphemesPerSecond` ajoute une cadence de machine à écrire fixe en temps réel
 tout en conservant le plafond d'une validation par trame. `Intl.Segmenter` garde
 ensemble les séquences combinantes ordinaires, les clusters ZWJ d'emoji, les drapeaux
@@ -278,7 +298,7 @@ Le mode est interprété par `Markdown`, et non par le contrôleur : le contrôl
 gère la mise en mémoire tampon et le rythme, tandis que la prédiction est une transformation au moment du rendu sur le
 paragraphe de fin.
 
-### Achèvement unique : `onStable`
+### Le rappel unique `onStable`
 
 ```ts
 const stream = markdown.createStream({

@@ -58,7 +58,10 @@ interface PropertyDriver {
 
 - **`TweenDriver(from, to, config: TweenConfig)`** — interpolation avec courbe
   d'accélération de `from` à `to` sur `duration` ms, avec un `delay` optionnel.
-  `retarget()` redémarre le tween à partir de la valeur actuelle.
+  `retarget()` change la destination sans re-facturer un délai déjà consommé :
+  les segments s'exécutent sur l'horloge monotone du temps écoulé (un reciblage
+  pendant le délai initial n'attend toujours que la partie restante), donc des
+  reciblages rapides ne peuvent pas affamer une animation indéfiniment.
 - **`SpringDriver(from, to, config?: SpringConfig)`** — intégration
   masse-ressort-amortisseur (basée sur `SpringPhysics` de `@vectojs/math`).
   `retarget()` conserve la vélocité, donc un reciblage en cours de vol est
@@ -68,6 +71,21 @@ interface PropertyDriver {
   WASM groupé) : `extra` est la vélocité pour un ressort, les ms écoulées pour
   un tween — après l'appel, `value`/`tick()`/`isDone()`/`retarget()` restent
   tous corrects.
+
+**Construction bruyante et gardes de tick.** Un driver mal configuré en silence
+ne se stabilise jamais et fait pendre chaque `await` sur sa complétion :
+
+- `TweenDriver` rejette à la construction les noms d'easing inconnus (ils
+  plantaient autrefois avec un simple `TypeError` au premier tick), et
+  `tick(dt)` ignore les NaN, zéro et les dt négatifs — l'horloge écoulée n'est
+  jamais empoisonnée, et le noyau WASM des tweens groupés décline les mêmes pas
+  de la même façon, donc les deux moteurs se rétablissent à la prochaine image
+  valide.
+- `SpringDriver` rejette à la construction des `stiffness`/`damping`/`mass` non
+  finis ou non positifs au lieu de retomber silencieusement sur les défauts
+  physiques — de tels ressorts divergent ou ne se stabilisent jamais.
+- `isTweenConfig(null)` retourne `false` ; le discriminateur existe pour traiter
+  des configurations d'exécution non fiables.
 
 ## Easing
 

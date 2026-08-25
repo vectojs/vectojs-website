@@ -14,7 +14,7 @@ weight = 14
 
 <figure class="sandbox component-demo">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · Markdown</span></div>
-  <iframe src="/sandbox/ui/markdown.html?v=core-1.32.0-ui-2.13.0" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe src="/sandbox/ui/markdown.html?v=core-1.39.0-ui-2.20.1" class="sandbox-frame component-demo-frame component-demo-frame-xl" loading="eager" title="Markdown live demo" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <figcaption>このサンプルは、プロース、リンク、インラインコード、フェンス付きブロックを1つの集中したビューポートに保つため、レイアウトの欠陥が見えるようになっています。</figcaption>
 </figure>
 
@@ -73,6 +73,16 @@ markdown.setOptions({
 
 省略された種類キーはトップレベルの `copy`/`download` を継承し、それらは `true` を継承します。コードブロックにはさらに、`theme.codeBorderColor` を設定することで境界線を付けることもできます（任意；未設定の場合は従来の境界線なしの描画を維持）— コードの塗りが埋もれてしまいがちな明るいページ背景で役立ちます。
 
+## テーマ設定: `setTheme()`
+
+```ts
+markdown.setTheme(theme: MarkdownThemePresetName | Partial<MarkdownTheme>): this
+```
+
+パレットを切り替えてドキュメントを再レンダリングします（`0.23.0+`）。プリセット名 —— `'githubDark' | 'githubLight' | 'dracula' | 'solarizedDark' | 'solarizedLight'` —— または、変更したいキーだけを含む部分テーマオブジェクト（コンストラクタの `theme` オプションと同じ形状）を受け付けます。エンティティは構築時に色・フォント・サイズをキャプチャするため、既存ブロックがライブで再描画されることはありません。再レンダリングは `setContent` 経由で行われ、新しい `blockGap` もコンテンツスタックに運ばれます。
+
+`markdown.theme` への直接代入はコンパイル時エラーであり、現在は JS 呼び出しに対しても実行時にスローされます。構築後の代入は、かつてドキュメントの一部を各パレットで塗ってしまうことがありました。パレットは構築時に渡すか、`setTheme()` を呼び出してください。
+
 ## レスポンシブな幅: `setMaxWidth()`
 
 ```ts
@@ -96,7 +106,7 @@ window.addEventListener('resize', () => {
 
 5 ブロックのドキュメントで両エンジンで実測: 520 → 260 px で投影行数が 2 → 4、高さが 88 → 160 になり、同じ 2 つの段落インスタンス上で、ライターは `open` のまま、字句解析器に渡された文字数の増加は**ゼロ**でした。
 
-幅が変わらない場合は何もしないので、高さだけのリサイズにコストはかからず、呼び出し側がガードを書く必要もありません。負の幅は 0 にクランプされます。
+幅が変わらない場合は何もしないので、高さだけのリサイズにコストはかからず、呼び出し側がガードを書く必要もありません。負の幅は 0 にクランプされます。`blockAffordances: true` の場合、コードブロックとテーブルはアフォーダンスシェルに包まれて届きます。再フローはそのラッパーを見通して内側のブロックをリサイズし、そのコントロールを更新するため、包まれたブロックも他と同じように新しい幅に追従します（`0.23.0+`。それ以前は黙って古い幅を保持していました）。
 
 > [!NOTE]
 > `0.9.0` より前は、唯一正しい回避策は完全な再構築でした——ストリームを解放し、開示済みのソースを `setContent()` で再生し、新しいライターを開き、スクロール位置を手作業で引き継ぐ。これはドキュメントを正しく再現するため、そのまま残りやすかったのです: 再構築でも正しいジオメトリは得られます。その代償が、リサイズごとのドキュメント全体の再字句解析と、すべてのエンティティインスタンスでした。
@@ -186,6 +196,10 @@ interface StreamController {
 容量が不足している場合、1つの write が待機します。その待機者が存在する間の別の write は
 拒否されるため、バックプレッシャーを無視するプロデューサーがキューを無限に伸ばすことは
 できません。
+
+`close()` の決着は正確に 1 回だけ観測されます。ホストの close フックがスローや拒否をした
+場合、再試行された `close()` は閉じ済みショートサーキットで解決するのではなく、元の失敗を
+報告します（`0.23.0+`。成功した close の後の再試行は従来どおり解決します）。
 
 `pacing.graphemesPerSecond` は、1フレーム1コミットの上限を保ちながら、実時間で固定の
 タイプライター的ペーシングを加えます。`Intl.Segmenter` は通常の結合シーケンス、絵文字の

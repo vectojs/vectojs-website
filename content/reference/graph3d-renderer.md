@@ -9,7 +9,7 @@ weight = 46
 Part of [`@vectojs/graph3d`](/reference/graph3d/). Consumes a
 [`GraphLayout`](/reference/graph3d-layout/)'s `positions` buffer.
 
-Version documented: **0.6.0**
+Version documented: **0.6.1**
 
 ## `Graph3D` — the renderer
 

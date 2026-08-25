@@ -141,17 +141,20 @@ scene.forcedColors: boolean             // getter — OS is in a forced-colors m
 
 **Acelerador automático por inactividad (el problema clave).** Una escena se considera **estática** cuando
 no está sucia Y ningún nodo en el árbol principal/de superposición tiene un tween `animate()` pendiente.
-En modo `'always'` con `maxFPS > 0`, una escena estática se acelera a
-**~2 fps** para ahorrar batería/GPU. La bandera `dirty` se restablece a `false` al final
-de cada fotograma renderizado (post-renderizado), por lo tanto:
+En modo `'always'` con `maxFPS > 0`, una escena estática se acelera al **suelo de inactividad** —
+**60 fps desde `1.36.0`** (configurado por `idleFPS`), antes eran 2 fps estrictos — para ahorrar batería/GPU.
+Establece `autoThrottle: false` (opción o `scene.autoThrottle` en vivo) para desactivar por completo el
+acelerador, o `idleFPS: 2` para restaurar el sueño agresivo original. La bandera `dirty` se consume al
+_inicio_ de cada fotograma renderizado, de modo que un `markDirty()` emitido dentro de `update()`
+sobrevive hasta la comprobación estática del siguiente fotograma:
 
-> Si animas manualmente mutando `entity.x` etc. dentro de un `update()` personalizado,
-> llamar a `markDirty()` **dentro** de `update()` no ayuda — el restablecimiento post-renderizado
-> lo limpia, y el chequeo estático del siguiente fotograma ve `dirty === false` y
-> te acelera a 2 fps. O impulsas el movimiento a través de [`entity.animate()`](/reference/core-entity/#animación)
-> (que mantiene la escena no estática mientras el tween se ejecuta), o llamas a `scene.markDirty()`
-> **entre** fotogramas (desde un manejador de eventos, un `rAF` separado o un temporizador) para que la
-> bandera sobreviva hasta la siguiente iteración del bucle.
+> El movimiento animado manualmente (mutando `entity.x` etc. dentro de un `update()` personalizado)
+> es invisible para el chequeo estático si no lo informas — impúlsalo a través de
+> [`entity.animate()`](/reference/core-entity/#animación) (que mantiene la escena no estática mientras
+> el tween se ejecuta), sobrescribe `hasPendingAnimations()` para que devuelva `true` mientras tu
+> integrador está en marcha, o llama a `scene.markDirty()` cada fotograma desde tu `update()`
+> (lo cual rearma el siguiente fotograma). De lo contrario, la escena cae en inactividad hasta el
+> suelo del acelerador y tu movimiento se arrastra.
 
 `effectiveMaxFPS` = `maxFPS`, reducido además a 30 (`REDUCED_MOTION_FPS`) cuando el SO solicita movimiento reducido y `respectReducedMotion` está activado. `0` significa sin límite.
 
@@ -275,6 +278,51 @@ de inicio/fin con nombres únicos que se liberan en `endVectoUserTiming`.
 `measureVectoUserTiming` emite una medida anclada en el tiempo actual para una
 duración acumulada a partir de llamadas no solapadas — la vía que reporta los
 totales de pintado de entidad por fotograma sin instrumentar cada entidad.
+
+### Backends aceleradores WASM
+
+Los cuatro puntos calientes de cómputo pueden ejecutarse en WebAssembly. Cada
+uno tiene una instalación/limpieza síncrona (`set*Backend`) y un intercambio en
+caliente asíncrono (`enableWasm*`) que instancia el módulo y retrocede a JS si
+falla — **el fallo es el estado predeterminado, nunca una ruta de error**. Las
+formas `enable*` aceptan una cadena URL, `URL`, `Response` o bytes crudos.
+
+```ts
+await scene.enableWasmTransforms(new URL('./vectojs_core.wasm', import.meta.url)); // transforms (render walk)
+await scene.enableWasmHitTest(source);    // hit-testing
+await scene.enableWasmAnimBatching(source); // animation driver batching
+await scene.enableWasmParticles(source);  // CPU particle simulation fallback
+scene.setTransformBackend(backend | null); scene.setHitTestBackend(...);
+scene.setAnimBackend(...); scene.setParticleBackend(...);  // synchronous swap/clear
+scene.wasmRuntime: CoreWasmRuntime | null  // getter — loaded runtime, or null
+scene.particleSimBackend: 'js' | 'wasm'    // getter — which backend runs the CPU particle sim
+```
+
+Que un backend realmente **ejecutó** este fotograma es una cuestión aparte de si
+está instalado — el `inspectAccelerators()` de `@vectojs/devtools` reporta
+`activeThisFrame` por backend, incluido el veredicto `'below-gate'` cuando JS es
+genuinamente más rápido. El módulo wasm lo construye `just wasm` en el monorepo
+y se envía desde `crates/vectojs-core-rs/` (el `.wasm` nunca se commitea; se
+construye en CI y se publica en npm).
+
+Estos kernels siguen un contrato de fallo único, compartido número a número con
+`vectojs-force-rs`:
+
+- **Un fallo de asignación devuelve un estado en lugar de trabarse.** Cada
+  `*_init` prepara sus asignaciones y, cuando el asignador rechaza, libera el
+  conjunto parcial y reporta `STATUS_OVERFLOW`, de modo que quien llama desde JS
+  retrocede a su ruta de referencia llamada a llamada. Un fallo de asignación
+  antes abortaba toda la instancia bajo `panic = "abort"` — incapturable desde
+  JS.
+- **La entrada basura declina en lugar de envenenar.** El kernel de tweens por
+  lotes rechaza NaN, cero y los `dt` negativos exactamente como
+  `TweenDriver.tick` (`STATUS_OK`, nada escrito), así que un fotograma malo no
+  puede atascar un tween para siempre; los tweens completados aterrizan bit a
+  bit en el valor terminal del driver JS.
+- **La selección de kernel sondea las exportaciones.** Los puntos de entrada
+  SIMD (`compute_aabbs_simd`, `compose_simd`) se sondean antes de usarse; un
+  módulo cacheado obsoleto que precede a una exportación degrada a la ruta
+  escalar bit-idéntica en lugar de lanzar a mitad de renderizado.
 
 ## Registro de backends conectables (estático)
 

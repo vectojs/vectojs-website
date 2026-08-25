@@ -35,10 +35,11 @@ applyStyle(stack, style({ flexDirection: 'row', gap: '8px', alignItems: 'center'
 ## 导出
 
 - `style()` —— 将对象字面量类型化为 `Style` 的恒等工厂。
-- `css(...styles)` —— 合并工厂（0.2.0）：后面的源胜出；`null`、`undefined`、`false` 源会被跳过，因此变体可以是条件式的。输入不会被修改。
+- `css(...styles)` —— 合并工厂（0.2.0）：后面的源胜出；`null`、`undefined`、`false` 源会被跳过，因此变体可以是条件式的。输入不会被修改——按轴的 `padding` 对象也会被复制，因此“全新普通对象”契约对嵌套值同样成立。
 - `applyStyle(entity, style)` —— 写入映射后的字段，返回 `{ applied: string[] }`（实际写入的 CSS 键，按对象顺序）。
 - `tokens(set)` —— 从扁平 token 集合创建一个 `Theme`。
 - `setTheme(theme)` / `getTheme()` —— 切换/读取当前主题；引用 `var()` 的样式在切换时会重新解析并重新应用。
+- `untrackVarStyles(entity)` —— 立即丢弃该实体的 `var()` 跟踪（0.3.x）；在销毁清理中调用它以确定性地释放，而不是等待下一次主题切换时的弱引用清扫。
 - `PRESET_THEMES` —— `light`（默认主题）、`dark`、`github`、`dracula` token 集合。
 - `Style` —— 样式接口。所有键都是可选的。
 - `composeFont(current, changes)` —— 重新组合一个 CSS font 简写字符串（参见 [字体组合](#字体组合)）。
@@ -78,8 +79,9 @@ setTheme(theme);
 applyStyle(btn, style({ backgroundColor: 'var(--accent)', borderRadius: 'var(--radius-md)' }));
 ```
 
-- `var(--key)` 在值转换器运行之前，针对当前主题的 token 进行**精确**（整体字符串）解析，因此一个 token 可以保存颜色、px 字符串或裸数字。未知的 token 会抛出异常并带有其名称。
-- 引用 token 的样式会被**跟踪**（每个主题一个 WeakMap——无泄漏），并在 `setTheme(next)` 切换时重新应用，因此主题切换无需调用方做任何改动就能为整个场景重新着色。不含 `var()` 的样式不会被跟踪。如果某个 token 值在切换时无法通过映射属性的校验（例如 `--radius-md: "50%"`），`setTheme` 会抛出异常。
+- `var(--key)` 在值转换器运行之前，针对当前主题的 token 进行解析，因此一个 token 可以保存颜色、px 字符串或裸数字。整体字符串引用（`backgroundColor: "var(--accent)"`）精确解析；嵌入在更大字符串中的引用（`color: "rgba(var(--rgb), 0.4)"`) 通过替换解析，token 引用 token 的链会借助基于路径的环检测传递解析，并且引用键会被跟踪，以便主题切换时重新解析组合值。未知的 token 会连同其名称一起抛出异常；环也是如此，并附上违规链。
+- `var(--token, fallback)` **没有回退解析**，也绝不会静默通过：无论该形式从何处抵达（直接值、嵌入复合字符串中、padding 轴内或通过 token 链），都会被检测到并抛出指明违规值的 `TypeError`。检测器容忍 `var(` 之后的空白，因此 `var( --accent, #fff)` 同样会被捕获。静默正是缺陷所在：未解析的字符串曾会抵达映射字段，而 Canvas2D 悄悄保留了上一次的绘制。
+- 引用 token 的样式会按主题被**跟踪**（被销毁的实体不再被保留——跟踪以弱引用持有它们，并提供 `untrackVarStyles(entity)` 用于销毁清理中的即时释放），并在 `setTheme(next)` 切换时重新应用，因此主题切换无需调用方做任何改动就能为整个场景重新着色。不含 `var()` 的样式不会被跟踪。如果某个 token 值在切换时无法通过映射属性的校验（例如 `--radius-md: "50%"`），`setTheme` 会抛出异常。
 - 默认主题是 `light` 预设；`tokens()` 集合是普通对象，因此调用方的主题是一个展开：`tokens({ ...PRESET_THEMES.dark, accent: "#f00" })`。
 
 ## 字体组合
@@ -104,6 +106,8 @@ composeFont(
 ```
 
 `composeFont` 解析一个 CSS font 简写，只替换 `changes` 中存在的片段并重新组合；缺失的大小/字体会用 `16px` / `sans-serif` 填充，因此结果始终是一个有效的 canvas 字体字符串。
+
+解析器理解完整的 canvas 前缀语法（`[style || variant || weight]? size[/line-height]? family`），因此 `italic 700 16px Georgia` 和 `16px/24px Inter` 都能正确组合，且后续片段变更不会重新组合出无效字符串——无法安放的大小样片段会显式失败而不是悄悄通过。在 weight 槽位取得第一个 `normal` 之后（这是有文档记载的兼容选择），后续的 `normal` 依次填充 style 和 variant，因此合法的 CSS 形式 `normal normal 16px Inter` 会被解析而不是抛出异常。`fontSize` 在运行时强制其 `${number}px` 形状：经由 token 或 JS 调用者到达的非 px 单位会抛出异常，而不是悄悄组成一个 Canvas2D 会丢弃的简写。
 
 ## 语义
 

@@ -6,7 +6,7 @@ weight = 47
 
 # `@vectojs/video-exporter`
 
-文件版本：**0.2.3**
+文件版本：**0.2.4**
 
 `@vectojs/video-exporter` 在無頭 Chromium 中以固定的時間步長驅動 VectoJS 場景，將其 canvas 捕獲為 PNG 幀，並將這些幀傳送給 FFmpeg 進行 H.264 MP4 編碼。
 
@@ -74,6 +74,8 @@ await exportVideo({
 ```
 
 渲染的頁面必須將一個已啟動或可啟動的 VectoJS Scene 公開為 `window.vectoScene`。匯出器最多等待 10 秒，需要可呼叫的 `stop()` 和 `step(dt)` 方法，然後以固定步長推進它。第一個 `<canvas>` 會被調整為請求的輸出維度並捕獲。
+
+**場景重置契約（`0.2.4+`）。** 在頁面載入與 `stop()` 之間，頁面自身的 rAF 迴圈自由執行，因此牆鐘狀態（入場補間、緩動進場）在擷取開始時已是任意的，之後的每一幀都只是從這個非確定性基線出發才可確定。匯出器現在會在 `stop()` 之後立即呼叫一次 `window.vectoScene` 上可選的 `reset()`，在第 0 幀被步進或擷取之前。渲染保持靜態直到第一次 `step(dt)` 的場景不受影響，無需 `reset()`；攜帶載入時狀態的場景**必須**公開它以回到其 t=0 呈現。沒有 `reset()` 的場景按原樣匯出。
 
 ```typescript
 const scene = new Scene(document.querySelector('canvas')!);
