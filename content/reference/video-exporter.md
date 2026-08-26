@@ -15,6 +15,7 @@ Version documented: **0.2.4**
 - **Fixed-step scene control**: Stops the normal Scene loop and calls `scene.step(1000 / fps)` before each capture. This makes the requested simulation time deterministic; it does not guarantee that application code using unrelated clocks, network input, or randomness is deterministic.
 - **PNG image pipe**: Calls `canvas.toDataURL('image/png')` in Chromium, decodes the base64 result in Node, and writes each PNG to FFmpeg's stdin.
 - **Standard MP4 output**: Uses FFmpeg's `libx264` encoder and `yuv420p` pixel format.
+- **Optional audio muxing (`0.3.0+`)**: Attaches an external audio file as an AAC track, trimmed to the video length. Exports stay silent without it.
 - **Local source helper**: For a local module path, starts an embedded Vite server and serves an in-memory HTML entry without modifying the source directory. Hosted HTTP(S) pages are also accepted.
 - **Atomic output**: Encodes to a unique file beside the destination and replaces the requested MP4 only after FFmpeg exits successfully. Failed or aborted exports preserve an existing destination.
 - **Deterministic cleanup**: Stops progress output, terminates FFmpeg, closes Chromium and Vite, and removes staged files on success, failure, or abort.
@@ -57,6 +58,7 @@ bunx vecto-export http://localhost:5173 -o output.mp4 -f 60 -d 5
 - `-h, --height` : Height in pixels (default: 720)
 - `-f, --fps` : Frames per second (default: 60)
 - `-d, --duration`: Duration in seconds (default: 5)
+- `-a, --audio` (`0.3.0+`): Audio file to mux into the export (encoded as AAC)
 
 ## Internal API Usage
 
@@ -85,6 +87,24 @@ scene.start();
 ```
 
 The frame count is `Math.ceil(fps × duration)`. If FFmpeg exits non-zero, the Promise rejects with a bounded stderr tail. Errors distinguish validation, Vite, Chromium/page contract, capture, FFmpeg, output commit, and cleanup phases.
+
+## Audio (`0.3.0+`)
+
+Pass `audioPath` in the API (or `-a, --audio <file>` in the CLI) to mux an audio track into the export:
+
+```typescript
+await exportVideo({
+  url: 'my-animation.ts',
+  outputPath: 'out.mp4',
+  width: 1280,
+  height: 720,
+  fps: 60,
+  duration: 6,
+  audioPath: 'voice.wav', // encoded as AAC, trimmed to the video length
+});
+```
+
+The track is encoded with AAC at 192 kbps and `-shortest` trims it to the video length, so an over-long audio file never extends the export. A missing or non-file path is rejected during option validation, before Chromium launches. The canvas capture pipeline itself never produces sound: exports stay silent unless `audioPath` is provided.
 
 ## Cancellation and process signals
 
