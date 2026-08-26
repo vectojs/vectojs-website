@@ -393,7 +393,7 @@ class TrackedText extends Entity {
   public cx = 0;
   constructor(
     private get: () => string,
-    private font: string,
+    public font: string,
     public color: string,
     private tracking: number,
     private measure: (s: string, font: string) => number,
@@ -664,11 +664,22 @@ export function buildHeroSection(opts: HeroSectionOptions): () => void {
     const titleBaseline = h * 0.46;
     title.place(cx, titleBaseline, titleSize);
 
+    // Vertical lockup. The subtitle's font must shrink with the fitted title —
+    // a fixed 19px face next to a fit-to-width title left the two lines
+    // overlapping on long locales, and any zoom/DPR change that shrank the
+    // viewport (titleSize ∝ width) densified the collision further. The offset
+    // is explicit ink math: title descender band + subtitle ascent + a daylight
+    // floor (8px, growing with the title) — the old 0.42×titleSize rhythm was
+    // smaller than that ink sum at fit-to-width sizes, which is the overlap.
+    const subtitleSize = Math.round(Math.max(13, Math.min(19, titleSize * 0.34)));
+    subtitle.font = `600 ${subtitleSize}px Inter, sans-serif`;
+    const daylight = Math.max(8, titleSize * 0.18);
+    const subtitleOffset = titleSize * 0.24 + subtitleSize * 0.75 + daylight;
     subtitle.cx = cx;
-    subtitle.setPosition(0, titleBaseline + titleSize * 0.42);
+    subtitle.setPosition(0, titleBaseline + subtitleOffset);
 
     const gap = 16;
-    const ctaY = titleBaseline + titleSize * 0.42 + 56;
+    const ctaY = titleBaseline + subtitleOffset + subtitleSize + 40;
     const ctaW = galleryBtn.width + gap + githubBtn.width;
     galleryBtn.setPosition(cx - ctaW / 2, ctaY);
     githubBtn.setPosition(cx - ctaW / 2 + galleryBtn.width + gap, ctaY);
