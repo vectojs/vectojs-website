@@ -16,7 +16,7 @@
     "lint": "oxlint --deny-warnings src",
     "lint:md": "markdownlint-cli2 \"content/**/*.md\"",
     "check": "bun run format:check && bun run lint",
-    "deploy": "bun run check && bun run build && wrangler pages deploy public/ -y",
+    "deploy": "bun run check && bun run build && wrangler pages deploy public/",
     "prepare": "lefthook install"
   },
   "dependencies": {
