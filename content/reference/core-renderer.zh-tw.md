@@ -71,7 +71,7 @@ GPU 重設或記憶體壓力驅逐會奪走繪圖上下文；如果不處理，�
 2. 回報 `isContextLost() === true`，讓 `Scene.render` 跳過渲染傳遞，而非對著失效的上下文發出繪圖呼叫；
 3. 在恢復時重新取得上下文、重新套用 DPR 變換/尺寸，並觸發 `onContextRestored` 回呼，讓 Scene 重新繪製新清空的影格緩衝區。
 
-`CanvasRenderer` 為 Canvas2D 執行此操作，`ThreeRenderer` 為 WebGL 執行此操作 — 請參閱 [`@vectojs/three`](/reference/three-renderer/#gpu-上下文遺失與運行時-dpr)。
+`CanvasRenderer` 為 Canvas2D 執行此操作，`ThreeRenderer` 為 WebGL 執行此操作 — 請參閱 [`@vectojs/three`](/reference/three-renderer/#gpu-shang-xia-wen-yi-shi-yu-yun-xing-shi-dpr)。
 
 `fillCircle` 將連續相同 `color`/`alpha` 的呼叫合併為一個路徑，
 在 `flush()` 時提交（或當樣式改變時）。Scene 在每個
@@ -207,7 +207,7 @@ Firefox 缺失字型回退度量；自訂 resize/zoom 擁有者必須呼叫
 轉換後的二維字素游標幾何。
 
 `present()` 由 Scene 在每個渲染傳遞結束時精確呼叫**一次**。
-一次性提交整個幀的保留後端（例如來自 [`@vectojs/three`](/reference/three-renderer/#gpu-上下文遺失與運行時-dpr) 的 `ThreeRenderer`）
+一次性提交整個幀的保留後端（例如來自 [`@vectojs/three`](/reference/three-renderer/#gpu-shang-xia-wen-yi-shi-yu-yun-xing-shi-dpr) 的 `ThreeRenderer`）
 應在此處進行其單次昂貴提交，並保持 `flush()` 輕量 —
 Scene 會在每個非批次節點周圍呼叫 `flush()`，因此昂貴的 `flush()`
 會使幀成本與實體數量成二次方關係。
@@ -287,7 +287,7 @@ interface PointRenderer {
 一般 renderer。
 
 > Entity 掛鉤 `getBatchCircle()` → `{ radius, color }` 和 `getBatchRect()` →
-> `{ width, height, color }`（請參閱 [`Entity`](/reference/core-entity/#a11y--批次處理掛鉤覆寫以啟用)）
+> `{ width, height, color }`（請參閱 [`Entity`](/reference/core-entity/#a11y-pi-ci-chu-li-gua-gou-fu-xie-yi-qi-yong)）
 > 是提供此圖層的每個實體選擇性啟用機制。
 
 `flush()` **每種圖元類型最多一次繪製呼叫**，因此繪製呼叫次數不是擴充限制 —— 上傳的位元組數才是。自 core 1.16.2 起，每個四邊形批次（矩形、sprite、字形、圓形）上傳 **4 個頂點**，並使用 `drawElements` 針對一個共享的靜態 32 位元索引緩衝區進行繪製，而不是擴充為 6 個頂點交給 `drawArrays`。這移除了每個四邊形重複的兩個角點，將上傳量減少了三分之一；索引緩衝區構建一次並按幾何級數增長，每幀從不重新傳送。索引是 32 位元的，因為 `Uint16Array` 會將批次限制在 16,383 個四邊形，而實際場景會超過這個數值。

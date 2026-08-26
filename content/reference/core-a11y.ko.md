@@ -12,7 +12,7 @@ weight = 10
 노드**를 투영합니다(캔버스 위에 위치, `pointerEvents:auto`로
 자동화/AT가 상호작용 가능; `debugA11y`가 아닌 이상 `opacity:0`). 각 노드는
 `id` + `data-vecto-id`와
-[`Entity.getA11yAttributes()`](/reference/core-entity/#a11y--배치-훅-오버라이드하여-옵트인)의
+[`Entity.getA11yAttributes()`](/reference/core-entity/#a11y-baeci-hug-obeoraideuhayeo-obteuin)의
 role/label/state를 전달합니다.
 
 투영 루트는 캔버스 CSS 박스를 추적합니다: 캔버스 오프셋과 비균일 CSS
@@ -72,15 +72,15 @@ role/label/state를 전달합니다.
 Enter/Space → `click`을 받습니다.
 
 **복합 위젯은 다릅니다.** `tree`, `grid`, `menu`, `radiogroup` 또는
-`tablist`는 자식당 하나의 탭 정지가 아니라 하나뿐입니다—따라서 자식은 **로빙 tabindex**를 사용합니다: 정확히 하나의 자식이 `tabIndex: 0`을 가지고 나머지는 `-1`이며, 화살표 키가 해당 정지를 이동합니다. [복합 위젯](#복합-위젯-로빙-tabindex)을 참조하세요.
+`tablist`는 자식당 하나의 탭 정지가 아니라 하나뿐입니다—따라서 자식은 **로빙 tabindex**를 사용합니다: 정확히 하나의 자식이 `tabIndex: 0`을 가지고 나머지는 `-1`이며, 화살표 키가 해당 정지를 이동합니다. [복합 위젯](#boghab-wijes-robing-tabindex)을 참조하세요.
 
-탭 순서는 씬 그래프 삽입 순서가 아닌 **시각적** 읽기 순서를 따릅니다—RTL의 경우 [`Scene.readingDirection`](/reference/core-scene/#접근성-및-외관)을 참조하세요.
+탭 순서는 씬 그래프 삽입 순서가 아닌 **시각적** 읽기 순서를 따릅니다—RTL의 경우 [`Scene.readingDirection`](/reference/core-scene/#jeobgeunseong-mic-oegwan)을 참조하세요.
 
 디자인 캔버스와 같은 비-컨트롤 영역이 순차적 포커스 순서에 진입하고
 VMT `keydown` 이벤트를 수신해야 하는 경우 `tabIndex: 0`을 명시적으로 설정하세요. 프로그래매틱 포커스만
 필요한 경우 `-1`을 사용하고, `undefined`를 반환하면 명시적 값을 제거합니다.
 
-## 복합 위젯 (로빙 tabindex)
+## 복합 위젯 (로빙 tabindex) {#boghab-wijes-robing-tabindex}
 
 트리, 그리드, 메뉴, 라디오 그룹 또는 탭 목록은 컨테이너 역할뿐만 아니라 각 자식에 **하나의 역할**을 노출해야 합니다—그렇지 않으면 AT는 불투명한 상자만 보게 됩니다. VectoJS는 각 보이는 자식 위에 투명하고 포커스 가능한 자식 엔터티("핫스팟")를 풀링하여 이를 수행합니다: 자식의 `role` + 상태 + 로빙 `tabIndex`를 전달하고 아무것도 렌더링하지 않으며, 부모가 키보드 핸들러를 소유합니다.
 
@@ -98,7 +98,7 @@ VMT `keydown` 이벤트를 수신해야 하는 경우 `tabIndex: 0`을 명시적
 
 ## 강제 색상 (고대비)
 
-캔버스는 불투명한 픽셀이므로 브라우저의 `forced-colors` 리매핑은 VectoJS가 그리는 것에 절대 닿지 않습니다—Windows 고대비에서 컴포넌트가 자체를 다시 그리지 않는 한 테마가 적용된 컨트롤은 읽을 수 없게 됩니다. [`Scene.forcedColors`](/reference/core-scene/#접근성-및-외관)를 참조하고 CSS 시스템 색상(`ButtonFace`, `ButtonText`, `Highlight`, `Canvas`, `CanvasText`)으로 그리세요. 설정이 전환되면 씬이 자동으로 다시 그려집니다. `Button`은 이미 이를 수행하고 있습니다.
+캔버스는 불투명한 픽셀이므로 브라우저의 `forced-colors` 리매핑은 VectoJS가 그리는 것에 절대 닿지 않습니다—Windows 고대비에서 컴포넌트가 자체를 다시 그리지 않는 한 테마가 적용된 컨트롤은 읽을 수 없게 됩니다. [`Scene.forcedColors`](/reference/core-scene/#jeobgeunseong-mic-oegwan)를 참조하고 CSS 시스템 색상(`ButtonFace`, `ButtonText`, `Highlight`, `Canvas`, `CanvasText`)으로 그리세요. 설정이 전환되면 씬이 자동으로 다시 그려집니다. `Button`은 이미 이를 수행하고 있습니다.
 
 ## 많은 entity 수에서의 투영 비용 (`1.30.0+`)
 
@@ -150,7 +150,7 @@ scene.releaseA11yProjection(previous);
 카디널리티만으로 `'onDemand'`를 택할 근거가 되지는 않으며, 다음 경우가 가장 잘못 판단되기 쉽습니다:
 
 > [!WARNING]
-> **파티클과의 유추로 `'onDemand'`를 본문 텍스트에 적용하지 마세요.** 버튼이나 그래프 노드에서는 canvas entity가 주체이고 섀도우 노드는 일시적인 의미론적 프록시이므로, 사용될 때까지 보류해도 잃는 것이 없습니다. 그러나 산문, Markdown, 채팅 기록에서는 canvas 비트맵을 스크린 리더가 전혀 읽을 수 없으며, 비시각 사용자에게 **읽기가 주된 상호작용**이지 이따금 하는 조작이 아닙니다. 텍스트 entity는 기본적으로 상호작용하지 않으며, 그 의미를 담는 것은 섀도우 노드가 아니라 [콘텐츠 투영](/reference/core-renderer/#entitygetcontentprojection)입니다. 그 투영은 행 단위로 가상화되며 상주 상태를 유지합니다.
+> **파티클과의 유추로 `'onDemand'`를 본문 텍스트에 적용하지 마세요.** 버튼이나 그래프 노드에서는 canvas entity가 주체이고 섀도우 노드는 일시적인 의미론적 프록시이므로, 사용될 때까지 보류해도 잃는 것이 없습니다. 그러나 산문, Markdown, 채팅 기록에서는 canvas 비트맵을 스크린 리더가 전혀 읽을 수 없으며, 비시각 사용자에게 **읽기가 주된 상호작용**이지 이따금 하는 조작이 아닙니다. 텍스트 entity는 기본적으로 상호작용하지 않으며, 그 의미를 담는 것은 섀도우 노드가 아니라 [콘텐츠 투영](/reference/core-renderer/#entity-getcontentprojection)입니다. 그 투영은 행 단위로 가상화되며 상주 상태를 유지합니다.
 
 또한 개별적으로 도달할 수 있다는 것은 이해할 수 있다는 것과 같지 않습니다:
 

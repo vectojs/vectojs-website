@@ -27,7 +27,7 @@ font.distanceRange / font.atlasWidth / font.atlasHeight
 
 사실상의 표준 `msdf-atlas-gen` JSON을 파싱하고 텍스트를 아틀라스 UV가 있는
 CSS-픽셀 쿼드로 배치합니다(y-다운 로컬 공간; v=0은 아틀라스 상단). `layout()`을 WebGL
-백엔드의 `setMSDFTexture` + `addGlyph`([WebGL 포인트 레이어](/reference/core-renderer/#webgl-포인트-레이어) 참조)와
+백엔드의 `setMSDFTexture` + `addGlyph`([WebGL 포인트 레이어](/reference/core-renderer/#webgl-pointeu-reieo) 참조)와
 쌍으로 사용하여 해상도 독립적인 GPU 텍스트를 렌더링합니다. 타입:
 `MSDFFontData`, `MSDFAtlasInfo`, `MSDFMetrics`, `MSDFGlyphDef`, `MSDFBounds`,
 `MSDFKerning`, `PositionedGlyph`, `MSDFLayoutResult`, `MSDFLayoutOptions`.

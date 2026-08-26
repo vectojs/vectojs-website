@@ -42,7 +42,7 @@ applyStyle(stack, style({ flexDirection: 'row', gap: '8px', alignItems: 'center'
 - `untrackVarStyles(entity)` — エンティティの `var()` 追跡を即座に解除します（0.3.x）。次回のテーマ切り替え時の弱参照スイープを待つのではなく、destroy の片付けから呼び出して決定論的に解放してください。
 - `PRESET_THEMES` — `light`（デフォルトテーマ）、`dark`、`github`、`dracula` のトークンセット。
 - `Style` — スタイルインターフェース。すべてのキーはオプション。
-- `composeFont(current, changes)` — CSSフォントのショートハンド文字列を再構成します（[フォントの合成](#フォントの合成) を参照）。
+- `composeFont(current, changes)` — CSSフォントのショートハンド文字列を再構成します（[フォントの合成](#huontonohe-cheng) を参照）。
 - `ThemeTokenSet` — `Record<string, string | number>`; `tokens()` セットと `Theme.tokens` の型。
 - `Theme` — `tokens()` によって作成される `{ readonly tokens: ThemeTokenSet }`。
 
@@ -84,7 +84,7 @@ applyStyle(btn, style({ backgroundColor: 'var(--accent)', borderRadius: 'var(--r
 - トークンを参照するスタイルはテーマごとに**追跡**され（破棄されたエンティティは保持されなくなりました。追跡は弱く保持し、destroy の片付けで即時解放するための `untrackVarStyles(entity)` があります）、`setTheme(next)` が切り替わると再適用されるため、テーマの交換は呼び出し側の変更なしでシーン全体を再着色します。`var()` を含まないスタイルは追跡されません。トークン値が切り替え時にマッピングされたプロパティの検証に失敗した場合（例: `--radius-md: "50%"`）、`setTheme` はスローします。
 - デフォルトテーマは `light` プリセットです; `tokens()` セットはプレーンなオブジェクトなので、呼び出し側のテーマはスプレッドになります: `tokens({ ...PRESET_THEMES.dark, accent: "#f00" })`。
 
-## フォントの合成
+## フォントの合成 {#huontonohe-cheng}
 
 `fontFamily`、`fontSize`、`fontWeight` は独立したフィールドではありません — uiコンポーネントはフォント全体を1つのショートハンド文字列として保持します。これらのキーはエンティティの現在の `font` を解析し、存在するセグメントのみを置き換えて、再構成された文字列を書き込みます:
 

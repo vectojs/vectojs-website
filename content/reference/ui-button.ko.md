@@ -82,7 +82,7 @@ save.disabled = true; // 흐릿한 채우기(muted fill), `disabled` 투영, hov
 
 ## 강제 색상(고대비)
 
-`Button`은 [`Scene.forcedColors`](/reference/core-scene/#접근성-및-외관)를 읽고, OS가 강제 색상 모드일 때 테마 팔레트 대신 CSS 시스템 색상으로 다시 칠합니다: `ButtonFace` 채우기, `ButtonText` 레이블과 1px `ButtonText` 테두리(시스템 배경에서 모양이 보이도록),그리고 `Highlight` 포커스 링. Canvas 픽셀은 브라우저의 강제 색상 리매핑에서 면제되므로, 이 처리를 건너뛴 컴포넌트는 고대비 모드에서 읽을 수 없습니다. 설정이 전환되면 씬이 자동으로 다시 칠해집니다.
+`Button`은 [`Scene.forcedColors`](/reference/core-scene/#jeobgeunseong-mic-oegwan)를 읽고, OS가 강제 색상 모드일 때 테마 팔레트 대신 CSS 시스템 색상으로 다시 칠합니다: `ButtonFace` 채우기, `ButtonText` 레이블과 1px `ButtonText` 테두리(시스템 배경에서 모양이 보이도록),그리고 `Highlight` 포커스 링. Canvas 픽셀은 브라우저의 강제 색상 리매핑에서 면제되므로, 이 처리를 건너뛴 컴포넌트는 고대비 모드에서 읽을 수 없습니다. 설정이 전환되면 씬이 자동으로 다시 칠해집니다.
 
 ## 유지보수 체크리스트
 

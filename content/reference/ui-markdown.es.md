@@ -124,7 +124,7 @@ hace utilizable a mitad de una transmisión:
 - sobreviven las mismas **instancias** de entidad de bloque, así que cualquier
   cosa que mantenga una referencia a una de ellas (un ancla de desplazamiento, un
   objetivo de clic, una selección de devtools) sigue funcionando;
-- un escritor [`createStream()`](#transmisión-por-streaming) abierto queda intacto y continúa
+- un escritor [`createStream()`](#transmision-por-streaming) abierto queda intacto y continúa
   añadiendo;
 - no se vuelve a analizar léxicamente nada.
 
@@ -156,7 +156,7 @@ ancho disponible, así que estirarla distorsionaría la fórmula. El código
 delimitado tampoco se reajusta —tiene una rejilla monoespaciada fija y las
 líneas largas se desbordan por diseño—, solo se redimensiona su fondo.
 
-Llamarlo desde una retrollamada [`onStable`](#finalización-de-un-solo-uso-onstable) lanza una excepción, por
+Llamarlo desde una retrollamada [`onStable`](#finalizacion-de-un-solo-uso-onstable) lanza una excepción, por
 la misma razón que `setContent()`: esa retrollamada se ejecuta dentro del commit
 que invalidaría.
 
@@ -210,7 +210,7 @@ abierto cuando el flujo se cierra se libera como contenido, y la retención est�
 acotada, así que una línea divisoria al inicio de un documento largo no puede
 estancarlo.
 
-## Transmisión por streaming
+## Transmisión por streaming {#transmision-por-streaming}
 
 `createStream()` vincula a este `Markdown` un único escritor que agrupa las escrituras
 por fotograma. Haz `await write()` mientras consumes la fuente; `close()` confirma a
@@ -288,7 +288,7 @@ Un flujo se corta a mitad de token constantemente, por lo que los últimos carac
 
 El modo es interpretado por `Markdown`, no por el controlador: el controlador es dueño del almacenamiento en búfer y el ritmo, mientras que la suposición es una transformación en el momento de renderizado sobre el párrafo final.
 
-### Finalización de un solo uso: `onStable`
+### Finalización de un solo uso: `onStable` {#finalizacion-de-un-solo-uso-onstable}
 
 ```ts
 const stream = markdown.createStream({

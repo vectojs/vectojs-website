@@ -119,11 +119,20 @@ Los deltas de arrastre, el direccionamiento de conexiones y la línea de goma fu
 ## Persistencia
 
 ```ts
-import { NodeEditorPersistence, NODE_EDITOR_SCHEMA_VERSION } from '@vectojs/node-editor';
+import {
+  nodeEditorPersistence,
+  exportDocument,
+  importDocument,
+  NODE_EDITOR_SCHEMA_VERSION,
+} from '@vectojs/node-editor';
 
-const persistence = new NodeEditorPersistence();
-const json = persistence.exportDocument(editor.document); // schemaVersion-stamped
-const doc = persistence.importDocument(json);
+// The persistence API is a ready-made object plus equivalent free functions —
+// there is no exported class to construct.
+const json = nodeEditorPersistence.exportDocument(editor.document); // schemaVersion-stamped
+const doc = nodeEditorPersistence.importDocument(json);
+// Same operations, stateless form:
+const json2 = exportDocument(editor.document);
+const doc2 = importDocument(json2);
 ```
 
 `exportDocument`/`importDocument` llevan `NODE_EDITOR_SCHEMA_VERSION` (1); `serializeDocument`/`deserializeDocument` son la pareja sin versión. La validación de importación es estructural **y** semántica (`0.2.0+`): más allá de las comprobaciones de forma de array/cadena/número finito, cada enlace pasa por el `validateLink` en tiempo de ejecución contra el resto del documento. Los bucles sobre sí mismo, los pares de extremos duplicados, los ids de enlace duplicados y las violaciones de dirección/tipo/maxConnections de puerto ahora rechazan con `links[i]: <verdict.error>` — los documentos persistidos tienen garantizada su recreación en el editor, donde antes un documento podía contener enlaces imposibles de recrear tras una eliminación.

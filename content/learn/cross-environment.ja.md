@@ -108,4 +108,4 @@ const trace = createEventTrace(scene, { capacity: 50 });
 - [ ] OSのモーション抑制を有効にしてアニメーションを検証する。
 - [ ] WebGL/WebGPUバックエンドが有効な場合、Canvas2Dフォールバックパスもテストする。
 
-> **次へ：** [デバッグワークフロー](/reference/devtools-inspect/#デバッグワークフロー)で、このチェックリストが依存する数値ツールを、そして[ストリーミングとリアルタイムテキスト](/learn/streaming/)でリアルタイムUIについて参照してください。
+> **次へ：** [デバッグワークフロー](/reference/devtools-inspect/#debatuguwakuhuro)で、このチェックリストが依存する数値ツールを、そして[ストリーミングとリアルタイムテキスト](/learn/streaming/)でリアルタイムUIについて参照してください。

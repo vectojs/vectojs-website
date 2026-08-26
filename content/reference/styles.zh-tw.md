@@ -42,7 +42,7 @@ applyStyle(stack, style({ flexDirection: 'row', gap: '8px', alignItems: 'center'
 - `untrackVarStyles(entity)` — 立即丟棄該實體的 `var()` 追蹤（0.3.x）；在銷毀清理中呼叫它以確定性地釋放，而不是等待下一次主題切換時的弱引用清掃。
 - `PRESET_THEMES` — `light`（預設主題）、`dark`、`github`、`dracula` 權杖集合。
 - `Style` — 樣式介面。所有鍵皆為可選。
-- `composeFont(current, changes)` — 重新組成 CSS font 簡寫字串（參見[字型組成](#字型組成)）。
+- `composeFont(current, changes)` — 重新組成 CSS font 簡寫字串（參見[字型組成](#zi-xing-zu-cheng)）。
 - `ThemeTokenSet` — `Record<string, string | number>`；`tokens()` 集合與 `Theme.tokens` 的型別。
 - `Theme` — `{ readonly tokens: ThemeTokenSet }`，由 `tokens()` 建立。
 
@@ -84,7 +84,7 @@ applyStyle(btn, style({ backgroundColor: 'var(--accent)', borderRadius: 'var(--r
 - 參考權杖的樣式會按主題被**追蹤**（被銷毀的實體不再被保留——追蹤以弱引用持有它們，並提供 `untrackVarStyles(entity)` 用於銷毀清理中的即時釋放），並在 `setTheme(next)` 切換時重新套用，因此主題交換會在呼叫端零修改的情況下重新著色整個場景。不含 `var()` 的樣式不會被追蹤。若權杖值在切換時未通過對應屬性的驗證（例如 `--radius-md: "50%"`），`setTheme` 會擲出例外。
 - 預設主題是 `light` 預設集；`tokens()` 集合是普通物件，因此呼叫端主題是展開：`tokens({ ...PRESET_THEMES.dark, accent: "#f00" })`。
 
-## 字型組成
+## 字型組成 {#zi-xing-zu-cheng}
 
 `fontFamily`、`fontSize` 與 `fontWeight` 不是獨立的欄位 — ui 元件將整個字型作為單一簡寫字串攜帶。這些鍵會剖析 entity 目前的 `font`，僅取代存在的片段，並寫入重新組成的字串：
 

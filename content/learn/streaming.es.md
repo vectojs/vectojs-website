@@ -84,7 +84,7 @@ const scene = new Scene(canvas, { renderMode: 'onDemand' });
 
 Cada adición marca la escena como sucia, por lo que los fotogramas se renderizan exactamente mientras el contenido fluye y se detienen en el momento en que el flujo queda inactivo: no hay sorpresas de aceleración automática a 2 fps ni consumo innecesario de batería entre respuestas. Las API de adición y los contenedores de desplazamiento integrados informan todos sobre sus animaciones en curso (`hasPendingAnimations()`), de modo que un desplazamiento suave hacia abajo continúa animándose después de que aterriza el último token.
 
-Si controlas cualquier movimiento _personalizado_ por fotograma durante el flujo (un indicador de escritura, un cursor parpadeante) desde `update()`, recuerda el [contrato de la aceleración automática inactiva](/learn/performance/#la-limitación-automática-por-inactividad-la-trampa-oculta): anula `hasPendingAnimations()` o contrólalo con `animate()`/`springTo()`.
+Si controlas cualquier movimiento _personalizado_ por fotograma durante el flujo (un indicador de escritura, un cursor parpadeante) desde `update()`, recuerda el [contrato de la aceleración automática inactiva](/learn/performance/#la-limitacion-automatica-por-inactividad-la-trampa-oculta): anula `hasPendingAnimations()` o contrólalo con `animate()`/`springTo()`.
 
 ## Seguir el fondo (desplazamiento)
 

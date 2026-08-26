@@ -91,7 +91,7 @@ springTo(props: Partial<Record<AnimatableProp, number>>, cfg?: SpringConfig): Pr
 `animate()` 將補間排入佇列；多次呼叫**依序鏈接**。僅
 數值屬性會進行插值；緩動為固定的 ease-out（`p * (2 - p)`）。執行中的
 `animate()` 會保持場景非靜態（脫離閒置節流，請參閱
-[`Scene`](/reference/core-scene/#rendermodemaxfps-和閒置自動節流)）
+[`Scene`](/reference/core-scene/#rendermode-maxfps-he-xian-zhi-zi-dong-jie-liu)）
 並凍結 a11y 同步直到動畫穩定。
 
 `hasPendingAnimations()` 是**可覆寫的**，也是 Scene 了解自訂

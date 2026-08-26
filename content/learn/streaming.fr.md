@@ -84,7 +84,7 @@ const scene = new Scene(canvas, { renderMode: 'onDemand' });
 
 Chaque ajout marque la scène comme sale (dirty), de sorte que les trames ne sont rendues que lorsque le contenu circule et s'arrêtent dès que le flux est inactif — pas de mauvaises surprises liées au bridage automatique à 2 fps et pas de consommation de batterie inutile entre les réponses. Les API d'ajout et les conteneurs de défilement intégrés signalent tous leur mouvement en cours (`hasPendingAnimations()`), de sorte qu'un défilement fluide vers le bas continue de s'animer après l'arrivée du dernier jeton.
 
-Si vous pilotez un mouvement _personnalisé_ par trame pendant le flux (un indicateur de frappe, un curseur clignotant) depuis `update()`, souvenez-vous du [contrat du bridage automatique inactif](/learn/performance/#lauto-limitation-au-repos-le-piège-caché) : surchargez `hasPendingAnimations()` ou pilotez-le avec `animate()`/`springTo()`.
+Si vous pilotez un mouvement _personnalisé_ par trame pendant le flux (un indicateur de frappe, un curseur clignotant) depuis `update()`, souvenez-vous du [contrat du bridage automatique inactif](/learn/performance/#l-auto-limitation-au-repos-le-piege-cache) : surchargez `hasPendingAnimations()` ou pilotez-le avec `animate()`/`springTo()`.
 
 ## Suivre le bas (défilement)
 
@@ -145,6 +145,6 @@ Symptômes et leurs signaux, dans l'ordre de vérification :
 | Le défilement lutte contre l'utilisateur             | `scrollToBottom()` inconditionnel — limitez via l'adhérence « était en bas »                                                             |
 | Processeur occupé alors que le flux est inactif      | La scène est laissée en mode `'always'`, ou une animation personnalisée sans `hasPendingAnimations()` ; le rAF du contrôleur est inactif |
 
-Pour de vrais chiffres, utilisez le modèle de mesure en page de [Mesurer les performances réelles](/learn/performance/#mesurer-la-performance-réelle) — les FPS headless ne sont pas représentatifs.
+Pour de vrais chiffres, utilisez le modèle de mesure en page de [Mesurer les performances réelles](/learn/performance/#mesurer-la-performance-reelle) — les FPS headless ne sont pas représentatifs.
 
 > **Ensuite :** [Performances](/learn/performance/) pour la boîte à outils d'optimisation complète, et [`Markdown`](/reference/ui-markdown/) pour la référence de l'API de streaming.

@@ -87,7 +87,7 @@ gpu.phases; // per-phase timing
 >
 > `null`の`webgl`はポイントレイヤーがまったく実行されていないことを意味し、これは実行されて何も描画しなかったことを意味するすべてゼロの`webgl`とは異なります。`webgpu.pipelines`と`bindGroups`はアクティブフラグとパーティクルエンティティ数から導出され、デバイスから照会されるものではありません。`particleEntities`は数値の`maxParticles`に対してダックタイプされ、メインツリーのみを数えます。
 
-パネルやエージェントからインストルメンテーションを切り替えるための3つのコマンドが、[プラグインコマンド](/reference/devtools-extend/#プラグインプロトコル)としてエクスポートされています：
+パネルやエージェントからインストルメンテーションを切り替えるための3つのコマンドが、[プラグインコマンド](/reference/devtools-extend/#puraguinpurotokoru)としてエクスポートされています：
 
 ```typescript
 const enableDrawCountersCommand: PluginCommand; // 'enable-draw-counters'
@@ -266,7 +266,7 @@ interface MarkdownStreamInfo {
 
 ## これらをパネルタブとして登録する
 
-各サブシステムは対応する[プラグイン](/reference/devtools-extend/#プラグインプロトコル)ディスクリプタを同梱し、パネルがそれをタブとして表示できるようにします。**何も自動登録されません** — GPUを決して検査しないビルドはそのコードを運びません：
+各サブシステムは対応する[プラグイン](/reference/devtools-extend/#puraguinpurotokoru)ディスクリプタを同梱し、パネルがそれをタブとして表示できるようにします。**何も自動登録されません** — GPUを決して検査しないビルドはそのコードを運びません：
 
 ```typescript
 import {

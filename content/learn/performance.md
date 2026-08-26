@@ -392,7 +392,7 @@ hood:
 - The renderer falls back to an equivalent CPU loop (`updateCPU()`)
   automatically when WebGPU is unavailable or the device is lost.
 
-> [!IMPORTANT] > **This is not $N$-body simulation.** Each particle's force is computed relative to three _fixed_ points only — its spring origin, the mouse cursor, and an optional explosion center. There is no particle-vs-particle interaction and no spatial index involved, which is exactly what makes it embarrassingly parallel and GPU-friendly. If your simulation needs real neighbor interaction (particle-vs-particle collision or repulsion, flocking, N-body gravity), `ComputeParticleEntity` doesn't cover it — you'll need to write your own WGSL compute pass with a neighbor query baked in, or run `SpatialHashGrid`-based neighbor queries on the CPU (see [`SpatialHashGrid`](#3-sea-of-entities-interaction-on2-complexity-catastrophe) below, and the [Physics Engine guide](/learn/physics-engine/) for a worked CPU example). There is currently no generic "run arbitrary computation on GPU with CPU fallback" abstraction in the engine — `ComputeParticleEntity` is a specific, narrow implementation, not a reusable pattern.
+> [!IMPORTANT] > **This is not $N$-body simulation.** Each particle's force is computed relative to three _fixed_ points only — its spring origin, the mouse cursor, and an optional explosion center. There is no particle-vs-particle interaction and no spatial index involved, which is exactly what makes it embarrassingly parallel and GPU-friendly. If your simulation needs real neighbor interaction (particle-vs-particle collision or repulsion, flocking, N-body gravity), `ComputeParticleEntity` doesn't cover it — you'll need to write your own WGSL compute pass with a neighbor query baked in, or run `SpatialHashGrid`-based neighbor queries on the CPU (see [`SpatialHashGrid`](#3-sea-of-entities-interaction-o-n-2-complexity-catastrophe) below, and the [Physics Engine guide](/learn/physics-engine/) for a worked CPU example). There is currently no generic "run arbitrary computation on GPU with CPU fallback" abstraction in the engine — `ComputeParticleEntity` is a specific, narrow implementation, not a reusable pattern.
 
 High-end throughput depends heavily on GPU, browser, DPR, particle model, and
 composition. This repository has no checked-in high-end WebGPU result, so
@@ -432,7 +432,7 @@ provides three levels of text optimization:
 
 ---
 
-### 3. Sea of Entities Interaction ($O(N^2)$ Complexity Catastrophe)
+### 3. Sea of Entities Interaction ($O(N^2)$ Complexity Catastrophe) {#3-sea-of-entities-interaction-o-n-2-complexity-catastrophe}
 
 **The Bottleneck**: Pairwise entity-to-entity collision or proximity checks
 require $O(N^2)$ candidate comparisons. That growth becomes impractical well

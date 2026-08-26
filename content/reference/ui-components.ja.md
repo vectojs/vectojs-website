@@ -69,7 +69,7 @@ abstract class UIComponent extends Entity {
 
 すべてのコンポーネントが共有するボックスモデル + 軸平行（AABB）ヒットテストを一元化します。`isPointInside` は、ローカル空間で `[0,width] × [0,height]` 内にポイントがある場合に true を返します。`getBounds()` はローカルボックスを返すため、`Scene` はビューポートカリングできます。サブクラスは測定されたコンテンツから `width`/`height` を設定し、`render(r)` を実装し、（interactive の場合）`getA11yAttributes()` をオーバーライドします。
 
-**出現/退出：** `enterMotion` / `exitMotion` を `MotionSpec`（`{ props: { opacity: [0, 1], … }, config? }`）として宣言すると、コンポーネントはライブシーンにマウントされたときにアニメーションで表示され、`dismiss()` で退出します — 退出アニメーションが解決するまで自身の削除を延期します。コア[アニメーションシステム](/reference/core-entity/#アニメーション)上の 1 つの共有実装であり、コンポーネントごとの手作りスプリングを置き換えます。Motion は `prefers-reduced-motion` 下で抑制されます（不透明度フェードは保持されます）。
+**出現/退出：** `enterMotion` / `exitMotion` を `MotionSpec`（`{ props: { opacity: [0, 1], … }, config? }`）として宣言すると、コンポーネントはライブシーンにマウントされたときにアニメーションで表示され、`dismiss()` で退出します — 退出アニメーションが解決するまで自身の削除を延期します。コア[アニメーションシステム](/reference/core-entity/#animesiyon)上の 1 つの共有実装であり、コンポーネントごとの手作りスプリングを置き換えます。Motion は `prefers-reduced-motion` 下で抑制されます（不透明度フェードは保持されます）。
 
 ### `getA11yAttributes(): A11yAttributes`
 
@@ -522,7 +522,7 @@ new Modal(title: string, props?: ModalProps)  // props は緩く型付け（any�
 }
 ```
 
-`title` テキストと組み込みの「閉じる」ボタンを含む中央の `Card` を持つ全画面暗転背景。カードは共有の[アニメーションシステム](/reference/core-entity/#アニメーション)を通じてマウント時にスプリングでスケールインします。下にある `click`/`pointerdown` をブロックします。`scene.showOverlay(modal)` で表示します。
+`title` テキストと組み込みの「閉じる」ボタンを含む中央の `Card` を持つ全画面暗転背景。カードは共有の[アニメーションシステム](/reference/core-entity/#animesiyon)を通じてマウント時にスプリングでスケールインします。下にある `click`/`pointerdown` をブロックします。`scene.showOverlay(modal)` で表示します。
 
 - `close(): Promise<void>` — カードスケールを 0 にスプリングバックし、退出アニメーションが解決したら `scene.hideOverlay(this)` でアンマウントします（安全な遅延ティアダウン）。Await 可能。
 - `update(dt, time)` — アニメーション中にスプリングをティックし、シーンをダーティマークします（レンダーループによって呼び出されます）。

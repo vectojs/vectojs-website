@@ -102,7 +102,7 @@ scene.forcedColors: boolean             // getter — OS is in a forced-colors m
 **閒置自動節流（關鍵注意事項）。** 當場景不是 dirty 且主/覆蓋層樹中沒有節點有待處理的 `animate()` 補間時，該場景被視為**靜態**。在 `maxFPS > 0` 的 `'always'` 模式下，靜態場景會被節流到**閒置下限** —— 自 `1.36.0` 起為 **60 fps**（由 `idleFPS` 設定），在此之前是硬性 2 fps —— 以節省電池/GPU。設定 `autoThrottle: false`（選項或即時 `scene.autoThrottle`）可完全停用節流，或設定 `idleFPS: 2` 恢復舊有的積極休眠。`dirty` 旗標會在每個渲染幀_開始_時被消耗，因此在 `update()` 內部發出的 `markDirty()` 能延續到下一幀的靜態檢查：
 
 > 手動動畫（在自訂 `update()` 中變更 `entity.x` 等）對靜態檢查不可見，除非你主動回報 ——
-> 透過 [`entity.animate()`](/reference/core-entity/#動畫) 驅動動作（補間執行時讓場景保持非靜態）、
+> 透過 [`entity.animate()`](/reference/core-entity/#dong-hua) 驅動動作（補間執行時讓場景保持非靜態）、
 > 覆寫 `hasPendingAnimations()` 在積分器執行期間回傳 `true`，
 > 或在 `update()` 中每幀呼叫 `scene.markDirty()`（它會重新觸發下一幀）。
 > 否則場景會閒置降至節流下限，你的動畫會變得極為緩慢。
@@ -134,7 +134,7 @@ render(r: IRenderer) {
 }
 ```
 
-請參閱 [a11yRoot 與 agent 契約](/reference/core-a11y/#強制色彩高對比度)。
+請參閱 [a11yRoot 與 agent 契約](/reference/core-a11y/#qiang-zhi-se-cai-gao-dui-bi-du)。
 
 ## 生命週期方法
 

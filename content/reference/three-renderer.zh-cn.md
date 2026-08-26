@@ -40,7 +40,7 @@ GPU 重置或内存压力驱逐会使基于 Three 的场景永久空白，而显
 - **`webglcontextrestored`** 重新应用像素比和尺寸（恢复可能落在不同的显示器上），清除标志，并强制重绘新清空的帧缓冲区。Three 的 `WebGLRenderer` 在下一次渲染时延迟重建其 GL 状态。
 - **DPR 变化** 通过 `(resolution: Ndppx)` 媒体查询跟踪，该查询重新应用 `setPixelRatio` + `setSize` 并重新启动自身（该查询是一次性的）。
 
-所有这些都为 SSR / `OffscreenCanvas` 进行了防护（没有 `addEventListener` 或 `matchMedia`）。`isContextLost()` 也满足可选的 [`IRenderer`](/reference/core-renderer/#应对-gpu-上下文丢失) 钩子，因此 `Scene.render` 在上下文丢失时跳过渲染过程。
+所有这些都为 SSR / `OffscreenCanvas` 进行了防护（没有 `addEventListener` 或 `matchMedia`）。`isContextLost()` 也满足可选的 [`IRenderer`](/reference/core-renderer/#ying-dui-gpu-shang-xia-wen-diu-shi) 钩子，因此 `Scene.render` 在上下文丢失时跳过渲染过程。
 
 ## 公共属性
 
@@ -108,7 +108,7 @@ uniform vec2 u_grad_end;        // world-space end point
 
 **`stroke()` 或 `fillText()` 不支持渐变。** 将 `WebGLGradient` 传给 `stroke()` 会回退到第一个停止点颜色。`fillText()` 也回退到第一个停止点颜色，因为文本字形在上传前通过 Canvas 2D 栅格化。
 
-参见 [`@vectojs/three` 主页面](/reference/three/#故障排除)了解渐变/DPI/指针问题的故障排除。
+参见 [`@vectojs/three` 主页面](/reference/three/#gu-zhang-pai-chu)了解渐变/DPI/指针问题的故障排除。
 
 ## 相关
 

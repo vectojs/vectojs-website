@@ -13,7 +13,7 @@ transparent** dans le `div` `a11yRoot` de la Scène (au-dessus du canvas,
 `pointerEvents:auto` pour que l'automatisation/AT puisse interagir ;
 `opacity:0` sauf si `debugA11y`). Chaque nœud porte
 `id` + `data-vecto-id`, ainsi que le rôle/label/état fournis par
-[`Entity.getA11yAttributes()`](/reference/core-entity/#hooks-a11y--lot-redéfinir-pour-adhérer).
+[`Entity.getA11yAttributes()`](/reference/core-entity/#hooks-a11y-lot-redefinir-pour-adherer).
 
 La racine de projection suit la boîte CSS du canvas : le décalage du canvas et le
 dimensionnement CSS non uniforme sont appliqués à l'ombre et aux couches du portail
@@ -74,16 +74,16 @@ interactifs non nativement focusables (`button`, `switch`, `checkbox`, `link`, `
 reçoivent `tabindex="0"` et Entrée/Espace → `click`.
 
 **Les widgets composés sont différents.** Un `tree`, `grid`, `menu`, `radiogroup` ou
-`tablist` est un arrêt de tabulation, pas un par enfant — donc leurs enfants utilisent un **tabindex flottant** : exactement un enfant porte `tabIndex: 0` et le reste `-1`, et les flèches déplacent cet arrêt. Voir [Widgets composés](#widgets-composés-tabindex-flottant).
+`tablist` est un arrêt de tabulation, pas un par enfant — donc leurs enfants utilisent un **tabindex flottant** : exactement un enfant porte `tabIndex: 0` et le reste `-1`, et les flèches déplacent cet arrêt. Voir [Widgets composés](#widgets-composes-tabindex-flottant).
 
-L'ordre de tabulation suit l'ordre de lecture **visuel**, pas l'ordre d'insertion du graphe de scène — voir [`Scene.readingDirection`](/reference/core-scene/#accessibilité-et-apparence) pour le RTL.
+L'ordre de tabulation suit l'ordre de lecture **visuel**, pas l'ordre d'insertion du graphe de scène — voir [`Scene.readingDirection`](/reference/core-scene/#accessibilite-et-apparence) pour le RTL.
 
 Définissez explicitement `tabIndex: 0` lorsqu'une région non-contrôle telle qu'un
 canvas de conception doit entrer dans l'ordre de focus séquentiel et recevoir des
 événements VMT `keydown`. Utilisez `-1` pour le focus programmatique uniquement ;
 retourner `undefined` supprime la valeur explicite.
 
-## Widgets composés (tabindex flottant)
+## Widgets composés (tabindex flottant) {#widgets-composes-tabindex-flottant}
 
 Un arbre, grille, menu, groupe radio ou liste d'onglets doit exposer **un rôle par enfant**,
 pas seulement un rôle de conteneur — sinon AT ne voit qu'une boîte opaque. VectoJS y parvient
@@ -113,7 +113,7 @@ La ligne/ cellule focalisée est défilée en vue avant que le focus ne se dépl
 Un canvas est des pixels opaques, donc le remappage `forced-colors` du navigateur ne
 touche jamais ce que VectoJS dessine — sous Windows Contraste élevé un contrôle thématisé
 reste illisible à moins que le composant ne se repeigne. Lire
-[`Scene.forcedColors`](/reference/core-scene/#accessibilité-et-apparence) et dessiner
+[`Scene.forcedColors`](/reference/core-scene/#accessibilite-et-apparence) et dessiner
 avec les couleurs système CSS (`ButtonFace`, `ButtonText`, `Highlight`, `Canvas`,
 `CanvasText`) ; la scène se repeint automatiquement quand le paramètre change.
 `Button` le fait déjà.
@@ -168,7 +168,7 @@ Utilisez une demande explicite pour tout ce dont seule l'application connaît l'
 La cardinalité n'est pas à elle seule le critère pour recourir à `'onDemand'`, et c'est le cas le plus susceptible d'être mal jugé :
 
 > [!WARNING]
-> **N'appliquez pas `'onDemand'` au corps de texte par analogie avec les particules.** Pour un bouton ou un nœud de graphe, l'entité canvas est le sujet et le nœud d'ombre est un mandataire sémantique temporaire, donc le retenir jusqu'à sollicitation ne perd rien. Pour de la prose, du Markdown ou une transcription de conversation, le bitmap du canvas n'est pas du tout lisible par un lecteur d'écran, et _lire est l'interaction principale_ pour un utilisateur non voyant plutôt qu'un acte occasionnel. Les entités de texte sont non interactives par défaut et c'est leur [projection de contenu](/reference/core-renderer/#entitygetcontentprojection) — et non un nœud d'ombre — qui porte leur sémantique ; cette projection est virtualisée ligne par ligne et reste résidente.
+> **N'appliquez pas `'onDemand'` au corps de texte par analogie avec les particules.** Pour un bouton ou un nœud de graphe, l'entité canvas est le sujet et le nœud d'ombre est un mandataire sémantique temporaire, donc le retenir jusqu'à sollicitation ne perd rien. Pour de la prose, du Markdown ou une transcription de conversation, le bitmap du canvas n'est pas du tout lisible par un lecteur d'écran, et _lire est l'interaction principale_ pour un utilisateur non voyant plutôt qu'un acte occasionnel. Les entités de texte sont non interactives par défaut et c'est leur [projection de contenu](/reference/core-renderer/#entity-getcontentprojection) — et non un nœud d'ombre — qui porte leur sémantique ; cette projection est virtualisée ligne par ligne et reste résidente.
 
 Être atteignable individuellement n'est pas non plus la même chose qu'être compris :
 

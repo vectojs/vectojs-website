@@ -55,7 +55,7 @@ target.on('pointerdown', (event) => {
 | Enter / Space | 激活（打开子菜单，或触发 `onClick` 并关闭整个菜单树）       |
 | Escape        | 关闭整个菜单树                                              |
 
-热点设置 `pointerEvents: 'none'`，因此菜单保持其自身的按位置 `pointerdown` 命中处理。参见[复合组件](/reference/core-a11y/#复合组件漫游-tabindex)。
+热点设置 `pointerEvents: 'none'`，因此菜单保持其自身的按位置 `pointerdown` 命中处理。参见[复合组件](/reference/core-a11y/#fu-he-zu-jian-man-you-tabindex)。
 
 > **显示菜单会安装全场景 backdrop。** 根菜单添加一个不可见的、场景大小的交互实体来捕获关闭它的外部点击。该 backdrop 在菜单打开时拦截整个场景的指针事件——因此不要在需要拖拽/选择的夹具或测试中让菜单保持打开状态。
 

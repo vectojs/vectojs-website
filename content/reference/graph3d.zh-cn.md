@@ -66,7 +66,7 @@ camera.setSize(width, height); // call on canvas resize
 camera.dispose(); // remove pointer/wheel listeners
 ```
 
-`mode: '2d' | '3d'` 选择相机类型；`fitToPositions(positions)` 框定一个 xyz 三元组缓冲区（与 [`applyPositions`](/reference/graph3d-renderer/#方法) 消费的形状相同）。通过传入 `() => camera.camera`（一个 getter，因此 `setMode` 保持生效）将其与 `GraphInteraction` 配对，并接线 `setControlsEnabled`，以便节点拖拽不会同时平移视图。
+`mode: '2d' | '3d'` 选择相机类型；`fitToPositions(positions)` 框定一个 xyz 三元组缓冲区（与 [`applyPositions`](/reference/graph3d-renderer/#fang-fa) 消费的形状相同）。通过传入 `() => camera.camera`（一个 getter，因此 `setMode` 保持生效）将其与 `GraphInteraction` 配对，并接线 `setControlsEnabled`，以便节点拖拽不会同时平移视图。
 
 ## WASM 力内核
 

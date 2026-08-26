@@ -142,9 +142,9 @@ getA11yAttributes(): A11yAttributes {
 | `Tabs`            | 每标签页一个`tab`                          | `aria-selected`，方向键移动，Home/End                     |
 | `Text`            | `<div>`                                    | `aria-label` = 文本内容                                   |
 
-## 复合微件：一个标签页停止，方向键在内部操作
+## 复合微件：一个标签页停止，方向键在内部操作 {#fu-he-wei-jian-yi-ge-biao-qian-ye-ting-zhi-fang-xiang-jian-zai-nei-bu-cao-zuo}
 
-树、网格、菜单、单选组或标签列表不得将每个子元素放入标签页顺序中。VectoJS在每个**可见**子元素上方池化一个透明的可聚焦热点，携带该子元素的角色和状态，并恰好为其中一个赋予`tabIndex: 0` —— **浮动tab索引**。父元素拥有方向键处理器并移动停止点。参见上表了解每个组件的按键，以及[复合微件](/reference/core-a11y/#复合组件漫游-tabindex)了解你自己构建时的模式。
+树、网格、菜单、单选组或标签列表不得将每个子元素放入标签页顺序中。VectoJS在每个**可见**子元素上方池化一个透明的可聚焦热点，携带该子元素的角色和状态，并恰好为其中一个赋予`tabIndex: 0` —— **浮动tab索引**。父元素拥有方向键处理器并移动停止点。参见上表了解每个组件的按键，以及[复合微件](/reference/core-a11y/#fu-he-zu-jian-man-you-tabindex)了解你自己构建时的模式。
 
 重用该模式而不是发明一个：重要的细微之处是当某些底层元素拥有鼠标时（可选单元格文本、拖动滚动、canvas命中处理），热点必须设置`pointerEvents: 'none'`。键盘焦点和AT合成的`click`仍然可以通过它工作。
 
@@ -278,10 +278,10 @@ const scene = new Scene(canvas, { a11ySyncInterval: 100 });
 对于粒子场、弹幕层或精灵群，请优先选择以下之一：
 
 - **投影容器，而非成员。** 整个层使用一个交互实体，通过`aria-label`集体描述它（如"5,000个粒子"），并通过`scene.findEntityAt(x, y)`自行处理指针输入 —— 它无论实体是否为`interactive`都能解析实体，因此点击测试不需要投影。
-- **只投影可触及的内容。** 虚拟化`TreeView`/`Table`使用的池化模式将热点池大小调整为可见行而不是整个数据集，因此投影保持O(视口)。参见[复合微件](#复合微件一个标签页停止方向键在内部操作)。
+- **只投影可触及的内容。** 虚拟化`TreeView`/`Table`使用的池化模式将热点池大小调整为可见行而不是整个数据集，因此投影保持O(视口)。参见[复合微件](#fu-he-wei-jian-yi-ge-biao-qian-ye-ting-zhi-fang-xiang-jian-zai-nei-bu-cao-zuo)。
 - **当实体停止可操作时，调用`scene.detachA11y(entity)`。** 在别处记录为泄漏避免，它同样是一个成本杠杆：每帧同步创建和更新但从不修剪。
 
-每个实体的 `a11yProjection` 模式（`'eager' | 'onDemand' | 'never'`，默认为 `'eager'`）控制实体的影子节点何时被具体化；相关测量数据和 API 在 [`core-a11y`](/reference/core-a11y/#projection-cost-at-high-entity-counts-1300) 中有文档说明。请注意，它无法以"是否存在屏幕阅读器"为依据 —— 这出于设计（W3C TAG 设计原则 2.7）是刻意无法检测的，而且出于隐私原因，AOM 虚拟无障碍节点在所有引擎中都被阻止。
+每个实体的 `a11yProjection` 模式（`'eager' | 'onDemand' | 'never'`，默认为 `'eager'`）控制实体的影子节点何时被具体化；相关测量数据和 API 在 [`core-a11y`](/reference/core-a11y/#gao-shi-ti-shu-liang-xia-de-tou-ying-kai-xiao-1-30-0) 中有文档说明。请注意，它无法以"是否存在屏幕阅读器"为依据 —— 这出于设计（W3C TAG 设计原则 2.7）是刻意无法检测的，而且出于隐私原因，AOM 虚拟无障碍节点在所有引擎中都被阻止。
 
 ## 以编程方式检查影子树
 

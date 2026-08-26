@@ -12,7 +12,7 @@ Every interactive entity that has a box projects a **transparent ARIA shadow
 node** into the Scene's `a11yRoot` div (above the canvas, `pointerEvents:auto` so
 automation/AT can interact; `opacity:0` unless `debugA11y`). Each node carries
 `id` + `data-vecto-id`, plus the role/label/state from
-[`Entity.getA11yAttributes()`](/reference/core-entity/#a11y--batching-hooks-override-to-opt-in).
+[`Entity.getA11yAttributes()`](/reference/core-entity/#a11y-batching-hooks-override-to-opt-in).
 
 The projection root tracks the canvas CSS box: canvas offset and non-uniform CSS
 scaling are applied to the shadow and DOM-portal layers while entity geometry
@@ -81,7 +81,7 @@ keys move that stop. See [Composite widgets](#composite-widgets-roving-tabindex)
 below.
 
 Tab order follows the **visual** reading order, not scene-graph insertion order —
-see [`Scene.readingDirection`](/reference/core-scene/#accessibility--appearance)
+see [`Scene.readingDirection`](/reference/core-scene/#accessibility-appearance)
 for RTL.
 
 Set `tabIndex: 0` explicitly when a non-control region such as a design canvas
@@ -118,7 +118,7 @@ row/cell is scrolled into view before focus moves to it.
 A canvas is opaque pixels, so the browser's `forced-colors` remapping never
 touches what VectoJS draws — under Windows High Contrast a themed control stays
 unreadable unless the component repaints itself. Read
-[`Scene.forcedColors`](/reference/core-scene/#accessibility--appearance) and draw
+[`Scene.forcedColors`](/reference/core-scene/#accessibility-appearance) and draw
 with CSS system colors (`ButtonFace`, `ButtonText`, `Highlight`, `Canvas`,
 `CanvasText`); the scene repaints automatically when the setting toggles.
 `Button` already does this.
@@ -200,7 +200,7 @@ this is the case most likely to be got wrong:
 > prose, Markdown, or a chat transcript the canvas bitmap is not readable by a
 > screen reader at all, and _reading is the primary interaction_ for a non-visual
 > user rather than an occasional one. Text entities are non-interactive by default
-> and their [content projection](/reference/core-renderer/#entitygetcontentprojection)
+> and their [content projection](/reference/core-renderer/#entity-getcontentprojection)
 > — not a shadow node — is what carries their semantics; that projection is
 > virtualized per line and stays resident.
 

@@ -56,7 +56,7 @@ table.setWidth(width: number): this
 | Home / End           | 現在の行の最初/最後の列                                    |
 | Ctrl+Home / Ctrl+End | 最初のヘッダーセル / 最後のボディセル                      |
 
-対象のセルはフォーカスが移動する前にビューにスクロールされます。[コンポジットウィジェット](/reference/core-a11y/#複合ウィジェットロービング-tabindex)を参照。
+対象のセルはフォーカスが移動する前にビューにスクロールされます。[コンポジットウィジェット](/reference/core-a11y/#fu-he-uizietuto-robingu-tabindex)を参照。
 
 ## ポインタとタッチ
 

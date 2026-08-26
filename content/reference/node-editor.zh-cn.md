@@ -119,11 +119,20 @@ new NodeEditor(options?: { document?: NodeDocument; width?: number; height?: num
 ## 持久化
 
 ```ts
-import { NodeEditorPersistence, NODE_EDITOR_SCHEMA_VERSION } from '@vectojs/node-editor';
+import {
+  nodeEditorPersistence,
+  exportDocument,
+  importDocument,
+  NODE_EDITOR_SCHEMA_VERSION,
+} from '@vectojs/node-editor';
 
-const persistence = new NodeEditorPersistence();
-const json = persistence.exportDocument(editor.document); // schemaVersion-stamped
-const doc = persistence.importDocument(json);
+// The persistence API is a ready-made object plus equivalent free functions —
+// there is no exported class to construct.
+const json = nodeEditorPersistence.exportDocument(editor.document); // schemaVersion-stamped
+const doc = nodeEditorPersistence.importDocument(json);
+// Same operations, stateless form:
+const json2 = exportDocument(editor.document);
+const doc2 = importDocument(json2);
 ```
 
 `exportDocument`/`importDocument` 携带 `NODE_EDITOR_SCHEMA_VERSION`（1）；`serializeDocument`/`deserializeDocument` 是不带版本的配对。导入验证是结构性的**也是**语义性的（`0.2.0+`）：除了数组/字符串/有限数字形状检查之外，每条链接都会针对文档其余部分运行运行时的 `validateLink`。自环、重复端点对、重复链接 id 以及端口方向/类型/maxConnections 违规现在会以 `links[i]: <verdict.error>` 拒绝——持久化的文档保证能在编辑器中重建，而在以前文档可能包含删除后无法重建的链接。

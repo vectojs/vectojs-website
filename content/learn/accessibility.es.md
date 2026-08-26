@@ -142,7 +142,7 @@ Mantén las entradas nativas, las áreas de texto y el contenido editable a carg
 | `Tabs`             | `tab` por pestaña                          | `aria-selected`, flechas mueven, Home/End                                |
 | `Text`             | `<div>`                                    | `aria-label` = contenido de texto                                        |
 
-## Widgets compuestos: una parada de tabulación, teclas de flecha dentro
+## Widgets compuestos: una parada de tabulación, teclas de flecha dentro {#widgets-compuestos-una-parada-de-tabulacion-teclas-de-flecha-dentro}
 
 Un árbol, cuadrícula, menú, grupo de radio o lista de pestañas no debe poner cada hijo en el orden de tabulación. VectoJS agrupa un hotspot transparente y enfocable sobre cada hijo **visible** que lleva el rol y estado de ese hijo, y le da exactamente a uno `tabIndex: 0` — un **tabindex flotante**. El padre posee el manejador de teclas de flecha y mueve la parada. Consulte la tabla anterior para las teclas de cada componente, y [Widgets compuestos](/reference/core-a11y/#widgets-compuestos-tabindex-flotante) si está construyendo el suyo.
 
@@ -278,10 +278,10 @@ La regla práctica: `interactive = true` es para cosas con las que un usuario ac
 Para un campo de partículas, una capa de danmaku o un enjambre de sprites, prefiere una de estas opciones:
 
 - **Proyecta el contenedor, no los miembros.** Una entidad interactiva para toda la capa, con un `aria-label` que la describa colectivamente (\"5000 partículas\"), y maneja la entrada del puntero tú mismo mediante `scene.findEntityAt(x, y)` — que resuelve entidades independientemente de si son `interactive`, por lo que la detección de impacto no requiere proyección.
-- **Proyecta solo lo que es alcanzable.** El patrón de pooling usado por `TreeView`/`Table` virtualizados ajusta un pool de hotspots a las filas visibles en lugar de al conjunto de datos, por lo que la proyección se mantiene en O(viewport). Consulta [widgets compuestos](#widgets-compuestos-una-parada-de-tabulación-teclas-de-flecha-dentro).
+- **Proyecta solo lo que es alcanzable.** El patrón de pooling usado por `TreeView`/`Table` virtualizados ajusta un pool de hotspots a las filas visibles en lugar de al conjunto de datos, por lo que la proyección se mantiene en O(viewport). Consulta [widgets compuestos](#widgets-compuestos-una-parada-de-tabulacion-teclas-de-flecha-dentro).
 - **Llama a `scene.detachA11y(entity)`** cuando una entidad deje de ser accionable. Documentado en otra parte como prevención de fugas, es igualmente una palanca de costo: la sincronización por frame crea y actualiza pero nunca poda.
 
-Un modo `a11yProjection` por entidad (`'eager' | 'onDemand' | 'never'`, por defecto `'eager'`) controla cuándo se materializa el nodo shadow de la entidad; las mediciones y la API están documentadas en [`core-a11y`](/reference/core-a11y/#projection-cost-at-high-entity-counts-1300). Ten en cuenta que no puede basarse en "si hay un lector de pantalla presente" — eso es deliberadamente indetectable por diseño (principio de diseño 2.7 del W3C TAG), y los nodos de accesibilidad virtuales de AOM están bloqueados en todos los motores por razones de privacidad.
+Un modo `a11yProjection` por entidad (`'eager' | 'onDemand' | 'never'`, por defecto `'eager'`) controla cuándo se materializa el nodo shadow de la entidad; las mediciones y la API están documentadas en [`core-a11y`](/reference/core-a11y/#coste-de-la-proyeccion-con-muchas-entidades-1-30-0). Ten en cuenta que no puede basarse en "si hay un lector de pantalla presente" — eso es deliberadamente indetectable por diseño (principio de diseño 2.7 del W3C TAG), y los nodos de accesibilidad virtuales de AOM están bloqueados en todos los motores por razones de privacidad.
 
 ## Inspeccionar el árbol shadow programáticamente
 

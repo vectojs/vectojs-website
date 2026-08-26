@@ -119,7 +119,7 @@ scene.forcedColors: boolean             // getter — OS is in a forced-colors m
 발행된 `markDirty()`는 다음 프레임의 정적 검사까지 살아남습니다:
 
 > 수동 애니메이션(커스텀 `update()` 내부에서 `entity.x` 등을 변경)은 보고하지 않으면
-> 정적 검사에 보이지 않습니다 — [`entity.animate()`](/reference/core-entity/#애니메이션)으로
+> 정적 검사에 보이지 않습니다 — [`entity.animate()`](/reference/core-entity/#aenimeisyeon)으로
 > 모션을 구동하거나(트윈이 실행되는 동안 Scene을 비-정적으로 유지), 인테그레이터가 실행되는
 > 동안 `hasPendingAnimations()`를 오버라이드해 `true`를 반환하게 하거나, `update()`에서
 > 매 프레임 `scene.markDirty()`를 호출하세요(다음 프레임을 다시 무장합니다). 그렇지 않으면
@@ -152,7 +152,7 @@ render(r: IRenderer) {
 }
 ```
 
-[a11yRoot & 에이전트 계약](/reference/core-a11y/#강제-색상-고대비)를 참조하세요.
+[a11yRoot & 에이전트 계약](/reference/core-a11y/#gangje-saegsang-godaebi)를 참조하세요.
 
 ## 생명주기 메서드
 

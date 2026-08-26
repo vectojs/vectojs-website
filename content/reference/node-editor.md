@@ -156,11 +156,20 @@ a hidden one beneath.
 ## Persistence
 
 ```ts
-import { NodeEditorPersistence, NODE_EDITOR_SCHEMA_VERSION } from '@vectojs/node-editor';
+import {
+  nodeEditorPersistence,
+  exportDocument,
+  importDocument,
+  NODE_EDITOR_SCHEMA_VERSION,
+} from '@vectojs/node-editor';
 
-const persistence = new NodeEditorPersistence();
-const json = persistence.exportDocument(editor.document); // schemaVersion-stamped
-const doc = persistence.importDocument(json);
+// The persistence API is a ready-made object plus equivalent free functions —
+// there is no exported class to construct.
+const json = nodeEditorPersistence.exportDocument(editor.document); // schemaVersion-stamped
+const doc = nodeEditorPersistence.importDocument(json);
+// Same operations, stateless form:
+const json2 = exportDocument(editor.document);
+const doc2 = importDocument(json2);
 ```
 
 `exportDocument`/`importDocument` carry `NODE_EDITOR_SCHEMA_VERSION` (1);

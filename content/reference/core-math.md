@@ -10,7 +10,7 @@ weight = 9
 package (a leaf package with no dependencies). [`@vectojs/core`](/reference/core-api/)
 depends on and re-exports it, so it resolves from either `@vectojs/math` or
 `@vectojs/core`. The spring integrator here also backs `SpringDriver` in
-[`@vectojs/animation`](/reference/core-api/#entry-points--module-map).
+[`@vectojs/animation`](/reference/core-api/#entry-points-module-map).
 
 ```ts
 new SpatialHashGrid(cellSize = ...)

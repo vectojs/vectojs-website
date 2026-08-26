@@ -11,7 +11,7 @@ conjunto de easings seleccionados y la forma `MotionConfig` que comparte toda su
 VectoJS. `@vectojs/core` depende de él y lo **re-exporta**, por lo que la mayoría de las aplicaciones
 nunca importan este paquete directamente — `entity.setTransition({ x: 'spring' })`,
 `entity.animateTo(...)`, `entity.springTo(...)` y `entity.animate({...}, ms)`
-son los puntos de entrada (consulta [`core-entity` # Animation](/reference/core-entity/#animation)).
+son los puntos de entrada (consulta [`core-entity` # Animation](/reference/core-entity/#animacion)).
 Impórtalo directamente para crear drivers personalizados o usar los easings de forma independiente:
 
 ```ts
@@ -30,8 +30,8 @@ interface TweenConfig {
 }
 
 interface SpringConfig {
-  stiffness?: number; // default 170
-  damping?: number; // default 26
+  stiffness?: number; // default 180
+  damping?: number; // default 12
   mass?: number; // default 1
 }
 ```
@@ -111,4 +111,4 @@ t * t * (3 - 2 * t)`.
 | `animate({...}, ms)`                                | tweens sobre las seis propiedades numéricas integradas |
 
 `animate()` solo interpola `x | y | scaleX | scaleY | rotation | opacity`
-— los campos personalizados no se controlan (consulta [`core-entity`](/reference/core-entity/#animation)).
+— los campos personalizados no se controlan (consulta [`core-entity`](/reference/core-entity/#animacion)).

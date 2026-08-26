@@ -295,9 +295,9 @@ CPU 실행을 완전히 우회하기 위해 VectoJS는 `ComputeParticleEntity`�
 - 런타임에 데이터는 GPU VRAM에 상주하여 WebGPU 컴퓨트 패스가 수천 개의 GPU 코어에서 시뮬레이션을 병렬화할 수 있습니다.
 - 렌더러는 WebGPU를 사용할 수 없거나 장치가 손실된 경우 자동으로 동등한 CPU 루프(`updateCPU()`)로 폴백됩니다.
 
-> [!IMPORTANT] > **이것은 $N$-body 시뮬레이션이 아닙니다.** 각 파티클의 힘은 스프링 원점, 마우스 커서, 선택적 폭발 중심의 세 가지 _고정된_ 점에 대해서만 계산됩니다. 파티클 간 상호작용이나 공간 인덱스는 포함되지 않으며, 이것이 바로 이 시뮬레이션이 병렬화에 매우 적합하고 GPU 친화적인 이유입니다. 실제 이웃 상호작용(파티클 간 충돌 또는 반발, 플로킹, N-body 중력)이 필요하다면 `ComputeParticleEntity`는 이를 지원하지 않습니다 — 이웃 쿼리가 내장된 자체 WGSL 컴퓨트 패스를 작성하거나, CPU에서 `SpatialHashGrid` 기반 이웃 쿼리를 실행해야 합니다 (아래 [`SpatialHashGrid`](#3-엔티티-상호작용의-바다-on2-복잡성-문제) 및 CPU 예제가 있는 [Physics Engine 가이드](/learn/physics-engine/) 참조). 현재 엔진에는 "CPU 폴백으로 GPU에서 임의 계산 실행"을 위한 일반적인 추상화가 없습니다 — `ComputeParticleEntity`는 구체적이고 좁은 구현체일 뿐, 재사용 가능한 패턴이 아닙니다.
+> [!IMPORTANT] > **이것은 $N$-body 시뮬레이션이 아닙니다.** 각 파티클의 힘은 스프링 원점, 마우스 커서, 선택적 폭발 중심의 세 가지 _고정된_ 점에 대해서만 계산됩니다. 파티클 간 상호작용이나 공간 인덱스는 포함되지 않으며, 이것이 바로 이 시뮬레이션이 병렬화에 매우 적합하고 GPU 친화적인 이유입니다. 실제 이웃 상호작용(파티클 간 충돌 또는 반발, 플로킹, N-body 중력)이 필요하다면 `ComputeParticleEntity`는 이를 지원하지 않습니다 — 이웃 쿼리가 내장된 자체 WGSL 컴퓨트 패스를 작성하거나, CPU에서 `SpatialHashGrid` 기반 이웃 쿼리를 실행해야 합니다 (아래 [`SpatialHashGrid`](#3-entiti-sanghojagyongyi-bada-o-n-2-bogjabseong-munje) 및 CPU 예제가 있는 [Physics Engine 가이드](/learn/physics-engine/) 참조). 현재 엔진에는 "CPU 폴백으로 GPU에서 임의 계산 실행"을 위한 일반적인 추상화가 없습니다 — `ComputeParticleEntity`는 구체적이고 좁은 구현체일 뿐, 재사용 가능한 패턴이 아닙니다.
 
-고성능 처리량은 GPU, 브라우저, DPR, 파티클 모델, 구성에 크게 의존합니다. 이 저장소에는 체크인된 고성능 WebGPU 결과가 없으므로, **Export report** 버튼을 사용하여 자신의 장면을 측정하세요 (아래 [실제 성능 측정](#실제-성능-측정) 참조).
+고성능 처리량은 GPU, 브라우저, DPR, 파티클 모델, 구성에 크게 의존합니다. 이 저장소에는 체크인된 고성능 WebGPU 결과가 없으므로, **Export report** 버튼을 사용하여 자신의 장면을 측정하세요 (아래 [실제 성능 측정](#silje-seongneung-ceugjeong) 참조).
 
 ---
 
@@ -316,7 +316,7 @@ VectoJS는 세 가지 수준의 텍스트 최적화를 제공합니다:
 
 ---
 
-### 3. 엔티티 상호작용의 바다 ($O(N^2)$ 복잡성 문제)
+### 3. 엔티티 상호작용의 바다 ($O(N^2)$ 복잡성 문제) {#3-entiti-sanghojagyongyi-bada-o-n-2-bogjabseong-munje}
 
 **병목 현상:** 쌍별 엔티티 간 충돌 또는 근접성 검사는 $O(N^2)$ 후보 비교가 필요합니다. 이 증가는 쌍당 작업량에 따라 매우 큰 장면 수에 도달하기 전에 실용적이지 않게 됩니다.
 
@@ -332,7 +332,7 @@ VectoJS는 세 가지 수준의 텍스트 최적화를 제공합니다:
 
 ---
 
-## 실제 성능 측정
+## 실제 성능 측정 {#silje-seongneung-ceugjeong}
 
 > [!WARNING]
 > 헤드리스 Chrome은 종종 소프트웨어 래스터화와 다른 프레임 스케줄링을 사용합니다. FPS를 동일 환경 내 회귀 신호로 취급하고, 하한 또는 프로덕션 예측으로 사용하지 마세요.

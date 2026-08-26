@@ -66,7 +66,7 @@ camera.setSize(width, height); // à appeler au redimensionnement du canvas
 camera.dispose(); // supprime les écouteurs pointeur/molette
 ```
 
-`mode: '2d' | '3d'` sélectionne le type de caméra ; `fitToPositions(positions)` cadre un tampon de triplets xyz (la même forme que consomme [`applyPositions`](/reference/graph3d-renderer/#méthodes)). Associez-le à `GraphInteraction` en passant `() => camera.camera` (un getter, de sorte que `setMode` reste actif) et en câblant `setControlsEnabled` pour qu'un glissement de nœud ne panoramique pas aussi la vue.
+`mode: '2d' | '3d'` sélectionne le type de caméra ; `fitToPositions(positions)` cadre un tampon de triplets xyz (la même forme que consomme [`applyPositions`](/reference/graph3d-renderer/#methodes)). Associez-le à `GraphInteraction` en passant `() => camera.camera` (un getter, de sorte que `setMode` reste actif) et en câblant `setControlsEnabled` pour qu'un glissement de nœud ne panoramique pas aussi la vue.
 
 ## Noyau de force WASM
 

@@ -87,7 +87,7 @@ gpu.phases; // per-phase timing
 >
 > `webgl`이 `null`이면 포인트 레이어가 전혀 실행되지 않는 것이며, 전부 0인 `webgl`이 실행되었지만 아무것도 그리지 않았다는 것과는 다릅니다. `webgpu.pipelines`와 `bindGroups`는 디바이스에서 조회하는 것이 아니라 활성 플래그와 파티클 엔티티 수에서 파생됩니다. `particleEntities`는 숫자형 `maxParticles`에 덕 타이핑되며 메인 트리만 셉니다.
 
-패널이나 에이전트에서 계측을 토글하기 위해 [플러그인 명령](/reference/devtools-extend/#플러그인-프로토콜)으로 세 개의 명령이 내보내집니다:
+패널이나 에이전트에서 계측을 토글하기 위해 [플러그인 명령](/reference/devtools-extend/#peulreogeuin-peurotokol)으로 세 개의 명령이 내보내집니다:
 
 ```typescript
 const enableDrawCountersCommand: PluginCommand; // 'enable-draw-counters'
@@ -270,7 +270,7 @@ interface MarkdownStreamInfo {
 
 ## 이것들을 패널 탭으로 등록하기
 
-각 하위 시스템은 패널이 탭으로 표시할 수 있도록 일치하는 [플러그인](/reference/devtools-extend/#플러그인-프로토콜) 디스크립터를 제공합니다. **아무것도 자동으로 등록되지 않습니다** — GPU를 검사한 적 없는 빌드는 그 코드를 싣지 않습니다:
+각 하위 시스템은 패널이 탭으로 표시할 수 있도록 일치하는 [플러그인](/reference/devtools-extend/#peulreogeuin-peurotokol) 디스크립터를 제공합니다. **아무것도 자동으로 등록되지 않습니다** — GPU를 검사한 적 없는 빌드는 그 코드를 싣지 않습니다:
 
 ```typescript
 import {

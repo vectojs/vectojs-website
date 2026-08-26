@@ -241,7 +241,7 @@ space is reset to the base direction by BiDi rule L1 and lands at the visual lef
 so it is collapsed rather than left holding the line a space-width inside the
 measure. The paragraph-final line stays ragged (still flush right).
 
-`TextEntity` exposes both directly: `text.setTextAlign('justify')`, `text.setHyphenator(fn)` — see [`TextEntity` & `GridTextEntity`](/reference/core-text/#textentity--gridtextentity-from-) for details. These render correctly because `TextEntity` draws each glyph at its own computed position. The `@vectojs/ui` `Text`/`RichText` components accept the same options (`textAlign: 'justify'`, `hyphenate`) and `MSDFTextEntity` gained `setTextAlign`/`setHyphenator` too.
+`TextEntity` exposes both directly: `text.setTextAlign('justify')`, `text.setHyphenator(fn)` — see [`TextEntity` & `GridTextEntity`](/reference/core-text/#textentity-gridtextentity-from) for details. These render correctly because `TextEntity` draws each glyph at its own computed position. The `@vectojs/ui` `Text`/`RichText` components accept the same options (`textAlign: 'justify'`, `hyphenate`) and `MSDFTextEntity` gained `setTextAlign`/`setHyphenator` too.
 
 ---
 

@@ -110,7 +110,7 @@ window.addEventListener('resize', () => {
 재구축이 아니라 제자리에서 재배치하며, 그래서 스트리밍 도중에도 쓸 수 있습니다:
 
 - 동일한 블록 엔티티 **인스턴스**가 살아남으므로, 그 참조를 들고 있는 것(스크롤 앵커, 히트 타깃, devtools 선택)이 계속 동작합니다;
-- 열려 있는 [`createStream()`](#스트리밍) 라이터는 영향을 받지 않고 계속 추가합니다;
+- 열려 있는 [`createStream()`](#seuteuriming) 라이터는 영향을 받지 않고 계속 추가합니다;
 - 어떤 것도 다시 어휘 분석되지 않습니다.
 
 두 엔진에서 5개 블록 문서로 실측: 520 → 260 px에서 투영 줄 수가 2 → 4, 높이가 88 → 160으로 바뀌었고, 동일한 두 단락 인스턴스 위에서 라이터는 여전히 `open`이었으며 어휘 분석기에 넘어간 문자 수 증가는 **0**이었습니다.
@@ -122,7 +122,7 @@ window.addEventListener('resize', () => {
 
 디스플레이 수식은 의도적으로 자체 너비를 유지합니다: `@vectojs/tex`는 조판 박스 크기를 사용 가능한 너비가 아니라 `ex` 기준 메트릭으로 정하므로, 늘리면 수식이 왜곡됩니다. 펜스 코드도 다시 줄바꿈되지 않습니다 — 코드는 고정 고정폭 그리드를 가지며 긴 줄은 설계상 넘칩니다 — 배경만 크기가 조정됩니다.
 
-[`onStable`](#1회성-완료one-shot-completion-onstable) 콜백에서 호출하면 `setContent()`와 같은 이유로 예외를 던집니다: 그 콜백은 자신이 무효화할 커밋 내부에서 실행되기 때문입니다.
+[`onStable`](#1hoeseong-wanryo-one-shot-completion-onstable) 콜백에서 호출하면 `setContent()`와 같은 이유로 예외를 던집니다: 그 콜백은 자신이 무효화할 커밋 내부에서 실행되기 때문입니다.
 
 ## GFM 커버리지
 
@@ -168,7 +168,7 @@ md.frontMatterFields; // { title: 'Release notes', date: '2026-08-03' }
 때까지 열려 있는 블록은 콘텐츠로 방출되며, 보류에는 상한이 있으므로 긴 문서 맨 앞의
 수평선이 스트리밍을 지연시킬 수는 없습니다.
 
-## 스트리밍
+## 스트리밍 {#seuteuriming}
 
 `createStream()`은 이 `Markdown`에 프레임 단위로 합치는 라이터 하나를 연결합니다.
 소스를 소비하는 동안 `write()`를 await 하세요. `close()`는 또 다른 애니메이션
@@ -242,7 +242,7 @@ interface StreamController {
 
 모드는 컨트롤러가 아닌 `Markdown`에 의해 해석됩니다: 컨트롤러는 버퍼링과 페이싱을 소유하는 반면, 추측은 후행 문단에 대한 렌더링 시간 변환입니다.
 
-### 1회성 완료(One-shot completion): `onStable`
+### 1회성 완료(One-shot completion): `onStable` {#1hoeseong-wanryo-one-shot-completion-onstable}
 
 ```ts
 const stream = markdown.createStream({

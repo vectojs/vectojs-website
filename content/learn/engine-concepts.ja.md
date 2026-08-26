@@ -31,13 +31,13 @@ VMTは、視覚DOMサブツリーをローカライズされた座標系のJavaS
 
 エンティティの変換、スケール、回転はツリー下で合成されます。`worldToLocal()`は変換を解析的に反転し、ポインターイベントをターゲットエンティティのローカル座標にマッピングできるようにします。
 
-- 理論：[数学的基礎：アフィン変換](/learn/math-foundations/#3-アフィン変換)
+- 理論：[数学的基礎：アフィン変換](/learn/math-foundations/#3-ahuinbian-huan)
 
 ## 4. コールド/ホットレイアウト
 
 テキストレイアウトは、高コストなコンテンツ準備とレスポンシブな折り返しを分離します。コンテンツの変更はコールドパスを実行し、幅の変更は準備済みの測定値を再利用できます。
 
-- 理論：[数学的基礎：コールド/ホット分割](/learn/math-foundations/#4-coldhotスプリットレイアウトエンジン)
+- 理論：[数学的基礎：コールド/ホット分割](/learn/math-foundations/#4-cold-hotsupuritutoreiautoenzin)
 - 実践：[テキストとタイポグラフィ](/learn/text-typography/)
 
 ## 5. 集合差テキストフロー
@@ -46,26 +46,26 @@ VMTは、視覚DOMサブツリーをローカライズされた座標系のJavaS
 
 $$I_{\text{allowed}} = I_0 \setminus \bigcup E_k$$
 
-- 理論：[数学的基礎：集合差代数](/learn/math-foundations/#5-テキストフローのための集合差代数)
+- 理論：[数学的基礎：集合差代数](/learn/math-foundations/#5-tekisutohuronotamenoji-he-chai-dai-shu)
 
 ## 6. サンプリングスプラインヒットテスト
 
 `SplineEntity`は曲線をキャッシュされた線分にサンプリングし、ポインター距離の二乗をそれらの線分と比較します。これによりピクセル読み取りが不要になり、AABBのみのヒットテストより正確です。
 
-- 理論：[数学的基礎：サンプリングスプラインヒットテスト](/learn/math-foundations/#6-サンプリングされたスプラインhit-testing)
+- 理論：[数学的基礎：サンプリングスプラインヒットテスト](/learn/math-foundations/#6-sanpuringusaretasupurainhit-testing)
 
 ## 7. 半陰的オイラー動力学
 
 中断されたUI遷移は、一回限りのCSSタイマーではなくばね様システムとしてモデル化されます。ターゲットは飛行中に変更でき、モーションは連続的に保たれます。
 
-- 理論：[数学的基礎：ODE動力学](/learn/math-foundations/#7-微分方程式と半陰的オイラーソルバー)
+- 理論：[数学的基礎：ODE動力学](/learn/math-foundations/#7-wei-fen-fang-cheng-shi-toban-yin-de-oirasoruba)
 - 実践：[物理とアニメーション](/learn/physics-engine/)
 
 ## 8. SpatialHashGridユーティリティ
 
 VectoJSはアプリケーション所有の近接クエリ用に固定セルの`SpatialHashGrid`をエクスポートします。Sceneはすべてのエンティティに対して自動的に設定しません。
 
-- 理論：[数学的基礎：SpatialHashGridユーティリティ](/learn/math-foundations/#8-spatialhashgridユーティリティ)
+- 理論：[数学的基礎：SpatialHashGridユーティリティ](/learn/math-foundations/#8-spatialhashgridyuteiritei)
 - 実践：[パフォーマンス](/learn/performance/)
 
 ## 次のステップ

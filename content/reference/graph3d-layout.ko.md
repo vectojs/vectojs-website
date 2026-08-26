@@ -55,7 +55,7 @@ interface GraphLayout {
 }
 ```
 
-계약은 의도적으로 최소화되고 worker 친화적입니다: positions는 `GraphData.nodes` 순서의 xyz 삼중항으로 된 하나의 평평한 `Float32Array`이므로, 구현체가 Web Worker 내부에 완전히 존재하고 전송 가능한 버퍼를 스레드 경계를 통해 노드별 객체 트래픽 없이 스트리밍할 수 있습니다. [`Graph3D.applyPositions()`](/reference/graph3d-renderer/#메서드)는 동일한 버퍼 형태를 직접 사용합니다. `positions`는 단계마다 **재사용되는 동일한 배열 인스턴스**입니다 — 안정적인 스냅샷이 필요하면 복사(`layout.positions.slice()`)하세요.
+계약은 의도적으로 최소화되고 worker 친화적입니다: positions는 `GraphData.nodes` 순서의 xyz 삼중항으로 된 하나의 평평한 `Float32Array`이므로, 구현체가 Web Worker 내부에 완전히 존재하고 전송 가능한 버퍼를 스레드 경계를 통해 노드별 객체 트래픽 없이 스트리밍할 수 있습니다. [`Graph3D.applyPositions()`](/reference/graph3d-renderer/#meseodeu)는 동일한 버퍼 형태를 직접 사용합니다. `positions`는 단계마다 **재사용되는 동일한 배열 인스턴스**입니다 — 안정적인 스냅샷이 필요하면 복사(`layout.positions.slice()`)하세요.
 
 **링크 엔드포인트 검증은 스택 전반에서 동일합니다 (0.6.1).**
 `Graph3D.setGraphData`, `VectoForceLayout.setGraph`, `D3ForceLayout.setGraph`는
@@ -135,7 +135,7 @@ layout.enableWasmForceSync(bytes); // sync; BufferSource, never fetches
 
 둘 다 실패(CSP, 404, 손상된 모듈) 시 `false`를 반환하고 비트 단위로 동일한 JS Barnes-Hut을 조용히 유지합니다 — 이것이 영구적인 폴백이자 차등 오라클입니다. 커널은 `@vectojs/core` 의존성이 없습니다.
 
-**핀 (0.2.0부터).** `D3ForceLayout`과 `VectoForceLayout` 모두 선택적 핀 컨트롤을 구현하며(d3는 `fx`/`fy`/`fz`를 통해, VectoForceLayout은 자체 핀 배열을 통해), 이것이 [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--호버--선택--드래그-투-핀)의 드래그-투-핀을 구동합니다:
+**핀 (0.2.0부터).** `D3ForceLayout`과 `VectoForceLayout` 모두 선택적 핀 컨트롤을 구현하며(d3는 `fx`/`fy`/`fz`를 통해, VectoForceLayout은 자체 핀 배열을 통해), 이것이 [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction-hobeo-seontaeg-deuraegeu-tu-pin)의 드래그-투-핀을 구동합니다:
 
 ```ts
 layout.pinNode(i, x, y, z); // 노드 i를 (x,y,z)에 고정; 매 틱마다 positions[i]도 갱신

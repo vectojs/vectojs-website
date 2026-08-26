@@ -66,7 +66,7 @@ camera.setSize(width, height); // call on canvas resize
 camera.dispose(); // remove pointer/wheel listeners
 ```
 
-`mode: '2d' | '3d'`가 카메라 유형을 선택합니다; `fitToPositions(positions)`는 xyz 삼중항 버퍼([`applyPositions`](/reference/graph3d-renderer/#메서드)가 소비하는 것과 동일한 형태)를 프레임에 맞춥니다. `() => camera.camera`(게터이므로 `setMode`가 계속 살아 있음)를 전달하고 `setControlsEnabled`를 연결하여 노드 드래그가 뷰도 팬하지 않도록 하여 `GraphInteraction`과 함께 사용하세요.
+`mode: '2d' | '3d'`가 카메라 유형을 선택합니다; `fitToPositions(positions)`는 xyz 삼중항 버퍼([`applyPositions`](/reference/graph3d-renderer/#meseodeu)가 소비하는 것과 동일한 형태)를 프레임에 맞춥니다. `() => camera.camera`(게터이므로 `setMode`가 계속 살아 있음)를 전달하고 `setControlsEnabled`를 연결하여 노드 드래그가 뷰도 팬하지 않도록 하여 `GraphInteraction`과 함께 사용하세요.
 
 ## WASM 힘 커널
 

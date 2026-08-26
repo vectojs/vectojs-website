@@ -58,7 +58,7 @@ applyStyle(stack, style({ flexDirection: 'row', gap: '8px', alignItems: 'center'
   `dracula`.
 - `Style` — la interfaz de estilo. Todas las claves son opcionales.
 - `composeFont(current, changes)` — recompone una cadena abreviada de fuente CSS
-  (consulta [Composición de fuentes](#composición-de-fuentes)).
+  (consulta [Composición de fuentes](#composicion-de-fuentes)).
 - `ThemeTokenSet` — `Record<string, string | number>`; el tipo de un
   conjunto de `tokens()` y de `Theme.tokens`.
 - `Theme` — `{ readonly tokens: ThemeTokenSet }`, creado por `tokens()`.
@@ -120,7 +120,7 @@ applyStyle(btn, style({ backgroundColor: 'var(--accent)', borderRadius: 'var(--r
 - El tema predeterminado es el preset `light`; los conjuntos de `tokens()` son objetos simples,
   por lo que el tema de la persona que llama es una extensión: `tokens({ ...PRESET_THEMES.dark, accent: "#f00" })`.
 
-## Composición de fuentes
+## Composición de fuentes {#composicion-de-fuentes}
 
 `fontFamily`, `fontSize` y `fontWeight` no son campos independientes — los componentes de
 ui llevan la fuente completa como una sola cadena abreviada. Estas claves analizan la

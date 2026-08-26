@@ -243,7 +243,7 @@ Les compartiments vivent dans un simple `Map`, pas dans une table à capacité f
 
 - **Indexation gérée par l'application** : Appelez `insert(id, x, y, w, h)` à mesure que les entités se déplacent, ou `clear()` et reconstruisez pour une trame dynamique.
 - **Requête AABB** : `query(x, y, w, h)` visite chaque cellule de grille chevauchée par cette boîte et renvoie un `Set<string>` dédupliqué.
-- _Résultat_ : Le temps de requête est proportionnel aux cellules chevauchées plus les ID renvoyés. Il n'est quasi constant que pour de petites entités de taille similaire et uniformément distribuées ; les compartiments denses dégénèrent vers des balayages linéaires. Voir le [guide de performance](/learn/performance/#3-interaction-dune-mer-dentités-catastrophe-de-complexité-on2).
+- _Résultat_ : Le temps de requête est proportionnel aux cellules chevauchées plus les ID renvoyés. Il n'est quasi constant que pour de petites entités de taille similaire et uniformément distribuées ; les compartiments denses dégénèrent vers des balayages linéaires. Voir le [guide de performance](/learn/performance/#3-interaction-d-une-mer-d-entites-catastrophe-de-complexite-o-n-2).
 
 ---
 

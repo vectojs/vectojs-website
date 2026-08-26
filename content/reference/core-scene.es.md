@@ -150,7 +150,7 @@ sobrevive hasta la comprobación estática del siguiente fotograma:
 
 > El movimiento animado manualmente (mutando `entity.x` etc. dentro de un `update()` personalizado)
 > es invisible para el chequeo estático si no lo informas — impúlsalo a través de
-> [`entity.animate()`](/reference/core-entity/#animación) (que mantiene la escena no estática mientras
+> [`entity.animate()`](/reference/core-entity/#animacion) (que mantiene la escena no estática mientras
 > el tween se ejecuta), sobrescribe `hasPendingAnimations()` para que devuelva `true` mientras tu
 > integrador está en marcha, o llama a `scene.markDirty()` cada fotograma desde tu `update()`
 > (lo cual rearma el siguiente fotograma). De lo contrario, la escena cae en inactividad hasta el

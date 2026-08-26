@@ -184,7 +184,7 @@ differential oracle. The kernel has no `@vectojs/core` dependency.
 **Pinning (since 0.2.0).** Both `D3ForceLayout` and `VectoForceLayout` implement
 the optional pin controls (d3 over `fx`/`fy`/`fz`, VectoForceLayout over its own
 pin arrays), which is what powers
-[`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--hover--select--drag-to-pin)'s
+[`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction-hover-select-drag-to-pin)'s
 drag-to-pin:
 
 ```ts

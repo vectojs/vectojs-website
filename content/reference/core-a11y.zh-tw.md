@@ -8,7 +8,7 @@ weight = 10
 
 屬於 [`@vectojs/core`](/reference/core-api/) 的一部分。
 
-每個具有框的可互動 entity 都會將一個**透明 ARIA 陰影節點**投射到 Scene 的 `a11yRoot` div 中（位於 canvas 上方，`pointerEvents:auto` 讓自動化/AT 可以互動；除非 `debugA11y` 否則 `opacity:0`）。每個節點攜帶 `id` + `data-vecto-id`，以及來自 [`Entity.getA11yAttributes()`](/reference/core-entity/#a11y--批次處理掛鉤覆寫以啟用) 的角色/標籤/狀態。
+每個具有框的可互動 entity 都會將一個**透明 ARIA 陰影節點**投射到 Scene 的 `a11yRoot` div 中（位於 canvas 上方，`pointerEvents:auto` 讓自動化/AT 可以互動；除非 `debugA11y` 否則 `opacity:0`）。每個節點攜帶 `id` + `data-vecto-id`，以及來自 [`Entity.getA11yAttributes()`](/reference/core-entity/#a11y-pi-ci-chu-li-gua-gou-fu-xie-yi-qi-yong) 的角色/標籤/狀態。
 
 投射根追蹤 canvas 的 CSS 框：canvas 偏移和非均勻 CSS 縮放會套用到陰影和 DOM-portal 層，而 entity 幾何則保持在邏輯 Scene 座標中。canvas 的任意 CSS 旋轉/傾斜不屬於此對應。
 
@@ -58,13 +58,13 @@ weight = 10
 
 非原生可聚焦的可互動角色（`button`、`switch`、`checkbox`、`link`、`slider` 等）會取得 `tabindex="0"` 以及 Enter/Space → `click`。
 
-**複合元件有所不同。** `tree`、`grid`、`menu`、`radiogroup` 或 `tablist` 是一個標籤停靠點，而不是每個子元素一個——因此它們的子元素使用**漫遊 tabindex**：恰好一個子元素攜帶 `tabIndex: 0`，其餘為 `-1`，方向鍵移動該停靠點。參見[複合元件](#複合元件漫遊-tabindex)。
+**複合元件有所不同。** `tree`、`grid`、`menu`、`radiogroup` 或 `tablist` 是一個標籤停靠點，而不是每個子元素一個——因此它們的子元素使用**漫遊 tabindex**：恰好一個子元素攜帶 `tabIndex: 0`，其餘為 `-1`，方向鍵移動該停靠點。參見[複合元件](#fu-he-yuan-jian-man-you-tabindex)。
 
-標籤順序遵循**視覺**閱讀順序，而非場景圖插入順序——參見 [`Scene.readingDirection`](/reference/core-scene/#無障礙與外觀) 了解 RTL。
+標籤順序遵循**視覺**閱讀順序，而非場景圖插入順序——參見 [`Scene.readingDirection`](/reference/core-scene/#wu-zhang-ai-yu-wai-guan) 了解 RTL。
 
 當非控制項區域（如設計 canvas）必須進入循序焦點順序並接收 VMT `keydown` 事件時，明確設定 `tabIndex: 0`。使用 `-1` 僅用於程式化焦點；回傳 `undefined` 會移除明確的值。
 
-## 複合元件（漫遊 tabindex）
+## 複合元件（漫遊 tabindex） {#fu-he-yuan-jian-man-you-tabindex}
 
 樹、格線、選單、單選按鈕群組或標籤列表必須為每個子元素暴露**一個角色**，而不僅僅是容器角色——否則 AT 看到的是一個不透明的方框。VectoJS 透過在每個可見子元素上方匯集一個透明的、可聚焦的子實體（「熱點」）來實作：它攜帶子元素的 `role` + 狀態 + 漫遊 `tabIndex`，不渲染任何內容，父元素擁有鍵盤處理程式。
 
@@ -82,7 +82,7 @@ weight = 10
 
 ## 強制色彩（高對比度）
 
-canvas 是不透明像素，因此瀏覽器的 `forced-colors` 重新對應永遠不會觸及 VectoJS 繪製的內容——在 Windows 高對比度下，主題控制項會保持不可讀，除非元件重新繪製自身。請參見 [`Scene.forcedColors`](/reference/core-scene/#無障礙與外觀) 並使用 CSS 系統顏色（`ButtonFace`、`ButtonText`、`Highlight`、`Canvas`、`CanvasText`）繪製；當設定切換時場景會自動重繪。`Button` 已經這樣做了。
+canvas 是不透明像素，因此瀏覽器的 `forced-colors` 重新對應永遠不會觸及 VectoJS 繪製的內容——在 Windows 高對比度下，主題控制項會保持不可讀，除非元件重新繪製自身。請參見 [`Scene.forcedColors`](/reference/core-scene/#wu-zhang-ai-yu-wai-guan) 並使用 CSS 系統顏色（`ButtonFace`、`ButtonText`、`Highlight`、`Canvas`、`CanvasText`）繪製；當設定切換時場景會自動重繪。`Button` 已經這樣做了。
 
 ## 高實體數量下的投影開銷（`1.30.0+`）
 
@@ -134,7 +134,7 @@ scene.releaseA11yProjection(previous);
 基數本身並不是動用 `'onDemand'` 的判準，而下面這種情形最容易被弄錯：
 
 > [!WARNING]
-> **不要因為與粒子類比就把 `'onDemand'` 用在正文文字上。** 對於按鈕或圖節點，canvas entity 是主體，陰影節點是暫時的語意代理，因此在被使用前扣留它不會損失什麼。而對於散文、Markdown 或聊天記錄，canvas 點陣圖對螢幕閱讀器**完全不可讀**，並且對非視覺使用者而言**閱讀就是首要互動**，而非偶爾為之的操作。文字 entity 預設不可互動，承載其語意的是[內容投影](/reference/core-renderer/#entitygetcontentprojection)——而不是陰影節點；該投影按行虛擬化，並保持常駐。
+> **不要因為與粒子類比就把 `'onDemand'` 用在正文文字上。** 對於按鈕或圖節點，canvas entity 是主體，陰影節點是暫時的語意代理，因此在被使用前扣留它不會損失什麼。而對於散文、Markdown 或聊天記錄，canvas 點陣圖對螢幕閱讀器**完全不可讀**，並且對非視覺使用者而言**閱讀就是首要互動**，而非偶爾為之的操作。文字 entity 預設不可互動，承載其語意的是[內容投影](/reference/core-renderer/#entity-getcontentprojection)——而不是陰影節點；該投影按行虛擬化，並保持常駐。
 
 另外，能被單獨觸及與能被理解並不是同一件事：
 

@@ -93,7 +93,7 @@ possède un contexte GPU doit :
    fraîchement effacée.
 
 `CanvasRenderer` le fait pour Canvas2D, et `ThreeRenderer` pour WebGL — voir
-[`@vectojs/three`](/reference/three-renderer/#perte-de-contexte-gpu-et-dpr-à-lexécution).
+[`@vectojs/three`](/reference/three-renderer/#perte-de-contexte-gpu-et-dpr-a-l-execution).
 
 `fillCircle` fusionne les appels consécutifs de même `color`/`alpha` en un seul chemin,
 validé sur `flush()` (ou quand le style change). La Scène vide à la fin de chaque
@@ -331,7 +331,7 @@ transformations que la primitive GPU ne peut pas représenter exactement (par ex
 l'échelle non uniforme ou le cisaillement) tombent en repli sur le renderer normal.
 
 > Les hooks d'entité `getBatchCircle()` → `{ radius, color }` et `getBatchRect()` →
-> `{ width, height, color }` (voir [`Entity`](/reference/core-entity/#hooks-a11y--lot-redéfinir-pour-adhérer))
+> `{ width, height, color }` (voir [`Entity`](/reference/core-entity/#hooks-a11y-lot-redefinir-pour-adherer))
 > sont les adhésions par entité qui alimentent cette couche.
 
 `flush()` émet **au plus un appel de dessin par type de primitive**, donc le nombre d'appels de dessin n'est pas la limite de passage à l'échelle — ce sont les octets téléchargés qui le sont. Depuis core 1.16.2, chaque lot de quadrilatères (rect, sprite, glyphe, cercle découpé) télécharge **4 sommets** et dessine avec `drawElements` contre un tampon d'index statique partagé de 32 bits, plutôt que de se développer en 6 sommets pour `drawArrays`. Cela supprime les deux coins dupliqués par quadrilatère, réduisant le volume de téléchargement d'un tiers ; le tampon d'index est construit une fois et recréé géométriquement, jamais renvoyé par image. Les index sont en 32 bits car un `Uint16Array` limiterait un lot à 16 383 quadrilatères, ce que les scènes réelles dépassent.

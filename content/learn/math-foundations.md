@@ -245,7 +245,7 @@ Buckets live in a plain `Map`, not a fixed-capacity table — there's no modulus
 
 - **Application-managed indexing**: Call `insert(id, x, y, w, h)` as entities move, or `clear()` and rebuild for a dynamic frame.
 - **AABB query**: `query(x, y, w, h)` visits every grid cell overlapped by that box and returns a deduplicated `Set<string>`.
-- _Result_: Query time is proportional to overlapped cells plus returned IDs. It is near-constant only for small, similarly sized, uniformly distributed entities; dense buckets degrade toward linear scans. See the [Performance guide](/learn/performance/#3-sea-of-entities-interaction-on2-complexity-catastrophe).
+- _Result_: Query time is proportional to overlapped cells plus returned IDs. It is near-constant only for small, similarly sized, uniformly distributed entities; dense buckets degrade toward linear scans. See the [Performance guide](/learn/performance/#3-sea-of-entities-interaction-o-n-2-complexity-catastrophe).
 
 ---
 

@@ -33,8 +33,8 @@ interface TweenConfig {
 }
 
 interface SpringConfig {
-  stiffness?: number; // default 170
-  damping?: number; // default 26
+  stiffness?: number; // default 180
+  damping?: number; // default 12
   mass?: number; // default 1
 }
 ```

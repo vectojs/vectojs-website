@@ -90,7 +90,7 @@ springTo(props: Partial<Record<AnimatableProp, number>>, cfg?: SpringConfig): Pr
 `animate()` encola un tween; las múltiples llamadas **se encadenan secuencialmente**. Solo las propiedades
 numéricas se interpolan; la easing es un ease-out fijo (`p * (2 - p)`). Un
 `animate()` en ejecución mantiene la escena no estática (escapa del acelerador por inactividad, ver
-[`Scene`](/reference/core-scene/#rendermode-maxfps-y-el-acelerador-automático-por-inactividad))
+[`Scene`](/reference/core-scene/#rendermode-maxfps-y-el-acelerador-automatico-por-inactividad))
 y congela la sincronización a11y hasta que se estabiliza.
 
 `hasPendingAnimations()` es **sobrescribible** y es la única ventana de la Scene hacia

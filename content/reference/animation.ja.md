@@ -6,7 +6,7 @@ weight = 54
 
 # `@vectojs/animation`
 
-スタンドアロンのアニメーションエンジン: 滑らかな数値モーションのためのプロパティドライバ、厳選されたイージングセット、そしてすべての VectoJS モーションサーフェスが共有する `MotionConfig` 形状。`@vectojs/core` はこれを依存し**再エクスポート**するため、ほとんどのアプリはこのパッケージを直接インポートしません — `entity.setTransition({ x: 'spring' })`、`entity.animateTo(...)`、`entity.springTo(...)` と `entity.animate({...}, ms)` がエントリポイントです（[`core-entity` # Animation](/reference/core-entity/#アニメーション) を参照）。カスタムドライバを構築したり、イージングを単体で使うには直接インポートしてください:
+スタンドアロンのアニメーションエンジン: 滑らかな数値モーションのためのプロパティドライバ、厳選されたイージングセット、そしてすべての VectoJS モーションサーフェスが共有する `MotionConfig` 形状。`@vectojs/core` はこれを依存し**再エクスポート**するため、ほとんどのアプリはこのパッケージを直接インポートしません — `entity.setTransition({ x: 'spring' })`、`entity.animateTo(...)`、`entity.springTo(...)` と `entity.animate({...}, ms)` がエントリポイントです（[`core-entity` # Animation](/reference/core-entity/#animesiyon) を参照）。カスタムドライバを構築したり、イージングを単体で使うには直接インポートしてください:
 
 ```ts
 import { TweenDriver, SpringDriver, Easing, EASING_IDS } from '@vectojs/animation';
@@ -24,8 +24,8 @@ interface TweenConfig {
 }
 
 interface SpringConfig {
-  stiffness?: number; // default 170
-  damping?: number; // default 26
+  stiffness?: number; // default 180
+  damping?: number; // default 12
   mass?: number; // default 1
 }
 ```
@@ -77,4 +77,4 @@ Easing.easeOutBack | Easing.easeInOutBack;
 | `springTo({...}, config?)`                             | `SpringDriver`s                               |
 | `animate({...}, ms)`                                   | 6つの組み込み数値プロパティに対するトゥイーン |
 
-`animate()` は `x | y | scaleX | scaleY | rotation | opacity` のみを補間します — カスタムフィールドは駆動されません（[`core-entity`](/reference/core-entity/#アニメーション) を参照）。
+`animate()` は `x | y | scaleX | scaleY | rotation | opacity` のみを補間します — カスタムフィールドは駆動されません（[`core-entity`](/reference/core-entity/#animesiyon) を参照）。

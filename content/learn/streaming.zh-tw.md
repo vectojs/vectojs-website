@@ -84,7 +84,7 @@ const scene = new Scene(canvas, { renderMode: 'onDemand' });
 
 每次附加都會將場景標記為髒，因此幀僅在內容流動時渲染，並在流空閒時立即停止——不會出現 2 fps 自動節流的意外，也不會在響應間隔期間消耗電池。附加 API 和內建滾動容器都會報告其進行中的動畫（`hasPendingAnimations()`），因此在最後一個令牌落地後，平滑滾動到底部仍會繼續動畫。
 
-如果在流期間從 `update()` 驅動任何**自訂的**每幀運動（如打字指示器、閃爍游標），請記住[空閒節流契約](/learn/performance/#空閒自動節流隱藏陷阱)：重寫 `hasPendingAnimations()` 或使用 `animate()`/`springTo()` 來驅動。
+如果在流期間從 `update()` 驅動任何**自訂的**每幀運動（如打字指示器、閃爍游標），請記住[空閒節流契約](/learn/performance/#kong-xian-zi-dong-jie-liu-yin-cang-xian-jing)：重寫 `hasPendingAnimations()` 或使用 `animate()`/`springTo()` 來驅動。
 
 ## 跟隨底部
 
@@ -145,6 +145,6 @@ function startAssistantMessage(): Markdown {
 | 滾動與用戶操作衝突       | 無條件呼叫 `scrollToBottom()`——應透過「是否在底部」吸附判斷來限制                                         |
 | 流空閒時 CPU 仍繁忙      | 場景留在了 `'always'` 模式，或者存在未使用 `hasPendingAnimations()` 的自訂動畫；控制器的 rAF 處於空閒狀態 |
 
-如需真實資料，請使用[測量真實效能](/learn/performance/#測量實際效能)中介紹的面內測量模式——無頭模式的 FPS 不具代表性。
+如需真實資料，請使用[測量真實效能](/learn/performance/#ce-liang-shi-ji-xiao-neng)中介紹的面內測量模式——無頭模式的 FPS 不具代表性。
 
 > **下一篇：** [效能](/learn/performance/) 提供完整的最佳化工具箱，[`Markdown`](/reference/ui-markdown/) 是流式 API 參考。

@@ -389,7 +389,7 @@ For a particle field, danmaku layer, or sprite swarm, prefer one of:
 A per-entity `a11yProjection` mode (`'eager' | 'onDemand' | 'never'`, default
 `'eager'`) controls when the entity's shadow node is materialized; the
 measurements and API are documented in
-[`core-a11y`](/reference/core-a11y/#projection-cost-at-high-entity-counts-1300).
+[`core-a11y`](/reference/core-a11y/#projection-cost-at-high-entity-counts-1-30-0).
 Note that it cannot key off "is a screen reader present" — that is deliberately
 undetectable by design (W3C TAG design principle 2.7), and AOM virtual
 accessibility nodes are blocked in every engine on privacy grounds.

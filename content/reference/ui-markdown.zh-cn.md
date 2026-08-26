@@ -101,7 +101,7 @@ window.addEventListener('resize', () => {
 它是就地重排而非重建，这正是它能在流式传输过程中使用的原因：
 
 - 相同的块实体**实例**得以保留，因此任何持有其引用的东西（滚动锚点、命中目标、devtools 选择）都继续有效；
-- 打开的 [`createStream()`](#流式传输) 写入器不受影响并继续追加；
+- 打开的 [`createStream()`](#liu-shi-chuan-shu) 写入器不受影响并继续追加；
 - 不会重新进行词法分析。
 
 在两个引擎上对一份五个块的文档实测：520 → 260 px 使投影行数从 2 变为 4、高度从 88 变为 160，且落在相同的两个段落实例上，写入器仍为 `open`，交给词法分析器的字符数增加量为**零**。
@@ -113,7 +113,7 @@ window.addEventListener('resize', () => {
 
 展示型公式被有意保留其自身宽度：`@vectojs/tex` 是依据相对于 `ex` 的度量而非可用宽度来确定排版盒子的尺寸，因此拉伸它会使公式变形。围栏代码同样不会被重新排布——代码使用固定的等宽网格，过长的行按设计溢出——只有它的背景会被调整尺寸。
 
-从 [`onStable`](#一次性完成onstable) 回调中调用它会抛出异常，原因与 `setContent()` 相同：该回调运行在它将要使之失效的那次提交内部。
+从 [`onStable`](#yi-ci-xing-wan-cheng-onstable) 回调中调用它会抛出异常，原因与 `setContent()` 相同：该回调运行在它将要使之失效的那次提交内部。
 
 ## GFM 覆盖范围
 
@@ -145,7 +145,7 @@ md.frontMatterFields; // { title: 'Release notes', date: '2026-08-03' }
 
 在流式传输过程中，落在未闭合块内部的分块会被暂存而不是被词法分析，这样文档就不会先绘制出一条分隔线、再由结尾定界符把它拆掉。当流关闭时仍然处于打开状态的块会被释放为内容，而暂存是有界的，因此一篇长文档开头的一条分隔线无法让它停滞。
 
-## 流式传输
+## 流式传输 {#liu-shi-chuan-shu}
 
 `createStream()` 为该 `Markdown` 绑定一个按帧合并的写入器。消费源数据时 await
 `write()`；`close()` 会强制提交尾部内容，无需再等待一个动画帧：
@@ -213,7 +213,7 @@ interface StreamController {
 
 该模式由 `Markdown` 解释，而非由控制器解释：控制器负责缓冲和节调，而猜测是对尾部段落进行渲染时的转换。
 
-### 一次性完成：`onStable`
+### 一次性完成：`onStable` {#yi-ci-xing-wan-cheng-onstable}
 
 ```ts
 const stream = markdown.createStream({

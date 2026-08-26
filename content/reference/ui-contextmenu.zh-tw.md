@@ -55,7 +55,7 @@ target.on('pointerdown', (event) => {
 | Enter / Space | 啟動（開啟子選單，或觸發 `onClick` 並關閉整個選單樹）       |
 | Escape        | 關閉整個選單樹                                              |
 
-熱點設定 `pointerEvents: 'none'`，因此選單保持其自身的按位置 `pointerdown` 命中介面。參見[複合元件](/reference/core-a11y/#複合元件漫遊-tabindex)。
+熱點設定 `pointerEvents: 'none'`，因此選單保持其自身的按位置 `pointerdown` 命中介面。參見[複合元件](/reference/core-a11y/#fu-he-yuan-jian-man-you-tabindex)。
 
 > **顯示選單會安裝全場景 backdrop。** 根選單新增一個不可見的、場景大小的互動實體來捕獲關閉它的外部點擊。該 backdrop 在選單開啟時攔截整個場景的指標事件——因此不要在需要拖曳/選取的夾具或測試中讓選單保持開啟狀態。
 

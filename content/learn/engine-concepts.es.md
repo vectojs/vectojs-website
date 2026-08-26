@@ -24,7 +24,7 @@ El VMT reemplaza un subárbol DOM visual por un grafo de escena de JavaScript de
 
 Las entidades interactivas elegibles proyectan nodos DOM transparentes reales sobre sus límites de canvas. El canvas posee los píxeles; la proyección DOM posee el rol/nombre/estado y el comportamiento de entrada nativa.
 
-- Teoría: [Fundamentos Matemáticos: a11yRoot](/learn/math-foundations/#2-shadow-dom-semántico-a11yroot)
+- Teoría: [Fundamentos Matemáticos: a11yRoot](/learn/math-foundations/#2-shadow-dom-semantico-a11yroot)
 - Práctica: [Accesibilidad](/learn/accessibility/)
 
 ## 3. Transformaciones afines
@@ -37,7 +37,7 @@ La traslación, la escala y la rotación de las entidades se componen hacia abaj
 
 La disposición de texto separa la costosa preparación del contenido del ajuste de línea responsivo. Los cambios de contenido ejecutan la ruta fría; los cambios de ancho pueden reutilizar las medidas preparadas.
 
-- Teoría: [Fundamentos Matemáticos: División Fría/Caliente](/learn/math-foundations/#4-motor-de-disposición-con-división-fríacaliente)
+- Teoría: [Fundamentos Matemáticos: División Fría/Caliente](/learn/math-foundations/#4-motor-de-disposicion-con-division-fria-caliente)
 - Práctica: [Texto y Tipografía](/learn/text-typography/)
 
 ## 5. Flujo de texto por diferencia de conjuntos
@@ -46,7 +46,7 @@ El ajuste de línea alrededor de obstáculos puede modelarse como sustracción d
 
 $$I_{\text{allowed}} = I_0 \setminus \bigcup E_k$$
 
-- Teoría: [Fundamentos Matemáticos: Álgebra de Diferencia de Conjuntos](/learn/math-foundations/#5-álgebra-de-diferencia-de-conjuntos-para-flujos-de-texto)
+- Teoría: [Fundamentos Matemáticos: Álgebra de Diferencia de Conjuntos](/learn/math-foundations/#5-algebra-de-diferencia-de-conjuntos-para-flujos-de-texto)
 
 ## 6. Hit-testing de splines muestreados
 
@@ -58,7 +58,7 @@ $$I_{\text{allowed}} = I_0 \setminus \bigcup E_k$$
 
 Las transiciones de UI interrumpidas se modelan como sistemas de tipo resorte en lugar de temporizadores CSS de un solo disparo. Los objetivos pueden cambiar en pleno vuelo mientras el movimiento permanece continuo.
 
-- Teoría: [Fundamentos Matemáticos: Dinámica de ODE](/learn/math-foundations/#7-ecuaciones-diferenciales-y-solucionadores-de-euler-semi-implícito)
+- Teoría: [Fundamentos Matemáticos: Dinámica de ODE](/learn/math-foundations/#7-ecuaciones-diferenciales-y-solucionadores-de-euler-semi-implicito)
 - Práctica: [Física y Animación](/learn/physics-engine/)
 
 ## 8. Utilidad SpatialHashGrid

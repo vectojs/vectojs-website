@@ -101,7 +101,7 @@ scene.forcedColors: boolean             // getter — OS is in a forced-colors m
 
 **空闲自动节流（关键陷阱）。** 当场景不为脏且主/覆盖层树中没有节点有待定的 `animate()` 补间时，场景被视为**静态**。在 `maxFPS > 0` 的 `'always'` 模式下，静态场景被节流到**空闲下限** —— 自 `1.36.0` 起为 **60 fps**（由 `idleFPS` 设定），在此之前是硬性 2 fps —— 以节省电池/GPU。设置 `autoThrottle: false`（选项或实时 `scene.autoThrottle`）可完全禁用节流，或设置 `idleFPS: 2` 恢复旧有的激进休眠。`dirty` 标志在每个渲染帧_开始_时即被消费，因此在 `update()` 内部发出的 `markDirty()` 能存活到下一帧的静态检查：
 
-> 手动制作的动画（在自定义 `update()` 内部修改 `entity.x` 等）对静态检查不可见，除非你将它上报 —— 通过 [`entity.animate()`](/reference/core-entity/#动画) 驱动运动（补间运行时保持场景非静态）、重写 `hasPendingAnimations()` 在积分器运行期间返回 `true`，或在 `update()` 中每帧调用 `scene.markDirty()`（它会重新触发下一帧）。否则场景会闲置下降到节流下限，你的动画会变得极为缓慢。
+> 手动制作的动画（在自定义 `update()` 内部修改 `entity.x` 等）对静态检查不可见，除非你将它上报 —— 通过 [`entity.animate()`](/reference/core-entity/#dong-hua) 驱动运动（补间运行时保持场景非静态）、重写 `hasPendingAnimations()` 在积分器运行期间返回 `true`，或在 `update()` 中每帧调用 `scene.markDirty()`（它会重新触发下一帧）。否则场景会闲置下降到节流下限，你的动画会变得极为缓慢。
 
 `effectiveMaxFPS` = `maxFPS`，当操作系统请求减弱动效且 `respectReducedMotion` 开启时，进一步降低到 30（`REDUCED_MOTION_FPS`）。`0` 表示不限制。
 
@@ -130,7 +130,7 @@ render(r: IRenderer) {
 }
 ```
 
-参见 [a11yRoot 与智能体约定](/reference/core-a11y/#强制颜色高对比度)。
+参见 [a11yRoot 与智能体约定](/reference/core-a11y/#qiang-zhi-yan-se-gao-dui-bi-du)。
 
 ## 生命周期方法
 

@@ -101,7 +101,7 @@ window.addEventListener('resize', () => {
 它是就地重排而非重建，這正是它能在串流過程中使用的原因：
 
 - 相同的區塊實體**實例**得以保留，因此任何持有其參照的東西（捲動錨點、命中目標、devtools 選擇）都繼續有效；
-- 開啟的 [`createStream()`](#串流) 寫入器不受影響並繼續附加；
+- 開啟的 [`createStream()`](#chuan-liu) 寫入器不受影響並繼續附加；
 - 不會重新進行詞法分析。
 
 在兩個引擎上對一份五個區塊的文件實測：520 → 260 px 使投影行數從 2 變為 4、高度從 88 變為 160，且落在相同的兩個段落實例上，寫入器仍為 `open`，交給詞法分析器的字元數增加量為**零**。
@@ -113,7 +113,7 @@ window.addEventListener('resize', () => {
 
 展示型公式被刻意保留其自身寬度：`@vectojs/tex` 是依據相對於 `ex` 的度量而非可用寬度來決定排版盒子的尺寸，因此拉伸它會使公式變形。圍欄程式碼同樣不會被重新排布——程式碼使用固定的等寬網格，過長的行按設計溢出——只有它的背景會被調整尺寸。
 
-從 [`onStable`](#單次完成onstable) 回呼中呼叫它會擲出例外，原因與 `setContent()` 相同：該回呼執行在它將要使之失效的那次提交內部。
+從 [`onStable`](#dan-ci-wan-cheng-onstable) 回呼中呼叫它會擲出例外，原因與 `setContent()` 相同：該回呼執行在它將要使之失效的那次提交內部。
 
 ## GFM 覆蓋範圍
 
@@ -145,7 +145,7 @@ md.frontMatterFields; // { title: 'Release notes', date: '2026-08-03' }
 
 在串流過程中，落在未閉合區塊內部的區塊會被暫存而不是被詞法分析，這樣文件就不會先繪製出一條分隔線、再由結尾定界符把它拆掉。當串流關閉時仍然處於開啟狀態的區塊會被釋放為內容，而暫存是有界的，因此一篇長文件開頭的一條分隔線無法讓它停滯。
 
-## 串流
+## 串流 {#chuan-liu}
 
 `createStream()` 為該 `Markdown` 綁定一個按幀合併的寫入器。消費來源資料時 await
 `write()`；`close()` 會強制提交尾端內容，無需再等待一個動畫幀：
@@ -213,7 +213,7 @@ interface StreamController {
 
 該模式由 `Markdown` 解析，而非由控制器解析：控制器負責緩衝和節奏，而這個猜測是在尾部段落上進行的渲染時轉換。
 
-### 單次完成：`onStable`
+### 單次完成：`onStable` {#dan-ci-wan-cheng-onstable}
 
 ```ts
 const stream = markdown.createStream({

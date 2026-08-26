@@ -225,7 +225,7 @@ cold/hot分割を理解すると、パフォーマンスのための正しい判
 
 `LayoutEngine`は`textAlign = 'justify'`（折り返された行を`maxWidth`にぴったり合わせて引き伸ばし、最後の行はギザギザ）と折り返し時のハイフネーション（ソフトハイフン`­`はそのまま機能します。自動的な区切りには`hyphenate: (word) => string[]`関数を差し込みます——例：`hyphen` npmパッケージのKnuth–Liangパターン）をサポートします。
 
-`TextEntity`は両方を直接公開します：`text.setTextAlign('justify')`、`text.setHyphenator(fn)`——詳細は[`TextEntity` & `GridTextEntity`](/reference/core-text/#textentity--gridtextentity-から)を参照してください。これらは、`TextEntity`が各グリフをそれ自身の計算された位置に描画するため、正しくレンダリングされます。`@vectojs/ui`の`Text`/`RichText`コンポーネントは、パフォーマンスのため各折り返し行を単一のネイティブな`fillText()`呼び出しへと折りたたむため、まだグリフごとの両端揃えを尊重しません——両端揃えの本文が必要なときは`TextEntity`に手を伸ばしてください。
+`TextEntity`は両方を直接公開します：`text.setTextAlign('justify')`、`text.setHyphenator(fn)`——詳細は[`TextEntity` & `GridTextEntity`](/reference/core-text/#textentity-gridtextentity-kara)を参照してください。これらは、`TextEntity`が各グリフをそれ自身の計算された位置に描画するため、正しくレンダリングされます。`@vectojs/ui`の`Text`/`RichText`コンポーネントは、パフォーマンスのため各折り返し行を単一のネイティブな`fillText()`呼び出しへと折りたたむため、まだグリフごとの両端揃えを尊重しません——両端揃えの本文が必要なときは`TextEntity`に手を伸ばしてください。
 
 ---
 

@@ -49,7 +49,7 @@ Un réinitialisation GPU ou une éjection par pression mémoire laisserait une s
 
 Tout est protégé pour SSR / `OffscreenCanvas` (pas de `addEventListener` ni
 `matchMedia`). `isContextLost()` satisfait aussi le hook optionnel
-[`IRenderer`](/reference/core-renderer/#survivre-à-la-perte-du-contexte-gpu), donc
+[`IRenderer`](/reference/core-renderer/#survivre-a-la-perte-du-contexte-gpu), donc
 `Scene.render` saute le passage tant que le contexte est absent.
 
 ## Propriétés publiques
@@ -118,7 +118,7 @@ La couleur est interpolée linéairement entre les deux arrêts les plus proches
 
 **Les dégradés ne sont pas pris en charge pour `stroke()` ou `fillText()`.** Passer un `WebGLGradient` à `stroke()` revient à la couleur du premier arrêt. `fillText()` revient également à la couleur du premier arrêt car les glyphes de texte sont rasterisés via Canvas 2D avant le téléchargement.
 
-Consultez la [page principale de `@vectojs/three`](/reference/three/#dépannage) pour le dépannage des problèmes de dégradé/DPI/pointeur.
+Consultez la [page principale de `@vectojs/three`](/reference/three/#depannage) pour le dépannage des problèmes de dégradé/DPI/pointeur.
 
 ## Voir aussi
 

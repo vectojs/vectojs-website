@@ -11,7 +11,7 @@ weight = 54
 `@vectojs/core`가 이에 의존하고 **재-내보내기**하므로 대부분의 앱은 이 패키지를
 직접 가져오지 않습니다 — `entity.setTransition({ x: 'spring' })`,
 `entity.animateTo(...)`, `entity.springTo(...)`, `entity.animate({...}, ms)`가
-진입점입니다 ([`core-entity` # 애니메이션](/reference/core-entity/#애니메이션) 참조).
+진입점입니다 ([`core-entity` # 애니메이션](/reference/core-entity/#aenimeisyeon) 참조).
 커스텀 드라이버를 빌드하거나 이징을 독립적으로 사용하려면 직접 가져오세요:
 
 ```ts
@@ -30,8 +30,8 @@ interface TweenConfig {
 }
 
 interface SpringConfig {
-  stiffness?: number; // default 170
-  damping?: number; // default 26
+  stiffness?: number; // default 180
+  damping?: number; // default 12
   mass?: number; // default 1
 }
 ```
@@ -106,4 +106,4 @@ Easing.easeOutBack | Easing.easeInOutBack;
 | `animate({...}, ms)`                               | 여섯 가지 내장 숫자 프로퍼티에 대한 트윈 |
 
 `animate()`는 `x | y | scaleX | scaleY | rotation | opacity`만 보간합니다
-— 커스텀 필드는 구동되지 않습니다 ([`core-entity`](/reference/core-entity/#애니메이션) 참조).
+— 커스텀 필드는 구동되지 않습니다 ([`core-entity`](/reference/core-entity/#aenimeisyeon) 참조).

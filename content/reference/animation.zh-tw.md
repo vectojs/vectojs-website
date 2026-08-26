@@ -6,7 +6,7 @@ weight = 54
 
 # `@vectojs/animation`
 
-獨立的動畫引擎：提供平滑數值運動的屬性驅動器、精選的緩動曲線集合，以及所有 VectoJS 運動介面共享的 `MotionConfig` 結構。`@vectojs/core` 依賴並**重新匯出**它，因此大多數應用程式不會直接匯入此套件 — `entity.setTransition({ x: 'spring' })`、`entity.animateTo(...)`、`entity.springTo(...)` 與 `entity.animate({...}, ms)` 是進入點（參見 [`core-entity` # 動畫](/reference/core-entity/#動畫)）。直接匯入它以建立自訂驅動器，或單獨使用緩動曲線：
+獨立的動畫引擎：提供平滑數值運動的屬性驅動器、精選的緩動曲線集合，以及所有 VectoJS 運動介面共享的 `MotionConfig` 結構。`@vectojs/core` 依賴並**重新匯出**它，因此大多數應用程式不會直接匯入此套件 — `entity.setTransition({ x: 'spring' })`、`entity.animateTo(...)`、`entity.springTo(...)` 與 `entity.animate({...}, ms)` 是進入點（參見 [`core-entity` # 動畫](/reference/core-entity/#dong-hua)）。直接匯入它以建立自訂驅動器，或單獨使用緩動曲線：
 
 ```ts
 import { TweenDriver, SpringDriver, Easing, EASING_IDS } from '@vectojs/animation';
@@ -24,8 +24,8 @@ interface TweenConfig {
 }
 
 interface SpringConfig {
-  stiffness?: number; // default 170
-  damping?: number; // default 26
+  stiffness?: number; // default 180
+  damping?: number; // default 12
   mass?: number; // default 1
 }
 ```
@@ -77,4 +77,4 @@ Easing.easeOutBack | Easing.easeInOutBack;
 | `springTo({...}, config?)`                      | `SpringDriver`s            |
 | `animate({...}, ms)`                            | 針對六個內建數值屬性的補間 |
 
-`animate()` 僅對 `x | y | scaleX | scaleY | rotation | opacity` 進行內插 — 自訂欄位不受驅動（參見 [`core-entity`](/reference/core-entity/#動畫)）。
+`animate()` 僅對 `x | y | scaleX | scaleY | rotation | opacity` 進行內插 — 自訂欄位不受驅動（參見 [`core-entity`](/reference/core-entity/#dong-hua)）。

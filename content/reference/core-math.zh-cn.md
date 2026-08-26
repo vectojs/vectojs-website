@@ -6,7 +6,7 @@ weight = 9
 
 # 数学工具 —— `@vectojs/math`
 
-`SpatialHashGrid` 和 `SpringPhysics` 是独立的 **`@vectojs/math`** 包（一个没有依赖的叶子包）。[`@vectojs/core`](/reference/core-api/) 依赖并重新导出它，因此它可以从 `@vectojs/math` 或 `@vectojs/core` 解析。这里的弹簧积分器也是 [`@vectojs/animation`](/reference/core-api/#入口点与模块地图) 中 `SpringDriver` 的支撑。
+`SpatialHashGrid` 和 `SpringPhysics` 是独立的 **`@vectojs/math`** 包（一个没有依赖的叶子包）。[`@vectojs/core`](/reference/core-api/) 依赖并重新导出它，因此它可以从 `@vectojs/math` 或 `@vectojs/core` 解析。这里的弹簧积分器也是 [`@vectojs/animation`](/reference/core-api/#ru-kou-dian-yu-mo-kuai-di-tu) 中 `SpringDriver` 的支撑。
 
 ```ts
 new SpatialHashGrid(cellSize = ...)
@@ -26,9 +26,9 @@ spring.update(dt): void
 spring.isAtRest(): boolean
 ```
 
-一个单值临界阻尼可调的弹簧积分器 —— 设置 `spring.target`，每帧调用 `update(dt)`，读取 `spring.value`。这是 `Entity` 内置的 [`springTo()`](/reference/core-entity/#动画) 所构建于其上的图元；对于不是六个可动画 `Entity` 属性之一的值（自定义 shader uniform、相机字段、应用级标量），直接使用它。`isAtRest()` 报告速度和到目标的距离何时都衰减到引擎的静止阈值以下，因此调用者可以停止调用 `update()`。
+一个单值临界阻尼可调的弹簧积分器 —— 设置 `spring.target`，每帧调用 `update(dt)`，读取 `spring.value`。这是 `Entity` 内置的 [`springTo()`](/reference/core-entity/#dong-hua) 所构建于其上的图元；对于不是六个可动画 `Entity` 属性之一的值（自定义 shader uniform、相机字段、应用级标量），直接使用它。`isAtRest()` 报告速度和到目标的距离何时都衰减到引擎的静止阈值以下，因此调用者可以停止调用 `update()`。
 
 ## 相关
 
-[`Entity`](/reference/core-entity/#动画)（`springTo`，构建于 `SpringPhysics` 之上）·
+[`Entity`](/reference/core-entity/#dong-hua)（`springTo`，构建于 `SpringPhysics` 之上）·
 [`@vectojs/core` 概述](/reference/core-api/)

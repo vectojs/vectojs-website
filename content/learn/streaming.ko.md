@@ -84,7 +84,7 @@ const scene = new Scene(canvas, { renderMode: 'onDemand' });
 
 추가될 때마다 씬(scene)을 더티(dirty)로 표시하므로, 프레임은 콘텐츠가 흐르는 동안에만 정확히 렌더링되고 스트림이 유휴 상태가 되는 순간 중지됩니다 — 2fps 자동 스로틀에 따른 놀라움이 없으며, 응답 사이의 유휴 상태에서 불필요한 배터리 소모도 없습니다. 추가 API 및 내장 스크롤 컨테이너는 모두 진행 중인 애니메이션을 보고하므로(`hasPendingAnimations()`), 가장 아래로 부드럽게 스크롤하는 동작은 마지막 토큰이 도착한 후에도 애니메이션을 유지합니다.
 
-스트림 중에 `update()`에서 커스텀 프레임 단위 모션(예: 타이핑 표시기, 깜박이는 커서)을 구동하는 경우 [유휴 자동 스로틀 계약](/learn/performance/#유휴-자동-스로틀-숨은-함정)을 기억하십시오: `hasPendingAnimations()`를 재정의(override)하거나 `animate()`/`springTo()`로 구동하십시오.
+스트림 중에 `update()`에서 커스텀 프레임 단위 모션(예: 타이핑 표시기, 깜박이는 커서)을 구동하는 경우 [유휴 자동 스로틀 계약](/learn/performance/#yuhyu-jadong-seuroteul-sumeun-hamjeong)을 기억하십시오: `hasPendingAnimations()`를 재정의(override)하거나 `animate()`/`springTo()`로 구동하십시오.
 
 ## 아래쪽을 따라가기
 
@@ -145,6 +145,6 @@ function startAssistantMessage(): Markdown {
 | 스크롤이 사용자의 동작과 충돌함    | `scrollToBottom()`이 무조건 호출됨 — "아래쪽에 있었는지" 접착성 판단을 통해 제한하십시오                                                   |
 | 스트림이 유휴 상태인데 CPU가 바쁨  | 씬(scene)이 `'always'` 모드로 남아 있거나, `hasPendingAnimations()`를 사용하지 않는 커스텀 애니메이션이 있음; 컨트롤러의 rAF는 유휴 상태임 |
 
-실제 측정값을 원한다면 [실제 성능 측정](/learn/performance/#실제-성능-측정)에 소개된 페이지 내 측정 패턴을 사용하십시오 — 헤드리스 FPS는 대표성이 없습니다.
+실제 측정값을 원한다면 [실제 성능 측정](/learn/performance/#silje-seongneung-ceugjeong)에 소개된 페이지 내 측정 패턴을 사용하십시오 — 헤드리스 FPS는 대표성이 없습니다.
 
 > **다음:** 완전한 최적화 도구 모음은 [성능](/learn/performance/), 스트리밍 API 레퍼런스는 [`Markdown`](/reference/ui-markdown/)을 참조하세요.

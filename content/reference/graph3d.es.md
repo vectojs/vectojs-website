@@ -66,7 +66,7 @@ camera.setSize(width, height); // call on canvas resize
 camera.dispose(); // remove pointer/wheel listeners
 ```
 
-`mode: '2d' | '3d'` selecciona el tipo de cámara; `fitToPositions(positions)` encuadra un búfer de tripletes xyz (la misma forma que consume [`applyPositions`](/reference/graph3d-renderer/#métodos)). Combínalo con `GraphInteraction` pasando `() => camera.camera` (un getter, para que `setMode` siga en vivo) y conectando `setControlsEnabled` para que un arrastre de nodo no también desplace la vista.
+`mode: '2d' | '3d'` selecciona el tipo de cámara; `fitToPositions(positions)` encuadra un búfer de tripletes xyz (la misma forma que consume [`applyPositions`](/reference/graph3d-renderer/#metodos)). Combínalo con `GraphInteraction` pasando `() => camera.camera` (un getter, para que `setMode` siga en vivo) y conectando `setControlsEnabled` para que un arrastre de nodo no también desplace la vista.
 
 ## Kernel de fuerza WASM
 

@@ -142,9 +142,9 @@ Laissez les entrées natives, les zones de texte et le contenu éditable gérer 
 | `Tabs`                | `tab` par onglet                           | `aria-selected`, flèches déplacent, Home/End                          |
 | `Text`                | `<div>`                                    | `aria-label` = contenu textuel                                        |
 
-## Widgets composites : un seul arrêt tabulation, touches fléchées à l'intérieur
+## Widgets composites : un seul arrêt tabulation, touches fléchées à l'intérieur {#widgets-composites-un-seul-arret-tabulation-touches-flechees-a-l-interieur}
 
-Un arbre, grille, menu, groupe radio ou liste d'onglets ne doit pas mettre chaque enfant dans l'ordre de tabulation. VectoJS pool un hotspot transparent et focalisable sur chaque enfant **visible** portant le rôle et l'état de cet enfant, et donne exactement à l'un d'eux `tabIndex: 0` — un **tabindex baladeur**. Le parent gère le gestionnaire de touches fléchées et déplace l'arrêt. Voir le tableau ci-dessus pour les touches de chaque composant, et [Widgets composites](/reference/core-a11y/#widgets-composés-tabindex-flottant) pour le motif si vous construisez le vôtre.
+Un arbre, grille, menu, groupe radio ou liste d'onglets ne doit pas mettre chaque enfant dans l'ordre de tabulation. VectoJS pool un hotspot transparent et focalisable sur chaque enfant **visible** portant le rôle et l'état de cet enfant, et donne exactement à l'un d'eux `tabIndex: 0` — un **tabindex baladeur**. Le parent gère le gestionnaire de touches fléchées et déplace l'arrêt. Voir le tableau ci-dessus pour les touches de chaque composant, et [Widgets composites](/reference/core-a11y/#widgets-composes-tabindex-flottant) pour le motif si vous construisez le vôtre.
 
 Réutilisez ce motif plutôt que d'en inventer un : le point important est que le hotspot doit définir `pointerEvents: 'none'` whenever quelque chose en dessous possède la souris (texte de cellule sélectionnable, glisser pour défiler, gestion des impacts canvas). Le focus clavier et le `click` synthétisé par AT passent toujours à travers.
 
@@ -278,10 +278,10 @@ La règle pratique : `interactive = true` est pour les choses sur lesquelles un 
 Pour un champ de particules, une couche danmaku ou un essaim de sprites, préférez l'une des solutions suivantes :
 
 - **Projetez le conteneur, pas les membres.** Une seule entité interactive pour toute la couche, avec un `aria-label` la décrivant collectivement (« 5 000 particules »), et gérez vous-même l'entrée du pointeur via `scene.findEntityAt(x, y)` — qui résout les entités indépendamment du fait qu'elles soient `interactive`, donc le test de hit ne nécessite pas de projection.
-- **Projetez seulement ce qui est accessible.** Le modèle de pooling utilisé par `TreeView`/`Table` virtualisés dimensionne un pool de zones réactives aux lignes visibles plutôt qu'à l'ensemble des données, donc la projection reste en O(viewport). Voir [widgets composites](#widgets-composites--un-seul-arrêt-tabulation-touches-fléchées-à-lintérieur).
+- **Projetez seulement ce qui est accessible.** Le modèle de pooling utilisé par `TreeView`/`Table` virtualisés dimensionne un pool de zones réactives aux lignes visibles plutôt qu'à l'ensemble des données, donc la projection reste en O(viewport). Voir [widgets composites](#widgets-composites-un-seul-arret-tabulation-touches-flechees-a-l-interieur).
 - **Appelez `scene.detachA11y(entity)`** lorsqu'une entité cesse d'être actionnable. Documenté ailleurs comme une prévention de fuite, c'est également un levier de coût : la synchronisation par image crée et met à jour mais ne taille jamais.
 
-Un mode `a11yProjection` par entité (`'eager' | 'onDemand' | 'never'`, par défaut `'eager'`) contrôle le moment où le nœud fantôme de l'entité est matérialisé ; les mesures et l'API sont documentées dans [`core-a11y`](/reference/core-a11y/#projection-cost-at-high-entity-counts-1300). Notez qu'il ne peut pas se baser sur « un lecteur d'écran est-il présent » — c'est délibérément indétectable par conception (principe de conception 2.7 du W3C TAG), et les nœuds d'accessibilité virtuels AOM sont bloqués dans tous les moteurs pour des raisons de confidentialité.
+Un mode `a11yProjection` par entité (`'eager' | 'onDemand' | 'never'`, par défaut `'eager'`) contrôle le moment où le nœud fantôme de l'entité est matérialisé ; les mesures et l'API sont documentées dans [`core-a11y`](/reference/core-a11y/#cout-de-la-projection-a-grand-nombre-d-entites-1-30-0). Notez qu'il ne peut pas se baser sur « un lecteur d'écran est-il présent » — c'est délibérément indétectable par conception (principe de conception 2.7 du W3C TAG), et les nœuds d'accessibilité virtuels AOM sont bloqués dans tous les moteurs pour des raisons de confidentialité.
 
 ## Inspecter l'arbre fantôme par programmation
 

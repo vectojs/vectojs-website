@@ -40,7 +40,7 @@ GPUリセットまたはメモリ圧迫による除去がなければ、Threeで
 - **`webglcontextrestored`** はピクセル比とサイズを再適用し（復元が異なるディスプレイに来ることもあります）、フラグをクリアし、新しくクリアされたフレームバッファの再描画を強制します。Threeの `WebGLRenderer` は次のレンダリング時にGL状態を遅延的に再構築します。
 - **DPRの変更**は `(resolution: Ndppx)` メディアクエリで追跡され、`setPixelRatio` + `setSize` を再適用し、自身を再アームします（クエリはワンショットです）。
 
-これらすべてはSSR / `OffscreenCanvas`向けにガードされています（`addEventListener` や `matchMedia` なし）。`isContextLost()` はオプションの [`IRenderer`](/reference/core-renderer/#gpuコンテキスト消失への対応) フックも満たすため、`Scene.render` はコンテキストが消失している間そのパスをスキップします。
+これらすべてはSSR / `OffscreenCanvas`向けにガードされています（`addEventListener` や `matchMedia` なし）。`isContextLost()` はオプションの [`IRenderer`](/reference/core-renderer/#gpukontekisutoxiao-shi-henodui-ying) フックも満たすため、`Scene.render` はコンテキストが消失している間そのパスをスキップします。
 
 ## パブリックプロパティ
 
@@ -108,7 +108,7 @@ uniform vec2 u_grad_end;        // ワールド空間の終了点
 
 **`stroke()` または `fillText()` ではグラデーションはサポートされていません。** `WebGLGradient` を `stroke()` に渡すと、最初のストップ色にフォールバックします。`fillText()` も最初のストップ色にフォールバックします。これは、テキストグリフがアップロード前に Canvas 2D を介してラスタライズされるためです。
 
-グラデーション/DPI/ポインターの問題のトラブルシューティングについては、[メインの `@vectojs/three` ページ](/reference/three/#トラブルシューティング) を参照してください。
+グラデーション/DPI/ポインターの問題のトラブルシューティングについては、[メインの `@vectojs/three` ページ](/reference/three/#toraburusiyuteingu) を参照してください。
 
 ## 関連情報
 

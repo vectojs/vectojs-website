@@ -112,7 +112,7 @@ which on a native `<button>` would still disable it.
 ## Forced colors (High Contrast)
 
 `Button` reads
-[`Scene.forcedColors`](/reference/core-scene/#accessibility--appearance) and,
+[`Scene.forcedColors`](/reference/core-scene/#accessibility-appearance) and,
 when the OS is in a forced-colors mode, repaints with CSS system colors instead
 of its themed palette: a `ButtonFace` fill, a `ButtonText` label plus a 1px
 `ButtonText` border (so the shape is visible against the system background), and

@@ -71,7 +71,7 @@ GPUリセットまたはメモリ圧力による追放によって描画コン�
 2. `isContextLost() === true` を報告し、`Scene.render` が死んだコンテキストに対して描画コールを発行する代わりにパスをスキップするようにします；
 3. 復元時にコンテキストを再取得し、DPR変換/サイズを再適用し、`onContextRestored` コールバックを発火させてSceneが新しくクリアされたサーフェスを再描画するようにします。
 
-`CanvasRenderer` はCanvas2Dに対してこれを実行し、`ThreeRenderer` はWebGLに対してこれを実行します——[`@vectojs/three`](/reference/three-renderer/#gpuコンテキストの損失とランタイムdpr) を参照。
+`CanvasRenderer` はCanvas2Dに対してこれを実行し、`ThreeRenderer` はWebGLに対してこれを実行します——[`@vectojs/three`](/reference/three-renderer/#gpukontekisutonosun-shi-torantaimudpr) を参照。
 
 `fillCircle` は連続する同じ `color`/`alpha` の呼び出しを1つのパスに統合し、`flush()` 時（またはスタイル変更時）にコミットされます。Sceneは各兄弟グループの終了時と各フレームの終了時にフラッシュし、ペインターズオーダーを保持します。
 
@@ -239,7 +239,7 @@ interface PointRenderer {
 
 1つのWebGL2キャンバス、4つのバッチ化プログラム：ポイント（`gl_PointSize` による丸型、AA）、矩形（拡張三角形）、テクスチャ付きスプライト、およびMSDFグリフ（3値中央値距離再構成、任意のズームで鮮明）。`color` で色合いを付けます；白いテクセルは変更されずに通過します。スプライト/グリフの追加はテクスチャが設定されるまでno-opです。Sceneは `pointBackend: 'webgl'` の場合に `getBatchCircle`/`getBatchRect`（およびCPUパーティクル、MSDFテキスト）をここにルーティングします。GPUプリミティブが正確に表現できないトランスフォーム下のリーフ（例：不均一スケールやせん断）は通常のレンダラーにフォールバックします。
 
-> エンティティフック `getBatchCircle()` → `{ radius, color }` および `getBatchRect()` → `{ width, height, color }`（[`Entity`](/reference/core-entity/#a11y--バッチングフックオーバーライドしてオプトイン) を参照）が、このレイヤーにフィードするエンティティごとのオプトインです。
+> エンティティフック `getBatchCircle()` → `{ radius, color }` および `getBatchRect()` → `{ width, height, color }`（[`Entity`](/reference/core-entity/#a11y-batutinguhutuku-obaraidositeoputoin) を参照）が、このレイヤーにフィードするエンティティごとのオプトインです。
 
 `flush()` は **プリミティブタイプごとに最大1回の描画呼び出し** を行うため、描画呼び出し回数はスケーリングの制限ではありません — アップロードされるバイト数が制限です。core 1.16.2以降、すべてのクアッドバッチ（rect、sprite、グリフ、切り抜き円）は **4頂点** をアップロードし、6頂点に展開して `drawArrays` する代わりに、1つの共有静的32ビットインデックスバッファに対して `drawElements` で描画します。これにより、クアッドごとに重複する2つのコーナーが削除され、アップロード量が3分の1削減されます。インデックスバッファは一度構築され、幾何級数的に再成長し、フレームごとに再送されることはありません。インデックスは32ビットです。`Uint16Array` ではバッチが16,383クアッドに制限されるからですが、実際のシーンはそれを超えます。
 

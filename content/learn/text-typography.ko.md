@@ -225,7 +225,7 @@ cold/hot 분할을 이해하면 성능에 맞는 올바른 호출을 할 수 있
 
 `LayoutEngine`은 `textAlign = 'justify'`(래핑된 줄을 `maxWidth`에 맞게 늘림, 마지막 줄은 고르지 않음)와 래핑-타임 하이픈 연결(소프트 하이픈 `­`은 기본적으로 작동; 자동 분리를 위해 `hyphenate: (word) => string[]` 함수를 연결 — 예: `hyphen` npm 패키지의 Knuth–Liang 패턴)을 지원합니다.
 
-`TextEntity`는 둘 다 직접 제공합니다: `text.setTextAlign('justify')`, `text.setHyphenator(fn)` — 자세한 내용은 [`TextEntity` & `GridTextEntity`](/reference/core-text/#textentity--gridtextentity-에서)를 확인하세요. `TextEntity`가 각 글리프를 자체 계산된 위치에 그리므로 올바르게 렌더링됩니다. `@vectojs/ui`의 `Text`/`RichText` 컴포넌트는 성능을 위해 각 래핑된 줄을 단일 네이티브 `fillText()` 호출로 축소하므로 아직 글리프별 양쪽 정렬을 지원하지 않습니다 — 양쪽 정렬된 본문 텍스트가 필요하면 `TextEntity`를 사용하세요.
+`TextEntity`는 둘 다 직접 제공합니다: `text.setTextAlign('justify')`, `text.setHyphenator(fn)` — 자세한 내용은 [`TextEntity` & `GridTextEntity`](/reference/core-text/#textentity-gridtextentity-eseo)를 확인하세요. `TextEntity`가 각 글리프를 자체 계산된 위치에 그리므로 올바르게 렌더링됩니다. `@vectojs/ui`의 `Text`/`RichText` 컴포넌트는 성능을 위해 각 래핑된 줄을 단일 네이티브 `fillText()` 호출로 축소하므로 아직 글리프별 양쪽 정렬을 지원하지 않습니다 — 양쪽 정렬된 본문 텍스트가 필요하면 `TextEntity`를 사용하세요.
 
 ---
 

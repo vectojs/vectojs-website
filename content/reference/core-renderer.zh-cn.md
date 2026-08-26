@@ -71,7 +71,7 @@ GPU 重置或内存压力驱逐会夺走绘图上下文；如果不处理它，�
 2. 报告 `isContextLost() === true`，这样 `Scene.render` 会跳过渲染过程，而不是对着失效的上下文发出绘制调用；
 3. 在恢复时，重新获取上下文，重新应用 DPR 变换/尺寸，并触发 `onContextRestored` 回调，让 Scene 重新绘制新清空的表面。
 
-`CanvasRenderer` 为 Canvas2D 执行此操作，`ThreeRenderer` 为 WebGL 执行此操作 —— 参见 [`@vectojs/three`](/reference/three-renderer/#gpu-上下文丢失与运行时-dpr)。
+`CanvasRenderer` 为 Canvas2D 执行此操作，`ThreeRenderer` 为 WebGL 执行此操作 —— 参见 [`@vectojs/three`](/reference/three-renderer/#gpu-shang-xia-wen-diu-shi-yu-yun-xing-shi-dpr)。
 
 `fillCircle` 将连续的相同 `color`/`alpha` 调用合并为一条路径，在 `flush()` 时（或样式变化时）提交。Scene 在每个兄弟组结束时和每帧结束时 flush，保留画家顺序。
 
@@ -176,7 +176,7 @@ getContentProjection(hint?: ContentProjectionHint) {
 
 Core 在字体加载后校准保留的载体，并在局部网格空间中路由指针选择。因此 Firefox 字体替换、DPR、浏览器缩放、旋转、镜像变换和非均匀缩放使用一个几何方案。校准探测继承投影的缩放上下文并考虑 Firefox 缺失字形的回退度量；自定义调整大小/缩放的所有者必须调用 `scene.resize()` 以使保留的校准失效。普通的 `lines` 投影和无行的自定义投影也使用变换后的二维字素光标几何。
 
-`present()` 由 Scene 在每个渲染过程结束时恰好调用**一次**。一次提交整帧的保留式后端（例如来自 [`@vectojs/three`](/reference/three-renderer/#gpu-上下文丢失与运行时-dpr) 的 `ThreeRenderer`）应在此处进行其单次昂贵的提交，并保持 `flush()` 廉价 —— Scene 在每个非批处理节点周围调用 `flush()`，因此昂贵的 `flush()` 会使帧成本随实体数量呈平方增长。
+`present()` 由 Scene 在每个渲染过程结束时恰好调用**一次**。一次提交整帧的保留式后端（例如来自 [`@vectojs/three`](/reference/three-renderer/#gpu-shang-xia-wen-diu-shi-yu-yun-xing-shi-dpr) 的 `ThreeRenderer`）应在此处进行其单次昂贵的提交，并保持 `flush()` 廉价 —— Scene 在每个非批处理节点周围调用 `flush()`，因此昂贵的 `flush()` 会使帧成本随实体数量呈平方增长。
 
 ## CanvasRenderer
 
@@ -239,7 +239,7 @@ interface PointRenderer {
 
 一个 WebGL2 canvas，四个批处理程序：点（圆形，通过 `gl_PointSize` 抗锯齿）、矩形（展开的三角形）、带纹理的 sprite，以及 MSDF 字形（3 中值距离重建，在任何缩放下都清晰）。`color` 着色；白色纹素原样通过。在设置纹理之前，sprite/glyph 的添加是空操作。当 `pointBackend: 'webgl'` 时，Scene 将 `getBatchCircle`/`getBatchRect`（以及 CPU 粒子、MSDF 文本）路由到这里。位于 GPU 图元无法精确表示的变换下的叶子（例如非均匀缩放或剪切）会回退到普通渲染器。
 
-> Entity 钩子 `getBatchCircle()` → `{ radius, color }` 和 `getBatchRect()` → `{ width, height, color }`（参见 [`Entity`](/reference/core-entity/#a11y--批处理钩子覆盖以选入)）是馈入此层的每实体选入项。
+> Entity 钩子 `getBatchCircle()` → `{ radius, color }` 和 `getBatchRect()` → `{ width, height, color }`（参见 [`Entity`](/reference/core-entity/#a11y-pi-chu-li-gou-zi-fu-gai-yi-xuan-ru)）是馈入此层的每实体选入项。
 
 `flush()` **每种图元类型最多一次绘制调用**，因此绘制调用次数不是扩展限制 —— 上传的字节数才是。自 core 1.16.2 起，每个四边形批次（矩形、sprite、字形、圆形）上传 **4 个顶点**，并使用 `drawElements` 针对一个共享的静态 32 位索引缓冲区进行绘制，而不是扩展为 6 个顶点交给 `drawArrays`。这移除了每个四边形重复的两个角点，将上传量减少了三分之一；索引缓冲区构建一次并按几何级数增长，每帧从不重新发送。索引是 32 位的，因为 `Uint16Array` 会将批次限制在 16,383 个四边形，而实际场景会超过这个数值。
 

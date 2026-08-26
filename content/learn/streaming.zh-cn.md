@@ -84,7 +84,7 @@ const scene = new Scene(canvas, { renderMode: 'onDemand' });
 
 每次追加都会将场景标记为脏，因此帧仅在内容流动时渲染，并在流空闲时立即停止——不会出现 2 fps 自动节流的意外，也不会在响应间隔期间消耗电池。追加 API 和内建滚动容器都会报告其进行中的动画（`hasPendingAnimations()`），因此在最后一个令牌落地后，平滑滚动到底部仍会继续动画。
 
-如果在流期间从 `update()` 驱动任何**自定义的**每帧运动（如打字指示器、闪烁光标），请记住[空闲节流契约](/learn/performance/#空闲自动节流隐藏陷阱)：重写 `hasPendingAnimations()` 或使用 `animate()`/`springTo()` 来驱动。
+如果在流期间从 `update()` 驱动任何**自定义的**每帧运动（如打字指示器、闪烁光标），请记住[空闲节流契约](/learn/performance/#kong-xian-zi-dong-jie-liu-yin-cang-xian-jing)：重写 `hasPendingAnimations()` 或使用 `animate()`/`springTo()` 来驱动。
 
 ## 跟随底部
 
@@ -145,6 +145,6 @@ function startAssistantMessage(): Markdown {
 | 滚动与用户操作冲突       | 无条件调用 `scrollToBottom()`——应通过“是否在底部”吸附判断来限制                                             |
 | 流空闲时 CPU 仍繁忙      | 场景留在了 `'always'` 模式，或者存在未使用 `hasPendingAnimations()` 的自定义动画；控制器的 rAF 处于空闲状态 |
 
-如需真实数据，请使用[测量真实性能](/learn/performance/#测量真实性能)中介绍的面内测量模式——无头模式的 FPS 不具代表性。
+如需真实数据，请使用[测量真实性能](/learn/performance/#ce-liang-zhen-shi-xing-neng)中介绍的面内测量模式——无头模式的 FPS 不具代表性。
 
 > **下一篇：** [性能](/learn/performance/) 提供完整的优化工具箱，[`Markdown`](/reference/ui-markdown/) 是流式 API 参考。

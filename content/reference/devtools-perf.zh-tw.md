@@ -87,7 +87,7 @@ gpu.phases; // per-phase timing
 >
 > `null` 的 `webgl` 表示點圖層完全沒有執行，這不同於全為零的 `webgl` 表示它執行了但什麼都沒繪製。`webgpu.pipelines` 與 `bindGroups` 是從活動旗標與粒子實體數量推導而來，而非向裝置查詢。`particleEntities` 對數值的 `maxParticles` 做鴨子型別檢查，且只計算主樹。
 
-三個指令被匯出，用於從面板或代理程式切換量測，作為[外掛程式指令](/reference/devtools-extend/#外掛程式協定)：
+三個指令被匯出，用於從面板或代理程式切換量測，作為[外掛程式指令](/reference/devtools-extend/#wai-gua-cheng-shi-xie-ding)：
 
 ```typescript
 const enableDrawCountersCommand: PluginCommand; // 'enable-draw-counters'
@@ -266,7 +266,7 @@ interface MarkdownStreamInfo {
 
 ## 將這些註冊為面板標籤頁
 
-每個子系統都隨附相符的[外掛程式](/reference/devtools-extend/#外掛程式協定)描述器，讓面板能將它顯示為標籤頁。**沒有東西會被自動註冊** — 從不檢查 GPU 的建置不會攜帶那段程式碼：
+每個子系統都隨附相符的[外掛程式](/reference/devtools-extend/#wai-gua-cheng-shi-xie-ding)描述器，讓面板能將它顯示為標籤頁。**沒有東西會被自動註冊** — 從不檢查 GPU 的建置不會攜帶那段程式碼：
 
 ```typescript
 import {

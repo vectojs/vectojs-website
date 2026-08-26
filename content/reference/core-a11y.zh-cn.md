@@ -8,7 +8,7 @@ weight = 10
 
 属于 [`@vectojs/core`](/reference/core-api/)。
 
-每个拥有盒子的可交互实体都会将一个**透明的 ARIA 影子节点**投影到 Scene 的 `a11yRoot` div 中（位于 canvas 之上，`pointerEvents:auto` 以便自动化/AT 可以交互；除非 `debugA11y`，否则 `opacity:0`）。每个节点携带 `id` + `data-vecto-id`，外加来自 [`Entity.getA11yAttributes()`](/reference/core-entity/#a11y--批处理钩子覆盖以选入) 的角色/标签/状态。
+每个拥有盒子的可交互实体都会将一个**透明的 ARIA 影子节点**投影到 Scene 的 `a11yRoot` div 中（位于 canvas 之上，`pointerEvents:auto` 以便自动化/AT 可以交互；除非 `debugA11y`，否则 `opacity:0`）。每个节点携带 `id` + `data-vecto-id`，外加来自 [`Entity.getA11yAttributes()`](/reference/core-entity/#a11y-pi-chu-li-gou-zi-fu-gai-yi-xuan-ru) 的角色/标签/状态。
 
 投影根跟踪 canvas 的 CSS 盒：canvas 偏移和非均匀 CSS 缩放会应用到影子层和 DOM 门户层，而实体几何仍保持在逻辑 Scene 坐标中。canvas 的任意 CSS 旋转/倾斜不属于此映射。
 
@@ -58,13 +58,13 @@ weight = 10
 
 非原生可聚焦的交互角色（`button`、`switch`、`checkbox`、`link`、`slider` 等）会获得 `tabindex="0"` 以及 Enter/Space → `click`。
 
-**复合组件有所不同。** `tree`、`grid`、`menu`、`radiogroup` 或 `tablist` 是一个标签停靠点，而不是每个子元素一个——因此它们的子元素使用**漫游 tabindex**：恰好一个子元素携带 `tabIndex: 0`，其余为 `-1`，方向键移动该停靠点。参见[复合组件](#复合组件漫游-tabindex)。
+**复合组件有所不同。** `tree`、`grid`、`menu`、`radiogroup` 或 `tablist` 是一个标签停靠点，而不是每个子元素一个——因此它们的子元素使用**漫游 tabindex**：恰好一个子元素携带 `tabIndex: 0`，其余为 `-1`，方向键移动该停靠点。参见[复合组件](#fu-he-zu-jian-man-you-tabindex)。
 
-标签顺序遵循**视觉**阅读顺序，而非场景图插入顺序——参见 [`Scene.readingDirection`](/reference/core-scene/#无障碍与外观) 了解 RTL。
+标签顺序遵循**视觉**阅读顺序，而非场景图插入顺序——参见 [`Scene.readingDirection`](/reference/core-scene/#wu-zhang-ai-yu-wai-guan) 了解 RTL。
 
 当非控件区域（如设计 canvas）必须进入顺序焦点顺序并接收 VMT `keydown` 事件时，显式设置 `tabIndex: 0`。仅用于程序化聚焦时使用 `-1`；返回 `undefined` 会移除显式值。
 
-## 复合组件（漫游 tabindex）
+## 复合组件（漫游 tabindex） {#fu-he-zu-jian-man-you-tabindex}
 
 树、网格、菜单、单选按钮组或标签列表必须为每个子元素暴露**一个角色**，而不仅仅是容器角色——否则 AT 看到的是一个不透明的方框。VectoJS 通过在每个可见子元素上方汇集一个透明的、可聚焦的子实体（"热点"）来实现：它携带子元素的 `role` + 状态 + 漫游 `tabIndex`，不渲染任何内容，父元素拥有键盘处理程序。
 
@@ -82,7 +82,7 @@ weight = 10
 
 ## 强制颜色（高对比度）
 
-canvas 是不透明像素，因此浏览器的 `forced-colors` 重映射永远不会触及 VectoJS 绘制的内容——在 Windows 高对比度下，主题控件会保持不可读，除非组件重新绘制自身。请参见 [`Scene.forcedColors`](/reference/core-scene/#无障碍与外观) 并使用 CSS 系统颜色（`ButtonFace`、`ButtonText`、`Highlight`、`Canvas`、`CanvasText`）绘制；当设置切换时场景会自动重绘。`Button` 已经这样做了。
+canvas 是不透明像素，因此浏览器的 `forced-colors` 重映射永远不会触及 VectoJS 绘制的内容——在 Windows 高对比度下，主题控件会保持不可读，除非组件重新绘制自身。请参见 [`Scene.forcedColors`](/reference/core-scene/#wu-zhang-ai-yu-wai-guan) 并使用 CSS 系统颜色（`ButtonFace`、`ButtonText`、`Highlight`、`Canvas`、`CanvasText`）绘制；当设置切换时场景会自动重绘。`Button` 已经这样做了。
 
 ## 高实体数量下的投影开销（`1.30.0+`）
 
@@ -134,7 +134,7 @@ scene.releaseA11yProjection(previous);
 基数本身并不是动用 `'onDemand'` 的判据，而下面这种情形最容易被弄错：
 
 > [!WARNING]
-> **不要因为与粒子类比就把 `'onDemand'` 用在正文文本上。** 对于按钮或图节点，canvas 实体是主体，影子节点是临时的语义代理，因此在被使用前扣留它不会损失什么。而对于散文、Markdown 或聊天记录，canvas 位图对屏幕阅读器**完全不可读**，并且对非视觉用户而言**阅读就是首要交互**，而非偶尔为之的操作。文本实体默认不可交互，承载其语义的是[内容投影](/reference/core-renderer/#entitygetcontentprojection)——而不是影子节点；该投影按行虚拟化，并保持常驻。
+> **不要因为与粒子类比就把 `'onDemand'` 用在正文文本上。** 对于按钮或图节点，canvas 实体是主体，影子节点是临时的语义代理，因此在被使用前扣留它不会损失什么。而对于散文、Markdown 或聊天记录，canvas 位图对屏幕阅读器**完全不可读**，并且对非视觉用户而言**阅读就是首要交互**，而非偶尔为之的操作。文本实体默认不可交互，承载其语义的是[内容投影](/reference/core-renderer/#entity-getcontentprojection)——而不是影子节点；该投影按行虚拟化，并保持常驻。
 
 另外，能被单独访问与能被理解并不是同一件事：
 

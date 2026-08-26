@@ -119,11 +119,20 @@ new NodeEditor(options?: { document?: NodeDocument; width?: number; height?: num
 ## 永続化
 
 ```ts
-import { NodeEditorPersistence, NODE_EDITOR_SCHEMA_VERSION } from '@vectojs/node-editor';
+import {
+  nodeEditorPersistence,
+  exportDocument,
+  importDocument,
+  NODE_EDITOR_SCHEMA_VERSION,
+} from '@vectojs/node-editor';
 
-const persistence = new NodeEditorPersistence();
-const json = persistence.exportDocument(editor.document); // schemaVersion-stamped
-const doc = persistence.importDocument(json);
+// The persistence API is a ready-made object plus equivalent free functions —
+// there is no exported class to construct.
+const json = nodeEditorPersistence.exportDocument(editor.document); // schemaVersion-stamped
+const doc = nodeEditorPersistence.importDocument(json);
+// Same operations, stateless form:
+const json2 = exportDocument(editor.document);
+const doc2 = importDocument(json2);
 ```
 
 `exportDocument`/`importDocument` は `NODE_EDITOR_SCHEMA_VERSION`（1）を運びます。`serializeDocument`/`deserializeDocument` はバージョンなしのペアです。インポート検証は構造的かつ意味的です（`0.2.0+`）。配列/文字列/有限数の形状チェックに加えて、すべてのリンクがドキュメントの残りに対してランタイムの `validateLink` を通されます。自己ループ、重複エンドポイント対、重複リンク id、ポート方向/型/maxConnections 違反は `links[i]: <verdict.error>` で拒否されるようになりました。永続化されたドキュメントはエディターで再現できることが保証されます。以前は、削除後には再現できないリンクを含むドキュメントがあり得ました。

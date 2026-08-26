@@ -73,7 +73,7 @@ animateTo(props: Partial<Record<AnimatableProp, number>>, cfg: TweenConfig): Pro
 springTo(props: Partial<Record<AnimatableProp, number>>, cfg?: SpringConfig): Promise<void>
 ```
 
-`animate()` 排队一个补间；多次调用**顺序链接**。只有数值属性插值；缓动是固定的 ease-out（`p * (2 - p)`）。运行中的 `animate()` 保持场景非静态（逃离空闲节流，参见 [`Scene`](/reference/core-scene/#rendermodemaxfps-与空闲自动节流)），并冻结 a11y 同步直到它稳定。
+`animate()` 排队一个补间；多次调用**顺序链接**。只有数值属性插值；缓动是固定的 ease-out（`p * (2 - p)`）。运行中的 `animate()` 保持场景非静态（逃离空闲节流，参见 [`Scene`](/reference/core-scene/#rendermode-maxfps-yu-kong-xian-zi-dong-jie-liu)），并冻结 a11y 同步直到它稳定。
 
 `hasPendingAnimations()` 是**可覆盖的**，是 Scene 观察自定义运动的唯一窗口：如果子类在 `update()` 内部集成自己的移动（手写的弹簧或速度），当该运动进行中时覆盖它以返回 `true` —— 从 `update()` 内部调用的 `markDirty()` 会在同一 tick 结束时再次被清除，因此没有覆盖时，空闲节流会将动画降到 2 fps，而 `onDemand` 模式会冻结它。
 

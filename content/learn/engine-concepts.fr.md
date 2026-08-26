@@ -24,7 +24,7 @@ Le VMT remplace un sous-arbre DOM visuel par un graphe de scène JavaScript de s
 
 Les entités interactives éligibles projettent de vrais nœuds DOM transparents au-dessus de leurs limites canvas. Le canvas possède les pixels ; la projection DOM possède le rôle/nom/état et le comportement de saisie natif.
 
-- Théorie : [Fondations mathématiques : a11yRoot](/learn/math-foundations/#2-shadow-dom-sémantique-a11yroot)
+- Théorie : [Fondations mathématiques : a11yRoot](/learn/math-foundations/#2-shadow-dom-semantique-a11yroot)
 - Pratique : [Accessibilité](/learn/accessibility/)
 
 ## 3. Transformations affines
@@ -37,7 +37,7 @@ La translation, l'échelle et la rotation des entités se composent en descendan
 
 La mise en page du texte sépare la préparation coûteuse du contenu du retour à la ligne réactif. Les changements de contenu exécutent le chemin à froid ; les changements de largeur peuvent réutiliser les mesures préparées.
 
-- Théorie : [Fondations mathématiques : séparation à froid/à chaud](/learn/math-foundations/#4-moteur-de-mise-en-page-à-séparation-froidechaude)
+- Théorie : [Fondations mathématiques : séparation à froid/à chaud](/learn/math-foundations/#4-moteur-de-mise-en-page-a-separation-froide-chaude)
 - Pratique : [Texte & Typographie](/learn/text-typography/)
 
 ## 5. Flux de texte par différence d'ensembles
@@ -46,19 +46,19 @@ Le contournement d'obstacles peut être modélisé comme une soustraction d'inte
 
 $$I_{\text{allowed}} = I_0 \setminus \bigcup E_k$$
 
-- Théorie : [Fondations mathématiques : algèbre de différence d'ensembles](/learn/math-foundations/#5-algèbre-de-différence-densembles-pour-les-flux-de-texte)
+- Théorie : [Fondations mathématiques : algèbre de différence d'ensembles](/learn/math-foundations/#5-algebre-de-difference-d-ensembles-pour-les-flux-de-texte)
 
 ## 6. Hit-testing de splines échantillonnées
 
 `SplineEntity` échantillonne les courbes en segments de ligne mis en cache et compare la distance au carré du pointeur à ces segments. Cela évite les lectures de pixels et est plus précis que les tests de survol basés uniquement sur AABB.
 
-- Théorie : [Fondations mathématiques : hit-testing de splines échantillonnées](/learn/math-foundations/#6-hit-testing-de-splines-échantillonnées)
+- Théorie : [Fondations mathématiques : hit-testing de splines échantillonnées](/learn/math-foundations/#6-hit-testing-de-splines-echantillonnees)
 
 ## 7. Dynamique d'Euler semi-implicite
 
 Les transitions UI interrompues sont modélisées comme des systèmes de type ressort plutôt que comme des minuteurs CSS à usage unique. Les cibles peuvent changer en plein vol tandis que le mouvement reste continu.
 
-- Théorie : [Fondations mathématiques : dynamique des EDO](/learn/math-foundations/#7-équations-différentielles--solveurs-deuler-semi-implicites)
+- Théorie : [Fondations mathématiques : dynamique des EDO](/learn/math-foundations/#7-equations-differentielles-solveurs-d-euler-semi-implicites)
 - Pratique : [Physique & Animation](/learn/physics-engine/)
 
 ## 8. Utilitaire SpatialHashGrid

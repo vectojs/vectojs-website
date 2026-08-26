@@ -57,4 +57,4 @@ layout、text-shaping、math、animationの各エンジンは、それぞれ独�
 - **Learn / テキストとタイポグラフィ** — コールド/ホット `LayoutEngine` 分割、ストリーミングメモ化、MSDFテキスト、除外/ラッピング、bidi。
 - **Learn / パーティクル** — `ComputeParticleEntity`、WebGPU vs CPU、8-floatレイアウト、`resize()` を先に。
 - **Reference / API** — 上記のサブページ（Scene、Entity、レイアウトエンジン、レンダラー、パーティクル、テキスト、数学ユーティリティ、a11y契約）。
-- **Reference / バックエンドレジストリ** — プラガブルなWebGL/WebGPUバックエンド。[`Scene`](/reference/core-scene/#プラガブルバックエンドレジストリ静的) でカバーされています。
+- **Reference / バックエンドレジストリ** — プラガブルなWebGL/WebGPUバックエンド。[`Scene`](/reference/core-scene/#puragaburubatukuendorezisutori-jing-de) でカバーされています。

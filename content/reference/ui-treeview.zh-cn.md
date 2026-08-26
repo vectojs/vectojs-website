@@ -55,7 +55,7 @@ const tree = new TreeView({
 
 活动行在焦点移动到它之前会滚动到视图中。由于只有可见行被池化，100k 节点的树仍然只投影 O(视口) 个节点。
 
-热点设置 `pointerEvents: 'none'`，因此树保持其自身的鼠标处理（点击切换和拖拽滚动）——键盘焦点和 AT 合成的 `click` 仍然通过。参见[复合组件](/reference/core-a11y/#复合组件漫游-tabindex)。
+热点设置 `pointerEvents: 'none'`，因此树保持其自身的鼠标处理（点击切换和拖拽滚动）——键盘焦点和 AT 合成的 `click` 仍然通过。参见[复合组件](/reference/core-a11y/#fu-he-zu-jian-man-you-tabindex)。
 
 ## 指针与触摸
 

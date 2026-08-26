@@ -55,7 +55,7 @@ target.on('pointerdown', (event) => {
 | Enter / Space | 활성화 (하위 메뉴를 열거나 `onClick`을 발생시키고 메뉴 트리를 닫음)  |
 | Escape        | 전체 메뉴 트리를 닫음                                                |
 
-핫스팟은 `pointerEvents: 'none'`을 설정하므로 메뉴는 자체적인 위치 기반 `pointerdown` 히트 처리를 유지합니다. [복합 위젯](/reference/core-a11y/#복합-위젯-로빙-tabindex)을 참조하세요.
+핫스팟은 `pointerEvents: 'none'`을 설정하므로 메뉴는 자체적인 위치 기반 `pointerdown` 히트 처리를 유지합니다. [복합 위젯](/reference/core-a11y/#boghab-wijes-robing-tabindex)을 참조하세요.
 
 > **메뉴를 표시하면 전체 씬 백드롭이 설치됩니다.** 루트 메뉴는 닫히는 외부 클릭을 캐치하기 위해 씬 크기의 보이지 않는 대화형 엔티티를 추가합니다. 그 백드롭은 메뉴가 열려 있는 동안 전체 씬의 포인터 이벤트를 가로채므로—드래그/선택이 필요한 픽스처나 테스트에서 메뉴를 열어 두지 마세요.
 

@@ -70,7 +70,7 @@ abstract class UIComponent extends Entity {
 
 集中了每个组件共享的盒子模型 + 轴对齐 (AABB) 命中测试。`isPointInside` 返回该点是否位于局部空间的 `[0,width] × [0,height]` 内。`getBounds()` 返回局部框，以便 `Scene` 进行视口剔除。子类通过测量内容设置 `width`/`height`，实现 `render(r)`，并且（当为 interactive 时）覆盖 `getA11yAttributes()`。
 
-**存在感：** 将 `enterMotion` / `exitMotion` 声明为 `MotionSpec`（`{ props: { opacity: [0, 1], … }, config? }`），组件在挂载到活动场景时以动画方式进入，并在 `dismiss()` 时以动画方式退出——`dismiss()` 会延迟自身的移除，直到退出动画解析完毕。这是基于[核心动画系统](/reference/core-entity/#动画)的一个统一实现，取代了各组件手工编写的弹簧动画。在 `prefers-reduced-motion` 下动画会被抑制（保留不透明度渐变动画）。
+**存在感：** 将 `enterMotion` / `exitMotion` 声明为 `MotionSpec`（`{ props: { opacity: [0, 1], … }, config? }`），组件在挂载到活动场景时以动画方式进入，并在 `dismiss()` 时以动画方式退出——`dismiss()` 会延迟自身的移除，直到退出动画解析完毕。这是基于[核心动画系统](/reference/core-entity/#dong-hua)的一个统一实现，取代了各组件手工编写的弹簧动画。在 `prefers-reduced-motion` 下动画会被抑制（保留不透明度渐变动画）。
 
 ### `getA11yAttributes(): A11yAttributes`
 
@@ -523,7 +523,7 @@ new Modal(title: string, props?: ModalProps)  // props 是松散类型 (any)
 }
 ```
 
-一个全屏调暗背景，包含一个居中的 `Card`，其中包含 `title` 文本和一个内置的"关闭"按钮。卡片在挂载时通过共享的[动画系统](/reference/core-entity/#动画)以弹簧动画缩放；阻止底层 `click`/`pointerdown`。使用 `scene.showOverlay(modal)` 显示它。
+一个全屏调暗背景，包含一个居中的 `Card`，其中包含 `title` 文本和一个内置的"关闭"按钮。卡片在挂载时通过共享的[动画系统](/reference/core-entity/#dong-hua)以弹簧动画缩放；阻止底层 `click`/`pointerdown`。使用 `scene.showOverlay(modal)` 显示它。
 
 - `close(): Promise<void>` — 将卡片缩放弹簧回到 0，然后在退出动画解析后通过 `scene.hideOverlay(this)` 卸载（安全的延迟拆卸）。可 `await`。
 - `update(dt, time)` — 滴答弹簧并在动画期间标记场景为脏（由渲染循环调用）。

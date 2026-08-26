@@ -82,7 +82,7 @@ save.disabled = true; // 暗淡的填充，投影 `disabled`，放弃悬停/焦�
 
 ## 强制颜色（高对比度）
 
-`Button` 读取 [`Scene.forcedColors`](/reference/core-scene/#无障碍与外观)，当操作系统处于强制颜色模式时，使用 CSS 系统颜色而非主题调色板重新绘制：`ButtonFace` 填充、`ButtonText` 标签加上 1px `ButtonText` 边框（使形状在系统背景上可见），以及 `Highlight` 焦点环。Canvas 像素不受浏览器强制颜色重映射的影响，因此跳过此步骤的组件在高对比度模式下将不可读。当设置切换时，场景会自动重新绘制。
+`Button` 读取 [`Scene.forcedColors`](/reference/core-scene/#wu-zhang-ai-yu-wai-guan)，当操作系统处于强制颜色模式时，使用 CSS 系统颜色而非主题调色板重新绘制：`ButtonFace` 填充、`ButtonText` 标签加上 1px `ButtonText` 边框（使形状在系统背景上可见），以及 `Highlight` 焦点环。Canvas 像素不受浏览器强制颜色重映射的影响，因此跳过此步骤的组件在高对比度模式下将不可读。当设置切换时，场景会自动重新绘制。
 
 ## 维护者检查清单
 

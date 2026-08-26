@@ -171,6 +171,6 @@ Pour une UI qui doit être identique visuellement et fonctionnellement partout :
 - [ ] Animations vérifiées avec le mouvement réduit de l'OS activé.
 - [ ] Si les backends WebGL/WebGPU sont activés, le chemin de repli Canvas2D est également testé.
 
-> **Suivant :** [Flux de travail de débogage](/reference/devtools-inspect/#flux-de-travail-de-débogage)
+> **Suivant :** [Flux de travail de débogage](/reference/devtools-inspect/#flux-de-travail-de-debogage)
 > pour les outils numériques sur lesquels s'appuie cette liste, et
 > [Streaming et texte en temps réel](/learn/streaming/) pour les UIs en temps réel.

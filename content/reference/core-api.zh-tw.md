@@ -74,4 +74,4 @@ Vecto 背後的 zero-DOM 渲染引擎。`Scene` 擁有一個 `Entity` 節點的�
 - **Reference / API** — 上方的子頁面（Scene、Entity、layout engine、
   renderer、粒子、文字、數學工具、a11y 契約）。
 - **Reference / Backend registry** — 可插拔的 WebGL/WebGPU 後端，涵蓋於
-  [`Scene`](/reference/core-scene/#可插拔後端登錄靜態) 之下。
+  [`Scene`](/reference/core-scene/#ke-cha-ba-hou-duan-deng-lu-jing-tai) 之下。

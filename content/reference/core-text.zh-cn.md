@@ -18,7 +18,7 @@ font.layout(text, fontSizePx, opts?: MSDFLayoutOptions): MSDFLayoutResult   // h
 font.distanceRange / font.atlasWidth / font.atlasHeight
 ```
 
-解析事实标准的 `msdf-atlas-gen` JSON，并将文本排布成带图集 UV 的 CSS 像素四边形（y 向下的局部空间；v=0 在图集顶部）。将 `layout()` 与 WebGL 后端的 `setMSDFTexture` + `addGlyph`（参见 [WebGL point 层](/reference/core-renderer/#webgl-point-层)）配对以获得分辨率无关的 GPU 文本。类型：`MSDFFontData`、`MSDFAtlasInfo`、`MSDFMetrics`、`MSDFGlyphDef`、`MSDFBounds`、`MSDFKerning`、`PositionedGlyph`、`MSDFLayoutResult`、`MSDFLayoutOptions`。
+解析事实标准的 `msdf-atlas-gen` JSON，并将文本排布成带图集 UV 的 CSS 像素四边形（y 向下的局部空间；v=0 在图集顶部）。将 `layout()` 与 WebGL 后端的 `setMSDFTexture` + `addGlyph`（参见 [WebGL point 层](/reference/core-renderer/#webgl-point-ceng)）配对以获得分辨率无关的 GPU 文本。类型：`MSDFFontData`、`MSDFAtlasInfo`、`MSDFMetrics`、`MSDFGlyphDef`、`MSDFBounds`、`MSDFKerning`、`PositionedGlyph`、`MSDFLayoutResult`、`MSDFLayoutOptions`。
 
 ## MSDFTextEntity
 

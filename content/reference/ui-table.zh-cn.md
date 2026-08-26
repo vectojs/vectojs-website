@@ -56,7 +56,7 @@ table.setWidth(width: number): this
 | Home / End           | 当前行的第一个/最后一个单元格                 |
 | Ctrl+Home / Ctrl+End | 第一个表头单元格 / 最后一个主体单元格         |
 
-目标单元格在焦点移动到它之前会滚动到视图中。参见[复合组件](/reference/core-a11y/#复合组件漫游-tabindex)。
+目标单元格在焦点移动到它之前会滚动到视图中。参见[复合组件](/reference/core-a11y/#fu-he-zu-jian-man-you-tabindex)。
 
 ## 指针与触摸
 

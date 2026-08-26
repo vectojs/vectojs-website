@@ -49,7 +49,7 @@ Un reinicio de GPU o una eliminación por presión de memoria dejaría una escen
 
 Todo está protegido para SSR / `OffscreenCanvas` (sin `addEventListener` ni
 `matchMedia`). `isContextLost()` también satisface el hook opcional
-[`IRenderer`](/reference/core-renderer/#sobrevivir-a-la-pérdida-del-contexto-gpu), por lo que
+[`IRenderer`](/reference/core-renderer/#sobrevivir-a-la-perdida-del-contexto-gpu), por lo que
 `Scene.render` omite el paso mientras el contexto no está disponible.
 
 ## Propiedades públicas
@@ -118,7 +118,7 @@ El color se interpola linealmente entre los dos stops más cercanos en espacio m
 
 **Los gradientes no son compatibles con `stroke()` o `fillText()`.** Pasar un `WebGLGradient` a `stroke()` recurre al color del primer stop. `fillText()` también recurre al color del primer stop porque los glifos de texto se rasterizan mediante Canvas 2D antes de la subida.
 
-Consulta la [página principal de `@vectojs/three`](/reference/three/#solución-de-problemas) para solucionar problemas de gradiente/DPR/puntero.
+Consulta la [página principal de `@vectojs/three`](/reference/three/#solucion-de-problemas) para solucionar problemas de gradiente/DPR/puntero.
 
 ## Relacionados
 

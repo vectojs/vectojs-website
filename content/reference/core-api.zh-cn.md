@@ -57,4 +57,4 @@ Vecto 背后的 zero-DOM 渲染引擎。一个 `Scene` 拥有一棵 `Entity` 节
 - **Learn / 文本与排版** —— 冷/热 `LayoutEngine` 分离、流式记忆化、MSDF 文本、排除/换行、bidi。
 - **Learn / 粒子** —— `ComputeParticleEntity`、WebGPU 对比 CPU、8-float 布局、`resize()` 优先。
 - **Reference / API** —— 上面的子页面（Scene、Entity、布局引擎、渲染器、粒子、文本、数学工具、a11y 约定）。
-- **Reference / 后端注册表** —— 可插拔的 WebGL/WebGPU 后端，在 [`Scene`](/reference/core-scene/#可插拔后端注册表静态) 下涵盖。
+- **Reference / 后端注册表** —— 可插拔的 WebGL/WebGPU 后端，在 [`Scene`](/reference/core-scene/#ke-cha-ba-hou-duan-zhu-ce-biao-jing-tai) 下涵盖。

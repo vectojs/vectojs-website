@@ -37,7 +37,7 @@ Entity translation, scale, and rotation compose down the tree. `worldToLocal()` 
 
 Text layout separates expensive content preparation from responsive wrapping. Content changes run the cold path; width changes can reuse prepared measurements.
 
-- Theory: [Mathematical Foundations: Cold/Hot Split](/learn/math-foundations/#4-coldhot-split-layout-engine)
+- Theory: [Mathematical Foundations: Cold/Hot Split](/learn/math-foundations/#4-cold-hot-split-layout-engine)
 - Practice: [Text & Typography](/learn/text-typography/)
 
 ## 5. Set-difference text flow
@@ -58,7 +58,7 @@ $$I_{\text{allowed}} = I_0 \setminus \bigcup E_k$$
 
 Interrupted UI transitions are modeled as spring-like systems instead of one-shot CSS timers. Targets can change mid-flight while motion stays continuous.
 
-- Theory: [Mathematical Foundations: ODE Dynamics](/learn/math-foundations/#7-differential-equations--semi-implicit-euler-solvers)
+- Theory: [Mathematical Foundations: ODE Dynamics](/learn/math-foundations/#7-differential-equations-semi-implicit-euler-solvers)
 - Practice: [Physics & Animation](/learn/physics-engine/)
 
 ## 8. SpatialHashGrid utility

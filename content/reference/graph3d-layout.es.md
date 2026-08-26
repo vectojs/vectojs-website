@@ -56,7 +56,7 @@ interface GraphLayout {
 ```
 
 El contrato es deliberadamente mínimo y apto para workers: las posiciones son un único `Float32Array` plano de tripletes xyz en el orden de `GraphData.nodes`, por lo que una implementación puede vivir completamente dentro de un Web Worker y transmitir su búfer a través del límite del hilo como transferible, sin tráfico de objetos por nodo.
-[`Graph3D.applyPositions()`](/reference/graph3d-renderer/#métodos) consume ese mismo formato de búfer directamente. `positions` es la **misma instancia de array** reutilizada entre pasos — cópiala (`layout.positions.slice()`) si necesitas una instantánea estable en lugar de una vista en vivo.
+[`Graph3D.applyPositions()`](/reference/graph3d-renderer/#metodos) consume ese mismo formato de búfer directamente. `positions` es la **misma instancia de array** reutilizada entre pasos — cópiala (`layout.positions.slice()`) si necesitas una instantánea estable en lugar de una vista en vivo.
 
 **La validación de extremos de enlaces es uniforme en toda la pila (0.6.1).**
 `Graph3D.setGraphData`, `VectoForceLayout.setGraph` y `D3ForceLayout.setGraph`
@@ -137,7 +137,7 @@ layout.enableWasmForceSync(bytes); // sync; BufferSource, never fetches
 
 Ambos devuelven `false` ante cualquier fallo (CSP, 404, módulo corrupto) y conservan silenciosamente el Barnes-Hut en JS idéntico bit a bit, que es el fallback permanente y el oráculo diferencial. El kernel no tiene dependencia de `@vectojs/core`.
 
-**Fijación (desde 0.2.0).** Tanto `D3ForceLayout` como `VectoForceLayout` implementan los controles de fijación opcionales (d3 sobre `fx`/`fy`/`fz`, VectoForceLayout sobre sus propios arrays de fijación), que es lo que impulsa el arrastre para fijar de [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--hover--seleccionar--arrastrar-para-fijar):
+**Fijación (desde 0.2.0).** Tanto `D3ForceLayout` como `VectoForceLayout` implementan los controles de fijación opcionales (d3 sobre `fx`/`fy`/`fz`, VectoForceLayout sobre sus propios arrays de fijación), que es lo que impulsa el arrastre para fijar de [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction-hover-seleccionar-arrastrar-para-fijar):
 
 ```ts
 layout.pinNode(i, x, y, z); // fija el nodo i en (x,y,z) cada tick; también actualiza positions[i] ahora

@@ -55,7 +55,7 @@ interface GraphLayout {
 }
 ```
 
-契約は意図的に最小限でワーカーフレンドリーです：位置は`GraphData.nodes`の順序でxyzトリプレットを持つ1つのフラットな`Float32Array`であるため、実装は完全にWeb Worker内で動作し、そのバッファを転送可能オブジェクトとしてスレッド境界を越えてストリーミングできます（ノードごとのオブジェクトトラフィックなし）。[`Graph3D.applyPositions()`](/reference/graph3d-renderer/#メソッド) はまったく同じバッファ形状を直接消費します。`positions` はステップ間で再利用される**同じ配列インスタンス**です — ライブビューではなく安定したスナップショットが必要な場合はコピー（`layout.positions.slice()`）してください。
+契約は意図的に最小限でワーカーフレンドリーです：位置は`GraphData.nodes`の順序でxyzトリプレットを持つ1つのフラットな`Float32Array`であるため、実装は完全にWeb Worker内で動作し、そのバッファを転送可能オブジェクトとしてスレッド境界を越えてストリーミングできます（ノードごとのオブジェクトトラフィックなし）。[`Graph3D.applyPositions()`](/reference/graph3d-renderer/#mesotudo) はまったく同じバッファ形状を直接消費します。`positions` はステップ間で再利用される**同じ配列インスタンス**です — ライブビューではなく安定したスナップショットが必要な場合はコピー（`layout.positions.slice()`）してください。
 
 **リンクエンドポイントの検証はスタック全体で統一されています（0.6.1）。** `Graph3D.setGraphData`、`VectoForceLayout.setGraph`、`D3ForceLayout.setGraph` はいずれも、エンドポイントがグラフ内のどのノードも指さないリンクに対して、同じ `references an unknown node id` エラーをスローします — 検証は状態が変更される前に実行されるため、拒否されたグラフでは以前のグラフがそのまま保たれます（以前の `D3ForceLayout` は生の id を d3-force-3d に渡してしまい、その tick がすべての位置を密かに NaN に崩壊させていました；以前の `VectoForceLayout` はリンクを黙ってスキップしていました）。自己ループは依然としてスプリングを持たない正当な入力です: `VectoForceLayout` はそれらをスキップします。
 
@@ -121,7 +121,7 @@ layout.enableWasmForceSync(bytes); // sync; BufferSource, never fetches
 
 両方とも、いかなる失敗（CSP、404、破損モジュール）でも `false` を返し、ビット単位で同一のJS Barnes-Hutを黙って維持します。これは恒久的なフォールバックであり差分オラクルです。カーネルには `@vectojs/core` 依存がありません。
 
-**ピン留め（0.2.0以降）。** `D3ForceLayout` と `VectoForceLayout` の両方がオプションのピンコントロールを実装しています（d3は`fx`/`fy`/`fz`、VectoForceLayoutは独自のピン配列を介して）。これが [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--ホバー--選択--ドラッグピン) のドラッグ＆ピンを支えています：
+**ピン留め（0.2.0以降）。** `D3ForceLayout` と `VectoForceLayout` の両方がオプションのピンコントロールを実装しています（d3は`fx`/`fy`/`fz`、VectoForceLayoutは独自のピン配列を介して）。これが [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction-hoba-xuan-ze-doratugu-pin) のドラッグ＆ピンを支えています：
 
 ```ts
 layout.pinNode(i, x, y, z); // ノードiを(x,y,z)に毎ティック固定；positions[i]も即時更新

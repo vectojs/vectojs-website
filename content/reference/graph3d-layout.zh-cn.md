@@ -55,7 +55,7 @@ interface GraphLayout {
 }
 ```
 
-该约定刻意保持最小化且 worker 友好：位置是一个扁平的 `Float32Array`，按 `GraphData.nodes` 顺序排列 xyz 三元组，因此一个实现可以完全存在于 Web Worker 内部，并将其缓冲区作为可传输对象跨线程边界流式传输，无需每节点对象流量。[`Graph3D.applyPositions()`](/reference/graph3d-renderer/#方法) 直接消费那个完全相同的缓冲区形状。`positions` 是跨步进重用的**同一个数组实例** —— 如果你需要稳定的快照而非实时视图，请复制它（`layout.positions.slice()`）。
+该约定刻意保持最小化且 worker 友好：位置是一个扁平的 `Float32Array`，按 `GraphData.nodes` 顺序排列 xyz 三元组，因此一个实现可以完全存在于 Web Worker 内部，并将其缓冲区作为可传输对象跨线程边界流式传输，无需每节点对象流量。[`Graph3D.applyPositions()`](/reference/graph3d-renderer/#fang-fa) 直接消费那个完全相同的缓冲区形状。`positions` 是跨步进重用的**同一个数组实例** —— 如果你需要稳定的快照而非实时视图，请复制它（`layout.positions.slice()`）。
 
 **链路端点校验在整个技术栈中是一致的（0.6.1）。** `Graph3D.setGraphData`、`VectoForceLayout.setGraph` 与 `D3ForceLayout.setGraph` 对端点指向图中不存在节点的链路都会抛出同样的 `references an unknown node id` 错误 —— 校验在任何状态被修改之前运行，因此被拒绝的图会保持前一个图完好无损（`D3ForceLayout` 过去会把裸 id 直接送入 d3-force-3d，其 tick 会悄悄把所有位置坍缩为 NaN；`VectoForceLayout` 过去会静默跳过该链路）。自环仍然是合法输入，只是不携带弹簧：`VectoForceLayout` 会跳过它们。
 
@@ -122,7 +122,7 @@ layout.enableWasmForceSync(bytes); // sync; BufferSource, never fetches
 
 两者在任何失败（CSP、404、损坏的模块）时都返回 `false` 并静默地保留位级相同的 JS Barnes-Hut，后者是永久回退和差分基准。该内核没有 `@vectojs/core` 依赖。
 
-**固定（自 0.2.0 起）。** `D3ForceLayout` 和 `VectoForceLayout` 都实现可选的固定控件（d3 基于 `fx`/`fy`/`fz`，VectoForceLayout 基于自己的固定数组），这正是驱动 [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--悬停--选择--拖拽固定) 的拖拽固定的原因：
+**固定（自 0.2.0 起）。** `D3ForceLayout` 和 `VectoForceLayout` 都实现可选的固定控件（d3 基于 `fx`/`fy`/`fz`，VectoForceLayout 基于自己的固定数组），这正是驱动 [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction-xuan-ting-xuan-ze-tuo-zhuai-gu-ding) 的拖拽固定的原因：
 
 ```ts
 layout.pinNode(i, x, y, z); // clamp node i to (x,y,z) every tick; also updates positions[i] now

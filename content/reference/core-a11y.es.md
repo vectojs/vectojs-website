@@ -13,7 +13,7 @@ transparente** en el `a11yRoot` div de la Scene (encima del canvas,
 `pointerEvents:auto` para que la automatización/AT pueda interactuar;
 `opacity:0` a menos que `debugA11y` esté activo). Cada nodo lleva
 `id` + `data-vecto-id`, más el rol/etiqueta/estado de
-[`Entity.getA11yAttributes()`](/reference/core-entity/#hooks-de-a11y--agrupación-sobrescribir-para-optar).
+[`Entity.getA11yAttributes()`](/reference/core-entity/#hooks-de-a11y-agrupacion-sobrescribir-para-optar).
 
 La raíz de proyección sigue la caja CSS del canvas: el desplazamiento del canvas y el escalado CSS no uniforme
 se aplican a las capas sombra y DOM-portal mientras la geometría de la entidad
@@ -165,7 +165,7 @@ Usa una petición explícita para cualquier cosa cuya importancia solo conoce la
 La cardinalidad no es por sí sola el criterio para recurrir a `'onDemand'`, y este es el caso que más fácilmente se juzga mal:
 
 > [!WARNING]
-> **No apliques `'onDemand'` al cuerpo de texto por analogía con las partículas.** Para un botón o un nodo de grafo, la entidad del canvas es el sujeto y el nodo sombra es un proxy semántico temporal, así que retenerlo hasta que esté en uso no pierde nada. Para prosa, Markdown o una transcripción de chat, el bitmap del canvas no es legible en absoluto por un lector de pantalla, y _leer es la interacción principal_ para una persona no vidente en lugar de un acto ocasional. Las entidades de texto no son interactivas por defecto y es su [proyección de contenido](/reference/core-renderer/#entitygetcontentprojection) — no un nodo sombra — la que porta su semántica; esa proyección se virtualiza por línea y permanece residente.
+> **No apliques `'onDemand'` al cuerpo de texto por analogía con las partículas.** Para un botón o un nodo de grafo, la entidad del canvas es el sujeto y el nodo sombra es un proxy semántico temporal, así que retenerlo hasta que esté en uso no pierde nada. Para prosa, Markdown o una transcripción de chat, el bitmap del canvas no es legible en absoluto por un lector de pantalla, y _leer es la interacción principal_ para una persona no vidente en lugar de un acto ocasional. Las entidades de texto no son interactivas por defecto y es su [proyección de contenido](/reference/core-renderer/#entity-getcontentprojection) — no un nodo sombra — la que porta su semántica; esa proyección se virtualiza por línea y permanece residente.
 
 Ser alcanzable individualmente tampoco es lo mismo que ser comprendido:
 

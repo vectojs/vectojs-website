@@ -8,7 +8,7 @@ weight = 10
 
 [`@vectojs/core`](/reference/core-api/) の一部です。
 
-ボックスを持つすべてのインタラクティブエンティティは、Sceneの `a11yRoot` div（キャンバスの上、`pointerEvents:auto` で自動化/ATが操作可能、`debugA11y` 以外は `opacity:0`）に**透過的なARIAシャドウノード**を投影します。各ノードは [`Entity.getA11yAttributes()`](/reference/core-entity/#a11y--バッチングフックオーバーライドしてオプトイン) からの `id` + `data-vecto-id`、およびロール/ラベル/状態を保持します。
+ボックスを持つすべてのインタラクティブエンティティは、Sceneの `a11yRoot` div（キャンバスの上、`pointerEvents:auto` で自動化/ATが操作可能、`debugA11y` 以外は `opacity:0`）に**透過的なARIAシャドウノード**を投影します。各ノードは [`Entity.getA11yAttributes()`](/reference/core-entity/#a11y-batutinguhutuku-obaraidositeoputoin) からの `id` + `data-vecto-id`、およびロール/ラベル/状態を保持します。
 
 投影ルートはキャンバスのCSSボックスを追跡します：キャンバスのオフセットと不均一なCSSスケーリングがシャドウおよびDOMポータルレイヤーに適用される一方、エンティティジオメトリは論理的なScene座標のままです。キャンバスの任意のCSS回転/スキューはこのマッピングの対象外です。
 
@@ -58,13 +58,13 @@ weight = 10
 
 ネイティブでフォーカス不可のインタラクティブロール（`button`、`switch`、`checkbox`、`link`、`slider`、…）には `tabindex="0"` と Enter/Space → `click` が付与されます。
 
-**複合ウィジェットは異なります。** `tree`、`grid`、`menu`、`radiogroup`、または `tablist` は子ごとに1つのタブストップではなく、1つのみです——そのため子は**ロービング tabindex**を使用します：正確に1つの子が `tabIndex: 0` を持ち、残りは `-1` で、矢印キーがそのストップを移動します。[複合ウィジェット](#複合ウィジェットロービング-tabindex)を参照してください。
+**複合ウィジェットは異なります。** `tree`、`grid`、`menu`、`radiogroup`、または `tablist` は子ごとに1つのタブストップではなく、1つのみです——そのため子は**ロービング tabindex**を使用します：正確に1つの子が `tabIndex: 0` を持ち、残りは `-1` で、矢印キーがそのストップを移動します。[複合ウィジェット](#fu-he-uizietuto-robingu-tabindex)を参照してください。
 
-タブ順序はシーングラフの挿入順ではなく、**ビジュアル**な読み取り順に従います——RTLについては [`Scene.readingDirection`](/reference/core-scene/#アクセシビリティと外観) を参照してください。
+タブ順序はシーングラフの挿入順ではなく、**ビジュアル**な読み取り順に従います——RTLについては [`Scene.readingDirection`](/reference/core-scene/#akusesibiriteitowai-guan) を参照してください。
 
 デザインキャンバスなどの非コントロール領域が順次フォーカス順序に入り、VMTの `keydown` イベントを受け取る必要がある場合は、`tabIndex: 0` を明示的に設定してください。プログラムによるフォーカスのみの場合は `-1` を使用し、`undefined` を返すと明示的な値が削除されます。
 
-## 複合ウィジェット（ロービング tabindex）
+## 複合ウィジェット（ロービング tabindex） {#fu-he-uizietuto-robingu-tabindex}
 
 ツリー、グリッド、メニュー、ラジオグループ、またはタブリストは、コンテナロールだけでなく各子に**1つのロール**を公開する必要があります——さもなければATは不透明なボックスとしてしか見ません。VectoJSは各可視な子の上に透過的でフォーカス可能な子エンティティ（「ホットスポット」）をプールすることでこれを実現します：子の `role` + 状態 + ロービング `tabIndex` を持ち、何もレンダリングせず、親がキーボードハンドラーを所有します。
 
@@ -82,7 +82,7 @@ weight = 10
 
 ## 強制カラーハイコントラスト
 
-キャンバスは不透明なピクセルであり、ブラウザの `forced-colors` リマッピングはVectoJSが描画するものに決して触れません——Windowsハイコントラストでは、コンポーネントが自身を再描画しない限り、テーマ付きコントロールは読めないままです。[`Scene.forcedColors`](/reference/core-scene/#アクセシビリティと外観) を参照し、CSSシステムカラー（`ButtonFace`、`ButtonText`、`Highlight`、`Canvas`、`CanvasText`）で描画してください。設定が切り替わるとシーンが自動的に再描画します。`Button`はすでにこれを行っています。
+キャンバスは不透明なピクセルであり、ブラウザの `forced-colors` リマッピングはVectoJSが描画するものに決して触れません——Windowsハイコントラストでは、コンポーネントが自身を再描画しない限り、テーマ付きコントロールは読めないままです。[`Scene.forcedColors`](/reference/core-scene/#akusesibiriteitowai-guan) を参照し、CSSシステムカラー（`ButtonFace`、`ButtonText`、`Highlight`、`Canvas`、`CanvasText`）で描画してください。設定が切り替わるとシーンが自動的に再描画します。`Button`はすでにこれを行っています。
 
 ## 高いエンティティ数における投影コスト（`1.30.0+`）
 
@@ -134,7 +134,7 @@ scene.releaseA11yProjection(previous);
 カーディナリティそれ自体が `'onDemand'` に手を伸ばす判断基準ではなく、次のケースが最も誤られやすいものです：
 
 > [!WARNING]
-> **粒子との類推で `'onDemand'` を本文テキストに適用しないでください。** ボタンやグラフノードでは canvas のエンティティが主体で、シャドウノードは一時的な意味的プロキシなので、関与されるまで与えないことで失われるものはありません。しかし散文、Markdown、チャットのトランスクリプトでは、canvas のビットマップはスクリーンリーダーから**まったく読めず**、非視覚的な利用者にとって**読むことが主要なインタラクション**であり、時折の操作ではありません。テキストエンティティはデフォルトで非インタラクティブであり、その意味を担うのはシャドウノードではなく[コンテンツ投影](/reference/core-renderer/#entitygetcontentprojection)です。その投影は行単位で仮想化され、常駐したままになります。
+> **粒子との類推で `'onDemand'` を本文テキストに適用しないでください。** ボタンやグラフノードでは canvas のエンティティが主体で、シャドウノードは一時的な意味的プロキシなので、関与されるまで与えないことで失われるものはありません。しかし散文、Markdown、チャットのトランスクリプトでは、canvas のビットマップはスクリーンリーダーから**まったく読めず**、非視覚的な利用者にとって**読むことが主要なインタラクション**であり、時折の操作ではありません。テキストエンティティはデフォルトで非インタラクティブであり、その意味を担うのはシャドウノードではなく[コンテンツ投影](/reference/core-renderer/#entity-getcontentprojection)です。その投影は行単位で仮想化され、常駐したままになります。
 
 また、個別に到達できることは、理解できることと同じではありません：
 

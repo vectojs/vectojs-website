@@ -101,7 +101,7 @@ scene.forcedColors: boolean             // getter — OS is in a forced-colors m
 
 **アイドル自動スロットル（重要な注意点）。** シーンは、ダーティではなく、メインツリー/オーバーレイツリー内のノードに保留中の `animate()` トゥイーンがない場合に**静的**と見なされます。`'always'` モードで `maxFPS > 0` の場合、静的なシーンはバッテリー/GPU節約のため**アイドルフロア**までスロットルされます — `1.36.0` 以降は **60 fps**（`idleFPS` で設定）、それ以前はハードな 2fps でした。`autoThrottle: false`（オプションまたはライブの `scene.autoThrottle`）を設定するとスロットルを完全に無効化でき、`idleFPS: 2` を設定すると従来の積極的なスリープに戻ります。`dirty` フラグは各レンダリングフレームの_開始時_に消費されるため、`update()` 内で発行された `markDirty()` は次フレームの静的チェックまで生き残ります：
 
-> 手動アニメーション（カスタム `update()` 内で `entity.x` などを変更する）は、報告しない限り静的チェックからは見えません — [`entity.animate()`](/reference/core-entity/#アニメーション) でモーションを駆動するか（トゥイーン実行中はシーンを非静的状態に保つ）、インテグレーターの実行中に `hasPendingAnimations()` をオーバーライドして `true` を返すか、`update()` から毎フレーム `scene.markDirty()` を呼び出してください（次フレームが再度作動します）。そうしないと、シーンはスロットルフロアまでアイドル状態に落ち、モーションがのろのろになります。
+> 手動アニメーション（カスタム `update()` 内で `entity.x` などを変更する）は、報告しない限り静的チェックからは見えません — [`entity.animate()`](/reference/core-entity/#animesiyon) でモーションを駆動するか（トゥイーン実行中はシーンを非静的状態に保つ）、インテグレーターの実行中に `hasPendingAnimations()` をオーバーライドして `true` を返すか、`update()` から毎フレーム `scene.markDirty()` を呼び出してください（次フレームが再度作動します）。そうしないと、シーンはスロットルフロアまでアイドル状態に落ち、モーションがのろのろになります。
 
 `effectiveMaxFPS` = `maxFPS`。OSが動きの低減を要求し、`respectReducedMotion` がオンの場合、さらに30（`REDUCED_MOTION_FPS`）に引き下げられます。`0` は上限なしを意味します。
 
@@ -130,7 +130,7 @@ render(r: IRenderer) {
 }
 ```
 
-[a11yRoot & エージェント契約](/reference/core-a11y/#強制カラーハイコントラスト) を参照してください。
+[a11yRoot & エージェント契約](/reference/core-a11y/#qiang-zhi-karahaikontorasuto) を参照してください。
 
 ## ライフサイクルメソッド
 

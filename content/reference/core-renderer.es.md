@@ -93,7 +93,7 @@ renderer que posee un contexto GPU debería:
    superficie recién limpiada.
 
 `CanvasRenderer` hace esto para Canvas2D, y `ThreeRenderer` para WebGL — consulta
-[`@vectojs/three`](/reference/three-renderer/#pérdida-de-contexto-gpu-y-dpr-en-tiempo-de-ejecución).
+[`@vectojs/three`](/reference/three-renderer/#perdida-de-contexto-gpu-y-dpr-en-tiempo-de-ejecucion).
 
 `fillCircle` fusiona llamadas consecutivas del mismo `color`/`alpha` en una sola ruta,
 confirmada en `flush()` (o cuando el estilo cambia). La Scene descarga al final de
@@ -324,7 +324,7 @@ representar exactamente (por ejemplo escala no uniforme o cizallamiento) recurre
 renderizador normal.
 
 > Los hooks de Entity `getBatchCircle()` → `{ radius, color }` y `getBatchRect()` →
-> `{ width, height, color }` (ver [`Entity`](/reference/core-entity/#hooks-de-a11y--agrupación-sobrescribir-para-optar))
+> `{ width, height, color }` (ver [`Entity`](/reference/core-entity/#hooks-de-a11y-agrupacion-sobrescribir-para-optar))
 > son las opciones por entidad que alimentan esta capa.
 
 `flush()` emite **como máximo una llamada de dibujo por tipo de primitiva**, por lo que el recuento de llamadas de dibujo no es el límite de escalado — los bytes subidos lo son. Desde core 1.16.2, cada lote de cuadriláteros (rect, sprite, glifo, círculo tallado) sube **4 vértices** y dibuja con `drawElements` contra un búfer de índices estático compartido de 32 bits, en lugar de expandirse a 6 vértices para `drawArrays`. Esto elimina las dos esquinas duplicadas por cuadrilátero, reduciendo el volumen de subida en un tercio; el búfer de índices se construye una vez y se recrece geométricamente, nunca se reenvía por fotograma. Los índices son de 32 bits porque un `Uint16Array` limitaría un lote a 16,383 cuadriláteros, que las escenas reales superan.

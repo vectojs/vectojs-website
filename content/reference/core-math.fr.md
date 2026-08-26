@@ -10,7 +10,7 @@ weight = 9
 (un paquet feuille sans dépendances). [`@vectojs/core`](/reference/core-api/) en dépend
 et le re-exporte, il se résout donc depuis `@vectojs/math` ou `@vectojs/core`.
 L'intégrateur de ressort présent ici sous-tend également `SpringDriver` dans
-[`@vectojs/animation`](/reference/core-api/#points-dentrée-et-carte-des-modules).
+[`@vectojs/animation`](/reference/core-api/#points-d-entree-et-carte-des-modules).
 
 ```ts
 new SpatialHashGrid(cellSize = ...)

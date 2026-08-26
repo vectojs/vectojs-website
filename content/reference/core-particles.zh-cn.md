@@ -54,7 +54,7 @@ destroyGPUResources(): void
 
 ## WebGPU 对比 CPU
 
-当 `particleBackend` 允许（参见 [`SceneOptions`](/reference/core-scene/#sceneoptions)）且 WebGPU 设备初始化成功时，Scene 将计算 + 渲染过程运行到一个专用的 WebGPU canvas 中；否则它调用 `updateCPU` 并通过 `fillCircle` / 可选的 [WebGL point 层](/reference/core-renderer/#webgl-point-层) 绘制。`gpuStorageBuffer` 非 null 确认资源已分配，但在异步设备丢失后它不是一个持久的"当前活动"状态。GPU 资源（`gpuStorageBuffer`、`gpuUniformBuffer`、`computeBindGroup`、`renderBindGroup`）和 `needsInit` 对后端作者公开。
+当 `particleBackend` 允许（参见 [`SceneOptions`](/reference/core-scene/#sceneoptions)）且 WebGPU 设备初始化成功时，Scene 将计算 + 渲染过程运行到一个专用的 WebGPU canvas 中；否则它调用 `updateCPU` 并通过 `fillCircle` / 可选的 [WebGL point 层](/reference/core-renderer/#webgl-point-ceng) 绘制。`gpuStorageBuffer` 非 null 确认资源已分配，但在异步设备丢失后它不是一个持久的"当前活动"状态。GPU 资源（`gpuStorageBuffer`、`gpuUniformBuffer`、`computeBindGroup`、`renderBindGroup`）和 `needsInit` 对后端作者公开。
 
 > WebGPU 初始化是惰性的（`ComputeParticleEntity` 出现的第一帧）且异步的，带设备丢失自动恢复。在依赖模拟之前通过 `scene.resize(w, h)` 设置视口 —— `0×0` 的盒子不产生运动。
 

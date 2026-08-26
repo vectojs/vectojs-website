@@ -142,9 +142,9 @@ getA11yAttributes(): A11yAttributes {
 | `Tabs`             | 每個分頁一個 `tab`                         | `aria-selected`，方向鍵移動，Home/End                        |
 | `Text`             | `<div>`                                    | `aria-label` = 文字內容                                      |
 
-## 複合小工具——一個 Tab 停駐點，方向鍵在內部操作
+## 複合小工具——一個 Tab 停駐點，方向鍵在內部操作 {#fu-he-xiao-gong-ju-yi-ge-tab-ting-zhu-dian-fang-xiang-jian-zai-nei-bu-cao-zuo}
 
-樹、網格、選單、單選群組或分頁列表不應將每個子元素放入 Tab 順序中。VectoJS 在每個**可見**子元素上方池化一個透明的可聚焦熱點，攜帶該子元素的角色和狀態，並恰好為其中一個赋予 `tabIndex: 0`——一個**浮動 Tab 索引**。父元素擁有方向鍵處理器並移動停駐點。請參閱上表了解每個元件的按鍵，以及[複合小工具](/reference/core-a11y/#複合元件漫遊-tabindex)了解你自己建構時的模式。
+樹、網格、選單、單選群組或分頁列表不應將每個子元素放入 Tab 順序中。VectoJS 在每個**可見**子元素上方池化一個透明的可聚焦熱點，攜帶該子元素的角色和狀態，並恰好為其中一個赋予 `tabIndex: 0`——一個**浮動 Tab 索引**。父元素擁有方向鍵處理器並移動停駐點。請參閱上表了解每個元件的按鍵，以及[複合小工具](/reference/core-a11y/#fu-he-yuan-jian-man-you-tabindex)了解你自己建構時的模式。
 
 重用該模式而不是自行發明：重要的微妙之處是當底層的某些東西擁有滑鼠時（可選取儲存格文字、拖曳捲動、畫布命中處理），熱點必須設定 `pointerEvents: 'none'`。鍵盤焦點和 AT 合成的 `click` 仍然可以穿透它運作。
 
@@ -278,10 +278,10 @@ const scene = new Scene(canvas, { a11ySyncInterval: 100 });
 對於粒子場、彈幕層或精靈群，請優先選擇以下之一：
 
 - **投影容器，而非成員。** 整個層使用一個互動實體，透過 `aria-label` 集體描述它（如"5,000 個粒子"），並透過 `scene.findEntityAt(x, y)` 自行處理指標輸入 —— 它無論實體是否為 `interactive` 都能解析實體，因此點擊測試不需要投影。
-- **只投影可觸及的內容。** 虛擬化 `TreeView`/`Table` 使用的池化模式將熱點池大小調整為可見行而不是整個資料集，因此投影保持 O(視埠)。參見[複合小工具](#複合小工具一個-tab-停駐點方向鍵在內部操作)。
+- **只投影可觸及的內容。** 虛擬化 `TreeView`/`Table` 使用的池化模式將熱點池大小調整為可見行而不是整個資料集，因此投影保持 O(視埠)。參見[複合小工具](#fu-he-xiao-gong-ju-yi-ge-tab-ting-zhu-dian-fang-xiang-jian-zai-nei-bu-cao-zuo)。
 - **當實體停止可操作時，呼叫 `scene.detachA11y(entity)`。** 在別處記錄為洩漏避免，它同樣是一個成本槓桿：每幀同步建立和更新但從不修剪。
 
-每個實體的 `a11yProjection` 模式（`'eager' | 'onDemand' | 'never'`，預設為 `'eager'`）控制實體的陰影節點何時被具體化；相關量測資料和 API 在 [`core-a11y`](/reference/core-a11y/#projection-cost-at-high-entity-counts-1300) 中有文件說明。請注意，它無法以"是否存在螢幕閱讀器"為依據 —— 這出於設計（W3C TAG 設計原則 2.7）是刻意無法偵測的，而且出於隱私原因，AOM 虛擬無障礙節點在所有引擎中都被封鎖。
+每個實體的 `a11yProjection` 模式（`'eager' | 'onDemand' | 'never'`，預設為 `'eager'`）控制實體的陰影節點何時被具體化；相關量測資料和 API 在 [`core-a11y`](/reference/core-a11y/#gao-shi-ti-shu-liang-xia-de-tou-ying-kai-xiao-1-30-0) 中有文件說明。請注意，它無法以"是否存在螢幕閱讀器"為依據 —— 這出於設計（W3C TAG 設計原則 2.7）是刻意無法偵測的，而且出於隱私原因，AOM 虛擬無障礙節點在所有引擎中都被封鎖。
 
 ## 程式化檢查陰影樹
 

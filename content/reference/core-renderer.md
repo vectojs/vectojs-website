@@ -130,7 +130,7 @@ context should:
    surface.
 
 `CanvasRenderer` does this for Canvas2D, and `ThreeRenderer` for WebGL — see
-[`@vectojs/three`](/reference/three-renderer/#gpu-context-loss--runtime-dpr).
+[`@vectojs/three`](/reference/three-renderer/#gpu-context-loss-runtime-dpr).
 
 `fillCircle` coalesces consecutive same-`color`/`alpha` calls into one path,
 committed on `flush()` (or when style changes). The Scene flushes at the end of
@@ -412,7 +412,7 @@ fill. Firefox holds near ~1 GB/s effective upload bandwidth regardless of vertex
 layout, so on that engine reducing bytes is the only reliable lever.
 
 > Entity hooks `getBatchCircle()` → `{ radius, color }` and `getBatchRect()` →
-> `{ width, height, color }` (see [`Entity`](/reference/core-entity/#a11y--batching-hooks-override-to-opt-in))
+> `{ width, height, color }` (see [`Entity`](/reference/core-entity/#a11y-batching-hooks-override-to-opt-in))
 > are the per-entity opt-ins that feed this layer.
 
 ## parseColorToRGBA

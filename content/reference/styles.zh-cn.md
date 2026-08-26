@@ -42,7 +42,7 @@ applyStyle(stack, style({ flexDirection: 'row', gap: '8px', alignItems: 'center'
 - `untrackVarStyles(entity)` —— 立即丢弃该实体的 `var()` 跟踪（0.3.x）；在销毁清理中调用它以确定性地释放，而不是等待下一次主题切换时的弱引用清扫。
 - `PRESET_THEMES` —— `light`（默认主题）、`dark`、`github`、`dracula` token 集合。
 - `Style` —— 样式接口。所有键都是可选的。
-- `composeFont(current, changes)` —— 重新组合一个 CSS font 简写字符串（参见 [字体组合](#字体组合)）。
+- `composeFont(current, changes)` —— 重新组合一个 CSS font 简写字符串（参见 [字体组合](#zi-ti-zu-he)）。
 - `ThemeTokenSet` —— `Record<string, string | number>`；`tokens()` 集合的类型，也是 `Theme.tokens` 的类型。
 - `Theme` —— `{ readonly tokens: ThemeTokenSet }`，由 `tokens()` 创建。
 
@@ -84,7 +84,7 @@ applyStyle(btn, style({ backgroundColor: 'var(--accent)', borderRadius: 'var(--r
 - 引用 token 的样式会按主题被**跟踪**（被销毁的实体不再被保留——跟踪以弱引用持有它们，并提供 `untrackVarStyles(entity)` 用于销毁清理中的即时释放），并在 `setTheme(next)` 切换时重新应用，因此主题切换无需调用方做任何改动就能为整个场景重新着色。不含 `var()` 的样式不会被跟踪。如果某个 token 值在切换时无法通过映射属性的校验（例如 `--radius-md: "50%"`），`setTheme` 会抛出异常。
 - 默认主题是 `light` 预设；`tokens()` 集合是普通对象，因此调用方的主题是一个展开：`tokens({ ...PRESET_THEMES.dark, accent: "#f00" })`。
 
-## 字体组合
+## 字体组合 {#zi-ti-zu-he}
 
 `fontFamily`、`fontSize` 和 `fontWeight` 不是独立字段——ui 组件将整个字体作为一个简写字符串携带。这些键解析实体当前的 `font`，只替换存在的片段，并写入重新组合后的字符串：
 

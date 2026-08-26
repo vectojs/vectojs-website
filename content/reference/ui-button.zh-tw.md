@@ -82,7 +82,7 @@ save.disabled = true; // 靜音填色，投射 `disabled`，丟棄懸停/焦點�
 
 ## 強制色彩（高對比度）
 
-`Button` 讀取 [`Scene.forcedColors`](/reference/core-scene/#無障礙與外觀)，當作業系統處於強制色彩模式時，使用 CSS 系統色彩而非主題調色盤重新繪製：`ButtonFace` 填色、`ButtonText` 標籤加上 1px `ButtonText` 邊框（使形狀在系統背景上可見），以及 `Highlight` 焦點環。Canvas 像素不受瀏覽器強制色彩重映射的影響，因此跳過此步驟的元件在高對比度模式下將無法辨識。當設定切換時，場景會自動重新繪製。
+`Button` 讀取 [`Scene.forcedColors`](/reference/core-scene/#wu-zhang-ai-yu-wai-guan)，當作業系統處於強制色彩模式時，使用 CSS 系統色彩而非主題調色盤重新繪製：`ButtonFace` 填色、`ButtonText` 標籤加上 1px `ButtonText` 邊框（使形狀在系統背景上可見），以及 `Highlight` 焦點環。Canvas 像素不受瀏覽器強制色彩重映射的影響，因此跳過此步驟的元件在高對比度模式下將無法辨識。當設定切換時，場景會自動重新繪製。
 
 ## 維護者檢查清單
 

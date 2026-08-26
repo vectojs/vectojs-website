@@ -73,7 +73,7 @@ GPU 리셋 또는 메모리 압박에 의한 축출은 드로잉 컨텍스트를
    `onContextRestored` 콜백을 발생시켜 Scene이 새로 지워진 표면을 다시 그리도록 합니다.
 
 `CanvasRenderer`는 Canvas2D에 대해, `ThreeRenderer`는 WebGL에 대해 이를 수행합니다 —
-[`@vectojs/three`](/reference/three-renderer/#gpu-컨텍스트-손실-및-런타임-dpr)를 참조하세요.
+[`@vectojs/three`](/reference/three-renderer/#gpu-keontegseuteu-sonsil-mic-reontaim-dpr)를 참조하세요.
 
 `fillCircle`은 연속된 동일-`color`/`alpha` 호출을 하나의 경로로 병합하여
 `flush()`(또는 스타일이 변경될 때) 커밋됩니다. Scene은 각 형제 그룹과 각 프레임 끝에서
@@ -300,7 +300,7 @@ Scene은 `pointBackend: 'webgl'`일 때 `getBatchCircle`/`getBatchRect`(그리�
 (예: 비균일 스케일 또는 전단) 아래의 잎은 일반 렌더러로 폴백됩니다.
 
 > 엔터티 훅 `getBatchCircle()` → `{ radius, color }` 및 `getBatchRect()` →
-> `{ width, height, color }` ([`Entity`](/reference/core-entity/#a11y--배치-훅-오버라이드하여-옵트인) 참조)는
+> `{ width, height, color }` ([`Entity`](/reference/core-entity/#a11y-baeci-hug-obeoraideuhayeo-obteuin) 참조)는
 > 이 레이어에 공급하는 엔터티별 옵트인입니다.
 
 `flush()`는 **프리미티브 타입당 최대 한 번의 드로우 콜**을 발행하므로, 드로우 콜 횟수는 스케일링 제한이 아닙니다 — 업로드되는 바이트가 제한입니다. core 1.16.2부터 모든 쿼드 배치(rect, sprite, 글리프, 조각된 원)는 **4개의 정점**을 업로드하고, 6개의 정점으로 확장하여 `drawArrays`하는 대신 하나의 공유 정적 32비트 인덱스 버퍼에 대해 `drawElements`로 그립니다. 이렇게 하면 쿼드당 중복된 두 모서리가 제거되어 업로드 양이 1/3 줄어듭니다. 인덱스 버퍼는 한 번 구축되고 기하급수적으로 재성장하며, 프레임마다 다시 전송되지 않습니다. 인덱스는 32비트입니다. `Uint16Array`는 배치를 16,383 쿼드로 제한하지만 실제 장면은 이를 초과하기 때문입니다.

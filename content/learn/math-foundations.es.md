@@ -243,7 +243,7 @@ Los buckets viven en un `Map` simple, no en una tabla de capacidad fija — no h
 
 - **Indexación gestionada por la aplicación**: Llama a `insert(id, x, y, w, h)` a medida que las entidades se mueven, o a `clear()` y reconstruye para un frame dinámico.
 - **Consulta AABB**: `query(x, y, w, h)` visita cada celda de la cuadrícula solapada por esa caja y devuelve un `Set<string>` deduplicado.
-- _Resultado_: El tiempo de consulta es proporcional a las celdas solapadas más los IDs devueltos. Es casi constante solo para entidades pequeñas, de tamaño similar y distribuidas uniformemente; los buckets densos degradan hacia escaneos lineales. Consulta la [guía de Rendimiento](/learn/performance/#3-mar-de-entidades-en-interacción-catástrofe-de-complejidad-on2).
+- _Resultado_: El tiempo de consulta es proporcional a las celdas solapadas más los IDs devueltos. Es casi constante solo para entidades pequeñas, de tamaño similar y distribuidas uniformemente; los buckets densos degradan hacia escaneos lineales. Consulta la [guía de Rendimiento](/learn/performance/#3-mar-de-entidades-en-interaccion-catastrofe-de-complejidad-o-n-2).
 
 ---
 

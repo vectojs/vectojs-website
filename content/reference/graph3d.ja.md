@@ -66,7 +66,7 @@ camera.setSize(width, height); // call on canvas resize
 camera.dispose(); // remove pointer/wheel listeners
 ```
 
-`mode: '2d' | '3d'` はカメラタイプを選択します。`fitToPositions(positions)` はxyzトリプレットバッファ（[`applyPositions`](/reference/graph3d-renderer/#メソッド) が消費するのと同じ形状）をフレームに収めます。`() => camera.camera`（ゲッターなので `setMode` はライブのまま）を渡して `GraphInteraction` と組み合わせ、ノードのドラッグがビューまでパンしないように `setControlsEnabled` を配線します。
+`mode: '2d' | '3d'` はカメラタイプを選択します。`fitToPositions(positions)` はxyzトリプレットバッファ（[`applyPositions`](/reference/graph3d-renderer/#mesotudo) が消費するのと同じ形状）をフレームに収めます。`() => camera.camera`（ゲッターなので `setMode` はライブのまま）を渡して `GraphInteraction` と組み合わせ、ノードのドラッグがビューまでパンしないように `setControlsEnabled` を配線します。
 
 ## WASMフォースカーネル
 

@@ -130,7 +130,7 @@ scene.add(particles);
 
 粒子场是装饰性的：单个粒子并不携带值得宣告的语义，也没有人会检查它们或在其中选择文本。将粒子场视为单个对象。
 
-**不要对每个粒子设置 `interactive = true`。** 这会为每个实体向语义层投影一个真实的DOM元素，而每个实体的成本会随数量增长而恶化——在RTX 4060笔记本上测量，20,000个独立交互的移动实体在Chrome上耗时715ms/帧，在Firefox上耗时2,737ms/帧。参见[成本表](/learn/accessibility/#成本与交互实体数量成超线性关系)。
+**不要对每个粒子设置 `interactive = true`。** 这会为每个实体向语义层投影一个真实的DOM元素，而每个实体的成本会随数量增长而恶化——在RTX 4060笔记本上测量，20,000个独立交互的移动实体在Chrome上耗时715ms/帧，在Firefox上耗时2,737ms/帧。参见[成本表](/learn/accessibility/#cheng-ben-yu-jiao-hu-shi-ti-shu-liang-cheng-chao-xian-xing-guan-xi)。
 
 相反：
 

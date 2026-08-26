@@ -55,7 +55,7 @@ interface GraphLayout {
 }
 ```
 
-Le contrat est délibérément minimal et compatible worker : les positions sont un seul `Float32Array` plat de triplets xyz dans l'ordre de `GraphData.nodes`, de sorte qu'une implémentation peut vivre entièrement dans un Web Worker et diffuser son tampon par-delà la frontière des threads comme un transferable, sans trafic d'objets par nœud. [`Graph3D.applyPositions()`](/reference/graph3d-renderer/#méthodes) consomme exactement ce même format de tampon directement. `positions` est la **même instance de tableau** réutilisée entre les étapes — copiez-la (`layout.positions.slice()`) si vous avez besoin d'un instantané stable plutôt que d'une vue en direct.
+Le contrat est délibérément minimal et compatible worker : les positions sont un seul `Float32Array` plat de triplets xyz dans l'ordre de `GraphData.nodes`, de sorte qu'une implémentation peut vivre entièrement dans un Web Worker et diffuser son tampon par-delà la frontière des threads comme un transferable, sans trafic d'objets par nœud. [`Graph3D.applyPositions()`](/reference/graph3d-renderer/#methodes) consomme exactement ce même format de tampon directement. `positions` est la **même instance de tableau** réutilisée entre les étapes — copiez-la (`layout.positions.slice()`) si vous avez besoin d'un instantané stable plutôt que d'une vue en direct.
 
 **La validation des extrémités de liens est uniforme dans toute la pile (0.6.1).**
 `Graph3D.setGraphData`, `VectoForceLayout.setGraph` et `D3ForceLayout.setGraph`
@@ -137,7 +137,7 @@ layout.enableWasmForceSync(bytes); // sync ; BufferSource, ne récupère jamais
 
 Les deux renvoient `false` en cas d'échec (CSP, 404, module corrompu) et conservent silencieusement le Barnes-Hut JS identique bit à bit, qui est le repli permanent et l'oracle différentiel. Le noyau n'a aucune dépendance `@vectojs/core`.
 
-**Épinglage (depuis 0.2.0).** `D3ForceLayout` et `VectoForceLayout` implémentent tous deux les contrôles d'épinglage optionnels (d3 via `fx`/`fy`/`fz`, `VectoForceLayout` via ses propres tableaux de broches), ce qui alimente le glisser-épingler de [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction--survol--sélection--glisser-épingler) :
+**Épinglage (depuis 0.2.0).** `D3ForceLayout` et `VectoForceLayout` implémentent tous deux les contrôles d'épinglage optionnels (d3 via `fx`/`fy`/`fz`, `VectoForceLayout` via ses propres tableaux de broches), ce qui alimente le glisser-épingler de [`GraphInteraction`](/reference/graph3d-renderer/#graphinteraction-survol-selection-glisser-epingler) :
 
 ```ts
 layout.pinNode(i, x, y, z); // fixe le nœud i à (x,y,z) à chaque tic ; met aussi à jour positions[i] immédiatement

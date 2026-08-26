@@ -119,11 +119,20 @@ new NodeEditor(options?: { document?: NodeDocument; width?: number; height?: num
 ## 영속화
 
 ```ts
-import { NodeEditorPersistence, NODE_EDITOR_SCHEMA_VERSION } from '@vectojs/node-editor';
+import {
+  nodeEditorPersistence,
+  exportDocument,
+  importDocument,
+  NODE_EDITOR_SCHEMA_VERSION,
+} from '@vectojs/node-editor';
 
-const persistence = new NodeEditorPersistence();
-const json = persistence.exportDocument(editor.document); // schemaVersion-stamped
-const doc = persistence.importDocument(json);
+// The persistence API is a ready-made object plus equivalent free functions —
+// there is no exported class to construct.
+const json = nodeEditorPersistence.exportDocument(editor.document); // schemaVersion-stamped
+const doc = nodeEditorPersistence.importDocument(json);
+// Same operations, stateless form:
+const json2 = exportDocument(editor.document);
+const doc2 = importDocument(json2);
 ```
 
 `exportDocument`/`importDocument`는 `NODE_EDITOR_SCHEMA_VERSION`(1)을 운반합니다; `serializeDocument`/`deserializeDocument`는 버전 없는 짝입니다. 임포트 검증은 구조적이**며** 의미적입니다(`0.2.0+`): 배열/문자열/유한 숫자 형태 검사를 넘어, 모든 링크가 문서의 나머지와 대조하여 런타임 `validateLink`를 통과합니다. 자기 루프, 중복 엔드포인트 쌍, 중복 링크 id, 포트 방향/타입/maxConnections 위반은 이제 `links[i]: <verdict.error>`로 거부됩니다 — 영속화된 문서는 편집기에서 재현됨이 보장됩니다. 이전에는 삭제 후 재현 불가능한 링크를 포함하는 문서가 있을 수 있었습니다.

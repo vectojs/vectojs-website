@@ -58,7 +58,7 @@ applyStyle(stack, style({ flexDirection: 'row', gap: '8px', alignItems: 'center'
   `dracula` 토큰 세트.
 - `Style` — 스타일 인터페이스입니다. 모든 키는 선택적입니다.
 - `composeFont(current, changes)` — CSS 폰트 속기 문자열을 재구성합니다
-  ([폰트 구성](#폰트-구성) 참조).
+  ([폰트 구성](#ponteu-guseong) 참조).
 - `ThemeTokenSet` — `Record<string, string | number>`; `tokens()` 세트와
   `Theme.tokens`의 타입입니다.
 - `Theme` — `{ readonly tokens: ThemeTokenSet }`, `tokens()`로 생성됩니다.
@@ -120,7 +120,7 @@ applyStyle(btn, style({ backgroundColor: 'var(--accent)', borderRadius: 'var(--r
 - 기본 테마는 `light` 프리셋입니다; `tokens()` 세트는 평범한 객체이므로 호출자
   테마는 스프레드입니다: `tokens({ ...PRESET_THEMES.dark, accent: "#f00" })`.
 
-## 폰트 구성
+## 폰트 구성 {#ponteu-guseong}
 
 `fontFamily`, `fontSize`, `fontWeight`는 독립 필드가 아닙니다 — ui
 컴포넌트는 전체 폰트를 하나의 속기 문자열로 전달합니다. 이 키들은 엔티티의 현재

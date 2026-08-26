@@ -295,9 +295,9 @@ Pour contourner entièrement l'exécution CPU, VectoJS fournit `ComputeParticleE
 - À l'exécution, les données restent résidentes en VRAM du GPU, ce qui permet à la passe de calcul WebGPU de paralléliser la simulation sur des milliers de cœurs GPU.
 - Le renderer revient automatiquement à une boucle CPU équivalente (`updateCPU()`) lorsque WebGPU est indisponible ou que l'appareil est perdu.
 
-> [!IMPORTANT] > **Ce n'est pas une simulation à $N$-corps.** La force de chaque particule est calculée uniquement par rapport à trois points _fixes_ — son origine de ressort, le curseur de la souris et un centre d'explosion optionnel. Il n'y a pas d'interaction particule-contre-particule ni d'index spatial impliqué, ce qui est précisément ce qui la rend massivement parallèle et adaptée au GPU. Si votre simulation nécessite une véritable interaction entre voisins (collision ou répulsion particule-contre-particule, nuées, gravité N-corps), `ComputeParticleEntity` ne le couvre pas — vous devrez écrire votre propre passe de calcul WGSL avec une requête de voisinage intégrée, ou exécuter des requêtes de voisinage basées sur `SpatialHashGrid` sur le CPU (voir [`SpatialHashGrid`](#3-interaction-dune-mer-dentités-catastrophe-de-complexité-on2) ci-dessous, et le [guide du moteur physique](/learn/physics-engine/) pour un exemple CPU concret). Il n'existe actuellement aucune abstraction générique « exécuter un calcul arbitraire sur GPU avec repli CPU » dans le moteur — `ComputeParticleEntity` est une implémentation spécifique et étroite, et non un motif réutilisable.
+> [!IMPORTANT] > **Ce n'est pas une simulation à $N$-corps.** La force de chaque particule est calculée uniquement par rapport à trois points _fixes_ — son origine de ressort, le curseur de la souris et un centre d'explosion optionnel. Il n'y a pas d'interaction particule-contre-particule ni d'index spatial impliqué, ce qui est précisément ce qui la rend massivement parallèle et adaptée au GPU. Si votre simulation nécessite une véritable interaction entre voisins (collision ou répulsion particule-contre-particule, nuées, gravité N-corps), `ComputeParticleEntity` ne le couvre pas — vous devrez écrire votre propre passe de calcul WGSL avec une requête de voisinage intégrée, ou exécuter des requêtes de voisinage basées sur `SpatialHashGrid` sur le CPU (voir [`SpatialHashGrid`](#3-interaction-d-une-mer-d-entites-catastrophe-de-complexite-o-n-2) ci-dessous, et le [guide du moteur physique](/learn/physics-engine/) pour un exemple CPU concret). Il n'existe actuellement aucune abstraction générique « exécuter un calcul arbitraire sur GPU avec repli CPU » dans le moteur — `ComputeParticleEntity` est une implémentation spécifique et étroite, et non un motif réutilisable.
 
-Le débit haut de gamme dépend fortement du GPU, du navigateur, du DPR, du modèle de particules et de la composition. Ce dépôt n'a aucun résultat WebGPU haut de gamme enregistré, alors mesurez votre propre scène avec le bouton **Export report** (voir [Mesurer la performance réelle](#mesurer-la-performance-réelle) ci-dessous).
+Le débit haut de gamme dépend fortement du GPU, du navigateur, du DPR, du modèle de particules et de la composition. Ce dépôt n'a aucun résultat WebGPU haut de gamme enregistré, alors mesurez votre propre scène avec le bouton **Export report** (voir [Mesurer la performance réelle](#mesurer-la-performance-reelle) ci-dessous).
 
 ---
 
@@ -316,7 +316,7 @@ VectoJS fournit trois niveaux d'optimisation du texte :
 
 ---
 
-### 3. Interaction d'une mer d'entités (catastrophe de complexité $O(N^2)$)
+### 3. Interaction d'une mer d'entités (catastrophe de complexité $O(N^2)$) {#3-interaction-d-une-mer-d-entites-catastrophe-de-complexite-o-n-2}
 
 **Le goulot d'étranglement** : Les vérifications de collision ou de proximité entité-contre-entité par paires nécessitent $O(N^2)$ comparaisons de candidats. Cette croissance devient impraticable bien avant de très grands nombres de scènes, la limite exacte dépendant du travail par paire.
 
@@ -332,7 +332,7 @@ Pour les requêtes de collision/proximité gérées par l'application, VectoJS e
 
 ---
 
-## Mesurer la performance réelle
+## Mesurer la performance réelle {#mesurer-la-performance-reelle}
 
 > [!WARNING]
 > Chrome headless utilise souvent la rastérisation logicielle et une planification d'images différente. Traitez son FPS comme un signal de régression dans le même environnement, et non comme une borne inférieure ou une prédiction de production.

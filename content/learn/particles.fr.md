@@ -130,7 +130,7 @@ Le rayon et la force de répulsion sont fixés dans le shader. Lorsque le curseu
 
 Un champ de particules est décoratif : individuellement, les particules ne portent aucune sémantique digne d'être annoncée, et personne n'en inspecte une dans les outils de développement ou ne la sélectionne comme texte. Traitez le champ comme un objet unique.
 
-**Ne définissez pas `interactive = true` par particule.** Cela projette un élément DOM réel par entité dans la couche sémantique, et le coût par entité s'aggrave à mesure que le nombre augmente — mesuré sur un ordinateur portable RTX 4060, 20 000 entités mobiles individuellement interactives ont coûté 715 ms/image sur Chrome et 2 737 ms/image sur Firefox. Voir [le tableau des coûts](/learn/accessibility/#le-coût-augmente-de-manière-superlinéaire-avec-le-nombre-dentités-interactives).
+**Ne définissez pas `interactive = true` par particule.** Cela projette un élément DOM réel par entité dans la couche sémantique, et le coût par entité s'aggrave à mesure que le nombre augmente — mesuré sur un ordinateur portable RTX 4060, 20 000 entités mobiles individuellement interactives ont coûté 715 ms/image sur Chrome et 2 737 ms/image sur Firefox. Voir [le tableau des coûts](/learn/accessibility/#le-cout-augmente-de-maniere-superlineaire-avec-le-nombre-d-entites-interactives).
 
 À la place :
 

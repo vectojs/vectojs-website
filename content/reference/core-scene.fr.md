@@ -196,7 +196,7 @@ render(r: IRenderer) {
 }
 ```
 
-Voir [a11yRoot et le contrat agent](/reference/core-a11y/#couleurs-forcées-contraste-élevé).
+Voir [a11yRoot et le contrat agent](/reference/core-a11y/#couleurs-forcees-contraste-eleve).
 
 ## Méthodes de cycle de vie
 

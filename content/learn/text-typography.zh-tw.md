@@ -227,7 +227,7 @@ for await (const token of llmStream) {
 
 對齊的 **RTL** 行在*兩端*都是平齊的：行的邏輯末尾空白被 BiDi 規則 L1 重置為基礎方向並落在視覺左側，因此被摺疊而不是在測量中保持一行空格寬度。段落最後一行仍然不對齊（仍然是右對齊）。
 
-`TextEntity` 直接暴露了這兩者：`text.setTextAlign('justify')`、`text.setHyphenator(fn)`——詳見[`TextEntity` & `GridTextEntity`](/reference/core-text/#textentity--gridtextentity來自-)。這些能正確渲染，因為 `TextEntity` 將每個字形繪製在其自己的計算位置上。`@vectojs/ui` 的 `Text`/`RichText` 元件為效能將每個換行折疊為單一的原生 `fillText()` 呼叫，因此它們目前不支援逐字形對齊——當你需要對齊的正文時，請使用 `TextEntity`。
+`TextEntity` 直接暴露了這兩者：`text.setTextAlign('justify')`、`text.setHyphenator(fn)`——詳見[`TextEntity` & `GridTextEntity`](/reference/core-text/#textentity-gridtextentity-lai-zi)。這些能正確渲染，因為 `TextEntity` 將每個字形繪製在其自己的計算位置上。`@vectojs/ui` 的 `Text`/`RichText` 元件為效能將每個換行折疊為單一的原生 `fillText()` 呼叫，因此它們目前不支援逐字形對齊——當你需要對齊的正文時，請使用 `TextEntity`。
 
 ---
 

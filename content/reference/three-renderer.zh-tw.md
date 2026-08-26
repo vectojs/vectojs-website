@@ -40,7 +40,7 @@ GPU 重設或記憶體壓力驅逐會使基於 Three 的場景永久空白，而
 - **`webglcontextrestored`** 重新套用像素比和尺寸（恢復可能落在不同的顯示器上），清除標誌，並強制重繪新清空的影格緩衝區。Three 的 `WebGLRenderer` 在下一次渲染時延遲重建其 GL 狀態。
 - **DPR 變化** 透過 `(resolution: Ndppx)` 媒體查詢追蹤，該查詢重新套用 `setPixelRatio` + `setSize` 並重新啟動自身（該查詢是一次性的）。
 
-所有這些都為 SSR / `OffscreenCanvas` 進行了防護（沒有 `addEventListener` 或 `matchMedia`）。`isContextLost()` 也滿足可選的 [`IRenderer`](/reference/core-renderer/#因應-gpu-上下文遺失) 掛鉤，因此 `Scene.render` 在上下文遺失時跳過渲染傳遞。
+所有這些都為 SSR / `OffscreenCanvas` 進行了防護（沒有 `addEventListener` 或 `matchMedia`）。`isContextLost()` 也滿足可選的 [`IRenderer`](/reference/core-renderer/#yin-ying-gpu-shang-xia-wen-yi-shi) 掛鉤，因此 `Scene.render` 在上下文遺失時跳過渲染傳遞。
 
 ## 公開屬性
 
@@ -108,7 +108,7 @@ uniform vec2 u_grad_end;        // 世界空間終點
 
 **`stroke()` 或 `fillText()` 不支援漸層。** 將 `WebGLGradient` 傳遞給 `stroke()` 會回退到第一個停止點顏色。`fillText()` 也會回退到第一個停止點顏色，因為文字字形在匯出前會透過 Canvas 2D 進行光柵化。
 
-請參閱[主要 `@vectojs/three` 頁面](/reference/three/#疑難排解)了解漸層/DPI/指標問題的疑難排解。
+請參閱[主要 `@vectojs/three` 頁面](/reference/three/#yi-nan-pai-jie)了解漸層/DPI/指標問題的疑難排解。
 
 ## 相關
 
