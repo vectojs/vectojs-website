@@ -15,6 +15,7 @@ weight = 47
 - **固定步进场景控制**：停止正常的 Scene 循环，并在每次捕获前调用 `scene.step(1000 / fps)`。这使得请求的模拟时间是确定性的；它不保证使用无关时钟、网络输入或随机性的应用代码是确定性的。
 - **PNG 图像管道**：在 Chromium 中调用 `canvas.toDataURL('image/png')`，在 Node 中解码 base64 结果，并将每个 PNG 写入 FFmpeg 的 stdin。
 - **标准 MP4 输出**：使用 FFmpeg 的 `libx264` 编码器和 `yuv420p` 像素格式。
+- **可选音频混流（0.3.0+）**：将外部音频文件作为 AAC 音轨混入导出，并裁剪至视频长度。未提供时导出保持无声。
 - **本地源助手**：对于本地模块路径，启动一个嵌入式 Vite 服务器并提供一个内存中的 HTML 入口，而不修改源目录。也接受托管的 HTTP(S) 页面。
 - **原子输出**：编码到目标旁边的一个唯一文件，仅在 FFmpeg 成功退出后才替换请求的 MP4。失败或中止的导出保留现有目标。
 - **确定性清理**：停止进度输出，终止 FFmpeg，关闭 Chromium 和 Vite，并在成功、失败或中止时移除暂存文件。
@@ -57,6 +58,7 @@ bunx vecto-export http://localhost:5173 -o output.mp4 -f 60 -d 5
 - `-h, --height` ：高度（像素）（默认：720）
 - `-f, --fps` ：每秒帧数（默认：60）
 - `-d, --duration`：持续时间（秒）（默认：5）
+- `-a, --audio`（0.3.0+）：要混入导出的音频文件（编码为 AAC）
 
 ## 内部 API 用法
 
@@ -85,6 +87,24 @@ scene.start();
 ```
 
 帧数为 `Math.ceil(fps × duration)`。如果 FFmpeg 以非零退出，Promise 会以一个有界的 stderr 尾部拒绝。错误区分验证、Vite、Chromium/页面约定、捕获、FFmpeg、输出提交和清理阶段。
+
+## 音频（0.3.0+）
+
+在 API 中传入 `audioPath`（或在 CLI 中使用 `-a, --audio <file>`）即可将音频轨道混入导出：
+
+```typescript
+await exportVideo({
+  url: 'my-animation.ts',
+  outputPath: 'out.mp4',
+  width: 1280,
+  height: 720,
+  fps: 60,
+  duration: 6,
+  audioPath: 'voice.wav', // encoded as AAC, trimmed to the video length
+});
+```
+
+该音轨以 192 kbps 的 AAC 编码，`-shortest` 会将其裁剪至视频长度，因此过长的音频文件绝不会延长导出。缺失或指向非文件的路径会在选项校验阶段（Chromium 启动之前）被拒绝。画布捕获管道本身不会产生声音：除非提供 `audioPath`，否则导出保持无声。
 
 ## 取消与进程信号
 

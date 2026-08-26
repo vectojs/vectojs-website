@@ -15,6 +15,7 @@ Versión documentada: **0.2.4**
 - **Control de escena por paso fijo**: Detiene el bucle normal de la Scene y llama a `scene.step(1000 / fps)` antes de cada captura. Esto hace que el tiempo de simulación solicitado sea determinista; no garantiza que el código de aplicación que utiliza relojes no relacionados, entrada de red o aleatoriedad sea determinista.
 - **Tubería de imágenes PNG**: Llama a `canvas.toDataURL('image/png')` en Chromium, decodifica el resultado base64 en Node y escribe cada PNG en la entrada estándar de FFmpeg.
 - **Salida MP4 estándar**: Usa el codificador `libx264` de FFmpeg y el formato de píxeles `yuv420p`.
+- **Mezcla de audio opcional (0.3.0+)**: adjunta un archivo de audio externo como pista AAC, recortado a la duración del vídeo. Sin él, la exportación permanece silenciosa.
 - **Helper de fuente local**: Para una ruta de módulo local, inicia un servidor Vite incrustado y sirve una entrada HTML en memoria sin modificar el directorio fuente. También se aceptan páginas HTTP(S) alojadas.
 - **Salida atómica**: Codifica en un archivo único junto al destino y reemplaza el MP4 solicitado solo después de que FFmpeg sale correctamente. Las exportaciones fallidas o abortadas preservan un destino existente.
 - **Limpieza determinista**: Detiene la salida de progreso, termina FFmpeg, cierra Chromium y Vite, y elimina los archivos temporales al tener éxito, fallar o abortar.
@@ -57,6 +58,7 @@ bunx vecto-export http://localhost:5173 -o output.mp4 -f 60 -d 5
 - `-h, --height` : Alto en píxeles (por defecto: 720)
 - `-f, --fps` : Fotogramas por segundo (por defecto: 60)
 - `-d, --duration`: Duración en segundos (por defecto: 5)
+- `-a, --audio` (0.3.0+): archivo de audio a mezclar en la exportación (codificado como AAC)
 
 ## Uso de la API interna
 
@@ -94,6 +96,24 @@ scene.start();
 ```
 
 El número de fotogramas es `Math.ceil(fps × duration)`. Si FFmpeg sale con código distinto de cero, la Promise se rechaza con una cola limitada de stderr. Los errores distinguen las fases de validación, Vite, Chromium/contrato de página, captura, FFmpeg, confirmación de salida y limpieza.
+
+## Audio (0.3.0+)
+
+Pasa `audioPath` en la API (o `-a, --audio <file>` en la CLI) para mezclar una pista de audio en la exportación:
+
+```typescript
+await exportVideo({
+  url: 'my-animation.ts',
+  outputPath: 'out.mp4',
+  width: 1280,
+  height: 720,
+  fps: 60,
+  duration: 6,
+  audioPath: 'voice.wav', // encoded as AAC, trimmed to the video length
+});
+```
+
+La pista se codifica en AAC a 192 kbps y `-shortest` la recorta a la duración del vídeo, por lo que un archivo de audio demasiado largo nunca prolonga la exportación. Una ruta inexistente o que no es archivo se rechaza durante la validación de opciones, antes de lanzar Chromium. El propio pipeline de captura del canvas no produce sonido: la exportación permanece silenciosa a menos que se proporcione `audioPath`.
 
 ## Cancelación y señales de proceso
 
