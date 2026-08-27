@@ -32,10 +32,18 @@ async function ensureMarkdown(): Promise<TrackedMarkdownCtor> {
   /**
    * `Markdown` subclass that records each heading's rendered `Entity` in
    * document order. Zola's `page.toc` (see `templates/page.html`) is built
-   * from the same heading sequence and is exactly two levels deep, so
-   * flattening `toc` in document order and zipping it against this list gives
-   * each TOC entry its on-canvas heading entity without re-deriving Zola's
-   * slugify algorithm.
+   * from the same heading sequence and is exactly two levels deep (h1 children
+   * h2; template loops `for h1 in page.toc` then `for h2 in h1.children`),
+   * so only h1/h2 headings can appear in the TOC. h3-h6 headings (≈1614
+   * across docs, e.g. performance.md has 17 h3s) must not be counted, or the
+   * TOC `flatIndex` (position among h1/h2 only) drifts against
+   * `headingEntities[flatIndex]` by the number of preceding h3s. After
+   * `stripLeadingH1` the markdown also loses its leading H1 (rendered
+   * separately as `pageTitle`), while `page.toc` still contains it, so the
+   * TOC's first entry maps to `pageTitle`, not to `headingEntities[0]`.
+   * Filtering to `depth <= 2` and handling the `pageTitle` offset in
+   * `src/index.ts:navigateToHeading` keeps the zip exact without re-deriving
+   * Zola's slugify algorithm (CTX-0037, PX-0089/0090).
    *
    * Note: `Markdown`'s constructor calls `renderToken` synchronously inside
    * `super()`. Under `useDefineForClassFields` (ES2022+ target), ANY class
@@ -56,9 +64,12 @@ async function ensureMarkdown(): Promise<TrackedMarkdownCtor> {
       const entity = super.renderToken(token);
       if (entity) withWholeLineProjection(entity);
       if (entity && token.type === 'heading') {
-        const list = headingEntitiesByMarkdown.get(this) ?? [];
-        list.push(entity);
-        headingEntitiesByMarkdown.set(this, list);
+        const depth = (token as { depth?: number }).depth;
+        if (depth == null || depth <= 2) {
+          const list = headingEntitiesByMarkdown.get(this) ?? [];
+          list.push(entity);
+          headingEntitiesByMarkdown.set(this, list);
+        }
       }
       return entity;
     }

@@ -868,9 +868,43 @@ async function renderApp(): Promise<void> {
     };
 
     navigateToHeading.fn = (flatIndex: number) => {
-      const heading = md.headingEntities[flatIndex];
-      if (!heading || typeof window === 'undefined') return;
-      const worldY = heading.getWorldTransform().f;
+      if (typeof window === 'undefined') return;
+      // CTX-0037 (PX-0089/0090): `page.toc` is 2-level (h1 children h2; see
+      // `templates/page.html:15` loops `for h1 in page.toc` then `for h2 in
+      // h1.children`). `TrackedMarkdown.headingEntities` is now filtered to
+      // depth<=2, but `stripLeadingH1` still removes the leading H1 from the
+      // markdown (pageTitle renders separately), while `page.toc` keeps it as
+      // flatIndex 0. After the filter, md.headingEntities contains only the
+      // H2s (and any non-leading H1s) in doc order; flatIndex 0 must map to
+      // `pageTitle`, flatIndex 1.. to `headingEntities[flatIndex-1]`. Detect
+      // the stripped-leading-H1 case by the +1 length mismatch and a title
+      // match so docs without a leading H1 (or future 3-level TOC) keep a
+      // direct zip.
+      const headings = md.headingEntities as Entity[];
+      const tocFlatLength = toc.reduce((n, h1) => n + 1 + (h1.children?.length ?? 0), 0);
+      const firstTocTitle = toc[0]?.title;
+      const pageTitleText = payload.data?.title;
+      const hasStrippedLeadingH1 =
+        headings.length + 1 === tocFlatLength && firstTocTitle === pageTitleText;
+      let target: Entity | undefined;
+      if (hasStrippedLeadingH1) {
+        if (flatIndex === 0) target = pageTitle as unknown as Entity;
+        else target = headings[flatIndex - 1];
+      } else {
+        target = headings[flatIndex];
+        if (!target && flatIndex > 0 && headings.length + 1 === tocFlatLength) {
+          target = headings[flatIndex - 1];
+        }
+      }
+      if (!target) {
+        // Mismatch (e.g. unexpected heading levels or stale toc). Warn once per
+        // navigation so a drift is visible in the console without spamming.
+        console.warn(
+          `[website] toc flatIndex drift: flatIndex=${flatIndex} tocFlat=${tocFlatLength} headings=${headings.length} hasStrippedLeadingH1=${hasStrippedLeadingH1}`,
+        );
+        return;
+      }
+      const worldY = target.getWorldTransform().f;
       const documentY = worldY + window.scrollY;
       const headerClearance = 100;
       window.scrollTo({
