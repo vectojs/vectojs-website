@@ -265,6 +265,17 @@ async function handleResize(): Promise<void> {
           currentMainScroll.y = -window.scrollY;
         }
         currentScene?.markDirty();
+        // If an onLayoutUpdated reflow expands the body shortly after (image
+        // decode), the rAF above used the pre-reflow height. Schedule a second
+        // clamp so the bottom stays reachable without requiring another scroll.
+        setTimeout(() => {
+          try {
+            const maxAfter = Math.max(0, document.body.scrollHeight - window.innerHeight);
+            if (window.scrollY > maxAfter) window.scrollTo(0, maxAfter);
+            if (currentMainScroll) currentMainScroll.y = -window.scrollY;
+            currentScene?.markDirty();
+          } catch {}
+        }, 360);
       } catch (err) {
         console.warn('[website] scroll restore failed', err);
       }
@@ -313,7 +324,6 @@ async function renderApp(): Promise<void> {
     heroStop();
     heroStop = null;
   }
-  clearScene(currentScene);
 
   const viewportW = window.innerWidth;
   const viewportH = window.innerHeight;
@@ -355,6 +365,68 @@ async function renderApp(): Promise<void> {
         : rest.split('/')[1] === 'blog'
           ? 'blog'
           : 'home';
+
+  // For article pages, pre-fetch markdown before clearing to keep previous
+  // content visible during the async import/parse. This prevents the
+  // generation-race blank where clearScene ran before await createArticleMarkdown
+  // and a stale generation bailed without ever setting body height.
+  let preloadedMd: any = null;
+  if (type !== 'home' && type !== 'section') {
+    const sidebarPagesPre = (payload.data as any)?.sidebar as
+      | { title: string; path: string }[]
+      | undefined;
+    const hasSidebarPre = Array.isArray(sidebarPagesPre) && sidebarPagesPre.length > 0;
+    const contentOffsetPre = hasSidebarPre && !isMobile ? SIDEBAR_WIDTH + 32 : 0;
+    const contentXPre = hasSidebarPre && !isMobile ? 20 + contentOffsetPre : originX;
+    const articleWidthPre =
+      hasSidebarPre && !isMobile
+        ? Math.min(contentWidth, Math.max(480, viewportW - contentXPre - 240 - 80))
+        : contentWidth;
+    const rawPre = stripLeadingH1(payload.data?.raw_content ?? '');
+    try {
+      const { createArticleMarkdown } = await import('./article');
+      const mdPre = await createArticleMarkdown(rawPre, {
+        locale: lang,
+        maxWidth: articleWidthPre,
+        theme: {
+          bodyFont: 'Inter, sans-serif',
+          codeFont: 'monospace',
+          textColor: colors.text,
+          headingColor: colors.heading,
+          linkColor: colors.accent,
+          codeColor: colors.codeText,
+          codeBgColor: colors.codeBg,
+          codeBorderColor: colors.borderStrong,
+          quoteBorderColor: colors.quoteBorder,
+          quoteTextColor: colors.muted,
+          hrColor: colors.divider,
+          tableBgColor: colors.bgCard,
+          tableHeaderBgColor: 'rgba(99,102,241,0.08)',
+          syntaxKeywordColor: colors.syntaxKeyword,
+          syntaxStringColor: colors.syntaxString,
+          syntaxCommentColor: colors.syntaxComment,
+          syntaxNumberColor: colors.syntaxNumber,
+          fontSize: isMobile ? 16 : 18,
+        },
+        blockAffordances: true,
+        showCodeLanguage: true,
+        affordances: { table: { copy: false, download: false } },
+        onLinkClick: (url: string) => navigateTo(url),
+      });
+      if (generation !== renderGeneration) return;
+      preloadedMd = mdPre;
+    } catch (e) {
+      console.warn('[website] preload markdown failed', e);
+      if (generation !== renderGeneration) return;
+    }
+  }
+
+  // Now that any async work is done and generation is still current, clear
+  // the previous scene. Double-check generation before and after clear so a
+  // newer navigation that started during the async fetch does not get wiped.
+  if (generation !== renderGeneration) return;
+  clearScene(currentScene);
+  if (generation !== renderGeneration) return;
 
   // ── page background (scene-root layer below everything, fixed to the viewport) ─
   // Light mode carries the old site's three pastel radial washes (mint/pink/
@@ -707,46 +779,55 @@ async function renderApp(): Promise<void> {
 
     // The page title is rendered above; drop the document's own leading H1
     // (every article starts with `# <title>`) so it doesn't render twice.
-    const raw = stripLeadingH1(payload.data?.raw_content ?? '');
-    const { createArticleMarkdown } = await import('./article');
-    const md = await createArticleMarkdown(raw, {
-      locale: lang,
-      maxWidth: articleWidth,
-      theme: {
-        bodyFont: 'Inter, sans-serif',
-        codeFont: 'monospace',
-        textColor: colors.text,
-        headingColor: colors.heading,
-        linkColor: colors.accent,
-        codeColor: colors.codeText,
-        codeBgColor: colors.codeBg,
-        codeBorderColor: colors.borderStrong,
-        quoteBorderColor: colors.quoteBorder,
-        quoteTextColor: colors.muted,
-        hrColor: colors.divider,
-        tableBgColor: colors.bgCard,
-        tableHeaderBgColor: 'rgba(99,102,241,0.08)',
-        syntaxKeywordColor: colors.syntaxKeyword,
-        syntaxStringColor: colors.syntaxString,
-        syntaxCommentColor: colors.syntaxComment,
-        syntaxNumberColor: colors.syntaxNumber,
-        fontSize: isMobile ? 16 : 18,
-      },
-      blockAffordances: true,
-      showCodeLanguage: true,
-      // Tables already sit inside a content flow where a copy control would
-      // overlap the header row; code blocks keep their copy/download controls.
-      affordances: { table: { copy: false, download: false } },
-      onLinkClick: (url: string) => {
-        // Links in markdown are already localized by createArticleMarkdown,
-        // so just navigate directly. External URLs pass through unchanged.
-        navigateTo(url);
-      },
-    });
-    // A newer renderApp (fonts.ready, resize, popstate) may have rebuilt the
-    // tree while the markdown worker was parsing — attaching this late entity
-    // would duplicate it into the fresh tree.
-    if (generation !== renderGeneration) return;
+    // Use preloaded markdown if available (fetched before clearScene to avoid
+    // generation-race blank); otherwise fall back to inline fetch for edge cases
+    // where type was mis-detected or preload failed.
+    let md: any;
+    if (preloadedMd) {
+      md = preloadedMd;
+      if (generation !== renderGeneration) return;
+    } else {
+      const raw = stripLeadingH1(payload.data?.raw_content ?? '');
+      const { createArticleMarkdown } = await import('./article');
+      md = await createArticleMarkdown(raw, {
+        locale: lang,
+        maxWidth: articleWidth,
+        theme: {
+          bodyFont: 'Inter, sans-serif',
+          codeFont: 'monospace',
+          textColor: colors.text,
+          headingColor: colors.heading,
+          linkColor: colors.accent,
+          codeColor: colors.codeText,
+          codeBgColor: colors.codeBg,
+          codeBorderColor: colors.borderStrong,
+          quoteBorderColor: colors.quoteBorder,
+          quoteTextColor: colors.muted,
+          hrColor: colors.divider,
+          tableBgColor: colors.bgCard,
+          tableHeaderBgColor: 'rgba(99,102,241,0.08)',
+          syntaxKeywordColor: colors.syntaxKeyword,
+          syntaxStringColor: colors.syntaxString,
+          syntaxCommentColor: colors.syntaxComment,
+          syntaxNumberColor: colors.syntaxNumber,
+          fontSize: isMobile ? 16 : 18,
+        },
+        blockAffordances: true,
+        showCodeLanguage: true,
+        // Tables already sit inside a content flow where a copy control would
+        // overlap the header row; code blocks keep their copy/download controls.
+        affordances: { table: { copy: false, download: false } },
+        onLinkClick: (url: string) => {
+          // Links in markdown are already localized by createArticleMarkdown,
+          // so just navigate directly. External URLs pass through unchanged.
+          navigateTo(url);
+        },
+      });
+      // A newer renderApp (fonts.ready, resize, popstate) may have rebuilt the
+      // tree while the markdown worker was parsing — attaching this late entity
+      // would duplicate it into the fresh tree.
+      if (generation !== renderGeneration) return;
+    }
     md.setPosition(0, detailY);
     page.add(md);
     detailY += md.height + 24;
@@ -809,8 +890,14 @@ async function renderApp(): Promise<void> {
         page.height = footerY + 80;
       }
       if (typeof document !== 'undefined') {
-        document.body.style.height = `${page.height + LAYOUT.navHeight}px`;
-        mainScroll.height = page.height;
+        document.body.style.height = `${page.height + LAYOUT.navHeight + 40}px`;
+        mainScroll.height = page.height + 40;
+        // Re-clamp scroll after body expansion so bottom stays reachable
+        try {
+          const maxScroll = Math.max(0, document.body.scrollHeight - window.innerHeight);
+          if (window.scrollY > maxScroll) window.scrollTo(0, maxScroll);
+          if (currentMainScroll) currentMainScroll.y = -window.scrollY;
+        } catch {}
       }
       currentScene?.markDirty();
     };
@@ -838,7 +925,7 @@ async function renderApp(): Promise<void> {
     page.add(footerContainer);
     page.height = footerY + 80;
 
-    currentY = page.height;
+    currentY = page.y + page.height;
   }
 
   // ── page height sync ────────────────────────────────────────────────────────
@@ -987,11 +1074,21 @@ async function boot(): Promise<void> {
   // built during font loading measures with fallback metrics (ui Text keeps
   // its own lines but the container geometry built from the wrong measurement
   // never updates). Rebuild once when the fonts really finish loading.
+  // The single-fire flag is kept but a stale-generation bail (e.g. an
+  // in-flight markdown fetch) would otherwise leave the page stuck with
+  // fallback metrics — schedule a second attempt to guarantee final geometry.
   let fontRerenderDone = false;
   fonts?.addEventListener?.('loadingdone', () => {
     if (fontRerenderDone) return;
     fontRerenderDone = true;
     void renderPage();
+    // If the render above bailed due to a generation race, retry once after
+    // the in-flight markdown settles. The second call is cheap when the
+    // first succeeded (re-renders same content) but guarantees correction
+    // when the first was superseded.
+    setTimeout(() => {
+      void renderPage();
+    }, 450);
   });
   await renderPage();
 

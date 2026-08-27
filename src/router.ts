@@ -35,6 +35,27 @@ function isSameOrigin(parsedUrl: URL): boolean {
   return isTarget && isCurrent;
 }
 
+async function fetchPageData(url: string): Promise<unknown | null> {
+  const cached = pageDataCache.get(url);
+  if (cached !== undefined) return cached;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`fetch ${url} failed ${res.status}`);
+  const html = await res.text();
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const dataElement = doc.getElementById('page-data');
+  if (!dataElement) return null;
+  const raw = dataElement.textContent || '';
+  const data = JSON.parse(raw);
+  // Only cache when data is valid
+  pageDataCache.set(url, data);
+  if (pageDataCache.size > PAGE_DATA_CACHE_MAX) {
+    const oldest = pageDataCache.keys().next().value;
+    if (oldest !== undefined) pageDataCache.delete(oldest);
+  }
+  return data;
+}
+
 export async function handleUrlRoute(url: string): Promise<void> {
   const cached = pageDataCache.get(url);
   if (cached !== undefined) {
@@ -42,21 +63,13 @@ export async function handleUrlRoute(url: string): Promise<void> {
     return;
   }
   try {
-    const res = await fetch(url);
-    const html = await res.text();
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const dataElement = doc.getElementById('page-data');
-    if (dataElement) {
-      const raw = dataElement.textContent || '';
-      const data = JSON.parse(raw);
-      pageDataCache.set(url, data);
-      if (pageDataCache.size > PAGE_DATA_CACHE_MAX) {
-        const oldest = pageDataCache.keys().next().value;
-        if (oldest !== undefined) pageDataCache.delete(oldest);
-      }
-      _onPageData?.(data);
+    const data = await fetchPageData(url);
+    if (data === null) {
+      console.warn(`[router] missing #page-data for ${url}, falling back to full navigation`);
+      window.location.href = url;
+      return;
     }
+    _onPageData?.(data);
   } catch (e) {
     console.error('SPA navigation failed, reloading page…', e);
     window.location.href = url;
@@ -82,6 +95,11 @@ export async function navigateTo(url: string): Promise<void> {
   } catch {
     // debug aid only
   }
+  // Resolve target URL without touching history yet — pushState must happen
+  // only after the fetch succeeds, otherwise a missing #page-data would
+  // desync history (blank page) and window.location.pathname would be stale
+  // when renderApp reads it.
+  let targetUrl: string | null = null;
   if (url.startsWith('http://') || url.startsWith('https://')) {
     try {
       const parsed = new URL(url);
@@ -89,14 +107,37 @@ export async function navigateTo(url: string): Promise<void> {
         window.location.href = url;
         return;
       }
-      const targetUrl = parsed.pathname + parsed.search + parsed.hash;
-      window.history.pushState({}, '', targetUrl);
-      await handleUrlRoute(targetUrl);
-      return;
+      targetUrl = parsed.pathname + parsed.search + parsed.hash;
     } catch (e) {
       console.warn('Failed to parse URL in navigateTo:', e);
+      targetUrl = url;
     }
+  } else {
+    targetUrl = url;
   }
-  window.history.pushState({}, '', url);
-  await handleUrlRoute(url);
+
+  // Hash-only navigation: push immediately, no fetch needed (same document)
+  if (targetUrl.includes('#') && targetUrl.split('#')[0] === window.location.pathname) {
+    window.history.pushState({}, '', targetUrl);
+    // Let browser handle hash scroll; still trigger route for completeness
+    await handleUrlRoute(targetUrl.split('#')[0]);
+    return;
+  }
+
+  // For SPA page navigation, fetch first, then pushState, then render.
+  // This keeps history in sync and ensures window.location.pathname is
+  // correct when renderApp parses it.
+  try {
+    const data = await fetchPageData(targetUrl);
+    if (data === null) {
+      console.warn(`[router] missing #page-data for ${targetUrl}, falling back to full navigation`);
+      window.location.href = targetUrl;
+      return;
+    }
+    window.history.pushState({}, '', targetUrl);
+    _onPageData?.(data);
+  } catch (e) {
+    console.error('SPA navigation failed, reloading page…', e);
+    window.location.href = targetUrl;
+  }
 }
