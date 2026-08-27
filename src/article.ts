@@ -79,6 +79,58 @@ function stripFrontmatter(raw: string): string {
 }
 
 /**
+ * Strip Zola's explicit heading attributes (`{#id}`, `{.class}`,
+ * `{#id .class}`) from markdown before it reaches `marked`.
+ *
+ * Zola allows `## Title {#custom-id}` / `{.class}` to set the HTML `id`;
+ * `page.toc` parses it correctly, but `load_data(format="plain")` in
+ * `templates/page.html` captures the raw `{#...}` verbatim. `marked`'s
+ * heading grammar treats it as literal text, so the canvas heading renders
+ * `Title {#custom-id}`. See CTX-0033.
+ *
+ * Only heading lines outside fenced code blocks are touched; a code block
+ * may legitimately contain `# heading {#not stripped}` as source text.
+ * The trailing attribute check is intentionally lenient
+ * (`\{(?:#|\.)[^}]*\}`) so `{#id}` and `{.class}` both strip without
+ * re-deriving Zola's full attribute grammar. A plain trailing `{foo}` with
+ * no leading `#`/`.` is left intact.
+ */
+export function stripHeadingAttributes(md: string): string {
+  const lines = md.split('\n');
+  let inFencedBlock = false;
+  let fenceChar = '';
+  // Zola heading attribute: `{#id}`, `{.class}`, `{#id .c1 .c2}` etc.
+  // Match loosely: brace starts with `#` or `.` then anything up to `}`.
+  const attrSuffixRe = /\s*\{(?:#|\.)[^}]*\}\s*$/;
+  const headingRe = /^\s{0,3}#{1,6}\s+/;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!;
+    const trimmed = line.trimStart();
+
+    // Track fenced code blocks (``` or ~~~, at least 3 chars). The simplest
+    // toggle that mirrors CommonMark: a fence line opens/closes the block.
+    // We remember the opening char so ``` doesn't close a ~~~ block.
+    if (/^(`{3,}|~{3,})/.test(trimmed)) {
+      const ch = trimmed[0]!;
+      if (!inFencedBlock) {
+        inFencedBlock = true;
+        fenceChar = ch;
+      } else if (ch === fenceChar) {
+        inFencedBlock = false;
+        fenceChar = '';
+      }
+      continue;
+    }
+    if (inFencedBlock) continue;
+    if (!headingRe.test(line)) continue;
+    if (!attrSuffixRe.test(line)) continue;
+    lines[i] = line.replace(attrSuffixRe, '');
+  }
+  return lines.join('\n');
+}
+
+/**
  * Localize absolute internal links in markdown content for i18n pages.
  * Replaces `/learn/...` and `/reference/...` with `/zh-cn/learn/...` etc.
  * External links (https://) and anchors (#) are untouched.
@@ -105,6 +157,7 @@ export async function createArticleMarkdown(
 ): Promise<ArticleMarkdown> {
   const Ctor = await ensureMarkdown();
   let cleanMarkdown = stripFrontmatter(raw);
+  cleanMarkdown = stripHeadingAttributes(cleanMarkdown);
 
   // Localize links for non-English pages
   const locale = (options.locale as Locale) ?? 'en';
