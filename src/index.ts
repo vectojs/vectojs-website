@@ -215,25 +215,59 @@ async function handleResize(): Promise<void> {
       : 1;
   const scrollRatio = prevScrollY / maxScrollY;
 
+  // DPR-only path (monitor move, CDP emulation) doesn't go through the
+  // ResizeObserver's resize, so ensure the backing store is correctly sized
+  // before the rebuild — otherwise the canvas stays at the old DPR and blurs,
+  // and a failing resize would leave the scene blank. Guard NaN/Infinity and
+  // zero so a transient 0-height (mobile URL bar) doesn't zero the viewport.
+  try {
+    if (currentScene) {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      if (Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0) {
+        currentScene.resize(w, h);
+        try {
+          currentScene.render(currentScene.getRenderer(), 0, performance.now());
+        } catch {}
+      }
+    }
+  } catch (err) {
+    console.warn('[website] DPR pre-resize failed', err);
+  }
+
   // Always do a full rebuild (matches xuepoo-blog pattern)
-  await renderApp();
+  try {
+    await renderApp();
+  } catch (err) {
+    console.error('[website] renderApp failed during resize', err);
+    // Fallback: ensure at least a repaint so the canvas isn't left cleared
+    try {
+      currentScene?.markDirty();
+      if (currentScene) currentScene.render(currentScene.getRenderer(), 0, performance.now());
+    } catch {}
+    return;
+  }
 
   // Restore scroll position proportionally after rebuild
   if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     requestAnimationFrame(() => {
-      const newMaxScrollY = Math.max(1, document.body.scrollHeight - window.innerHeight);
-      let targetScrollY = prevScrollY;
+      try {
+        const newMaxScrollY = Math.max(1, document.body.scrollHeight - window.innerHeight);
+        let targetScrollY = prevScrollY;
 
-      // Use proportional restore if content height changed significantly
-      if (Math.abs(maxScrollY - newMaxScrollY) > 1) {
-        targetScrollY = scrollRatio * newMaxScrollY;
-      }
+        // Use proportional restore if content height changed significantly
+        if (Math.abs(maxScrollY - newMaxScrollY) > 1) {
+          targetScrollY = scrollRatio * newMaxScrollY;
+        }
 
-      window.scrollTo(0, targetScrollY);
-      if (currentMainScroll) {
-        currentMainScroll.y = -window.scrollY;
+        window.scrollTo(0, targetScrollY);
+        if (currentMainScroll) {
+          currentMainScroll.y = -window.scrollY;
+        }
+        currentScene?.markDirty();
+      } catch (err) {
+        console.warn('[website] scroll restore failed', err);
       }
-      currentScene?.markDirty();
     });
   }
 }
@@ -970,38 +1004,66 @@ async function boot(): Promise<void> {
   const resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {
       const { width, height } = entry.contentRect;
-      const newDpr = window.devicePixelRatio;
+      const rawDpr = (window as unknown as { devicePixelRatio?: number }).devicePixelRatio;
+      const newDpr = Number.isFinite(rawDpr) && (rawDpr as number) > 0 ? (rawDpr as number) : 1;
 
       // Width-only: layout must rebuild.
       // DPR-only (monitor move, emulation): backing store must rescale.
       // Height-only (mobile URL bar slide): just repaint.
-      const widthChanged = Math.abs(width - lastWidth) > 0.5;
+      // Use 0.5 CSS px for width — large enough to ignore sub-pixel jitter from
+      // fractional zoom (1.1000000685) but small enough to catch any real zoom
+      // (110% shrinks 1280 -> 1163, delta 117). dprChanged (epsilon 0.001) will
+      // still catch a DPR-only change even when width jitter is <0.5.
+      const widthChanged = Number.isFinite(width) && Math.abs(width - lastWidth) > 0.5;
       const dprChanged = Math.abs(newDpr - lastDpr) > 0.001;
 
       if (widthChanged || dprChanged) {
-        lastWidth = width;
+        lastWidth = Number.isFinite(width) ? width : lastWidth;
         lastDpr = newDpr;
 
         // Resize the scene with current logical CSS px. This re-reads DPR, rescales
         // the backing store, and recalibrates Firefox's Range metrics.
+        // Guard 0/NaN so a transient 0-height doesn't zero the viewport.
         if (currentScene) {
-          currentScene.resize(width, window.innerHeight);
-          // Synchronous render with correct signature prevents a black frame
-          // while the async handleResize() rebuild is pending.
-          currentScene.render(currentScene.getRenderer(), 0, performance.now());
+          try {
+            const h = window.innerHeight;
+            const safeH = Number.isFinite(h) && h > 0 ? h : height;
+            const safeW = Number.isFinite(width) && width > 0 ? width : lastWidth;
+            currentScene.resize(safeW, safeH);
+            // Synchronous render with correct signature prevents a black frame
+            // while the async handleResize() rebuild is pending. Wrap so one
+            // failed frame doesn't break the observer.
+            try {
+              currentScene.render(currentScene.getRenderer(), 0, performance.now());
+            } catch (err) {
+              console.warn('[website] sync render failed', err);
+            }
+          } catch (err) {
+            console.warn('[website] resize failed', err);
+          }
         }
 
         // Debounce the full layout rebuild into the next rAF
         if (resizeAnimationFrameId === null) {
           resizeAnimationFrameId = requestAnimationFrame(() => {
             resizeAnimationFrameId = null;
-            void handleResize();
+            void handleResize().catch((err) => console.warn('[website] handleResize failed', err));
           });
         }
       } else {
         // Height-only change (mobile URL bar): resize backing store but don't rebuild
-        currentScene?.resize(width, height);
-        currentScene?.markDirty();
+        // Use window.innerHeight for consistency with the widthChanged branch —
+        // contentRect height may lag behind the window or be 0 when hidden.
+        try {
+          const h = window.innerHeight;
+          const safeH = Number.isFinite(h) && h > 0 ? h : height;
+          if (Number.isFinite(width) && width > 0 && Number.isFinite(safeH) && safeH > 0) {
+            currentScene?.resize(width, safeH);
+          }
+          currentScene?.markDirty();
+        } catch (err) {
+          console.warn('[website] height-only resize failed', err);
+        }
       }
     }
   });
@@ -1015,13 +1077,32 @@ async function boot(): Promise<void> {
   // query fires it immediately, and at fractional zoom (110% reports
   // devicePixelRatio 1.1000000685) the value jitters below the query's own
   // resolution, so re-arming re-triggers itself and the page flickers continuously.
-  lastDpr = window.devicePixelRatio;
+  lastDpr =
+    Number.isFinite(window.devicePixelRatio) && window.devicePixelRatio > 0
+      ? window.devicePixelRatio
+      : 1;
   setInterval(() => {
-    const newDpr = window.devicePixelRatio;
+    const raw = (window as unknown as { devicePixelRatio?: number }).devicePixelRatio;
+    const newDpr = Number.isFinite(raw) && (raw as number) > 0 ? (raw as number) : 1;
     // Same epsilon as the ResizeObserver: ignore sub-0.001 float jitter.
     if (Math.abs(newDpr - lastDpr) <= 0.001) return;
     lastDpr = newDpr;
-    void handleResize();
+    // Ensure backing store is rescaled before the rebuild — handleResize's
+    // pre-resize will also do it, but do it here as well so a failing rebuild
+    // doesn't leave the canvas at the old DPR.
+    try {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      if (Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0) {
+        currentScene?.resize(w, h);
+        try {
+          if (currentScene) currentScene.render(currentScene.getRenderer(), 0, performance.now());
+        } catch {}
+      }
+    } catch (err) {
+      console.warn('[website] poll resize failed', err);
+    }
+    void handleResize().catch((err) => console.warn('[website] poll handleResize failed', err));
   }, 1000);
 
   window.addEventListener('popstate', async () => {
