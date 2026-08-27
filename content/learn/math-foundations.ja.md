@@ -20,7 +20,7 @@ VectoJSは、UIレンダリングをCSSスタイリングのカスケード解�
 
 従来のUIでは、レイアウトはブラウザのリフローエンジンによって解決され、カスケードするボックスモデルを計算し、CSSのレンダーレイヤーを更新します。VMTでは、あらゆる視覚要素（_Entity_）が、ローカライズされた座標系として表現され、アフィン代数的関係を通じて親にマッピングされます：
 
-$$\mathbf{M}\_{\text{world, child}} = \mathbf{M}\_{\text{world, parent}} \cdot \mathbf{M}\_{\text{local}}$$
+$$\mathbf{M}_{\text{world, child}} = \mathbf{M}_{\text{world, parent}} \cdot \mathbf{M}_{\text{local}}$$
 
 視覚ツリーは、描画対象1つにつき1つのスタイル付きHTMLノードを必要としません。レンダートラバーサルはJavaScript内で数値的な変換を合成します。アクセシビリティの同期とDOMポータルは、コストを依然として測定する必要がある、別々のブラウザ向けフェーズです。
 
@@ -176,7 +176,7 @@ $$P(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t) t^2 P_2 + t^3 P_3$$
 
 現在の実装は、各ベジェセグメントを固定解像度の`Float32Array`ポリラインへとサンプリングし、それをキャッシュします。ポインター$C(x, y)$に対して、隣接する各線分への距離の二乗を計算し、次のときにヒットを受理します：
 
-$$d^2(C, \overline{P*iP*{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
+$$d^2(C, \overline{P_iP_{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
 
 キャッシュされた近似により、繰り返しのヒットが安価で決定論的になります。これは解析的な5次/ニュートンソルバーではありません：非常に高曲率のセグメントはサンプル間で逸脱する可能性があるため、その近似を念頭に置いて`hitTolerance`を選んでください。`hitTest: 'aabb'`は、この精緻化を完全にスキップします。
 

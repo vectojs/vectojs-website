@@ -20,7 +20,7 @@ VectoJS는 무거운 브라우저 DOM 노드 트리를 유지하는 대신 **Vir
 
 전통적인 UI에서 레이아웃은 브라우저의 리플로우 엔진에 의해 해결되며, 이는 캐스케이딩 박스 모델을 계산하고 CSS 렌더 레이어를 업데이트합니다. VMT에서 모든 시각적 요소(Entity)는 지역화된 좌표계로 표현되며, 아핀 대수 관계를 통해 부모에 매핑됩니다:
 
-$$\\mathbf{M}\_{\\text{world, child}} = \\mathbf{M}\_{\\text{world, parent}} \\cdot \\mathbf{M}\_{\\text{local}}$$
+$$\mathbf{M}_{\text{world, child}} = \mathbf{M}_{\text{world, parent}} \cdot \mathbf{M}_{\text{local}}$$
 
 시각적 트리는 그리기 가능한 요소당 하나의 스타일이 적용된 HTML 노드를 필요로 하지 않습니다. 렌더 트래버설은 JavaScript에서 숫자 변환을 합성합니다; 접근성 동기화 및 DOM 포털은 별도의 브라우저-대면 단계로, 그 비용은 여전히 측정되어야 합니다.
 
@@ -67,23 +67,23 @@ shadow DOM이 표준 네이티브 HTML 태그로 구성되어 있기 때문에:
 
 ## 3. 아핀 변환
 
-VectoJS는 `absolute`, `relative`, `flex` 포지셔닝과 같은 CSS 레이아웃 속성을 완전히 버립니다. 대신 Virtual Math Tree의 모든 노드의 공간 관계는 유클리드 평면에서 $3 \\times 3$ 동차 **아핀 변환 행렬**로 압축됩니다.
+VectoJS는 `absolute`, `relative`, `flex` 포지셔닝과 같은 CSS 레이아웃 속성을 완전히 버립니다. 대신 Virtual Math Tree의 모든 노드의 공간 관계는 유클리드 평면에서 $3 \times 3$ 동차 **아핀 변환 행렬**로 압축됩니다.
 
 ### 변환 행렬
 
-엔티티의 이동 $(t_x, t_y)$, 스케일 $(s_x, s_y)$, 회전 $\\theta$ (라디안)은 단일 행렬 $M \\in \\text{Aff}(2)$로 결합됩니다:
+엔티티의 이동 $(t_x, t_y)$, 스케일 $(s_x, s_y)$, 회전 $\theta$ (라디안)은 단일 행렬 $M \in \text{Aff}(2)$로 결합됩니다:
 
-VectoJS는 로컬 변환을 $T \\cdot S \\cdot R$로 적용합니다:
+VectoJS는 로컬 변환을 $T \cdot S \cdot R$로 적용합니다:
 
-$$M = \\begin{bmatrix} s_x \\cos\\theta & -s_x \\sin\\theta & t_x \\\\\\\\ s_y \\sin\\theta & s_y \\cos\\theta & t_y \\\\\\\\ 0 & 0 & 1 \\end{bmatrix}$$
+$$M = \begin{bmatrix} s_x \cos\theta & -s_x \sin\theta & t_x \\ s_y \sin\theta & s_y \cos\theta & t_y \\ 0 & 0 & 1 \end{bmatrix}$$
 
 이동과 회전만으로는 강체 운동 그룹 $SE(2)$를 구성하며; 스케일(및 중첩된 비균일 스케일과 회전에 의해 생성된 전단)을 추가하려면 더 일반적인 아핀 그룹이 필요합니다.
 
 ### 캐스케이딩 변환 (행렬 곱셈)
 
-노드 트리를 탐색할 때 자식은 부모의 좌표 공간을 상속받습니다. 행렬 곱셈은 결합 법칙을 따르므로 중첩된 엔티티의 전역 변환 행렬 $M_{\\text{global}}$은 부모의 누적된 전역 행렬과 로컬 행렬을 곱하여 계산됩니다:
+노드 트리를 탐색할 때 자식은 부모의 좌표 공간을 상속받습니다. 행렬 곱셈은 결합 법칙을 따르므로 중첩된 엔티티의 전역 변환 행렬 $M_{\text{global}}$은 부모의 누적된 전역 행렬과 로컬 행렬을 곱하여 계산됩니다:
 
-$$M_{\\text{global}} = M_{\\text{parent}} \\times M_{\\text{local}}$$
+$$M_{\text{global}} = M_{\text{parent}} \times M_{\text{local}}$$
 
 이는 전위-순서 깊이 우선 탐색(DFS) 렌더 패스 중에 실행됩니다. VectoJS는 스칼라 float 변수에서 직접 이를 수행하여(힙 할당 방지) 계산 처리량을 최적화합니다:
 
@@ -95,17 +95,17 @@ const globalY = parent.m10 * local.x + parent.m11 * local.y + parent.m12;
 
 ### 폐쇄형 역변환 (Cramer의 법칙)
 
-좌표를 역매핑하기 위해(예: 화면-스페이스 마우스 클릭이나 3D 레이캐스트 좌표를 로컬 엔티티 좌표 공간으로 변환), VectoJS는 역행렬 $M_{\\text{global}}^{-1}$을 계산합니다.
+좌표를 역매핑하기 위해(예: 화면-스페이스 마우스 클릭이나 3D 레이캐스트 좌표를 로컬 엔티티 좌표 공간으로 변환), VectoJS는 역행렬 $M_{\text{global}}^{-1}$을 계산합니다.
 
 VectoJS는 일반 행렬 솔버 대신 여섯-스칼라 아핀 행렬의 폐쇄형 역변환을 사용합니다:
 
-$$M^{-1} = \\frac{1}{\\det(M)} \\begin{bmatrix} m_{11}m_{22} - m_{12}m_{21} & m_{02}m_{21} - m_{01}m_{22} & m_{01}m_{12} - m_{02}m_{11} \\\\\\\\ m_{12}m_{20} - m_{10}m_{22} & m_{00}m_{22} - m_{02}m_{20} & m_{02}m_{10} - m_{00}m_{12} \\\\\\\\ m_{10}m_{21} - m_{11}m_{20} & m_{01}m_{20} - m_{00}m_{21} & m_{00}m_{11} - m_{01}m_{10} \\end{bmatrix}$$
+$$M^{-1} = \frac{1}{\det(M)} \begin{bmatrix} m_{11}m_{22} - m_{12}m_{21} & m_{02}m_{21} - m_{01}m_{22} & m_{01}m_{12} - m_{02}m_{11} \\ m_{12}m_{20} - m_{10}m_{22} & m_{00}m_{22} - m_{02}m_{20} & m_{02}m_{10} - m_{00}m_{12} \\ m_{10}m_{21} - m_{11}m_{20} & m_{01}m_{20} - m_{00}m_{21} & m_{00}m_{11} - m_{01}m_{10} \end{bmatrix}$$
 
-동차 행렬의 세 번째 행이 항상 $\\begin{bmatrix} 0 & 0 & 1 \\end{bmatrix}$이므로, 행렬식은 다음과 같이 줄어듭니다:
+동차 행렬의 세 번째 행이 항상 $\begin{bmatrix} 0 & 0 & 1 \end{bmatrix}$이므로, 행렬식은 다음과 같이 줄어듭니다:
 
-$$\\det(M) = m_{00} \\cdot m_{11} - m_{01} \\cdot m_{10}$$
+$$\det(M) = m_{00} \cdot m_{11} - m_{01} \cdot m_{10}$$
 
-$\\det(M) \\neq 0$이면 `worldToLocal()`이 상수 산술 시간에 역좌표를 풀어 `{ x, y }` 포인트를 반환합니다. 특이 변환은 `null`을 반환합니다.
+$\det(M) \neq 0$이면 `worldToLocal()`이 상수 산술 시간에 역좌표를 풀어 `{ x, y }` 포인트를 반환합니다. 특이 변환은 `null`을 반환합니다.
 
 ---
 
@@ -139,15 +139,15 @@ $\\det(M) \\neq 0$이면 `worldToLocal()`이 상수 산술 시간에 역좌표�
 
 ### 라인-구간 분할
 
-수직 좌표 $Y$와 높이 $H$의 주어진 줄에 대해 총 래핑 너비는 단일 닫힌 구간 $I_0 = [0, \\text{maxWidth}]$로 표현됩니다.
+수직 좌표 $Y$와 높이 $H$의 주어진 줄에 대해 총 래핑 너비는 단일 닫힌 구간 $I_0 = [0, \text{maxWidth}]$로 표현됩니다.
 
 $K$개의 장애물 형상(`ExclusionRect`)이 Y-범위 $[Y, Y+H]$와 겹치는 경우, 각 장애물은 차감 구간 $E_k = [x_{s,k}, x_{e,k}]$를 나타냅니다:
 
 <img src="/images/set-difference-intervals.svg" alt="세 개의 수평 구간 막대를 보여주는 다이어그램: 0에서 maxWidth까지의 전체 라인 구간, 중간의 장애물 구간 xs1에서 xe1, 그리고 그 결과로 장애물을 피하는 두 개의 개별 세그먼트로 구성된 집합 차분" class="diagram" />
 
-텍스트 글리프를 배치하기 위한 사용 가능한 세그먼트 $I_{\\text{allowed}}$는 집합 차분을 계산하여 구합니다:
+텍스트 글리프를 배치하기 위한 사용 가능한 세그먼트 $I_{\text{allowed}}$는 집합 차분을 계산하여 구합니다:
 
-$$I_{\\text{allowed}} = I_0 \\setminus \\bigcup_{k=1}^{K} E_k$$
+$$I_{\text{allowed}} = I_0 \setminus \bigcup_{k=1}^{K} E_k$$
 
 ### 알고리즘 실행
 
@@ -155,7 +155,7 @@ $$I_{\\text{allowed}} = I_0 \\setminus \\bigcup_{k=1}^{K} E_k$$
 
 1. Y-스팬과 겹치는 모든 제외 구간을 수집합니다.
 2. 겹치는 제외 구간을 정렬된 분리 구간 목록으로 병합합니다.
-3. 이 구간들을 $[0, \\text{maxWidth}]$에서 차감하여 유효한 하위-구간 목록을 생성합니다.
+3. 이 구간들을 $[0, \text{maxWidth}]$에서 차감하여 유효한 하위-구간 목록을 생성합니다.
 4. 텍스트 토큰을 순차적으로 이 하위-구간에 래핑합니다.
 
 이를 통해 복잡한 타이포그래피 래핑을 재귀적 시행착오 렌더링 대신 결정론적 플랫 구간-차감 패스로 해결할 수 있습니다.
@@ -166,17 +166,17 @@ $$I_{\\text{allowed}} = I_0 \\setminus \\bigcup_{k=1}^{K} E_k$$
 
 전통적인 캔버스 프레임워크는 곡선을 보이지 않게 그리고 색상 픽셀을 읽거나, 클릭이 곡선을 둘러싼 직사각형 경계 상자(AABB) 내부에 있는지 확인하여 히트 테스트합니다. 전자는 느리고 후자는 매우 부정확합니다.
 
-`SplineEntity`는 각 3차 세그먼트를 $t \\in [0, 1]$에 대한 베지어 곡선 $P(t)$로 표현합니다:
+`SplineEntity`는 각 3차 세그먼트를 $t \in [0, 1]$에 대한 베지어 곡선 $P(t)$로 표현합니다:
 
 $$P(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t) t^2 P_2 + t^3 P_3$$
 
-여기서 $P_0, P_1, P_2, P_3 \\in \\mathbb{R}^2$는 제어점입니다.
+여기서 $P_0, P_1, P_2, P_3 \in \mathbb{R}^2$는 제어점입니다.
 
 ### 폴리라인 근사
 
 현재 구현은 각 베지어 세그먼트를 고정 해상도의 `Float32Array` 폴리라인으로 샘플링하고 캐싱합니다. 포인터 $C(x, y)$에 대해 각 인접 선분까지의 제곱 거리를 계산하고 다음 조건을 만족할 때 히트를 수락합니다:
 
-$$d^2(C, \\overline{P*iP*{i+1}}) \\le \\left(\\frac{\\text{lineWidth}}{2} + \\text{hitTolerance}\\right)^2$$
+$$d^2(C, \overline{P_iP_{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
 
 캐시된 근사는 반복된 히트를 저렴하고 결정론적으로 만듭니다. 이는 해석적 5차/Newton 솔버가 아닙니다: 매우 높은 곡률의 세그먼트는 샘플 간에 편차가 발생할 수 있으므로 그 근사를 염두에 두고 `hitTolerance`를 선택하세요. `hitTest: 'aabb'`는 정제 과정을 완전히 건너뜁니다.
 
@@ -184,15 +184,15 @@ $$d^2(C, \\overline{P*iP*{i+1}}) \\le \\left(\\frac{\\text{lineWidth}}{2} + \\te
 
 ## 7. 미분 방정식 및 Semi-Implicit Euler 솔버
 
-CSS 애니메이션은 고정된 시간 척도($t \\in [0, 1]$)에서 작동합니다. 목표 위치가 도중에 변경되면(예: 커서 추적), 베지어 곡선을 다시 계산해야 하므로 시각적 점프나 운동량 손실이 발생합니다.
+CSS 애니메이션은 고정된 시간 척도($t \in [0, 1]$)에서 작동합니다. 목표 위치가 도중에 변경되면(예: 커서 추적), 베지어 곡선을 다시 계산해야 하므로 시각적 점프나 운동량 손실이 발생합니다.
 
 VectoJS는 물리적 질량-스프링-댐퍼 시스템을 시뮬레이션하는 **상미분 방정식(ODE)** 을 사용하여 이 문제를 해결합니다.
 
 ### 지배 방정식
 
-애니메이션 값 $x(t)$(위치, 스케일, 불투명도)가 목표 값 $x_{\\text{target}}$을 향한 움직임은 감쇠가 있는 Hooke의 법칙에 의해 제어됩니다:
+애니메이션 값 $x(t)$(위치, 스케일, 불투명도)가 목표 값 $x_{\text{target}}$을 향한 움직임은 감쇠가 있는 Hooke의 법칙에 의해 제어됩니다:
 
-$$m \\frac{d^2x}{dt^2} + c \\frac{dx}{dt} + k(x - x_{\\text{target}}) = 0$$
+$$m \frac{d^2x}{dt^2} + c \frac{dx}{dt} + k(x - x_{\text{target}}) = 0$$
 
 여기서:
 
@@ -204,13 +204,13 @@ $$m \\frac{d^2x}{dt^2} + c \\frac{dx}{dt} + k(x - x_{\\text{target}}) = 0$$
 
 이 방정식을 런타임에 단계별로 풀기 위해 VectoJS는 **Semi-implicit Euler 적분** 솔버를 사용합니다. 명시적 Euler(불안정하고 에너지 오차가 누적됨)와 달리, semi-implicit 솔버는 현재 상태를 사용하여 속도를 계산한 다음 _다음_ 속도를 사용하여 위치를 계산합니다:
 
-$$v_{t+\\Delta t} = v_t + \\frac{-k(x_t - x_{\\text{target}}) - c v_t}{m} \\Delta t$$
+$$v_{t+\Delta t} = v_t + \frac{-k(x_t - x_{\text{target}}) - c v_t}{m} \Delta t$$
 
-$$x_{t+\\Delta t} = x_t + v_{t+\\Delta t} \\Delta t$$
+$$x_{t+\Delta t} = x_t + v_{t+\Delta t} \Delta t$$
 
-여기서 $\\Delta t$는 프레임 시간 간격(초)입니다.
+여기서 $\Delta t$는 프레임 시간 간격(초)입니다.
 
-솔버가 $x_{\\text{target}}$에 대한 현재 값 $x_t$와 속도 $v_t$를 기반으로 동적으로 힘을 계산하기 때문에 목표가 동적으로 움직일 수 있습니다(예: 드래그, 마우스 호버, 반응형 리플로우). 시스템은 자연스럽게 적응하며 운동량을 보존하고 유기적인 감쇠로 요소를 부드럽게 정지 상태로 만듭니다.
+솔버가 $x_{\text{target}}$에 대한 현재 값 $x_t$와 속도 $v_t$를 기반으로 동적으로 힘을 계산하기 때문에 목표가 동적으로 움직일 수 있습니다(예: 드래그, 마우스 호버, 반응형 리플로우). 시스템은 자연스럽게 적응하며 운동량을 보존하고 유기적인 감쇠로 요소를 부드럽게 정지 상태로 만듭니다.
 
 ---
 
@@ -227,15 +227,15 @@ VectoJS는 애플리케이션이 명시적으로 채워서 로컬 AABB 쿼리 �
 
 ### 해시 함수
 
-좌표 공간은 크기 $S$의 셀로 구성된 그리드로 나뉩니다. 모든 엔티티의 경계 상자는 정수 셀 좌표 $(i, j) \\in \\mathbb{Z}^2$ 집합에 매핑됩니다:
+좌표 공간은 크기 $S$의 셀로 구성된 그리드로 나뉩니다. 모든 엔티티의 경계 상자는 정수 셀 좌표 $(i, j) \in \mathbb{Z}^2$ 집합에 매핑됩니다:
 
-$$i = \\left\\lfloor \\frac{x}{S} \\right\\rfloor, \\quad j = \\left\\lfloor \\frac{y}{S} \\right\\rfloor$$
+$$i = \left\lfloor \frac{x}{S} \right\rfloor, \quad j = \left\lfloor \frac{y}{S} \right\rfloor$$
 
 이 그리드 좌표는 [Cantor 페어링 함수](https://en.wikipedia.org/wiki/Pairing_function)를 사용하여 단일 1D 버킷 키로 매핑되며, 음수 좌표는 먼저 비-음수 도메인으로 접힙니다:
 
-$$x = \\begin{cases} 2i & i \\geq 0 \\\\\\\\ -2i - 1 & i < 0 \\end{cases} \\qquad y = \\begin{cases} 2j & j \\geq 0 \\\\\\\\ -2j - 1 & j < 0 \\end{cases}$$
+$$x = \begin{cases} 2i & i \geq 0 \\ -2i - 1 & i < 0 \end{cases} \qquad y = \begin{cases} 2j & j \geq 0 \\ -2j - 1 & j < 0 \end{cases}$$
 
-$$H(i, j) = \\frac{(x + y)(x + y + 1)}{2} + y$$
+$$H(i, j) = \frac{(x + y)(x + y + 1)}{2} + y$$
 
 버킷은 일반 `Map`에 존재하며 고정 용량 테이블이 아닙니다 — 모듈로 연산이 없으며, 맵은 존재하는 고유 점유 셀 수만큼 커집니다.
 

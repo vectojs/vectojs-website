@@ -20,7 +20,7 @@ VectoJS不维护一个笨重的浏览器DOM节点树，而是在**虚拟数学�
 
 在传统UI中，布局由浏览器的重排引擎解析，该引擎计算级联盒模型并更新CSS渲染层。在VMT中，每个可视元素（一个_实体_）被表示为一个局部坐标系，通过仿射代数关系映射到其父元素：
 
-$$\mathbf{M}\_{\text{world, child}} = \mathbf{M}\_{\text{world, parent}} \cdot \mathbf{M}\_{\text{local}}$$
+$$\mathbf{M}_{\text{world, child}} = \mathbf{M}_{\text{world, parent}} \cdot \mathbf{M}_{\text{local}}$$
 
 视觉树不需要每个可绘制对象一个样式化的HTML节点。渲染遍历在JavaScript中组合数值变换；无障碍同步和DOM门户是独立的面向浏览器的阶段，其成本仍需测量。
 
@@ -176,7 +176,7 @@ $$P(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t) t^2 P_2 + t^3 P_3$$
 
 当前实现将每个贝塞尔段采样为固定分辨率的`Float32Array`折线并缓存它。对于指针$C(x, y)$，它计算到每个相邻线段的平方距离，并在以下条件下接受命中：
 
-$$d^2(C, \overline{P*iP*{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
+$$d^2(C, \overline{P_iP_{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
 
 缓存的近似值使重复命中测试变得廉价且确定。它不是解析的五次/牛顿求解器：极高曲率的段可能在样本之间产生偏差，因此在选择`hitTolerance`时请考虑这一近似。`hitTest: 'aabb'`完全跳过细化。
 

@@ -20,7 +20,7 @@ Instead of maintaining a heavy tree of browser DOM nodes, VectoJS operates on th
 
 In a traditional UI, layouts are resolved by a browser's reflow engine, which calculates cascading box models and updates CSS render layers. In the VMT, every visual element (an _Entity_) is represented as a localized coordinate system, mapped to its parent through affine algebraic relations:
 
-$$\mathbf{M}\_{\text{world, child}} = \mathbf{M}\_{\text{world, parent}} \cdot \mathbf{M}\_{\text{local}}$$
+$$\mathbf{M}_{\text{world, child}} = \mathbf{M}_{\text{world, parent}} \cdot \mathbf{M}_{\text{local}}$$
 
 The visual tree does not require one styled HTML node per drawable. Render traversal composes numeric transforms in JavaScript; accessibility synchronization and DOM portals are separate browser-facing phases whose cost must still be measured.
 

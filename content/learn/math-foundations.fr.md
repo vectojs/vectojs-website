@@ -20,7 +20,7 @@ Au lieu de maintenir un arbre lourd de nœuds DOM de navigateur, VectoJS opère 
 
 Dans une UI traditionnelle, les mises en page sont résolues par le moteur de reflow d'un navigateur, qui calcule des modèles de boîtes en cascade et met à jour les couches de rendu CSS. Dans le VMT, chaque élément visuel (une _Entity_) est représenté comme un système de coordonnées localisé, mappé à son parent via des relations algébriques affines :
 
-$$\mathbf{M}\_{\text{world, child}} = \mathbf{M}\_{\text{world, parent}} \cdot \mathbf{M}\_{\text{local}}$$
+$$\mathbf{M}_{\text{world, child}} = \mathbf{M}_{\text{world, parent}} \cdot \mathbf{M}_{\text{local}}$$
 
 L'arbre visuel ne nécessite pas un nœud HTML stylisé par élément dessinable. Le parcours de rendu compose des transformations numériques en JavaScript ; la synchronisation d'accessibilité et les portails DOM sont des phases distinctes tournées vers le navigateur dont le coût doit toujours être mesuré.
 
@@ -176,7 +176,7 @@ Où $P_0, P_1, P_2, P_3 \in \mathbb{R}^2$ sont les points de contrôle.
 
 L'implémentation actuelle échantillonne chaque segment de Bézier en une polyligne `Float32Array` à résolution fixe et la met en cache. Pour un pointeur $C(x, y)$, elle calcule la distance au carré à chaque segment de ligne adjacent et accepte le survol lorsque :
 
-$$d^2(C, \overline{P*iP*{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
+$$d^2(C, \overline{P_iP_{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
 
 L'approximation mise en cache rend les survols répétés peu coûteux et déterministes. Ce n'est pas un solveur quintique/Newton analytique : les segments à très haute courbure peuvent dévier entre les échantillons, alors choisissez `hitTolerance` en gardant cette approximation à l'esprit. `hitTest: 'aabb'` saute entièrement le raffinement.
 

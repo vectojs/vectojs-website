@@ -20,7 +20,7 @@ VectoJS 不維護一個龐大的瀏覽器 DOM 節點樹，而是操作**虛擬�
 
 在傳統 UI 中，布局由瀏覽器的重排引擎解析，計算級聯盒模型並更新 CSS 渲染層。在 VMT 中，每個視覺元素（一個*實體*）被表示為一個局部化座標系統，透過仿射代數關係映射到其父元素：
 
-$$\mathbf{M}\_{\text{world, child}} = \mathbf{M}\_{\text{world, parent}} \cdot \mathbf{M}\_{\text{local}}$$
+$$\mathbf{M}_{\text{world, child}} = \mathbf{M}_{\text{world, parent}} \cdot \mathbf{M}_{\text{local}}$$
 
 視覺樹不需要為每個可繪製物件建立一個帶樣式的 HTML 節點。渲染遍歷在 JavaScript 中組合數字變換；無障礙同步和 DOM 入口是獨立的瀏覽器導向階段，其成本仍需衡量。
 
@@ -176,7 +176,7 @@ $$P(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t) t^2 P_2 + t^3 P_3$$
 
 目前的實作將每個 Bézier 段取樣為固定解析度的 `Float32Array` 折線並予以快取。對於指標 $C(x, y)$，它計算到每個相鄰線段的平方距離，並在以下條件下接受命中：
 
-$$d^2(C, \overline{P*iP*{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
+$$d^2(C, \overline{P_iP_{i+1}}) \le \left(\frac{\text{lineWidth}}{2} + \text{hitTolerance}\right)^2$$
 
 快取的近似值使得重複命中測試廉價且確定性高。它並非解析式的五次/Truncated Newton 求解器：非常高曲率的段可能在樣本之間產生偏差，因此在選擇 `hitTolerance` 時要考慮到這種近似。`hitTest: 'aabb'` 則完全跳過精細化。
 
