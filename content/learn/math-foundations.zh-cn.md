@@ -67,7 +67,7 @@ VectoJS通过**语义影子DOM**（或`a11yRoot`）解决了这个问题。
 
 ## 3. 仿射变换
 
-VectoJS完全摒弃了CSS布局属性，如`absolute`、`relative`或`flex`定位。相反，虚拟数学树中每个节点的空间关系被压缩为欧几里得平面中的$3 \times 3$齐次**仿射变换矩阵**。
+VectoJS完全摒弃了CSS布局属性，如`absolute`、`relative`或`flex`定位。相反，虚拟数学树中每个节点的空间关系被压缩为欧几里得平面中的 $3 \times 3$ 齐次**仿射变换矩阵**。
 
 ### 变换矩阵
 
