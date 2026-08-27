@@ -67,7 +67,7 @@ Virtual Math Tree内のすべてのインタラクティブなエンティティ
 
 ## 3. アフィン変換
 
-VectoJSは、`absolute`、`relative`、`flex`配置のようなCSSレイアウトプロパティを完全に放棄します。代わりに、Virtual Math Tree内のすべてのノードの空間的関係は、ユークリッド平面における$3 \times 3$の同次**アフィン変換行列**に圧縮されます。
+VectoJSは、`absolute`、`relative`、`flex`配置のようなCSSレイアウトプロパティを完全に放棄します。代わりに、Virtual Math Tree内のすべてのノードの空間的関係は、ユークリッド平面における $3 \times 3$ の同次**アフィン変換行列**に圧縮されます。
 
 ### 変換行列
 
