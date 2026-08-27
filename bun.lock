@@ -8,7 +8,7 @@
         "@vectojs/core": "1.39.1",
         "@vectojs/devtools": "0.11.2",
         "@vectojs/layout": "0.10.0",
-        "@vectojs/markdown": "0.23.2",
+        "@vectojs/markdown": "0.23.3",
         "@vectojs/styles": "0.3.3",
         "@vectojs/ui": "2.20.2",
       },
@@ -313,7 +313,7 @@
 
     "@vectojs/layout": ["@vectojs/layout@0.10.0", "", { "dependencies": { "@vectojs/text": "^0.4.2" } }, "sha512-9yNttRaV/BZopYpevc9L9EE2UigzTxBzsD4j+hAfgGgATonQVKZkSW7gVveCkU1OostbWeFrNqAPMl+5sgOM9Q=="],
 
-    "@vectojs/markdown": ["@vectojs/markdown@0.23.2", "", { "dependencies": { "@vectojs/tex": "^0.1.2", "marked": "^18.0.7" }, "peerDependencies": { "@vectojs/core": ">=1.34.0 <2.0.0", "@vectojs/ui": ">=2.6.0 <3.0.0" } }, "sha512-G8pcAFp3XOxyZV2/EO4KzcPPTM1JJBNcO6YXm3xdn2TBEBV3gkRFRyxFo1/+o0fl3/irJHv4UqRfTcg+cCx/pw=="],
+    "@vectojs/markdown": ["@vectojs/markdown@0.23.3", "", { "dependencies": { "@vectojs/tex": "^0.1.2", "marked": "^18.0.7" }, "peerDependencies": { "@vectojs/core": ">=1.34.0 <2.0.0", "@vectojs/ui": ">=2.6.0 <3.0.0" } }, "sha512-MUcO8GYYCt5rT2ka/DsLKzgGn5dPcLVIRy9k4U8dwzD1VwPQD727/5zCBDjXmCrnAM/D7il4JouggR1QQbAGGg=="],
 
     "@vectojs/math": ["@vectojs/math@0.1.2", "", {}, "sha512-neqXMBR2o4j5K6pTmCLyBoLt/NqvrkJvBSoyF2zloK0KSri7OVeZPgtYOPjn2qvlL4cXugXr8JaxZDjkgd9O1g=="],
 
