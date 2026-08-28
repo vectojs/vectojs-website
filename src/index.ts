@@ -210,6 +210,22 @@ function flipTheme(): void {
 // ─── Responsive Layout ─────────────────────────────────────────────────────────
 
 async function handleResize(): Promise<void> {
+  // Hyprland workspace switch can deliver a ResizeObserver with 0 size while
+  // hidden; if handleResize runs then, viewportW === 0 rebuilds a zero-width
+  // page and commits `body.style.height = "0px"` which survives the return.
+  // Defer rather than rebuilding zero-size.
+  if (typeof document !== 'undefined' && (document as any).hidden) return;
+  if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+  const viewportCheckW = typeof window !== 'undefined' ? window.innerWidth : 0;
+  const viewportCheckH = typeof window !== 'undefined' ? window.innerHeight : 0;
+  if (
+    !Number.isFinite(viewportCheckW) ||
+    !Number.isFinite(viewportCheckH) ||
+    viewportCheckW <= 0 ||
+    viewportCheckH <= 0
+  )
+    return;
+
   // Save scroll position and ratio for proportional restore
   const prevScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
   const maxScrollY =
@@ -1247,6 +1263,15 @@ async function boot(): Promise<void> {
   // ResizeObserver reports contentRect in CSS px, which matches window.innerWidth at
   // any zoom level (zoom shrinks both). dprChanged catches monitor-move / emulation.
   const resizeObserver = new ResizeObserver((entries) => {
+    // While hidden (Hyprland workspace switched away), ResizeObserver can
+    // deliver 0×0. Acting on it would rebuild a zero-size page and set
+    // body.height to 0. Defer until visible — the visibilitychange handler
+    // will drive the correct resize on return.
+    if (
+      typeof document !== 'undefined' &&
+      ((document as any).hidden || document.visibilityState === 'hidden')
+    )
+      return;
     for (const entry of entries) {
       const { width, height } = entry.contentRect;
       const rawDpr = (window as unknown as { devicePixelRatio?: number }).devicePixelRatio;
@@ -1349,6 +1374,72 @@ async function boot(): Promise<void> {
     }
     void handleResize().catch((err) => console.warn('[website] poll handleResize failed', err));
   }, 1000);
+
+  // Hyprland workspace switch (and tab backgrounding) makes the page
+  // hidden: Chrome throttles rAF to ~1-2 FPS, Firefox keeps layout but may
+  // drop the GL/WebGL backing store, and ResizeObserver can deliver a 0×0
+  // rect while hidden. The scene is `onDemand`, so no new frame is scheduled
+  // until `markDirty` is called — on return the canvas stays white while the
+  // a11y DOM (static) remains selectable (the reported symptom). Rebuild and
+  // force a synchronous repaint when the document becomes visible again.
+  // Guard the 0-size case: if `window.innerWidth` is still 0 (compositor
+  // hasn't restored the window), defer one rAF rather than rebuilding a
+  // 0-wide page and committing `body.height = "0px"`.
+  const handleVisibilityReturn = () => {
+    if (typeof document !== 'undefined' && (document as any).hidden) return;
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+    const w = typeof window !== 'undefined' ? window.innerWidth : 0;
+    const h = typeof window !== 'undefined' ? window.innerHeight : 0;
+    if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) {
+      requestAnimationFrame(() => handleVisibilityReturn());
+      return;
+    }
+    // Ensure backing store is correctly sized before the rebuild — the
+    // ResizeObserver's `widthChanged` check may not fire if the compositor
+    // restores the same width, leaving the DPR stale.
+    try {
+      currentScene?.resize(w, h);
+      try {
+        if (currentScene) currentScene.render(currentScene.getRenderer(), 0, performance.now());
+      } catch {}
+    } catch (err) {
+      console.warn('[website] visibility resize failed', err);
+    }
+    currentScene?.markDirty();
+    // Full rebuild catches any layout that stretched while hidden (fonts,
+    // math retypeset) and re-establishes `document.body.style.height` if a
+    // prior hidden ResizeObserver had zeroed it. Generation guard inside
+    // handleResize prevents clobbering a concurrent navigation.
+    void handleResize().catch((err) =>
+      console.warn('[website] visibility handleResize failed', err),
+    );
+    // One more synchronous markDirty after the rebuild's rAF settles, in case
+    // the onDemand scene's dirty was consumed by the synchronous render above
+    // before handleResize's async renderApp installed the new dirty.
+    requestAnimationFrame(() => {
+      try {
+        currentScene?.markDirty();
+        if (currentScene) {
+          try {
+            currentScene.render(currentScene.getRenderer(), 0, performance.now());
+          } catch {}
+        }
+      } catch {}
+    });
+  };
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') handleVisibilityReturn();
+  });
+  // Hyprland workspace switch also fires `window` focus without a
+  // visibilitychange in some Chrome versions (the window remains
+  // "visible" but is occluded). Treat focus as a redundant trigger;
+  // the hidden/visible guards above make the second call a no-op if
+  // visibilitychange already handled it.
+  window.addEventListener('focus', handleVisibilityReturn);
+  // `pageshow` covers bfcache restore (back/forward) where visibility
+  // state may not transition.
+  window.addEventListener('pageshow', handleVisibilityReturn);
 
   window.addEventListener('popstate', async () => {
     await handleUrlRoute(window.location.pathname);
