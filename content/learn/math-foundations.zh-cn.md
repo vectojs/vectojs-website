@@ -233,7 +233,7 @@ $$i = \left\lfloor \frac{x}{S} \right\rfloor, \quad j = \left\lfloor \frac{y}{S}
 
 这些网格坐标使用[康托尔配对函数](https://en.wikipedia.org/wiki/Pairing_function)映射到单个一维桶键，首先将负坐标折叠到非负域中：
 
-$$x = \begin{cases} 2i & i \geq 0 \\\\ -2i - 1 & i < 0 \end{cases} \qquad y = \begin{cases} 2j & j \geq 0 \\\\ -2j - 1 & j < 0 \end{cases}$$
+$$x = \begin{cases} 2i & i \geq 0 \\ -2i - 1 & i < 0 \end{cases} \qquad y = \begin{cases} 2j & j \geq 0 \\ -2j - 1 & j < 0 \end{cases}$$
 
 $$H(i, j) = \frac{(x + y)(x + y + 1)}{2} + y$$
 

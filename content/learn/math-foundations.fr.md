@@ -233,7 +233,7 @@ $$i = \left\lfloor \frac{x}{S} \right\rfloor, \quad j = \left\lfloor \frac{y}{S}
 
 Ces coordonnées de grille sont mappées à une seule clé de compartiment 1D à l'aide d'une [fonction de couplage de Cantor](https://en.wikipedia.org/wiki/Pairing_function), avec les coordonnées négatives repliées d'abord dans le domaine non négatif :
 
-$$x = \begin{cases} 2i & i \geq 0 \\\\ -2i - 1 & i < 0 \end{cases} \qquad y = \begin{cases} 2j & j \geq 0 \\\\ -2j - 1 & j < 0 \end{cases}$$
+$$x = \begin{cases} 2i & i \geq 0 \\ -2i - 1 & i < 0 \end{cases} \qquad y = \begin{cases} 2j & j \geq 0 \\ -2j - 1 & j < 0 \end{cases}$$
 
 $$H(i, j) = \frac{(x + y)(x + y + 1)}{2} + y$$
 
