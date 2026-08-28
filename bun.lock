@@ -319,7 +319,7 @@
 
     "@vectojs/styles": ["@vectojs/styles@0.3.3", "", { "dependencies": { "@vectojs/core": "^1.39.0" } }, "sha512-qI9ZU5UBUW5uObXx7+aknQ04+vFElIJpLQzriLMFOeE/7qvN4B3x25egknI2EkvIm2cLATCaPLQhdqa0KtSFrw=="],
 
-    "@vectojs/tex": ["@vectojs/tex@0.1.3", "", {}, "sha512-7ZHaBr0sel0TQn7eVL/7X75x4Pgj0Nz8mgRKVV+J9+eVpGJz8yoVh9sY/gtrfvqEv2M7RTQOA32c4fgwKIGcug=="],
+    "@vectojs/tex": ["@vectojs/tex@0.1.5", "", {}, "sha512-W+E9Ed32XhBDCge6rGZY5c/XpFqYrPk3RDfb3FnSPa06zXy0Ku8CD4o94K+pWzp+Gbf96kw7KjZMQc079aTsOg=="],
 
     "@vectojs/text": ["@vectojs/text@0.4.2", "", { "dependencies": { "bidi-js": "^1.0.3" } }, "sha512-G9oxsoI+0KGnYA9FiirQfihPtXmq32HpVvd6ABVam2YDt2vak4K3870659ChZ+jjW6TfEV6YlSpwWFEyUwwb2Q=="],
 
