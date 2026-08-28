@@ -214,6 +214,7 @@ async function handleResize(): Promise<void> {
       ? Math.max(1, document.body.scrollHeight - window.innerHeight)
       : 1;
   const scrollRatio = prevScrollY / maxScrollY;
+  const handleStartGeneration = renderGeneration;
 
   // DPR-only path (monitor move, CDP emulation) doesn't go through the
   // ResizeObserver's resize, so ensure the backing store is correctly sized
@@ -248,9 +249,17 @@ async function handleResize(): Promise<void> {
     return;
   }
 
+  // If a navigation started while the rebuild was in flight, the scroll
+  // restore would overwrite its `scrollTo(0,0)` and leave the new page at the
+  // old page's offset (blank). Skip restore when generation advanced past this
+  // handleResize's own renderApp.
+  if (renderGeneration !== handleStartGeneration + 1) return;
+
   // Restore scroll position proportionally after rebuild
   if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     requestAnimationFrame(() => {
+      // A second navigation may have started while this rAF was queued.
+      if (renderGeneration !== handleStartGeneration + 1) return;
       try {
         const newMaxScrollY = Math.max(1, document.body.scrollHeight - window.innerHeight);
         let targetScrollY = prevScrollY;
@@ -270,6 +279,7 @@ async function handleResize(): Promise<void> {
         // clamp so the bottom stays reachable without requiring another scroll.
         setTimeout(() => {
           try {
+            if (renderGeneration !== handleStartGeneration + 1) return;
             const maxAfter = Math.max(0, document.body.scrollHeight - window.innerHeight);
             if (window.scrollY > maxAfter) window.scrollTo(0, maxAfter);
             if (currentMainScroll) currentMainScroll.y = -window.scrollY;
@@ -476,6 +486,24 @@ async function renderApp(): Promise<void> {
         currentScene?.markDirty();
       }
     });
+    // Fallback sync: APZ may coalesce scroll events or deliver them late
+    // when the onDemand scene is idle, leaving mainScroll.y behind window.scrollY
+    // (observed freeze at bottom: scrollY 6677 while mainScroll sat at 0). Poll
+    // window.scrollY and sync immediately. Use setInterval, not rAF, because
+    // rAF is throttled to ~2 FPS when the onDemand scene is idle.
+    let lastWindowScrollY = window.scrollY;
+    const syncScrollFrame = () => {
+      if (currentMainScroll) {
+        if (window.scrollY !== lastWindowScrollY || currentMainScroll.y !== -window.scrollY) {
+          lastWindowScrollY = window.scrollY;
+          currentMainScroll.y = -window.scrollY;
+          currentScene?.markDirty();
+        }
+      } else {
+        lastWindowScrollY = window.scrollY;
+      }
+    };
+    setInterval(syncScrollFrame, 16);
   }
 
   // ── fixed navbar (scene root, drawn above the scrolling content) ────────────
@@ -916,6 +944,10 @@ async function renderApp(): Promise<void> {
     page.height = detailY;
 
     const reflowBelowMd = () => {
+      // Stale layout from a previous page's Markdown (e.g. a late MathJax
+      // retypeset or image decode after SPA navigation) must not overwrite the
+      // new page's body height. Bail when generation is stale.
+      if (generation !== renderGeneration) return;
       let nextY = md.y + md.height + 24;
       page.height = nextY;
       if (footerContainer) {
@@ -937,6 +969,24 @@ async function renderApp(): Promise<void> {
     };
 
     md.onLayoutUpdated = reflowBelowMd;
+
+    // Fallback for Markdown paths that republish height without notifying
+    // (e.g. `retypesetFromTokens` after the lazy MathJax load). Poll `md.height`
+    // briefly and trigger the same reflow the host would have run.
+    {
+      let lastMdHeight = md.height;
+      const poll = setInterval(() => {
+        if (generation !== renderGeneration) {
+          clearInterval(poll);
+          return;
+        }
+        if (md.height !== lastMdHeight) {
+          lastMdHeight = md.height;
+          reflowBelowMd();
+        }
+      }, 100);
+      setTimeout(() => clearInterval(poll), 5000);
+    }
 
     if (mobileToc) {
       mobileToc.onToggle = () => {
