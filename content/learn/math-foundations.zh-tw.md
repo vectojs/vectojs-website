@@ -233,7 +233,7 @@ $$i = \left\lfloor \frac{x}{S} \right\rfloor, \quad j = \left\lfloor \frac{y}{S}
 
 這些網格座標使用[康托配對函數](https://en.wikipedia.org/wiki/Pairing_function)映射到單個一維桶鍵，先將負座標摺疊到非負域：
 
-$$x = \begin{cases} 2i & i \geq 0 \\\\ -2i - 1 & i < 0 \end{cases} \qquad y = \begin{cases} 2j & j \geq 0 \\\\ -2j - 1 & j < 0 \end{cases}$$
+$$x = \begin{cases} 2i & i \geq 0 \\ -2i - 1 & i < 0 \end{cases} \qquad y = \begin{cases} 2j & j \geq 0 \\ -2j - 1 & j < 0 \end{cases}$$
 
 $$H(i, j) = \frac{(x + y)(x + y + 1)}{2} + y$$
 
