@@ -53,6 +53,9 @@ let scrollListenersAttached = false;
 let currentMainScroll: Container | null = null;
 let lastDpr = typeof window !== 'undefined' ? window.devicePixelRatio : 1;
 let heroStop: (() => void) | null = null;
+let syncScrollIntervalId: ReturnType<typeof setInterval> | null = null;
+let mdHeightPollId: ReturnType<typeof setInterval> | null = null;
+let mdHeightPollTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
 function themeName(): 'light' | 'dark' {
   return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
@@ -274,18 +277,20 @@ async function handleResize(): Promise<void> {
           currentMainScroll.y = -window.scrollY;
         }
         currentScene?.markDirty();
-        // If an onLayoutUpdated reflow expands the body shortly after (image
-        // decode), the rAF above used the pre-reflow height. Schedule a second
-        // clamp so the bottom stays reachable without requiring another scroll.
-        setTimeout(() => {
+        // Previously a `setTimeout(360)` forced `window.scrollTo(0,maxAfter)`
+        // here to keep the bottom reachable after a late reflow. That forced
+        // `scrollTo` fought the browser's APZ scrollbar transaction when the
+        // user was mid-drag (the thumb at old `maxScrollY` vs new `maxAfter`),
+        // leaving the page visually stuck. Replace with a passive sync: the
+        // browser naturally clamps `scrollY` on its next frame if it is truly
+        // beyond the new max; we only need to keep `mainScroll.y` in sync.
+        requestAnimationFrame(() => {
           try {
             if (renderGeneration !== handleStartGeneration + 1) return;
-            const maxAfter = Math.max(0, document.body.scrollHeight - window.innerHeight);
-            if (window.scrollY > maxAfter) window.scrollTo(0, maxAfter);
             if (currentMainScroll) currentMainScroll.y = -window.scrollY;
             currentScene?.markDirty();
           } catch {}
-        }, 360);
+        });
       } catch (err) {
         console.warn('[website] scroll restore failed', err);
       }
@@ -324,6 +329,24 @@ let renderGeneration = 0;
 async function renderApp(): Promise<void> {
   if (!currentScene || !currentPageData) return;
   const generation = ++renderGeneration;
+
+  // Clear previous article height poll — each navigation creates its own poll
+  // for `retypesetFromTokens`; without clearing the old one, rapid navigations
+  // stack multiple 100 ms timers that each call `reflowBelowMd` with a stale
+  // `md` closure and fight the new page's layout. Cleared here (before any
+  // async work) so a bail after the preload does not leave the old poll alive.
+  if (mdHeightPollId !== null) {
+    clearInterval(mdHeightPollId);
+    mdHeightPollId = null;
+  }
+  if (mdHeightPollTimeoutId !== null) {
+    clearTimeout(mdHeightPollTimeoutId);
+    mdHeightPollTimeoutId = null;
+  }
+  // Note: `syncScrollIntervalId` is cleared at creation time (after the scene
+  // is built), not here — clearing it before the async `createArticleMarkdown`
+  // would leave a gap with no sync if this generation bails before reaching
+  // the creation site.
 
   // Every rebuild must resync the styles-layer theme with data-theme: rebuilds
   // triggered by popstate (language switch) or resize would otherwise keep the
@@ -480,19 +503,33 @@ async function renderApp(): Promise<void> {
     scrollListenersAttached = true;
     document.body.style.overflow = 'auto';
     document.documentElement.style.overflow = 'auto';
-    window.addEventListener('scroll', () => {
-      if (currentMainScroll) {
-        currentMainScroll.y = -window.scrollY;
-        currentScene?.markDirty();
-      }
-    });
-    // Fallback sync: APZ may coalesce scroll events or deliver them late
-    // when the onDemand scene is idle, leaving mainScroll.y behind window.scrollY
-    // (observed freeze at bottom: scrollY 6677 while mainScroll sat at 0). Poll
-    // window.scrollY and sync immediately. Use setInterval, not rAF, because
-    // rAF is throttled to ~2 FPS when the onDemand scene is idle.
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (currentMainScroll) {
+          currentMainScroll.y = -window.scrollY;
+          currentScene?.markDirty();
+        }
+      },
+      { passive: true },
+    );
+  }
+  // Fallback sync: APZ may coalesce scroll events or deliver them late
+  // when the onDemand scene is idle, leaving mainScroll.y behind window.scrollY
+  // (observed freeze at bottom: scrollY 6677 while mainScroll sat at 0). Poll
+  // window.scrollY and sync immediately. Use setInterval, not rAF, because
+  // rAF is throttled to ~2 FPS when the onDemand scene is idle.
+  // Recreated per generation so stale closures do not accumulate after SPA
+  // navigations; cleared here (just before creating the new one) so a bail
+  // before this point does not leave a gap with no active sync.
+  {
+    if (syncScrollIntervalId !== null) {
+      clearInterval(syncScrollIntervalId);
+      syncScrollIntervalId = null;
+    }
     let lastWindowScrollY = window.scrollY;
     const syncScrollFrame = () => {
+      if (generation !== renderGeneration) return;
       if (currentMainScroll) {
         if (window.scrollY !== lastWindowScrollY || currentMainScroll.y !== -window.scrollY) {
           lastWindowScrollY = window.scrollY;
@@ -503,7 +540,7 @@ async function renderApp(): Promise<void> {
         lastWindowScrollY = window.scrollY;
       }
     };
-    setInterval(syncScrollFrame, 16);
+    syncScrollIntervalId = setInterval(syncScrollFrame, 16);
   }
 
   // ── fixed navbar (scene root, drawn above the scrolling content) ────────────
@@ -958,10 +995,17 @@ async function renderApp(): Promise<void> {
       if (typeof document !== 'undefined') {
         document.body.style.height = `${page.height + LAYOUT.navHeight + 40}px`;
         mainScroll.height = page.height + 40;
-        // Re-clamp scroll after body expansion so bottom stays reachable
+        // Sync the canvas transform to the current scroll without forcing a
+        // `window.scrollTo` clamp — the previous synchronous clamp
+        // `if(window.scrollY>maxScroll) window.scrollTo(0,maxScroll)` fought
+        // the browser's APZ transaction when `reflowBelowMd` fired mid-drag:
+        // the scrollbar thumb was at the old `maxScrollY` while the new
+        // `maxAfter` was smaller/larger, and the forced `scrollTo` pulled
+        // `window.scrollY` away from the thumb, leaving the page visually
+        // stuck. The browser naturally clamps `scrollY` on the next frame if
+        // it is truly beyond the new max; we only need to keep
+        // `mainScroll.y` in sync and re-mark dirty.
         try {
-          const maxScroll = Math.max(0, document.body.scrollHeight - window.innerHeight);
-          if (window.scrollY > maxScroll) window.scrollTo(0, maxScroll);
           if (currentMainScroll) currentMainScroll.y = -window.scrollY;
         } catch {}
       }
@@ -972,12 +1016,26 @@ async function renderApp(): Promise<void> {
 
     // Fallback for Markdown paths that republish height without notifying
     // (e.g. `retypesetFromTokens` after the lazy MathJax load). Poll `md.height`
-    // briefly and trigger the same reflow the host would have run.
+    // briefly and trigger the same reflow the host would have run. Stored in
+    // module-level vars so a navigation clears the previous page's poll instead
+    // of stacking multiple 100 ms timers that fight the new page's layout.
     {
       let lastMdHeight = md.height;
-      const poll = setInterval(() => {
+      // Already cleared at top of renderApp, but guard against double-clear
+      if (mdHeightPollId !== null) {
+        clearInterval(mdHeightPollId);
+        mdHeightPollId = null;
+      }
+      if (mdHeightPollTimeoutId !== null) {
+        clearTimeout(mdHeightPollTimeoutId);
+        mdHeightPollTimeoutId = null;
+      }
+      mdHeightPollId = setInterval(() => {
         if (generation !== renderGeneration) {
-          clearInterval(poll);
+          if (mdHeightPollId !== null) {
+            clearInterval(mdHeightPollId);
+            mdHeightPollId = null;
+          }
           return;
         }
         if (md.height !== lastMdHeight) {
@@ -985,7 +1043,13 @@ async function renderApp(): Promise<void> {
           reflowBelowMd();
         }
       }, 100);
-      setTimeout(() => clearInterval(poll), 5000);
+      mdHeightPollTimeoutId = setTimeout(() => {
+        if (mdHeightPollId !== null) {
+          clearInterval(mdHeightPollId);
+          mdHeightPollId = null;
+        }
+        mdHeightPollTimeoutId = null;
+      }, 5000);
     }
 
     if (mobileToc) {
