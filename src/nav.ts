@@ -50,30 +50,51 @@ const setSearchSelected = (i: number): void => {
   searchParent?.markDirty();
 };
 
-export function isSearchCompositionEvent(
-  e: Pick<KeyboardEvent, 'isComposing' | 'keyCode'>,
-): boolean {
+function isSearchCompositionEvent(e: Pick<KeyboardEvent, 'isComposing' | 'keyCode'>): boolean {
   // Some IME paths report the legacy process-key value without isComposing.
   return e.isComposing || e.keyCode === 229;
 }
 
-const onSearchKey = (e: KeyboardEvent): void => {
+interface SearchKeyState {
+  modalOpen: boolean;
+  rowCount: number;
+  selectedIndex: number;
+  close: () => void;
+  select: (index: number) => void;
+  activate: (index: number) => void;
+}
+
+export function routeSearchKey(
+  e: Pick<KeyboardEvent, 'key' | 'isComposing' | 'keyCode' | 'preventDefault'>,
+  state: SearchKeyState,
+): void {
   if (isSearchCompositionEvent(e)) return;
   if (e.key === 'Escape') {
-    closeSearch();
+    state.close();
     return;
   }
-  if (!searchModal || searchNavRows.length === 0) return;
+  if (!state.modalOpen || state.rowCount === 0) return;
   if (e.key === 'ArrowDown') {
     e.preventDefault();
-    setSearchSelected(Math.min(searchSelected + 1, searchNavRows.length - 1));
+    state.select(Math.min(state.selectedIndex + 1, state.rowCount - 1));
   } else if (e.key === 'ArrowUp') {
     e.preventDefault();
-    setSearchSelected(Math.max(searchSelected - 1, 0));
-  } else if (e.key === 'Enter' && searchSelected >= 0) {
+    state.select(Math.max(state.selectedIndex - 1, 0));
+  } else if (e.key === 'Enter' && state.selectedIndex >= 0) {
     e.preventDefault();
-    searchNavRows[searchSelected].emit('click');
+    state.activate(state.selectedIndex);
   }
+}
+
+const onSearchKey = (e: KeyboardEvent): void => {
+  routeSearchKey(e, {
+    modalOpen: searchModal !== null,
+    rowCount: searchNavRows.length,
+    selectedIndex: searchSelected,
+    close: closeSearch,
+    select: setSearchSelected,
+    activate: (index) => searchNavRows[index].emit('click'),
+  });
 };
 
 const onSearchBackdrop = (e: PointerEvent): void => {
