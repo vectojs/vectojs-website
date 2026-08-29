@@ -17,7 +17,7 @@ weight = 34
 
 `Scene.resize(width, height)` at `packages/core/src/tree/Scene.ts:6381` is the viewport boundary:
 
-````ts
+```ts
 public resize(width: number, height: number): void {
   if (!Number.isFinite(width) || !Number.isFinite(height) || width < 0 || height < 0) {
     if (!this.hasWarnedInvalidResize) console.warn(`...`); return;
@@ -29,7 +29,7 @@ public resize(width: number, height: number): void {
   if (this.gpuCanvas) this.sizeGpuCanvas(this.gpuCanvas, width, height);
   this.markDirty();
 }
-```text
+```
 
 Five things happen atomically: logical `width`/`height` update, two generation counters bump, every backing store resizes, and the frame is dirtied. The generation counters are the key — `contentFontEpoch` forces text recalibration (browser zoom changes Range geometry even at the same CSS font), and `contentViewportEpoch` re-tiers every content block without moving any of them (`Scene.ts:6415`, `Scene.ts:6420`). A resize that only changed `width`/`height` would leave every block holding DOM built for the old viewport.
 
@@ -83,7 +83,7 @@ export class Flow extends Stack {
     super({ ...opts, direction: opts.direction ?? 'horizontal', wrap: true });
   }
 }
-```text
+```
 
 ### 2.3 Card — the rounded panel
 
@@ -99,7 +99,7 @@ PanelGroup { direction, width, height }
   ├── PanelResizeHandle { width: handleSize, interactive: true }  — drag delta → _onResize
   ├── Panel
   └── ...
-```text
+```
 
 `addPanel()` at `ResizablePanel.ts:237` auto-inserts a handle before every panel after the first (`ResizablePanel.ts:239` `new PanelResizeHandle`). `resize(w, h)` at `ResizablePanel.ts:258` redistributes sizes proportionally (`ResizablePanel.ts:267` `(size / basis) * avail`) then normalizes (`ResizablePanel.ts:309` clamp to `minSize`/`avail`). `_layout()` at `ResizablePanel.ts:343` assigns `x/y/width/height` to panels and handles alternately — a horizontal group's panels are `width = sizes[i], height = cross`; handles are `width = handleSize, height = cross`.
 
@@ -197,7 +197,7 @@ window.addEventListener('resize', () => {
   sidebar.layout();
   contentGroup.resize(w - sidebar.width, h - header.height);
 });
-```text
+```
 
 Each `resize()` bumps the two generation counters, every backing store rescales, `Stack`/`Flow` re-group on the next `layout()`, `PanelGroup.resize()` redistributes, and `VirtualList` clamps `_targetY` (`VirtualList.ts:566` `_clamp`). No media-query engine — the app decides the breakpoint and calls the API.
 
@@ -218,7 +218,7 @@ editorGroup.setContent(inner); // ← Panel.setContent keeps inner sized
 outer.addPanel(sidebar).addPanel(editorGroup);
 scene.add(outer);
 // On window resize: outer.resize(newW, newH) — inner follows via Panel.update().
-```text
+```
 
 `PanelGroup.resize()` proportional scaling (`ResizablePanel.ts:265`) handles the outer group; the inner group is re-laid out via `Panel.update()`'s fit sync, no explicit inner `resize()` call needed.
 
@@ -269,4 +269,3 @@ VectoJS has no native scrollbar widget — `ScrollView` and `VirtualList` clip a
 ---
 
 _Series: 00 Overview → 01 Selection → 02 Text+Layout → 03 Semantic Projection → 04 Streaming Markdown → 05 TeX → 06 VMT Runtime → 07 Renderer → 08 WASM → 09 Three/XR → 10 Video Export → 11 Graph Layout → 12 DevTools → **14 Responsive Layout** → 99 Synthesis._
-````

@@ -51,14 +51,14 @@ Validation is strict: `isCssLength` rejects `'50%'`, `'8em'` (`packages/styles/t
 
 ## 3. The `applyStyle` pipeline — resolve, then write
 
-````ts
+```ts
 export function applyStyle(entity: Entity, s: Style): AppliedStyle {
   const { style: resolved } = resolveStyle(s, getTheme()); // theme.ts:96 getTheme / apply.ts:162 resolveStyle
   const result = applyStyleResolved(entity, resolved); // apply.ts:180
   trackVarKeys(entity, s); // theme.ts:175 — register var() keys under current theme
   return result;
 }
-```text
+```
 
 `resolveStyle` (`apply.ts:162`) walks the style object, calling `resolveValue(value, theme)` (`apply.ts:137`) per value — with a special branch for `padding: {x,y}` (`apply.ts:166`) that resolves each axis independently. `resolveValue` has four arms:
 
@@ -84,7 +84,7 @@ export function tokens(set: ThemeTokenSet): Theme {
   return { tokens: set };
 } // theme.ts:46
 export const DEFAULT_THEME: Theme = tokens(PRESET_THEMES.light); // theme.ts:51
-```text
+```
 
 Flat by design — like `MarkdownTheme` — single spread, no deep merge, no nesting (`theme.ts:35`). `PRESET_THEMES` (`packages/styles/src/presets.ts:12`) ships `light | dark | github | dracula` (`presets.ts:12`), each with `accent/surface/surfaceAlt/text/muted/border/radius-sm/md/lg/font/fontFamily/fontSize/fontWeight/fontMono` (`presets.ts:13`). A caller theme is a spread: `tokens({ ...PRESET_THEMES.dark, accent: '#f00' })` (`vectojs-docs/content/reference/styles.md:136`). Keys are stored without `--`; references write `var(--key)` (`theme.ts:28`).
 
@@ -130,7 +130,7 @@ export function css<T extends Style>(...styles: Array<T | null | undefined | fal
 export function style<T extends Style>(s: T): T {
   return s;
 } // css.ts:32
-```text
+```
 
 `style()` is an identity factory — types the literal as `Style`, returns it unchanged (`packages/styles/test/styles.test.ts:18`). `css()` is the variant merge: later sources win, `null`/`undefined`/`false` are skipped so conditional variants are `css(base, isMuted && muted)` (`css.ts:11`), inputs are not mutated (`v2.test.ts:49`), and the one nested shape — `padding: { x, y }` (`types.ts:34`) — is copied (`css.ts:23`) so mutating `merged.padding.x` never reaches into a source variant (GH-608, `issue-608.test.ts:153`). Replacing `padding` wholesale is also copied — `merged.padding !== override.padding` (`issue-608.test.ts:163`).
 
@@ -142,7 +142,7 @@ export function style<T extends Style>(s: T): T {
 const current = { theme: DEFAULT_THEME }; // theme.ts:53
 const varPairs = new WeakMap<Theme, Map<WeakRef<Entity>, Map<string, unknown>>>(); // theme.ts:70
 const entityRefs = new WeakMap<Entity, WeakRef<Entity>>(); // theme.ts:75
-```text
+```
 
 `varPairs` keys by `Theme` (a dropped theme is collected wholesale via `WeakMap`), values map `WeakRef<Entity>` → `Map<string, unknown>` of tracked style _keys_ to the `var()` expression they reference — not the whole style object (`theme.ts:59`). Multiple `var()` styles on one entity accumulate; a later literal on the same key replaces the reference instead of being clobbered on the next switch (`theme.ts:61`, `packages/styles/test/v2.test.ts:181`).
 
@@ -188,7 +188,7 @@ export function setTheme(next: Theme): void {
     varPairs.delete(previous); // theme.ts:148
   }
 }
-```text
+```
 
 The atomicity guarantee (`theme.ts:107`): every tracked style is resolved against `next` _before_ `current.theme` moves. A missing token or an invalid value (e.g. `--gap: '50%'` at `v2.test.ts:126`, `--radius-md` missing at `v2.test.ts:139` GH-485) throws while the scene, the active theme, and the pair bookkeeping are all still fully consistent under the previous theme — never half-restyled. Verified by the GH-485 test: a `partial` theme missing `radius-md` throws, `getTheme() === themeA` still holds, neither entity was restyled, and a subsequent valid switch still re-resolves every pair (`v2.test.ts:137`).
 
@@ -279,4 +279,3 @@ The common thread: every throw names the CSS property and echoes the value (`app
 ---
 
 _Series: 00 Overview → 01 Selection → 02 Text+Layout → 03 Projection+Virtualization → 04 Streaming Markdown → 05 TeX → 06 VMT Runtime → 07 Renderer → 08 WASM G1/G2/G3 → 09 Three/XR → 10 Video Export → 11 Graph Layout → 12 DevTools → **13 Styles & Theming** → 99 Synthesis._
-````

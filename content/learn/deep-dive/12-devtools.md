@@ -33,7 +33,7 @@ Each rung returns plain data, not pixels. That makes every check a CI gate: `exp
 
 The panel _calls_ the headless layer; it does not duplicate it. The headless layer carries ~60 exported pure functions — the larger and more useful half (`vectojs-docs/content/reference/devtools.md:18`).
 
-````ts
+```ts
 import { attachDevtools } from '@vectojs/devtools';
 import { auditScene, captureSnapshot, explainHitTest } from '@vectojs/devtools/headless';
 
@@ -41,7 +41,7 @@ if (import.meta.env.DEV) {
   const devtools = attachDevtools(scene, { traceEvents: true });
   // devtools.detach() === devtools.destroy()
 }
-```text
+```
 
 `DevtoolsOptions` at `packages/devtools/src/panel.ts:42` — `width` default 360, `refreshInterval` default 500, `dockSide` `right|left`, `showPerf` default true, `traceEvents`/`traceCapacity`, `defaultTab`. The headless subpath exists so a production test bundle can pull the model layer without the panel or `@vectojs/ui` (`vectojs-docs/content/reference/devtools.md:58`).
 
@@ -282,4 +282,3 @@ One backend serves every frontend — the in-page panel, a browser extension, Pl
 ---
 
 _Series: 00 Overview → 01 Selection → 02 Text+Layout → 03 Projection+Virtualization → 04 Streaming Markdown → 05 TeX → 06 VMT Runtime → 07 Renderer → 08 WASM G1/G2/G3 → 09 Three/XR → 10 Video Export → 11 Graph Layout → **12 DevTools** → 99 Synthesis._
-````

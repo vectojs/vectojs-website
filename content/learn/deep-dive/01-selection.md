@@ -23,7 +23,7 @@ The failure is always geometric — and it compounds with calibration. Even a co
 
 ## 2. The two worlds
 
-````text
+```text
 ┌──────────────────────────────────────────────────────────────────┐
 │  Visual world — canvas                                           │
 │  source: string ──► LayoutEngine / prepareContentGrid            │
@@ -51,7 +51,7 @@ The failure is always geometric — and it compounds with calibration. Even a co
               + ContentProjectionManager grid calibration
               + DPR / page zoom compensation (256 px basis)
               + font-epoch / viewport-epoch generation stamping
-```text
+```
 
 Both worlds derive from **one logical source** (`source: string`) and one retained geometry plan. Re-segmenting the source for the DOM creates a second layout that inevitably disagrees: different word breaks under CJK, different bidi visual order, different tab column stops, different line-height distribution. The projection never re-lays out; it reuses the engine's own coordinates.
 
@@ -300,7 +300,7 @@ console.log({
 // Geometry readout — local logical x/y vs world transform
 import { getContentGeometry } from '@vectojs/devtools';
 console.log(getContentGeometry(entity));
-```text
+```
 
 Pass `debugA11y: true` in `SceneOptions` (`packages/core/src/tree/Scene.ts:SceneOptions`) to outline shadow nodes with a blue dashed border during development. Drive cross-engine, multi-DPR verification with `scripts/selection-harness/drive.sh` (`DPR=1.5 ZOOM=0.9`, `scripts/selection-harness/README.md`) — headless DPR 1 hides both the quantization bugs and the grid-fit drift that ship at DPR 1.1/1.6. That harness exercises justified lines, RTL/bidi, and fractional DPR/zoom, all three failure modes `selectionAudit.ts` was written to catch (`selectionAudit.ts:1`).
 
@@ -344,4 +344,3 @@ User presses in blank padding of a `Markdown` code block, drags across three lin
 | Copy (Ctrl+C)             | browser serializes `projectedSlice` text (alt-substituted, separator-merged) from the now-calibrated carriers                               | `RichText.ts:projectedSlice`                                                        |
 
 If any row is skipped or reordered, the invariant in §5 with the same row number is the one to re-read.
-````

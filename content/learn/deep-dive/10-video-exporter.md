@@ -71,7 +71,7 @@ Testing imitates the page with `packages/video-exporter/test/fixtures/two-frame-
 
 ## 3. Pipeline — from `url` to `out.mp4`
 
-````text
+```text
  ExportOptions ──► normalizeOptions ──► resolveInputTarget ──► launchBrowser ──► ExportSession.run
         │                │                       │                    │                  │
    options.ts:40   options.ts:102-114     input-target.ts:48    browser.ts:66     export-session.ts:111
@@ -91,7 +91,7 @@ Testing imitates the page with `packages/video-exporter/test/fixtures/two-frame-
                                                     │
                                         StagedOutput commit  staged-output.ts:99
                                         atomic rename: .vecto-*.mp4 → destination.mp4
-```text
+```
 
 ### 3.1 Options → normalised options
 
@@ -129,6 +129,8 @@ Launch itself is a test seam: `BrowserDependencies.launch` (`browser.ts:34` `lau
 
 ### 3.4 The capture loop — `validateAndStopScene` → `sizeCanvas` → frame loop
 
+<!-- markdownlint-disable MD031 MD032 MD040 -->
+
 `ExportSession.run` (`export-session.ts:111`):
 
 1. `throwIfAborted()` before acquiring anything (`export-session.ts:120`, reads `options.signal?.aborted` and throws `abortError(signal)` from `packages/video-exporter/src/abort-error.ts:6`).
@@ -148,8 +150,9 @@ Launch itself is a test seam: `BrowserDependencies.launch` (`browser.ts:34` `lau
      await encoder.write(await captureFrame(page)); // :153
      progress.update(frame + 1); // :154
    }
-````
+   ```
 
+````
 `captureFrame` (`export-session.ts:99`) reads the _first_ `<canvas>` and calls `canvas.toDataURL('image/png')`, splits on `,` (`export-session.ts:104`), decodes the base64 tail to a `Buffer` for the `image2pipe/png` stdin. _"First page `<canvas>` is resized and captured"_ (`SKILL.md:27`).
 
 <!-- markdownlint-disable MD029 -->
@@ -162,7 +165,7 @@ Launch itself is a test seam: `BrowserDependencies.launch` (`browser.ts:34` `lau
 
 `packages/video-exporter/src/ffmpeg-supervisor.ts:274` `startFfmpeg`:
 
-````ts
+```ts
 const args = ['-y', '-f', 'image2pipe', '-vcodec', 'png', '-r', String(fps), '-i', '-'];
 if (audioPath !== undefined) args.push('-i', audioPath);
 args.push('-c:v', 'libx264', '-pix_fmt', 'yuv420p');
@@ -265,18 +268,20 @@ Anything of this form must be either `reset()`-gated, seeded, or removed. The ex
 
 `packages/video-exporter/src/index.ts:6` `exportVideo`:
 
-```ts
+````
+
 import { exportVideo } from '@vectojs/video-exporter';
 await exportVideo({
-  url,
-  outputPath,
-  width,
-  height,
-  fps,
-  duration,
-  audioPath,
-  signal,
+url,
+outputPath,
+width,
+height,
+fps,
+duration,
+audioPath,
+signal,
 });
+
 ```text
 
 One function, no builder. `normalizeOptions` throws synchronously on bad geometry/audio/output-dir (`options.ts:58` odd dimensions, `:78` missing `audioPath`, `:90` missing parent, `:97` not writable) so a misconfigured job fails _before_ Chromium boots. The `totalFrames = Math.ceil(fps*duration)` contract (`options.ts:112`, `cli.ts:104` re-derives the same width) is intentionally not "fps×duration−maybe-one" — short durations produce the right count and there is no fractional-frame. Signal on the API is used directly (`options.ts:17`/`28` and `export-session.ts:32` `signal` field in `FfmpegOptions`).
@@ -285,15 +290,17 @@ One function, no builder. `normalizeOptions` throws synchronously on bad geometr
 
 `packages/video-exporter/src/cli.ts:25` `USAGE`:
 
-```text
+```
+
 Usage: vecto-export <url> [options]
-  -o, --output <file>    Output file (default: out.mp4)  cli.ts:59
-  -w, --width <pixels>   Width (default: 1280)            cli.ts:60
-  -h, --height <pixels>  Height (default: 720)            cli.ts:61
-  -f, --fps <number>     FPS (default: 60)                cli.ts:62
-  -d, --duration <secs>  Duration (default: 5)            cli.ts:63
-  -a, --audio <file>     Mux an audio track as AAC        cli.ts:32/64
-```text
+-o, --output <file> Output file (default: out.mp4) cli.ts:59
+-w, --width <pixels> Width (default: 1280) cli.ts:60
+-h, --height <pixels> Height (default: 720) cli.ts:61
+-f, --fps <number> FPS (default: 60) cli.ts:62
+-d, --duration <secs> Duration (default: 5) cli.ts:63
+-a, --audio <file> Mux an audio track as AAC cli.ts:32/64
+
+````text
 
 Semantics:
 
