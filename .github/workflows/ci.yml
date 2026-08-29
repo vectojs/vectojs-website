@@ -21,6 +21,7 @@ jobs:
           curl -sL https://github.com/getzola/zola/releases/download/v0.23.0/zola-v0.23.0-x86_64-unknown-linux-gnu.tar.gz | tar xz
           sudo mv zola /usr/local/bin/
       - run: bun install --frozen-lockfile
+      - run: bun test
       - run: bun run check
       - run: bun run lint:md
       - run: bun run build
