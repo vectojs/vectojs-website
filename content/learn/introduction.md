@@ -70,6 +70,13 @@ VectoJS is not a React replacement, not an ECS, and not a claim of zero allocati
 
 The rest of this guide walks through those tradeoffs in detail.
 
+## Deep dive — the sixteen bosses
+
+Beyond the introductory chapters, the **Deep Dive** series covers every hard subsystem in one place — sixteen documents from canvas-native selection and text layout to streaming Markdown, the VMT runtime, renderers, WASM, Three.js/XR, video export, graphs, devtools, styles, responsive layout, and vertical apps. Start at the overview, then follow the reading path for your area:
+
+- [Deep Dive 00 — Overview](/learn/deep-dive/00-overview/) — the game map, architecture invariants, package dependencies, and reading paths.
+- [Deep Dive catalogue](/learn/deep-dive/00-overview/#the-twelve-bosses--this-overview) — difficulty table, first-read recommendations, and cross-links to `learn/*` and `reference/*`.
+
 ## Next steps
 
 - [Why VectoJS](/learn/why-vectojs/) — the problem space and tradeoffs.
