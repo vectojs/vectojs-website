@@ -50,7 +50,15 @@ const setSearchSelected = (i: number): void => {
   searchParent?.markDirty();
 };
 
+export function isSearchCompositionEvent(
+  e: Pick<KeyboardEvent, 'isComposing' | 'keyCode'>,
+): boolean {
+  // Some IME paths report the legacy process-key value without isComposing.
+  return e.isComposing || e.keyCode === 229;
+}
+
 const onSearchKey = (e: KeyboardEvent): void => {
+  if (isSearchCompositionEvent(e)) return;
   if (e.key === 'Escape') {
     closeSearch();
     return;
