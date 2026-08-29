@@ -19,6 +19,19 @@
       "reading_time": {{ page.reading_time | default(value=0) }},
       "tags": {{ page.extra.tags | default(value=[]) | json_encode() | safe }},
       "author": {{ page.extra.author | default(value="") | json_encode() | safe }}
+    }{% if not loop.last or section.subsections | length > 0 %},{% endif %}
+    {% endfor %}
+    {% for subsection_path in section.subsections %}
+    {% set subsection = get_section(path=subsection_path, lang=lang) %}
+    {
+      "title": {{ subsection.title | json_encode() | safe }},
+      "description": {{ subsection.description | default(value="") | json_encode() | safe }},
+      "path": "{{ subsection.path }}",
+      "date": "",
+      "word_count": 0,
+      "reading_time": 0,
+      "tags": [],
+      "author": ""
     }{% if not loop.last %},{% endif %}
     {% endfor %}
   ]
