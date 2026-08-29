@@ -297,6 +297,8 @@ In every case the cost of a new vertical is one new package plus a `GraphData`/`
 
 ## Appendix — where to read next
 
+<!-- markdownlint-disable MD060 -->
+
 | Goal                                | Start                                                                                     | Then                                                                                     |
 | ----------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | Page a knowledge graph              | `packages/knowledge-graph/src/KnowledgeGraphModel.ts:62` single driver                    | `KnowledgeGraphSession.ts:67` wiring → `packages/graph3d/src/Graph3D.ts:28` presentation |
