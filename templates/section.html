@@ -1,19 +1,38 @@
-{% extends "base.html" %} {% block title %}{{ section.title }} · {{ config.title
-}}{% endblock title %} {% block page_data %}{ "type": "section", "lang": "{{
-lang }}", "title": {{ section.title | json_encode() | safe }}, "description": {{
-section.description | default(value="") | json_encode() | safe }}, "path": "{{
-section.path }}", "pages": [ {% for page in section.pages %} { "title": {{
-page.title | json_encode() | safe }}, "description": {{ page.description |
-default(value="") | json_encode() | safe }}, "path": "{{ page.path }}", "date":
-{% if page.date %}"{{ page.date | date(format='%Y-%m-%d') }}"{% else %}""{%
-endif %}, "word_count": {{ page.word_count | default(value=0) }},
-"reading_time": {{ page.reading_time | default(value=0) }}, "tags": {{
-page.extra.tags | default(value=[]) | json_encode() | safe }}, "author": {{
-page.extra.author | default(value="") | json_encode() | safe }} }{% if not
-loop.last or section.subsections | length > 0 %},{% endif %} {% endfor %} {% for
-subsection_path in section.subsections %} {% set subsection =
-get_section(path=subsection_path, lang=lang) %} { "title": {{ subsection.title |
-json_encode() | safe }}, "description": {{ subsection.description |
-default(value="") | json_encode() | safe }}, "path": "{{ subsection.path }}",
-"date": "", "word_count": 0, "reading_time": 0, "tags": [], "author": "" }{% if
-not loop.last %},{% endif %} {% endfor %} ] }{% endblock page_data %}
+{% extends "base.html" %}
+
+{% block title %}{{ section.title }} · {{ config.title }}{% endblock title %}
+
+{% block page_data %}{
+  "type": "section",
+  "lang": "{{ lang }}",
+  "title": {{ section.title | json_encode() | safe }},
+  "description": {{ section.description | default(value="") | json_encode() | safe }},
+  "path": "{{ section.path }}",
+  "pages": [
+    {% for page in section.pages %}
+    {
+      "title": {{ page.title | json_encode() | safe }},
+      "description": {{ page.description | default(value="") | json_encode() | safe }},
+      "path": "{{ page.path }}",
+      "date": {% if page.date %}"{{ page.date | date(format='%Y-%m-%d') }}"{% else %}""{% endif %},
+      "word_count": {{ page.word_count | default(value=0) }},
+      "reading_time": {{ page.reading_time | default(value=0) }},
+      "tags": {{ page.extra.tags | default(value=[]) | json_encode() | safe }},
+      "author": {{ page.extra.author | default(value="") | json_encode() | safe }}
+    }{% if not loop.last or section.subsections | length > 0 %},{% endif %}
+    {% endfor %}
+    {% for subsection_path in section.subsections %}
+    {% set subsection = get_section(path=subsection_path, lang=lang) %}
+    {
+      "title": {{ subsection.title | json_encode() | safe }},
+      "description": {{ subsection.description | default(value="") | json_encode() | safe }},
+      "path": "{{ subsection.path }}",
+      "date": "",
+      "word_count": 0,
+      "reading_time": 0,
+      "tags": [],
+      "author": ""
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}{% endblock page_data %}
