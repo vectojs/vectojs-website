@@ -16,6 +16,7 @@ single_active_session_per_agent = true
 [task]
 single_active_task_per_agent = true
 strict_completion = false
+list_limit = 200
 
 [context]
 default_mode = "compact"
@@ -31,8 +32,16 @@ capture_untracked_files = true
 [output]
 color = "auto"
 unicode = true
+verbose = false
+
+[output.fields]
 
 [agent]
 
 [verification]
-commands = []
+# Must match real CI gates (.github/workflows/ci.yml:verify) without
+# duplicating lefthook's staged-file fixers. "bun run check" covers
+# oxfmt --check + oxlint --deny-warnings; "bun run lint:md" covers
+# markdownlint-cli2 on content/**/*.md. Do NOT add a prepare-commit-msg
+# hook — it would prefix [CTX-NNNN] and break commitlint.
+commands = ["bun run check", "bun run lint:md"]
