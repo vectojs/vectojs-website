@@ -319,39 +319,20 @@ export function buildSidebar(parent: Scene, opts: SidebarOptions): Entity {
     parent.markDirty();
   };
 
-  // Always use a ScrollView for reference pages — the fully expanded list can
-  // grow well beyond the sidebar height, and the upstream wheel-passthrough fix
-  // (#525, @vectojs/ui 2.16.6) ensures the wheel passes through to the page
-  // whenever maxScroll is zero, so a ScrollView with short content is no
-  // longer a dead zone.
-  if (isReference) {
-    scrollHost = new ScrollView({
-      width: width - 8,
-      height: scrollHeight,
-      scrollPhysics: DOCUMENT_SCROLL_PHYSICS,
-    });
-    scrollHost.add(list);
-    scrollHost.x = 8;
-    scrollHost.y = top + 56;
-    root.add(scrollHost);
-  } else {
-    // Only wrap in a ScrollView when the flat learn list actually overflows.
-    const listHeight = pages.length * (rowH + 2);
-    if (listHeight > scrollHeight) {
-      scrollHost = new ScrollView({
-        width: width - 8,
-        height: scrollHeight,
-        scrollPhysics: DOCUMENT_SCROLL_PHYSICS,
-      });
-      scrollHost.add(list);
-      scrollHost.x = 8;
-      scrollHost.y = top + 56;
-      root.add(scrollHost);
-    } else {
-      list.setPosition(8, top + 56);
-      root.add(list);
-    }
-  }
+  // Both sections own their page list through one real ScrollView. Learn titles
+  // can wrap to two or three rows (especially in CJK), so a page-count estimate
+  // cannot decide whether the measured list overflows. The upstream
+  // wheel-passthrough fix (#525, @vectojs/ui 2.16.6) leaves short lists
+  // unaffected: when maxScroll is zero, wheel input continues to the page.
+  scrollHost = new ScrollView({
+    width: width - 8,
+    height: scrollHeight,
+    scrollPhysics: DOCUMENT_SCROLL_PHYSICS,
+  });
+  scrollHost.add(list);
+  scrollHost.x = 8;
+  scrollHost.y = top + 56;
+  root.add(scrollHost);
 
   renderRows();
 
