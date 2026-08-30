@@ -7,6 +7,7 @@
     "build:search-index": "bun run scripts/build-search-index.ts",
     "build:js": "bun run build:search-index && bun build src/index.ts --outdir static/js --splitting --minify --target browser",
     "build:zola": "zola build",
+    "test:localized-sections": "bun run build:zola && bun run scripts/test-localized-sections.ts",
     "build": "bun run build:js && bun run build:zola",
     "dev:js": "bun build src/index.ts --outdir static/js --splitting --watch",
     "dev:zola": "zola serve --drafts",
