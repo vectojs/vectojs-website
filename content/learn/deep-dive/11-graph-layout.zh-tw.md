@@ -1,8 +1,8 @@
----
-title: '11 — 圖佈局 — 力導向物理與基準測試'
-description: 'ForceLayout2D 無依賴的 2D 引擎、Barnes-Hut 四元樹與分層碰撞網格、增量變更與固定契約、VectoForceLayout/D3ForceLayout 3D 家族、vectojs-force-rs WASM 核心，以及有頭基準方法論。'
-order: 31
----
++++
+title = "11 — 圖佈局 — 力導向物理與基準測試"
+description = "ForceLayout2D 無依賴的 2D 引擎、Barnes-Hut 四元樹與分層碰撞網格、增量變更與固定契約、VectoForceLayout/D3ForceLayout 3D 家族、vectojs-force-rs WASM 核心，以及有頭基準方法論。"
+weight = 31
++++
 
 # 11 — 圖佈局 — 力導向物理與基準測試
 

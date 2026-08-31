@@ -1,8 +1,8 @@
----
-title: '08 — Accélérateurs WASM — G1/G2/G3 & parité binaire'
-description: "Les backends WASM invisibles derrière @vectojs/core : G1 world-matrix, G2 batch d'animation, G3 hit-grid (plus particules G4), le store SoA qui rend SIMD possible et le contrat de parité binaire qui maintient WASM optionnel."
-order: 28
----
++++
+title = "08 — Accélérateurs WASM — G1/G2/G3 & parité binaire"
+description = "Les backends WASM invisibles derrière @vectojs/core : G1 world-matrix, G2 batch d'animation, G3 hit-grid (plus particules G4), le store SoA qui rend SIMD possible et le contrat de parité binaire qui maintient WASM optionnel."
+weight = 28
++++
 
 # 08 — Accélérateurs WASM — G1/G2/G3 & parité binaire
 

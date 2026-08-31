@@ -1,9 +1,9 @@
----
-title: '01 — 캔버스 네이티브 선택 — Dual-World Parity'
-description: '캔버스에 선택이 없는 이유, VectoJS가 페인트된 세계와 DOM 선택 세계를 패리티로 유지하는 방법, 그리고 이를 지키는 모든 불변식.'
-order: 21
-date: 2026-08-29
----
++++
+title = "01 — 캔버스 네이티브 선택 — Dual-World Parity"
+description = "캔버스에 선택이 없는 이유, VectoJS가 페인트된 세계와 DOM 선택 세계를 패리티로 유지하는 방법, 그리고 이를 지키는 모든 불변식."
+weight = 21
+date = 2026-08-29
++++
 
 # 01 — 캔버스 네이티브 선택 — Dual-World Parity
 

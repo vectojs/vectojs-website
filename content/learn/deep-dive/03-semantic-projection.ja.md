@@ -1,8 +1,8 @@
----
-title: '03 — セマンティック投影 + 仮想化'
-description: '3 ティアの DOM ライフサイクル — Visual、Semantic、Interaction — と、VectoJS がいかに有用なものだけをマテリアライズし、選択可能なものをウィンドウイングし、ロービングフォーカスを正しく保つか。'
-order: 23
----
++++
+title = "03 — セマンティック投影 + 仮想化"
+description = "3 ティアの DOM ライフサイクル — Visual、Semantic、Interaction — と、VectoJS がいかに有用なものだけをマテリアライズし、選択可能なものをウィンドウイングし、ロービングフォーカスを正しく保つか。"
+weight = 23
++++
 
 # 03 — セマンティック投影 + 仮想化
 

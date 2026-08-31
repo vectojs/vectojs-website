@@ -1,9 +1,9 @@
----
-title: '01 — Selección nativa en canvas — Paridad de dos mundos'
-description: 'Por qué el canvas no tiene selección, cómo VectoJS mantiene en paridad el mundo pintado y el mundo de selección del DOM, y cada invariante que lo protege.'
-order: 21
-date: 2026-08-29
----
++++
+title = "01 — Selección nativa en canvas — Paridad de dos mundos"
+description = "Por qué el canvas no tiene selección, cómo VectoJS mantiene en paridad el mundo pintado y el mundo de selección del DOM, y cada invariante que lo protege."
+weight = 21
+date = 2026-08-29
++++
 
 # 01 — Selección nativa en canvas — Paridad de dos mundos
 

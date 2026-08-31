@@ -1,8 +1,8 @@
----
-title: '09 — Three.js / XR 桥接 — 两个坐标世界'
-description: 'VectoJS 2D canvas 契约与 Three.js 3D 空间之间的适配器：CanvasTexture 面板、raycast→UV→scene 映射、离屏焦点/键盘归属，以及 Graph3D 如何展示纯 Three 方案。'
-order: 29
----
++++
+title = "09 — Three.js / XR 桥接 — 两个坐标世界"
+description = "VectoJS 2D canvas 契约与 Three.js 3D 空间之间的适配器：CanvasTexture 面板、raycast→UV→scene 映射、离屏焦点/键盘归属，以及 Graph3D 如何展示纯 Three 方案。"
+weight = 29
++++
 
 # 09 — Three.js / XR 桥接 — 两个坐标世界
 

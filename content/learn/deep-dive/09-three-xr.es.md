@@ -1,8 +1,8 @@
----
-title: '09 — Puente Three.js / XR — Dos mundos de coordenadas'
-description: 'El adaptador entre el contrato de canvas 2D de VectoJS y el espacio 3D de Three.js: paneles CanvasTexture, mapeo raycast→UV→escena, propiedad de foco/teclado offscreen y cómo Graph3D muestra la contraparte puramente Three.'
-order: 29
----
++++
+title = "09 — Puente Three.js / XR — Dos mundos de coordenadas"
+description = "El adaptador entre el contrato de canvas 2D de VectoJS y el espacio 3D de Three.js: paneles CanvasTexture, mapeo raycast→UV→escena, propiedad de foco/teclado offscreen y cómo Graph3D muestra la contraparte puramente Three."
+weight = 29
++++
 
 # 09 — Puente Three.js / XR — Dos mundos de coordenadas
 

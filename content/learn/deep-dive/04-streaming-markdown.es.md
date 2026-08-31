@@ -1,8 +1,8 @@
----
-title: '04 — Markdown en streaming — Reconciliación incremental'
-description: 'Por qué cualquier prefijo puede ser sintaxis incompleta, el lexer de prefijo comprometido, el protocolo delta del worker, la reconciliación token→entidad con mutadores in-place, las trampas O(C·N²) y wrapper-instanceof, y la forma segura de añadir una nueva extensión.'
-order: 24
----
++++
+title = "04 — Markdown en streaming — Reconciliación incremental"
+description = "Por qué cualquier prefijo puede ser sintaxis incompleta, el lexer de prefijo comprometido, el protocolo delta del worker, la reconciliación token→entidad con mutadores in-place, las trampas O(C·N²) y wrapper-instanceof, y la forma segura de añadir una nueva extensión."
+weight = 24
++++
 
 # 04 — Markdown en streaming — Reconciliación incremental
 

@@ -1,8 +1,8 @@
----
-title: '06 — VMT 執行期 — 生命週期 / Dirty / 事件'
-description: 'Virtual Math Tree 執行期：實體生命週期、dirty/失效粒度、world-matrix 組合，以及捕獲/冒泡事件分發 — 包含破壞三個不變量的祖先遍歷與生命週期洩漏陷阱。'
-order: 26
----
++++
+title = "06 — VMT 執行期 — 生命週期 / Dirty / 事件"
+description = "Virtual Math Tree 執行期：實體生命週期、dirty/失效粒度、world-matrix 組合，以及捕獲/冒泡事件分發 — 包含破壞三個不變量的祖先遍歷與生命週期洩漏陷阱。"
+weight = 26
++++
 
 # 06 — VMT 執行期 — 生命週期 / Dirty / 事件
 

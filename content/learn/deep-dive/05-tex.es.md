@@ -1,8 +1,8 @@
----
-title: '05 — TeX sin DOM — Composición y emisión SVG'
-description: 'Por qué el kernel KaTeX → emisor VectoJS → SVG autocontenido, las invariantes de espacio de coordenadas, trampas de geometría elástica y la vía segura hacia un nuevo constructo TeX.'
-order: 25
----
++++
+title = "05 — TeX sin DOM — Composición y emisión SVG"
+description = "Por qué el kernel KaTeX → emisor VectoJS → SVG autocontenido, las invariantes de espacio de coordenadas, trampas de geometría elástica y la vía segura hacia un nuevo constructo TeX."
+weight = 25
++++
 
 # 05 — TeX sin DOM — Composición y emisión SVG
 

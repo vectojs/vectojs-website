@@ -1,8 +1,8 @@
----
-title: '04 — 스트리밍 Markdown — 점진적 Reconcile'
-description: '모든 prefix가 왜 불완전한 문법일 수 있는지, committed-prefix 렉서, 워커 델타 프로토콜, in-place 뮤테이터를 동반한 토큰→엔티티 reconcile, O(C·N²)와 wrapper-instanceof 함정, 그리고 새 확장을 안전하게 추가하는 방법.'
-order: 24
----
++++
+title = "04 — 스트리밍 Markdown — 점진적 Reconcile"
+description = "모든 prefix가 왜 불완전한 문법일 수 있는지, committed-prefix 렉서, 워커 델타 프로토콜, in-place 뮤테이터를 동반한 토큰→엔티티 reconcile, O(C·N²)와 wrapper-instanceof 함정, 그리고 새 확장을 안전하게 추가하는 방법."
+weight = 24
++++
 
 # 04 — 스트리밍 Markdown — 점진적 Reconcile
 

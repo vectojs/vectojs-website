@@ -1,8 +1,8 @@
----
-title: '08 — WASM 加速器 — G1/G2/G3 与比特一致性'
-description: '@vectojs/core 背后不可见的 WASM 后端：G1 世界矩阵、G2 动画批处理、G3 命中网格（及 G4 粒子）、使 SIMD 成为可能的 SoA 存储，以及让 WASM 保持可选的比特一致性契约。'
-order: 28
----
++++
+title = "08 — WASM 加速器 — G1/G2/G3 与比特一致性"
+description = "@vectojs/core 背后不可见的 WASM 后端：G1 世界矩阵、G2 动画批处理、G3 命中网格（及 G4 粒子）、使 SIMD 成为可能的 SoA 存储，以及让 WASM 保持可选的比特一致性契约。"
+weight = 28
++++
 
 # 08 — WASM 加速器 — G1/G2/G3 与比特一致性
 

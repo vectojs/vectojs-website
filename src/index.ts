@@ -27,6 +27,7 @@ import { parseLocale, type Locale } from './i18n/config';
 import { useTranslations } from './i18n/ui';
 import { normalizeTranslationTargets } from './i18n/language-target';
 import { getHomeStrings } from './i18n/home';
+import { articleTitleHeight, articleTitleMetrics } from './article-title-layout';
 
 // withWholeLineProjection MUST be applied to every Text/RichText entity.
 //
@@ -787,16 +788,18 @@ async function renderApp(): Promise<void> {
     let detailY = 0;
     let footerContainer: Container | null = null;
 
+    const titleMetrics = articleTitleMetrics(isMobile);
     const pageTitle = withWholeLineProjection(
       new Text(payload.data?.title || 'Untitled', {
-        font: `800 ${isMobile ? 32 : 40}px Outfit, sans-serif`,
+        font: `800 ${titleMetrics.fontSize}px Outfit, sans-serif`,
         color: colors.strong,
         maxWidth: articleWidth,
+        lineHeight: titleMetrics.lineHeight,
       }),
     );
     pageTitle.setPosition(0, detailY);
     page.add(pageTitle);
-    detailY += pageTitle.height + 24;
+    detailY += articleTitleHeight(pageTitle.height, titleMetrics) + 24;
 
     if (payload.data?.date) {
       const dateText = withWholeLineProjection(

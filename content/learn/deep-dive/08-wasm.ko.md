@@ -1,8 +1,8 @@
----
-title: '08 — WASM 가속기 — G1/G2/G3 & 비트 패리티'
-description: '@vectojs/core 뒤의 보이지 않는 WASM 백엔드: G1 월드 행렬, G2 애니메이션 배치, G3 히트 그리드(및 G4 입자), SIMD를 가능하게 하는 SoA 저장소, WASM을 선택적으로 유지하는 비트 패리티 계약.'
-order: 28
----
++++
+title = "08 — WASM 가속기 — G1/G2/G3 & 비트 패리티"
+description = "@vectojs/core 뒤의 보이지 않는 WASM 백엔드: G1 월드 행렬, G2 애니메이션 배치, G3 히트 그리드(및 G4 입자), SIMD를 가능하게 하는 SoA 저장소, WASM을 선택적으로 유지하는 비트 패리티 계약."
+weight = 28
++++
 
 # 08 — WASM 가속기 — G1/G2/G3 & 비트 패리티
 

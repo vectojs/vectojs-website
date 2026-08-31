@@ -1,8 +1,8 @@
----
-title: '05 — Zero-DOM TeX — 조판 및 SVG 방출'
-description: 'KaTeX 커널 → VectoJS 이미터 → 독립형 SVG가 왜 필요한지, 좌표 공간 불변식, 늘어나는 지오메트리의 함정, 그리고 새 TeX 구문을 안전하게 추가하는 경로.'
-order: 25
----
++++
+title = "05 — Zero-DOM TeX — 조판 및 SVG 방출"
+description = "KaTeX 커널 → VectoJS 이미터 → 독립형 SVG가 왜 필요한지, 좌표 공간 불변식, 늘어나는 지오메트리의 함정, 그리고 새 TeX 구문을 안전하게 추가하는 경로."
+weight = 25
++++
 
 # 05 — Zero-DOM TeX — 조판 및 SVG 방출
 

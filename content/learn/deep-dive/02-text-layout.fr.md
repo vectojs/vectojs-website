@@ -1,8 +1,8 @@
----
-title: '02 — Texte et mise en page : Unicode en pixels'
-description: 'Le pipeline de texte intégral : segmentation, BiDi, mise en forme arabe, remplacement des polices, typographie, saut de ligne, division froid/chaud LayoutEngine, thread de travail et les invariants qui maintiennent la peinture et la mesure en parité.'
-order: 22
----
++++
+title = "02 — Texte et mise en page : Unicode en pixels"
+description = "Le pipeline de texte intégral : segmentation, BiDi, mise en forme arabe, remplacement des polices, typographie, saut de ligne, division froid/chaud LayoutEngine, thread de travail et les invariants qui maintiennent la peinture et la mesure en parité."
+weight = 22
++++
 
 # 02 — Texte et mise en page : Unicode en pixels
 

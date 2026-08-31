@@ -1,8 +1,8 @@
----
-title: '14 — 响应式布局与交互 — 适配视口与输入'
-description: '视口即约束：resize/zoom 重排、Stack/Flow 布局阶段、面板仪表盘、VirtualList 窗口化、ScrollView 物理、ResizablePanel 手柄、叠加层定位与悬停/焦点状态——皆在 VectoJS 的 canvas 原生世界中。'
-order: 34
----
++++
+title = "14 — 响应式布局与交互 — 适配视口与输入"
+description = "视口即约束：resize/zoom 重排、Stack/Flow 布局阶段、面板仪表盘、VirtualList 窗口化、ScrollView 物理、ResizablePanel 手柄、叠加层定位与悬停/焦点状态——皆在 VectoJS 的 canvas 原生世界中。"
+weight = 34
++++
 
 # 14 — 响应式布局与交互 — 适配视口与输入
 

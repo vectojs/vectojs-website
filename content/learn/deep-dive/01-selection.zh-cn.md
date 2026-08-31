@@ -1,9 +1,9 @@
----
-title: '01 — Canvas 原生选区 — 双世界对等'
-description: '为何 canvas 没有选区，VectoJS 如何保持绘制世界与 DOM 选区世界的对等，以及守护它的每一项硬核不变量。'
-order: 21
-date: 2026-08-29
----
++++
+title = "01 — Canvas 原生选区 — 双世界对等"
+description = "为何 canvas 没有选区，VectoJS 如何保持绘制世界与 DOM 选区世界的对等，以及守护它的每一项硬核不变量。"
+weight = 21
+date = 2026-08-29
++++
 
 # 01 — Canvas 原生选区 — 双世界对等
 

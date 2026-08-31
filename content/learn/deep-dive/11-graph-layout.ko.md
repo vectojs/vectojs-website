@@ -1,8 +1,8 @@
----
-title: '11 — 그래프 레이아웃 — 힘 기반 물리 & 벤치마크'
-description: 'ForceLayout2D의 의존성 없는 2D 엔진, Barnes-Hut 쿼드트리와 계층 충돌 그리드, 증분 변경과 핀 계약, VectoForceLayout/D3ForceLayout 3D 패밀리, vectojs-force-rs WASM 커널, 헤드 벤치마크 방법론.'
-order: 31
----
++++
+title = "11 — 그래프 레이아웃 — 힘 기반 물리 & 벤치마크"
+description = "ForceLayout2D의 의존성 없는 2D 엔진, Barnes-Hut 쿼드트리와 계층 충돌 그리드, 증분 변경과 핀 계약, VectoForceLayout/D3ForceLayout 3D 패밀리, vectojs-force-rs WASM 커널, 헤드 벤치마크 방법론."
+weight = 31
++++
 
 # 11 — 그래프 레이아웃 — 힘 기반 물리 & 벤치마크
 

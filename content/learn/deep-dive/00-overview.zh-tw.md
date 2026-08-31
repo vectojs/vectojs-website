@@ -1,19 +1,19 @@
----
-title: '00 — 概覽：VectoJS 的十二個 Boss'
-description: 'VectoJS 十二個深潛 Boss 的導覽指南 — 遊戲地圖、架構不變量、套件依賴與每位新進者的閱讀路徑。'
-order: 20
----
++++
+title = "00 — 概覽：VectoJS 的十六個難題"
+description = "VectoJS 十六篇難題深潛的導覽指南 — 難題地圖、架構不變量、套件依賴與每位新進者的閱讀路徑。"
+weight = 20
++++
 
-# 00 — 概覽：VectoJS 的十二個 Boss
+# 00 — 概覽：VectoJS 的十六個難題
 
-## 遊戲規則
+## 難題地圖
 
-VectoJS 在單一 `<canvas>` 上重新實作了瀏覽器的職責：布局、命中測試、事件分發、文字塑形、裁剪、滾動、無障礙與渲染——全部透過對保留式實體樹的明確數學運算完成。將框架想像成一場擁有 **十二個 Boss** 的遊戲，每個 Boss 守護一個子系統——這些子系統過去由 DOM 免費提供，如今 VectoJS 必須精確實現。你不需要按順序挑戰它們，但在選定對手前必須先看懂地圖。
+VectoJS 在單一 `<canvas>` 上重新實作了瀏覽器的職責：布局、命中測試、事件分發、文字塑形、裁剪、滾動、無障礙與渲染——全部透過對保留式實體樹的明確數學運算完成。這個由十六篇文件組成的系列梳理了框架中最棘手的難題；每篇都聚焦一個過去由 DOM 免費提供、如今 VectoJS 必須精確實現的子系統。你不需要依序解決它們，但在選擇起點前必須先看懂這張地圖。
 
 本文件就是那張地圖。
 
-- **你將在這裡學到**：一張圖看懂執行期架構、套件依賴骨架、每個 Boss 威脅哪個不變量、如何選擇閱讀順序，以及這些深潛系列相對於既有 `content/learn/*` 與 `content/reference/*` 文件的位置。
-- **你不會學到**：任一 Boss 的具體機制。每個深潛各自負責一個 Boss。本概覽負責指路，並提供剛好足夠的脈絡讓你有方向地抵達。
+- **你將在這裡學到**：一張圖看懂執行期架構、套件依賴骨架、每個難題會檢驗哪個不變量、如何選擇閱讀順序，以及這些深潛系列相對於既有 `content/learn/*` 與 `content/reference/*` 文件的位置。
+- **你不會學到**：任一難題的具體機制。每篇專題深潛各自負責一個難題。本概覽負責指路，並提供剛好足夠的脈絡讓你有方向地抵達。
 
 ## 架構一覽
 
@@ -74,11 +74,11 @@ VectoJS 在單一 `<canvas>` 上重新實作了瀏覽器的職責：布局、命
 
 追蹤依賴時需注意兩個消費端陷阱：`references/` 的虛假路徑被硬編碼於 `packages/tex/scripts/vendor-katex.ts`（`--source`）與 `scripts/compare-pretext.ts`（`VECTO_PRETEXT_PATH`）——移動該目錄會靜默中斷（依 `AGENTS.md`）。
 
-## 十二個 Boss 與本概覽
+## 十六個難題一覽
 
-共 13 份文件：本概覽（00）加上每個 Boss 一篇。難度衡量的是「搞砸的難易度」，而非程式碼量。「首次閱讀」指通往*可用* VectoJS 工作的最快路徑；「深潛前置」則是挑戰此 Boss 前應先讀的另一個 Boss。
+共 16 份文件：本概覽（00）加上 15 篇專題難題（01–15）。難度衡量的是「搞砸的難易度」，而非程式碼量。「首次閱讀」指通往*可用* VectoJS 工作的最快路徑；「深潛前置」則是處理此難題前應先讀的其他難題。
 
-| #   | Boss（深潛）                                | Package(s)                                                                    | 難度 | 適合閱讀對象                          | 深潛前置 | 首次閱讀適用…                    |
+| #   | 難題（深潛）                                | Package(s)                                                                    | 難度 | 適合閱讀對象                          | 深潛前置 | 首次閱讀適用…                    |
 | --- | ------------------------------------------- | ----------------------------------------------------------------------------- | ---- | ------------------------------------- | -------- | -------------------------------- |
 | 00  | **概覽與導覽**（本文件）                    | — (meta)                                                                      | ☆    | 所有人，首站                          | —        | 定向                             |
 | 01  | **畫布原生選取** — 雙世界同步               | `core` (`ContentGridProjector`, `ContentProjectionManager`), `text`, `layout` | ★★★★ | 文字/選取/IME、複製/尋找/翻譯         | 02       | 可選取文字、終端機、程式碼編輯器 |
@@ -93,17 +93,20 @@ VectoJS 在單一 `<canvas>` 上重新實作了瀏覽器的職責：布局、命
 | 10  | **確定性影片匯出** — 固定步進時鐘           | `video-exporter`                                                              | ★★   | 離線擷取、重播                        | 06       | 螢幕錄製、模擬匯出               |
 | 11  | **圖佈局** — 力導向與 WASM                  | `graph-layout`, `graph3d`, `knowledge-graph`                                  | ★★   | 圖視覺化、布局調校                    | 06, 08   | 網路/知識圖譜                    |
 | 12  | **DevTools** — 執行期檢視與稽核             | `devtools`, `core` (`frameStats`, `syncA11y`)                                 | ★    | 除錯、CI 稽核                         | 06       | 「這個實體為何在這裡」           |
+| 13  | **樣式與主題** — 數值 VMT 上的 CSS 對等能力 | `styles`, `core`                                                              | ★★   | 樣式、主題與 CSS 遷移                 | 06       | 權杖與主題切換                   |
+| 14  | **響應式布局與互動** — 適應視埠與輸入       | `core`, `ui`, `layout`                                                        | ★★★  | 響應式應用與布局作者                  | 03、06   | 自適應 Canvas UI                 |
+| 15  | **垂直應用** — 圖譜、編輯器、桌面與表格組合 | `knowledge-graph`, `node-editor`, `desktop`, `table`                          | ★★★  | 產品與整合作者                        | 06       | 組合引擎原語                     |
 
 排序說明：
 
-- 若只能選兩篇作為 00 之後的「第二讀」，02 與 06 是最佳選擇——多數其他 Boss 都假設你已讀過其中之一。
+- 若只能選兩篇作為 00 之後的「第二讀」，02 與 06 是最佳選擇——多數其他難題都假設你已讀過其中之一。
 - 03 依賴 06 的 dirty/生命週期機制；04 依賴 02 的塑形/布局；07 與 08 皆依賴 06，因此自然聚集於其後。
 - 08 的難度不在 Rust 語法，而在**位元一致的備援契約**與其建構陷阱（`crates/vectojs-core-rs/build.sh` 中的 `RUSTFLAGS`）。
 - 團隊追蹤器已依序安排 `CTX-0566→…→CTX-0578→CTX-0579`；上表為閱讀順序，允許與建構/發版順序不同。
 
-## 統御所有 Boss 的三個不變量
+## 統御所有難題的三個不變量
 
-每個 Boss 都可能破壞其中之一。若什麼都記不住，請記住這些不變量。
+每個難題都可能破壞其中之一。若什麼都記不住，請記住這些不變量。
 
 ### 1. VMT 生命週期不變量
 
@@ -115,32 +118,32 @@ VectoJS 在單一 `<canvas>` 上重新實作了瀏覽器的職責：布局、命
 
 > 每個**可見且可互動**的實體都有一個**已同步的 a11y 對應物**，其幾何、角色/名稱/狀態與焦點/指標路由皆與畫布真實一致。
 
-破壞時的症狀：Playwright `getByRole` 找不到東西、螢幕閱讀器播報陳舊文字、點擊命中錯誤實體、IME 落在錯誤的輸入框。守衛：`Entity.ts:295` `A11yAttributes`、`Entity.ts:968` `a11yProjection` 模式（`eager`/`onDemand`/`never`）、`Entity.ts:1937` `getA11yAttributes()` 預設值、共用的 `syncA11y` 遍歷（`A11yProjectionManager.ts:30`、`ContentProjectionManager.ts:26`）與 `A11yProjectionManager.ts:227` 陳舊 memo 失效。`onDemand` 具體化與視埠虛擬化是困難所在（Boss 03）——也是多數真實 VectoJS 卡頓的所在。
+破壞時的症狀：Playwright `getByRole` 找不到東西、螢幕閱讀器播報陳舊文字、點擊命中錯誤實體、IME 落在錯誤的輸入框。守衛：`Entity.ts:295` `A11yAttributes`、`Entity.ts:968` `a11yProjection` 模式（`eager`/`onDemand`/`never`）、`Entity.ts:1937` `getA11yAttributes()` 預設值、共用的 `syncA11y` 遍歷（`A11yProjectionManager.ts:30`、`ContentProjectionManager.ts:26`）與 `A11yProjectionManager.ts:227` 陳舊 memo 失效。`onDemand` 具體化與視埠虛擬化是困難所在（難題 03）——也是多數真實 VectoJS 卡頓的所在。
 
 ### 3. 文字度量不變量
 
 > **量一次，多處布局**——並以**真實**字型、在**正確**上下文、以**正確** DPR 進行度量。
 
-破壞時的症狀：文字自其命中框漂移、選取帶按行偏移、CJK 次像素縫隙繪成白線、網頁字型備援靜默改變 advance、DPR 縮放使一個子系統模糊而另一個不模糊。守衛：`packages/text/src/fontMetrics.ts:82` `registerFontMetrics`、`packages/text/src/Typography.ts:111` `ctx.measureText('Mg')` 及其 DOM-free 備援 0.5em、`packages/text/src/measureContext.ts:12` 度量上下文校準、`packages/layout/src/LayoutEngine.ts:808` `LayoutEngine` 冷/熱分離與段落 memo。所有觸及文字的 Boss（01、02、04、05）皆從不同角度重入此不變量。
+破壞時的症狀：文字自其命中框漂移、選取帶按行偏移、CJK 次像素縫隙繪成白線、網頁字型備援靜默改變 advance、DPR 縮放使一個子系統模糊而另一個不模糊。守衛：`packages/text/src/fontMetrics.ts:82` `registerFontMetrics`、`packages/text/src/Typography.ts:111` `ctx.measureText('Mg')` 及其 DOM-free 備援 0.5em、`packages/text/src/measureContext.ts:12` 度量上下文校準、`packages/layout/src/LayoutEngine.ts:808` `LayoutEngine` 冷/熱分離與段落 memo。所有觸及文字的難題（01、02、04、05）皆從不同角度重入此不變量。
 
 在審查期間將此三者作為檢查清單：在核准任何變更前，先問「這可能破壞哪個不變量，又會最先在哪裡顯現？」
 
 ## 本系列與既有文件的關係
 
-| 既有文件                                                                                                                           | 深潛（本系列） | 關係                                                                                                                                                                                                                                                     |
-| ---------------------------------------------------------------------------------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `content/learn/*`（introduction、runtime-architecture、engine-concepts、text-typography、core-scene、accessibility、streaming 等） | 00–12          | **Learn 教你如何*使用* VectoJS**；深潛教你 VectoJS 在該用法*內部如何運作*。先讀對應的 learn 章節會讓對應的 Boss 更容易理解。建議配對：`text-typography` → Boss 02；`core-scene` + `events` → Boss 06；`accessibility` → Boss 03；`streaming` → Boss 04。 |
-| `content/reference/*`（core-a11y、core-entities、core-layout、core-text、ui-markdown、three-adapter、graph-layout 等）             | 00–12          | **Reference 是 API 真相**（props、型別、子路徑）。深潛會引用參考頁面但不重述它們。有疑慮時，以參考簽名為準。                                                                                                                                             |
-| `forge/findings/*` + `forge/baselines/*`                                                                                           | 每個深潛的附錄 | Findings 是**現場筆記**；baselines 是**已度量的證據**。深潛將 findings 綜合成每位 Boss 的單一敘事，並回鏈至取得該主張的 `file:line` 條目。                                                                                                               |
-| `vectojs/AGENTS.md` + `vectojs/README.md`                                                                                          | 00（本文件）   | 套件地圖、建構順序與渲染/互動模型**按字面意義抄自 AGENTS.md 與 README.md**，並對照 `package.json` 驗證——非憑空捏造。                                                                                                                                     |
+| 既有文件                                                                                                                           | 深潛（本系列） | 關係                                                                                                                                                                                                                                                   |
+| ---------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `content/learn/*`（introduction、runtime-architecture、engine-concepts、text-typography、core-scene、accessibility、streaming 等） | 00–15          | **Learn 教你如何*使用* VectoJS**；深潛教你 VectoJS 在該用法*內部如何運作*。先讀對應的 learn 章節會讓對應的難題更容易理解。建議配對：`text-typography` → 難題 02；`core-scene` + `events` → 難題 06；`accessibility` → 難題 03；`streaming` → 難題 04。 |
+| `content/reference/*`（core-a11y、core-entities、core-layout、core-text、ui-markdown、three-adapter、graph-layout 等）             | 00–15          | **Reference 是 API 真相**（props、型別、子路徑）。深潛會引用參考頁面但不重述它們。有疑慮時，以參考簽名為準。                                                                                                                                           |
+| `forge/findings/*` + `forge/baselines/*`                                                                                           | 每個深潛的附錄 | Findings 是**現場筆記**；baselines 是**已度量的證據**。深潛將 findings 綜合成每個難題的單一敘事，並回鏈至取得該主張的 `file:line` 條目。                                                                                                               |
+| `vectojs/AGENTS.md` + `vectojs/README.md`                                                                                          | 00（本文件）   | 套件地圖、建構順序與渲染/互動模型**按字面意義抄自 AGENTS.md 與 README.md**，並對照 `package.json` 驗證——非憑空捏造。                                                                                                                                   |
 
 規則：**權威方優先**。若同一事實同時出現在 learn/reference 頁面與深潛中，則 learn/reference 頁面為修正目標。切勿在 `vectojs-docs/content` 與 `vectojs-website/src/content` 之間執行 `cp -r`（依 `AGENTS.md`——格式漂移 + 408 個 i18n 檔案）。
 
 ## 閱讀路徑 — 選擇你的路線
 
-**「我剛加入」** — 00 → 02（文字/布局）→ 06（VMT 生命週期）→ 07（渲染器）→ 最接近你首個任務的 Boss。兩個下午，足以交付一個真實 PR。
+**「我剛加入」** — 00 → 02（文字/布局）→ 06（VMT 生命週期）→ 07（渲染器）→ 最接近你首個任務的難題。兩個下午，足以交付一個真實 PR。
 
-**「我負責某個功能」** — 00 → 你的 Boss → 其深潛前置列 → 對應的 `content/learn/*` 章節 → 該 Boss 的 `forge/findings/<area>.md`。審查前再瀏覽一次不變量章節。
+**「我負責某個功能」** — 00 → 你的難題 → 其深潛前置列 → 對應的 `content/learn/*` 章節 → 該難題的 `forge/findings/<area>.md`。審查前再瀏覽一次不變量章節。
 
 **「我負責效能」** — 00 → 06 → 07 → 08（WASM G1/G2/G3）→ 11（圖）— 接著 `benchmarks/run-browsers.sh` 與 `forge/baselines/*.json`。只有 `run-browsers.sh` 的數字可被引用。
 
@@ -159,8 +162,8 @@ VectoJS 在單一 `<canvas>` 上重新實作了瀏覽器的職責：布局、命
 
 ## 下一步
 
-依上方選擇你的路徑。常見的下一讀是 **Boss 01 — 畫布原生選取**（若你觸及文字），或 **Boss 06 — VMT 執行期**（若你觸及生命週期/事件）——兩者皆是通往較難配對（02、08）的短捷徑。
+依上方選擇你的路徑。常見的下一讀是 **難題 01 — 畫布原生選取**（若你觸及文字），或 **難題 06 — VMT 執行期**（若你觸及生命週期/事件）——兩者皆是通往較難配對（02、08）的短捷徑。
 
 ---
 
-*Series: 00 Overview → 01 Selection → 02 Text+Layout → 03 Projection+Virtualization → 04 Streaming Markdown → 05 TeX → 06 VMT Runtime → 07 Renderer → 08 WASM G1/G2/G3 → 09 Three/XR → 10 Video Export → 11 Graph Layout → 12 DevTools → 99 Synthesis.*
+*系列：00 概覽 → 01 選取 → 02 文字+布局 → 03 投影+虛擬化 → 04 串流 Markdown → 05 TeX → 06 VMT 執行期 → 07 渲染器 → 08 WASM G1/G2/G3 → 09 Three/XR → 10 影片匯出 → 11 圖布局 → 12 DevTools → 13 樣式 → 14 響應式 → 15 垂直應用 → 99 綜合。*

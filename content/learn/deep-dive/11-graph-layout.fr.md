@@ -1,8 +1,8 @@
----
-title: '11 — Agencement de graphes — Physique à forces et benchmarking'
-description: 'Le moteur 2D sans dépendance de ForceLayout2D, le quadtree Barnes-Hut et la grille de collision étagée, la mutation incrémentale et les contrats de pins, la famille 3D VectoForceLayout/D3ForceLayout, le noyau WASM vectojs-force-rs et la méthodologie de benchmark headed.'
-order: 31
----
++++
+title = "11 — Agencement de graphes — Physique à forces et benchmarking"
+description = "Le moteur 2D sans dépendance de ForceLayout2D, le quadtree Barnes-Hut et la grille de collision étagée, la mutation incrémentale et les contrats de pins, la famille 3D VectoForceLayout/D3ForceLayout, le noyau WASM vectojs-force-rs et la méthodologie de benchmark headed."
+weight = 31
++++
 
 # 11 — Agencement de graphes — Physique à forces et benchmarking
 

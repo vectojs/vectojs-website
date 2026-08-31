@@ -1,8 +1,8 @@
----
-title: '06 — VMT Runtime — Cycle de vie / Dirty / Événements'
-description: "Le runtime Virtual Math Tree : cycle de vie des entités, granularité dirty/invalidation, composition de la world-matrix et dispatch capture/bubble — avec les pièges des walks d'ancêtres et des fuites de cycle de vie qui brisent les trois invariants."
-order: 26
----
++++
+title = "06 — VMT Runtime — Cycle de vie / Dirty / Événements"
+description = "Le runtime Virtual Math Tree : cycle de vie des entités, granularité dirty/invalidation, composition de la world-matrix et dispatch capture/bubble — avec les pièges des walks d'ancêtres et des fuites de cycle de vie qui brisent les trois invariants."
+weight = 26
++++
 
 # 06 — VMT Runtime — Cycle de vie / Dirty / Événements
 

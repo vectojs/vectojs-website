@@ -1,8 +1,8 @@
----
-title: '14 — レスポンシブ・レイアウトとインタラクション — ビューポートと入力への適応'
-description: '制約としてのビューポート: リサイズ／ズームのリフロー、Stack／Flow レイアウトパス、パネルダッシュボード、VirtualList ウィンドウ、ScrollView 物理演算、ResizablePanel ハンドル、オーバーレイ配置、ホバー／フォーカス状態 — すべて VectoJS の canvas ネイティブな世界で。'
-order: 34
----
++++
+title = "14 — レスポンシブ・レイアウトとインタラクション — ビューポートと入力への適応"
+description = "制約としてのビューポート: リサイズ／ズームのリフロー、Stack／Flow レイアウトパス、パネルダッシュボード、VirtualList ウィンドウ、ScrollView 物理演算、ResizablePanel ハンドル、オーバーレイ配置、ホバー／フォーカス状態 — すべて VectoJS の canvas ネイティブな世界で。"
+weight = 34
++++
 
 # 14 — レスポンシブ・レイアウトとインタラクション — ビューポートと入力への適応
 

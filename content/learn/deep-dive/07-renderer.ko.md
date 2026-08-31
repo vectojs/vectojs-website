@@ -1,8 +1,8 @@
----
-title: '07 — 렌더러 — 좌표 / 클리핑 / DPR 패리티'
-description: 'Canvas2D, WebGL, WebGPU, SVG, Three.js 전반의 다중 백엔드 패리티: IRenderer 계약, 좌표 공간, 클립 의미, DPR/백업 저장소 제한, 뷰포트 제거 및 드로우 콜 배치 — 동일한 씬이 다른 백엔드에서 다르게 보이게 하는 모든 함정.'
-order: 27
----
++++
+title = "07 — 렌더러 — 좌표 / 클리핑 / DPR 패리티"
+description = "Canvas2D, WebGL, WebGPU, SVG, Three.js 전반의 다중 백엔드 패리티: IRenderer 계약, 좌표 공간, 클립 의미, DPR/백업 저장소 제한, 뷰포트 제거 및 드로우 콜 배치 — 동일한 씬이 다른 백엔드에서 다르게 보이게 하는 모든 함정."
+weight = 27
++++
 
 # 07 — 렌더러 — 좌표 / 클리핑 / DPR 패리티
 

@@ -1,8 +1,8 @@
----
-title: '07 — 渲染器 — 座標 / 裁剪 / DPR 一致性'
-description: '跨 Canvas2D、WebGL、WebGPU、SVG 與 Three 的多後端一致性：IRenderer 契約、座標空間、裁剪語意、DPR/後備儲存上限、視埠剔除與繪製呼叫批次 — 以及使同一場景在不同後端看似不同的每個陷阱。'
-order: 27
----
++++
+title = "07 — 渲染器 — 座標 / 裁剪 / DPR 一致性"
+description = "跨 Canvas2D、WebGL、WebGPU、SVG 與 Three 的多後端一致性：IRenderer 契約、座標空間、裁剪語意、DPR/後備儲存上限、視埠剔除與繪製呼叫批次 — 以及使同一場景在不同後端看似不同的每個陷阱。"
+weight = 27
++++
 
 # 07 — 渲染器 — 座標 / 裁剪 / DPR 一致性
 

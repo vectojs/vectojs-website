@@ -1,8 +1,8 @@
----
-title: '15 — Apps Verticales — Knowledge Graph, Node Editor, Desktop y Table'
-description: 'Cómo los paquetes verticales componen primitivas del motor — knowledge-graph sobre graph3d/force layout, comandos e historial de node-editor, gestión de ventanas de desktop y virtualización de tablas — y dónde las trampas de app difieren de los defectos del motor.'
-order: 35
----
++++
+title = "15 — Apps Verticales — Knowledge Graph, Node Editor, Desktop y Table"
+description = "Cómo los paquetes verticales componen primitivas del motor — knowledge-graph sobre graph3d/force layout, comandos e historial de node-editor, gestión de ventanas de desktop y virtualización de tablas — y dónde las trampas de app difieren de los defectos del motor."
+weight = 35
++++
 
 # 15 — Apps Verticales — Knowledge Graph, Node Editor, Desktop y Table
 

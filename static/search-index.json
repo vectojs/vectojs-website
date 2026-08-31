@@ -31,12 +31,6 @@
   },
   {
     "title": "@vectojs/devtools",
-    "href": "/reference/devtools/",
-    "section": "reference",
-    "lang": "en"
-  },
-  {
-    "title": "@vectojs/devtools",
     "href": "/es/reference/devtools/",
     "section": "reference",
     "lang": "es"
@@ -58,6 +52,12 @@
     "href": "/ko/reference/devtools/",
     "section": "reference",
     "lang": "ko"
+  },
+  {
+    "title": "@vectojs/devtools",
+    "href": "/reference/devtools/",
+    "section": "reference",
+    "lang": "en"
   },
   {
     "title": "@vectojs/devtools",
@@ -97,6 +97,12 @@
   },
   {
     "title": "@vectojs/graph-layout",
+    "href": "/reference/graph-layout/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "@vectojs/graph-layout",
     "href": "/zh-cn/reference/graph-layout/",
     "section": "reference",
     "lang": "zh-cn"
@@ -106,18 +112,6 @@
     "href": "/zh-tw/reference/graph-layout/",
     "section": "reference",
     "lang": "zh-tw"
-  },
-  {
-    "title": "@vectojs/graph-layout",
-    "href": "/reference/graph-layout/",
-    "section": "reference",
-    "lang": "en"
-  },
-  {
-    "title": "@vectojs/graph3d",
-    "href": "/reference/graph3d/",
-    "section": "reference",
-    "lang": "en"
   },
   {
     "title": "@vectojs/graph3d",
@@ -142,6 +136,12 @@
     "href": "/ko/reference/graph3d/",
     "section": "reference",
     "lang": "ko"
+  },
+  {
+    "title": "@vectojs/graph3d",
+    "href": "/reference/graph3d/",
+    "section": "reference",
+    "lang": "en"
   },
   {
     "title": "@vectojs/graph3d",
@@ -181,6 +181,12 @@
   },
   {
     "title": "@vectojs/knowledge-graph/model",
+    "href": "/reference/knowledge-graph-model/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "@vectojs/knowledge-graph/model",
     "href": "/zh-cn/reference/knowledge-graph-model/",
     "section": "reference",
     "lang": "zh-cn"
@@ -190,12 +196,6 @@
     "href": "/zh-tw/reference/knowledge-graph-model/",
     "section": "reference",
     "lang": "zh-tw"
-  },
-  {
-    "title": "@vectojs/knowledge-graph/model",
-    "href": "/reference/knowledge-graph-model/",
-    "section": "reference",
-    "lang": "en"
   },
   {
     "title": "@vectojs/node-editor",
@@ -346,6 +346,678 @@
     "title": "@vectojs/video-exporter",
     "href": "/zh-tw/reference/video-exporter/",
     "section": "reference",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "00 — Overview: The Sixteen Challenges of VectoJS",
+    "href": "/learn/deep-dive/00-overview/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "00 — Visión general: Los dieciséis desafíos de VectoJS",
+    "href": "/es/learn/deep-dive/00-overview/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "00 — Vue d'ensemble : Les seize défis de VectoJS",
+    "href": "/fr/learn/deep-dive/00-overview/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "00 — 개요: VectoJS의 16가지 난제",
+    "href": "/ko/learn/deep-dive/00-overview/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "00 — 总览：VectoJS 的十六个难题",
+    "href": "/zh-cn/learn/deep-dive/00-overview/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "00 — 概要: VectoJS の 16 の難題",
+    "href": "/ja/learn/deep-dive/00-overview/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "00 — 概覽：VectoJS 的十六個難題",
+    "href": "/zh-tw/learn/deep-dive/00-overview/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "01 — Canvas ネイティブな選択 — 二重世界パリティ",
+    "href": "/ja/learn/deep-dive/01-selection/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "01 — Canvas 原生选区 — 双世界对等",
+    "href": "/zh-cn/learn/deep-dive/01-selection/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "01 — Canvas-Native Selection — Dual-World Parity",
+    "href": "/learn/deep-dive/01-selection/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "01 — Selección nativa en canvas — Paridad de dos mundos",
+    "href": "/es/learn/deep-dive/01-selection/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "01 — Sélection Canvas-Native — Parité Dual-World",
+    "href": "/fr/learn/deep-dive/01-selection/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "01 — 캔버스 네이티브 선택 — Dual-World Parity",
+    "href": "/ko/learn/deep-dive/01-selection/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "01 — 畫布原生選取 — 雙世界一致性",
+    "href": "/zh-tw/learn/deep-dive/01-selection/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "02 — Text & Layout: Unicode to Pixels",
+    "href": "/learn/deep-dive/02-text-layout/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "02 — Texte et mise en page : Unicode en pixels",
+    "href": "/fr/learn/deep-dive/02-text-layout/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "02 — Texto y Layout: de Unicode a píxeles",
+    "href": "/es/learn/deep-dive/02-text-layout/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "02 — 텍스트와 레이아웃: Unicode부터 픽셀까지",
+    "href": "/ko/learn/deep-dive/02-text-layout/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "02 — テキストとレイアウト: Unicode からピクセルまで",
+    "href": "/ja/learn/deep-dive/02-text-layout/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "02 — 文字與布局：從 Unicode 到像素",
+    "href": "/zh-tw/learn/deep-dive/02-text-layout/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "02 — 文本与布局：从 Unicode 到像素",
+    "href": "/zh-cn/learn/deep-dive/02-text-layout/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "03 — Projection sémantique + Virtualisation",
+    "href": "/fr/learn/deep-dive/03-semantic-projection/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "03 — Proyección semántica + Virtualización",
+    "href": "/es/learn/deep-dive/03-semantic-projection/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "03 — Semantic Projection + Virtualization",
+    "href": "/learn/deep-dive/03-semantic-projection/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "03 — 의미 투영 + 가상화",
+    "href": "/ko/learn/deep-dive/03-semantic-projection/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "03 — セマンティック投影 + 仮想化",
+    "href": "/ja/learn/deep-dive/03-semantic-projection/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "03 — 語意投射與虛擬化",
+    "href": "/zh-tw/learn/deep-dive/03-semantic-projection/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "03 — 语义投影与虚拟化",
+    "href": "/zh-cn/learn/deep-dive/03-semantic-projection/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "04 — Markdown en streaming — Reconciliación incremental",
+    "href": "/es/learn/deep-dive/04-streaming-markdown/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "04 — Streaming Markdown — Incremental Reconcile",
+    "href": "/learn/deep-dive/04-streaming-markdown/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "04 — Streaming Markdown — Réconciliation incrémentielle",
+    "href": "/fr/learn/deep-dive/04-streaming-markdown/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "04 — 스트리밍 Markdown — 점진적 Reconcile",
+    "href": "/ko/learn/deep-dive/04-streaming-markdown/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "04 — ストリーミング Markdown — インクリメンタルなリコンサイル",
+    "href": "/ja/learn/deep-dive/04-streaming-markdown/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "04 — 串流 Markdown — 增量調和",
+    "href": "/zh-tw/learn/deep-dive/04-streaming-markdown/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "04 — 流式 Markdown — 增量调和",
+    "href": "/zh-cn/learn/deep-dive/04-streaming-markdown/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "05 — TeX sin DOM — Composición y emisión SVG",
+    "href": "/es/learn/deep-dive/05-tex/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "05 — Zero-DOM TeX — Composition et émission SVG",
+    "href": "/fr/learn/deep-dive/05-tex/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "05 — Zero-DOM TeX — Typesetting & SVG Emission",
+    "href": "/learn/deep-dive/05-tex/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "05 — Zero-DOM TeX — 조판 및 SVG 방출",
+    "href": "/ko/learn/deep-dive/05-tex/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "05 — Zero-DOM TeX — 組版と SVG 出力",
+    "href": "/ja/learn/deep-dive/05-tex/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "05 — 零 DOM TeX — 排版与 SVG 发射",
+    "href": "/zh-cn/learn/deep-dive/05-tex/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "05 — 零 DOM TeX — 排版與 SVG 發射",
+    "href": "/zh-tw/learn/deep-dive/05-tex/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "06 — Runtime del VMT — Ciclo de vida / Dirty / Eventos",
+    "href": "/es/learn/deep-dive/06-vmt-runtime/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "06 — VMT Runtime — Cycle de vie / Dirty / Événements",
+    "href": "/fr/learn/deep-dive/06-vmt-runtime/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "06 — VMT Runtime — Lifecycle / Dirty / Events",
+    "href": "/learn/deep-dive/06-vmt-runtime/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "06 — VMT Runtime — 라이프사이클 / 더티 / 이벤트",
+    "href": "/ko/learn/deep-dive/06-vmt-runtime/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "06 — VMT ランタイム — ライフサイクル / Dirty / イベント",
+    "href": "/ja/learn/deep-dive/06-vmt-runtime/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "06 — VMT 執行期 — 生命週期 / Dirty / 事件",
+    "href": "/zh-tw/learn/deep-dive/06-vmt-runtime/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "06 — VMT 运行时 — 生命周期 / 脏标记 / 事件",
+    "href": "/zh-cn/learn/deep-dive/06-vmt-runtime/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "07 — Renderer — Coordenadas / Clipping / Paridad DPR",
+    "href": "/es/learn/deep-dive/07-renderer/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "07 — Renderer — Coordinates / Clipping / DPR Parity",
+    "href": "/learn/deep-dive/07-renderer/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "07 — Renderer — Coordonnées / Clipping / Parité DPR",
+    "href": "/fr/learn/deep-dive/07-renderer/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "07 — Renderer — 座標 / クリッピング / DPR 一貫性",
+    "href": "/ja/learn/deep-dive/07-renderer/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "07 — 렌더러 — 좌표 / 클리핑 / DPR 패리티",
+    "href": "/ko/learn/deep-dive/07-renderer/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "07 — 渲染器 — 坐标 / 裁剪 / DPR 一致性",
+    "href": "/zh-cn/learn/deep-dive/07-renderer/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "07 — 渲染器 — 座標 / 裁剪 / DPR 一致性",
+    "href": "/zh-tw/learn/deep-dive/07-renderer/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "08 — Accélérateurs WASM — G1/G2/G3 & parité binaire",
+    "href": "/fr/learn/deep-dive/08-wasm/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "08 — Aceleradores WASM — G1/G2/G3 y paridad de bits",
+    "href": "/es/learn/deep-dive/08-wasm/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "08 — WASM Accelerators — G1/G2/G3 & Bit-Parity",
+    "href": "/learn/deep-dive/08-wasm/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "08 — WASM 가속기 — G1/G2/G3 & 비트 패리티",
+    "href": "/ko/learn/deep-dive/08-wasm/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "08 — WASM アクセラレータ — G1/G2/G3 とビットパリティ",
+    "href": "/ja/learn/deep-dive/08-wasm/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "08 — WASM 加速器 — G1/G2/G3 与比特一致性",
+    "href": "/zh-cn/learn/deep-dive/08-wasm/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "08 — WASM 加速器 — G1/G2/G3 與位元一致性",
+    "href": "/zh-tw/learn/deep-dive/08-wasm/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "09 — Pont Three.js / XR — Deux mondes de coordonnées",
+    "href": "/fr/learn/deep-dive/09-three-xr/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "09 — Puente Three.js / XR — Dos mundos de coordenadas",
+    "href": "/es/learn/deep-dive/09-three-xr/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "09 — Three.js / XR Bridge — Two Coordinate Worlds",
+    "href": "/learn/deep-dive/09-three-xr/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "09 — Three.js / XR 브리지 — 두 좌표 세계",
+    "href": "/ko/learn/deep-dive/09-three-xr/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "09 — Three.js / XR ブリッジ — 2 つの座標世界",
+    "href": "/ja/learn/deep-dive/09-three-xr/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "09 — Three.js / XR 桥接 — 两个坐标世界",
+    "href": "/zh-cn/learn/deep-dive/09-three-xr/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "09 — Three.js / XR 橋接 — 兩個座標世界",
+    "href": "/zh-tw/learn/deep-dive/09-three-xr/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "10 — Deterministic Video Export — Fixed-Step Capture",
+    "href": "/learn/deep-dive/10-video-exporter/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "10 — Export vidéo déterministe — Capture à pas fixe",
+    "href": "/fr/learn/deep-dive/10-video-exporter/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "10 — Exportación de vídeo determinista — Captura de paso fijo",
+    "href": "/es/learn/deep-dive/10-video-exporter/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "10 — 결정적 비디오 내보내기 — 고정 단계 캡처",
+    "href": "/ko/learn/deep-dive/10-video-exporter/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "10 — 決定論的ビデオ書き出し — 固定ステップキャプチャ",
+    "href": "/ja/learn/deep-dive/10-video-exporter/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "10 — 确定性视频导出 — 固定步进捕获",
+    "href": "/zh-cn/learn/deep-dive/10-video-exporter/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "10 — 確定性影片匯出 — 固定步進擷取",
+    "href": "/zh-tw/learn/deep-dive/10-video-exporter/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "11 — Agencement de graphes — Physique à forces et benchmarking",
+    "href": "/fr/learn/deep-dive/11-graph-layout/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "11 — Graph Layout — Force-Directed Physics & Benchmarking",
+    "href": "/learn/deep-dive/11-graph-layout/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "11 — Layout de Grafos — Física Dirigida por Fuerzas y Benchmarking",
+    "href": "/es/learn/deep-dive/11-graph-layout/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "11 — 그래프 레이아웃 — 힘 기반 물리 & 벤치마크",
+    "href": "/ko/learn/deep-dive/11-graph-layout/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "11 — グラフレイアウト — 力指向物理演算とベンチマーク",
+    "href": "/ja/learn/deep-dive/11-graph-layout/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "11 — 图布局 — 力导向物理与基准测试",
+    "href": "/zh-cn/learn/deep-dive/11-graph-layout/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "11 — 圖佈局 — 力導向物理與基準測試",
+    "href": "/zh-tw/learn/deep-dive/11-graph-layout/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "12 — DevTools — Inspección en Runtime y Auditoría",
+    "href": "/es/learn/deep-dive/12-devtools/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "12 — DevTools — Introspection runtime et audits",
+    "href": "/fr/learn/deep-dive/12-devtools/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "12 — DevTools — Runtime Introspection & Auditing",
+    "href": "/learn/deep-dive/12-devtools/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "12 — DevTools — ランタイム内省と監査",
+    "href": "/ja/learn/deep-dive/12-devtools/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "12 — DevTools — 執行期檢視與稽核",
+    "href": "/zh-tw/learn/deep-dive/12-devtools/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "12 — DevTools — 运行时自检与审计",
+    "href": "/zh-cn/learn/deep-dive/12-devtools/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "12 — 개발 도구 — 런타임 검사 및 감사",
+    "href": "/ko/learn/deep-dive/12-devtools/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "13 — Estilos y Theming — Paridad CSS sobre el VMT Numérico",
+    "href": "/es/learn/deep-dive/13-styles/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "13 — Styles & Thématisation — Parité CSS sur le VMT numérique",
+    "href": "/fr/learn/deep-dive/13-styles/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "13 — Styles & Theming — CSS Parity on the Numeric VMT",
+    "href": "/learn/deep-dive/13-styles/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "13 — 스타일 & 테마 — 숫자 VMT 위의 CSS 패리티",
+    "href": "/ko/learn/deep-dive/13-styles/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "13 — スタイルとテーマ — 数値 VMT 上の CSS 互換",
+    "href": "/ja/learn/deep-dive/13-styles/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "13 — 样式与主题 — 数值 VMT 上的 CSS 对等",
+    "href": "/zh-cn/learn/deep-dive/13-styles/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "13 — 樣式與主題 — 數值 VMT 上的 CSS 一致性",
+    "href": "/zh-tw/learn/deep-dive/13-styles/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "14 — Layout responsive et interaction — Adaptation au viewport et aux entrées",
+    "href": "/fr/learn/deep-dive/14-responsive/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "14 — Layout Responsivo e Interacción — Adaptación a Viewport e Input",
+    "href": "/es/learn/deep-dive/14-responsive/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "14 — Responsive Layout & Interaction — Adapting to Viewport & Input",
+    "href": "/learn/deep-dive/14-responsive/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "14 — 반응형 레이아웃 & 상호작용 — 뷰포트 및 입력 적응",
+    "href": "/ko/learn/deep-dive/14-responsive/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "14 — レスポンシブ・レイアウトとインタラクション — ビューポートと入力への適応",
+    "href": "/ja/learn/deep-dive/14-responsive/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "14 — 响应式布局与交互 — 适配视口与输入",
+    "href": "/zh-cn/learn/deep-dive/14-responsive/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "14 — 響應式布局與互動 — 適配視埠與輸入",
+    "href": "/zh-tw/learn/deep-dive/14-responsive/",
+    "section": "learn",
+    "lang": "zh-tw"
+  },
+  {
+    "title": "15 — Apps verticales — Graphe de connaissances, éditeur de nœuds, bureau et table",
+    "href": "/fr/learn/deep-dive/15-vertical-apps/",
+    "section": "learn",
+    "lang": "fr"
+  },
+  {
+    "title": "15 — Apps Verticales — Knowledge Graph, Node Editor, Desktop y Table",
+    "href": "/es/learn/deep-dive/15-vertical-apps/",
+    "section": "learn",
+    "lang": "es"
+  },
+  {
+    "title": "15 — Vertical Apps — Knowledge Graph, Node Editor, Desktop & Table",
+    "href": "/learn/deep-dive/15-vertical-apps/",
+    "section": "learn",
+    "lang": "en"
+  },
+  {
+    "title": "15 — 수직 앱 — 지식 그래프, 노드 편집기, 데스크톱 & 테이블",
+    "href": "/ko/learn/deep-dive/15-vertical-apps/",
+    "section": "learn",
+    "lang": "ko"
+  },
+  {
+    "title": "15 — バーティカルアプリ — ナレッジグラフ、ノードエディタ、デスクトップとテーブル",
+    "href": "/ja/learn/deep-dive/15-vertical-apps/",
+    "section": "learn",
+    "lang": "ja"
+  },
+  {
+    "title": "15 — 垂直应用 — 知识图谱、节点编辑器、桌面与表格",
+    "href": "/zh-cn/learn/deep-dive/15-vertical-apps/",
+    "section": "learn",
+    "lang": "zh-cn"
+  },
+  {
+    "title": "15 — 垂直應用 — 知識圖譜、節點編輯器、桌面與表格",
+    "href": "/zh-tw/learn/deep-dive/15-vertical-apps/",
+    "section": "learn",
     "lang": "zh-tw"
   },
   {
@@ -519,18 +1191,6 @@
   },
   {
     "title": "ComputeParticleEntity",
-    "href": "/reference/core-particles/",
-    "section": "reference",
-    "lang": "en"
-  },
-  {
-    "title": "ComputeParticleEntity",
-    "href": "/zh-tw/reference/core-particles/",
-    "section": "reference",
-    "lang": "zh-tw"
-  },
-  {
-    "title": "ComputeParticleEntity",
     "href": "/ja/reference/core-particles/",
     "section": "reference",
     "lang": "ja"
@@ -543,9 +1203,21 @@
   },
   {
     "title": "ComputeParticleEntity",
+    "href": "/reference/core-particles/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
+    "title": "ComputeParticleEntity",
     "href": "/zh-cn/reference/core-particles/",
     "section": "reference",
     "lang": "zh-cn"
+  },
+  {
+    "title": "ComputeParticleEntity",
+    "href": "/zh-tw/reference/core-particles/",
+    "section": "reference",
+    "lang": "zh-tw"
   },
   {
     "title": "Conceptos del Motor",
@@ -770,11 +1442,11 @@
     "section": "learn",
     "lang": "en"
   },
-  { "title": "Entity", "href": "/reference/core-entity/", "section": "reference", "lang": "en" },
   { "title": "Entity", "href": "/es/reference/core-entity/", "section": "reference", "lang": "es" },
   { "title": "Entity", "href": "/fr/reference/core-entity/", "section": "reference", "lang": "fr" },
   { "title": "Entity", "href": "/ja/reference/core-entity/", "section": "reference", "lang": "ja" },
   { "title": "Entity", "href": "/ko/reference/core-entity/", "section": "reference", "lang": "ko" },
+  { "title": "Entity", "href": "/reference/core-entity/", "section": "reference", "lang": "en" },
   {
     "title": "Entity",
     "href": "/zh-cn/reference/core-entity/",
@@ -815,8 +1487,8 @@
   { "title": "FAQ", "href": "/fr/reference/faq/", "section": "reference", "lang": "fr" },
   { "title": "FAQ", "href": "/ja/reference/faq/", "section": "reference", "lang": "ja" },
   { "title": "FAQ", "href": "/ko/reference/faq/", "section": "reference", "lang": "ko" },
-  { "title": "FAQ", "href": "/zh-cn/reference/faq/", "section": "reference", "lang": "zh-cn" },
   { "title": "FAQ", "href": "/reference/faq/", "section": "reference", "lang": "en" },
+  { "title": "FAQ", "href": "/zh-cn/reference/faq/", "section": "reference", "lang": "zh-cn" },
   {
     "title": "Física y Animación",
     "href": "/es/learn/physics-engine/",
@@ -975,16 +1647,15 @@
   },
   {
     "title": "Markdown",
-    "href": "/fr/reference/ui-markdown/",
-    "section": "reference",
-    "lang": "fr"
-  },
-  { "title": "Markdown", "href": "/reference/ui-markdown/", "section": "reference", "lang": "en" },
-  {
-    "title": "Markdown",
     "href": "/es/reference/ui-markdown/",
     "section": "reference",
     "lang": "es"
+  },
+  {
+    "title": "Markdown",
+    "href": "/fr/reference/ui-markdown/",
+    "section": "reference",
+    "lang": "fr"
   },
   {
     "title": "Markdown",
@@ -998,6 +1669,7 @@
     "section": "reference",
     "lang": "ko"
   },
+  { "title": "Markdown", "href": "/reference/ui-markdown/", "section": "reference", "lang": "en" },
   {
     "title": "Markdown",
     "href": "/zh-cn/reference/ui-markdown/",
@@ -1075,8 +1747,8 @@
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "Particle Systems", "href": "/learn/particles/", "section": "learn", "lang": "en" },
   { "title": "Particle Systems", "href": "/ja/learn/particles/", "section": "learn", "lang": "ja" },
+  { "title": "Particle Systems", "href": "/learn/particles/", "section": "learn", "lang": "en" },
   { "title": "Performance", "href": "/fr/learn/performance/", "section": "learn", "lang": "fr" },
   { "title": "Performance", "href": "/ja/learn/performance/", "section": "learn", "lang": "ja" },
   { "title": "Performance", "href": "/learn/performance/", "section": "learn", "lang": "en" },
@@ -1197,11 +1869,11 @@
     "section": "learn",
     "lang": "en"
   },
-  { "title": "Scene", "href": "/reference/core-scene/", "section": "reference", "lang": "en" },
   { "title": "Scene", "href": "/es/reference/core-scene/", "section": "reference", "lang": "es" },
   { "title": "Scene", "href": "/fr/reference/core-scene/", "section": "reference", "lang": "fr" },
   { "title": "Scene", "href": "/ja/reference/core-scene/", "section": "reference", "lang": "ja" },
   { "title": "Scene", "href": "/ko/reference/core-scene/", "section": "reference", "lang": "ko" },
+  { "title": "Scene", "href": "/reference/core-scene/", "section": "reference", "lang": "en" },
   {
     "title": "Scene",
     "href": "/zh-cn/reference/core-scene/",
@@ -1276,15 +1948,15 @@
   { "title": "Text & Bidi", "href": "/reference/core-text/", "section": "reference", "lang": "en" },
   {
     "title": "Text & Bidi",
-    "href": "/zh-tw/reference/core-text/",
-    "section": "reference",
-    "lang": "zh-tw"
-  },
-  {
-    "title": "Text & Bidi",
     "href": "/zh-cn/reference/core-text/",
     "section": "reference",
     "lang": "zh-cn"
+  },
+  {
+    "title": "Text & Bidi",
+    "href": "/zh-tw/reference/core-text/",
+    "section": "reference",
+    "lang": "zh-tw"
   },
   {
     "title": "Text & Typography",
@@ -1366,12 +2038,6 @@
   },
   {
     "title": "ThreeRenderer",
-    "href": "/reference/three-renderer/",
-    "section": "reference",
-    "lang": "en"
-  },
-  {
-    "title": "ThreeRenderer",
     "href": "/es/reference/three-renderer/",
     "section": "reference",
     "lang": "es"
@@ -1393,6 +2059,12 @@
     "href": "/ko/reference/three-renderer/",
     "section": "reference",
     "lang": "ko"
+  },
+  {
+    "title": "ThreeRenderer",
+    "href": "/reference/three-renderer/",
+    "section": "reference",
+    "lang": "en"
   },
   {
     "title": "ThreeRenderer",
@@ -1511,12 +2183,6 @@
   },
   {
     "title": "UI: ContextMenu",
-    "href": "/reference/ui-contextmenu/",
-    "section": "reference",
-    "lang": "en"
-  },
-  {
-    "title": "UI: ContextMenu",
     "href": "/fr/reference/ui-contextmenu/",
     "section": "reference",
     "lang": "fr"
@@ -1532,6 +2198,12 @@
     "href": "/ko/reference/ui-contextmenu/",
     "section": "reference",
     "lang": "ko"
+  },
+  {
+    "title": "UI: ContextMenu",
+    "href": "/reference/ui-contextmenu/",
+    "section": "reference",
+    "lang": "en"
   },
   {
     "title": "UI: ContextMenu",
@@ -1852,10 +2524,10 @@
     "lang": "zh-tw"
   },
   { "title": "UI: Table", "href": "/es/reference/ui-table/", "section": "reference", "lang": "es" },
-  { "title": "UI: Table", "href": "/reference/ui-table/", "section": "reference", "lang": "en" },
   { "title": "UI: Table", "href": "/fr/reference/ui-table/", "section": "reference", "lang": "fr" },
   { "title": "UI: Table", "href": "/ja/reference/ui-table/", "section": "reference", "lang": "ja" },
   { "title": "UI: Table", "href": "/ko/reference/ui-table/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Table", "href": "/reference/ui-table/", "section": "reference", "lang": "en" },
   {
     "title": "UI: Table",
     "href": "/zh-tw/reference/ui-table/",
@@ -1877,13 +2549,13 @@
   { "title": "UI: Text", "href": "/fr/reference/ui-text/", "section": "reference", "lang": "fr" },
   { "title": "UI: Text", "href": "/ja/reference/ui-text/", "section": "reference", "lang": "ja" },
   { "title": "UI: Text", "href": "/ko/reference/ui-text/", "section": "reference", "lang": "ko" },
+  { "title": "UI: Text", "href": "/reference/ui-text/", "section": "reference", "lang": "en" },
   {
     "title": "UI: Text",
     "href": "/zh-tw/reference/ui-text/",
     "section": "reference",
     "lang": "zh-tw"
   },
-  { "title": "UI: Text", "href": "/reference/ui-text/", "section": "reference", "lang": "en" },
   {
     "title": "UI: TextArea",
     "href": "/es/reference/ui-textarea/",
@@ -1995,12 +2667,6 @@
   },
   {
     "title": "UI: TreeView",
-    "href": "/reference/ui-treeview/",
-    "section": "reference",
-    "lang": "en"
-  },
-  {
-    "title": "UI: TreeView",
     "href": "/fr/reference/ui-treeview/",
     "section": "reference",
     "lang": "fr"
@@ -2016,6 +2682,12 @@
     "href": "/ko/reference/ui-treeview/",
     "section": "reference",
     "lang": "ko"
+  },
+  {
+    "title": "UI: TreeView",
+    "href": "/reference/ui-treeview/",
+    "section": "reference",
+    "lang": "en"
   },
   {
     "title": "UI: TreeView",

@@ -1,8 +1,8 @@
----
-title: '12 — DevTools — Introspection runtime et audits'
-description: "Pourquoi un canvas n'a pas de panneau Éléments, comment l'inspecteur VMT le remplace dans l'espace d'état, et la couche modèle headless — picking, lectures géométriques, audits, snapshots, explication de hit, attribution dirty-frame et protocole bridge/plugin."
-order: 32
----
++++
+title = "12 — DevTools — Introspection runtime et audits"
+description = "Pourquoi un canvas n'a pas de panneau Éléments, comment l'inspecteur VMT le remplace dans l'espace d'état, et la couche modèle headless — picking, lectures géométriques, audits, snapshots, explication de hit, attribution dirty-frame et protocole bridge/plugin."
+weight = 32
++++
 
 # 12 — DevTools — Introspection runtime et audits
 

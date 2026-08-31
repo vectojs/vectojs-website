@@ -1,8 +1,8 @@
----
-title: '05 — 零 DOM TeX — 排版與 SVG 發射'
-description: '為何 KaTeX 核心 → VectoJS 發射器 → 自包含 SVG，座標空間不變量、可拉伸幾何陷阱，以及新增 TeX 構造的安全路徑。'
-order: 25
----
++++
+title = "05 — 零 DOM TeX — 排版與 SVG 發射"
+description = "為何 KaTeX 核心 → VectoJS 發射器 → 自包含 SVG，座標空間不變量、可拉伸幾何陷阱，以及新增 TeX 構造的安全路徑。"
+weight = 25
++++
 
 # 05 — 零 DOM TeX — 排版與 SVG 發射
 

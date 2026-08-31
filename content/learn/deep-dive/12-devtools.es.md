@@ -1,8 +1,8 @@
----
-title: '12 — DevTools — Inspección en Runtime y Auditoría'
-description: 'Por qué un canvas no tiene panel Elements, cómo el inspector del VMT lo reemplaza en el espacio de estado, y la capa de modelo headless — picking, lecturas de geometría, auditorías, snapshots, explicación de hit, atribución de frames dirty y el protocolo de puente/plugins.'
-order: 32
----
++++
+title = "12 — DevTools — Inspección en Runtime y Auditoría"
+description = "Por qué un canvas no tiene panel Elements, cómo el inspector del VMT lo reemplaza en el espacio de estado, y la capa de modelo headless — picking, lecturas de geometría, auditorías, snapshots, explicación de hit, atribución de frames dirty y el protocolo de puente/plugins."
+weight = 32
++++
 
 # 12 — DevTools — Inspección en Runtime y Auditoría
 

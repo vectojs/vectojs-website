@@ -26,7 +26,7 @@
     {
       "title": {{ subsection.title | json_encode() | safe }},
       "description": {{ subsection.description | default(value="") | json_encode() | safe }},
-      "path": "{{ subsection.path }}",
+      "path": "{{ subsection.path }}{{ subsection.extra.landing | default(value="") }}",
       "date": "",
       "word_count": 0,
       "reading_time": 0,

@@ -1,8 +1,8 @@
----
-title: '09 — Three.js / XR ブリッジ — 2 つの座標世界'
-description: 'VectoJS の 2D canvas 契約と Three.js の 3D 空間をつなぐアダプタ：CanvasTexture パネル、raycast→UV→scene マッピング、オフスクリーンのフォーカス／キーボード所有権、そして Graph3D が示すピュア Three 側の対照。'
-order: 29
----
++++
+title = "09 — Three.js / XR ブリッジ — 2 つの座標世界"
+description = "VectoJS の 2D canvas 契約と Three.js の 3D 空間をつなぐアダプタ：CanvasTexture パネル、raycast→UV→scene マッピング、オフスクリーンのフォーカス／キーボード所有権、そして Graph3D が示すピュア Three 側の対照。"
+weight = 29
++++
 
 # 09 — Three.js / XR ブリッジ — 2 つの座標世界
 

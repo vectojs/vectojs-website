@@ -1,8 +1,8 @@
----
-title: '11 — Layout de Grafos — Física Dirigida por Fuerzas y Benchmarking'
-description: 'El motor 2D sin dependencias de ForceLayout2D, el quadtree Barnes-Hut y la rejilla de colisión por niveles, la mutación incremental y los contratos de pin, la familia 3D VectoForceLayout/D3ForceLayout, el kernel WASM vectojs-force-rs y la metodología de benchmark con ventana visible.'
-order: 31
----
++++
+title = "11 — Layout de Grafos — Física Dirigida por Fuerzas y Benchmarking"
+description = "El motor 2D sin dependencias de ForceLayout2D, el quadtree Barnes-Hut y la rejilla de colisión por niveles, la mutación incremental y los contratos de pin, la familia 3D VectoForceLayout/D3ForceLayout, el kernel WASM vectojs-force-rs y la metodología de benchmark con ventana visible."
+weight = 31
++++
 
 # 11 — Layout de Grafos — Física Dirigida por Fuerzas y Benchmarking
 

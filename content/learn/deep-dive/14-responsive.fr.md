@@ -1,8 +1,8 @@
----
-title: '14 — Layout responsive et interaction — Adaptation au viewport et aux entrées'
-description: "Le viewport comme contrainte : reflow resize/zoom, passes de layout Stack/Flow, tableaux de bord à panneaux, fenêtrage VirtualList, physique ScrollView, poignées ResizablePanel, placement d'overlay et états hover/focus — le tout dans le monde canvas-native de VectoJS."
-order: 34
----
++++
+title = "14 — Layout responsive et interaction — Adaptation au viewport et aux entrées"
+description = "Le viewport comme contrainte : reflow resize/zoom, passes de layout Stack/Flow, tableaux de bord à panneaux, fenêtrage VirtualList, physique ScrollView, poignées ResizablePanel, placement d'overlay et états hover/focus — le tout dans le monde canvas-native de VectoJS."
+weight = 34
++++
 
 # 14 — Layout responsive et interaction — Adaptation au viewport et aux entrées
 

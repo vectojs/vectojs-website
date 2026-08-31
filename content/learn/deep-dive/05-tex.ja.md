@@ -1,8 +1,8 @@
----
-title: '05 — Zero-DOM TeX — 組版と SVG 出力'
-description: 'なぜ KaTeX カーネル → VectoJS エミッター → 自己完結した SVG なのか、座標空間不変条件、伸縮形状の落とし穴、そして新しい TeX 構文への安全な道筋。'
-order: 25
----
++++
+title = "05 — Zero-DOM TeX — 組版と SVG 出力"
+description = "なぜ KaTeX カーネル → VectoJS エミッター → 自己完結した SVG なのか、座標空間不変条件、伸縮形状の落とし穴、そして新しい TeX 構文への安全な道筋。"
+weight = 25
++++
 
 # 05 — Zero-DOM TeX — 組版と SVG 出力
 

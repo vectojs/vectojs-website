@@ -1,8 +1,8 @@
----
-title: '07 — Renderer — Coordenadas / Clipping / Paridad DPR'
-description: 'Paridad multi-backend entre Canvas2D, WebGL, WebGPU, SVG y Three: el contrato IRenderer, espacios de coordenadas, semántica de clipping, topes de DPR/backing-store, culling del viewport y batching de draw calls — y cada trampa que hace que la misma escena se vea diferente en otro backend.'
-order: 27
----
++++
+title = "07 — Renderer — Coordenadas / Clipping / Paridad DPR"
+description = "Paridad multi-backend entre Canvas2D, WebGL, WebGPU, SVG y Three: el contrato IRenderer, espacios de coordenadas, semántica de clipping, topes de DPR/backing-store, culling del viewport y batching de draw calls — y cada trampa que hace que la misma escena se vea diferente en otro backend."
+weight = 27
++++
 
 # 07 — Renderer — Coordenadas / Clipping / Paridad DPR
 

@@ -23,7 +23,18 @@ interface SectionPayload {
     title?: string;
     description?: string;
     pages?: SectionEntry[];
+    sidebar?: SectionEntry[];
   };
+}
+
+const locales = ['', 'zh-cn', 'zh-tw', 'ja', 'fr', 'es', 'ko'] as const;
+
+function localizedRoute(locale: (typeof locales)[number], route: string): string {
+  return locale ? `${locale}/${route}` : route;
+}
+
+function localizedPath(locale: (typeof locales)[number], path: string): string {
+  return locale ? `/${locale}${path}` : path;
 }
 
 const repoRoot = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -37,26 +48,39 @@ function readPageData(path: string): SectionPayload {
   return JSON.parse(match[1]) as SectionPayload;
 }
 
-let learn: SectionPayload;
 let deepDiveSection: SectionPayload;
 
 beforeAll(() => {
   execFileSync('zola', ['build'], { cwd: repoRoot, stdio: 'inherit' });
-  learn = readPageData('learn');
   deepDiveSection = readPageData('learn/deep-dive');
 });
 
 describe('generated Learn subsection payload', () => {
-  test('/learn/ exposes Deep Dive as a card with canonical metadata', () => {
-    expect(learn.data?.type).toBe('section');
+  for (const locale of locales) {
+    const label = locale || 'en';
 
-    const deepDive = learn.data?.pages?.find((entry) => entry.path === '/learn/deep-dive/');
-    expect(deepDive).toBeDefined();
-    expect(deepDive?.title).toBe(deepDiveSection.data?.title);
-    expect(deepDive?.description).toBe(deepDiveSection.data?.description);
-    expect(deepDive?.title.length).toBeGreaterThan(0);
-    expect(deepDive?.description.length).toBeGreaterThan(0);
-  });
+    test(`${label} Learn links the Deep Dive card directly to Overview`, () => {
+      const localizedLearn = readPageData(localizedRoute(locale, 'learn'));
+      const localizedDeepDive = readPageData(localizedRoute(locale, 'learn/deep-dive'));
+      const overviewPath = localizedPath(locale, '/learn/deep-dive/00-overview/');
+      const deepDive = localizedLearn.data?.pages?.find((entry) => entry.path === overviewPath);
+
+      expect(localizedLearn.data?.type).toBe('section');
+      expect(deepDive).toBeDefined();
+      expect(deepDive?.title).toBe(localizedDeepDive.data?.title);
+      expect(deepDive?.description).toBe(localizedDeepDive.data?.description);
+      expect(deepDive?.title.length).toBeGreaterThan(0);
+      expect(deepDive?.description.length).toBeGreaterThan(0);
+    });
+
+    test(`${label} Learn article sidebar keeps Deep Dive last`, () => {
+      const introduction = readPageData(localizedRoute(locale, 'learn/introduction'));
+      const sidebar = introduction.data?.sidebar ?? [];
+
+      expect(sidebar.length).toBeGreaterThan(1);
+      expect(sidebar.at(-1)?.path).toBe(localizedPath(locale, '/learn/deep-dive/00-overview/'));
+    });
+  }
 
   test('/learn/deep-dive/ remains a section containing all sixteen articles', () => {
     expect(deepDiveSection.data?.type).toBe('section');
