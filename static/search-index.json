@@ -350,673 +350,673 @@
   },
   {
     "title": "00 — Overview: The Sixteen Challenges of VectoJS",
-    "href": "/learn/00-overview/",
+    "href": "/learn/deep-dive/00-overview/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "00 — Visión general: Los dieciséis desafíos de VectoJS",
-    "href": "/es/learn/00-overview/",
+    "href": "/es/learn/deep-dive/00-overview/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "00 — Vue d'ensemble : Les seize défis de VectoJS",
-    "href": "/fr/learn/00-overview/",
+    "href": "/fr/learn/deep-dive/00-overview/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "00 — 개요: VectoJS의 16가지 난제",
-    "href": "/ko/learn/00-overview/",
+    "href": "/ko/learn/deep-dive/00-overview/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "00 — 总览：VectoJS 的十六个难题",
-    "href": "/zh-cn/learn/00-overview/",
+    "href": "/zh-cn/learn/deep-dive/00-overview/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "00 — 概要: VectoJS の 16 の難題",
-    "href": "/ja/learn/00-overview/",
+    "href": "/ja/learn/deep-dive/00-overview/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "00 — 概覽：VectoJS 的十六個難題",
-    "href": "/zh-tw/learn/00-overview/",
+    "href": "/zh-tw/learn/deep-dive/00-overview/",
     "section": "learn",
     "lang": "zh-tw"
   },
   {
     "title": "01 — Canvas ネイティブな選択 — 二重世界パリティ",
-    "href": "/ja/learn/01-selection/",
+    "href": "/ja/learn/deep-dive/01-selection/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "01 — Canvas 原生选区 — 双世界对等",
-    "href": "/zh-cn/learn/01-selection/",
+    "href": "/zh-cn/learn/deep-dive/01-selection/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "01 — Canvas-Native Selection — Dual-World Parity",
-    "href": "/learn/01-selection/",
+    "href": "/learn/deep-dive/01-selection/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "01 — Selección nativa en canvas — Paridad de dos mundos",
-    "href": "/es/learn/01-selection/",
+    "href": "/es/learn/deep-dive/01-selection/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "01 — Sélection Canvas-Native — Parité Dual-World",
-    "href": "/fr/learn/01-selection/",
+    "href": "/fr/learn/deep-dive/01-selection/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "01 — 캔버스 네이티브 선택 — Dual-World Parity",
-    "href": "/ko/learn/01-selection/",
+    "href": "/ko/learn/deep-dive/01-selection/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "01 — 畫布原生選取 — 雙世界一致性",
-    "href": "/zh-tw/learn/01-selection/",
+    "href": "/zh-tw/learn/deep-dive/01-selection/",
     "section": "learn",
     "lang": "zh-tw"
   },
   {
     "title": "02 — Text & Layout: Unicode to Pixels",
-    "href": "/learn/02-text-layout/",
+    "href": "/learn/deep-dive/02-text-layout/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "02 — Texte et mise en page : Unicode en pixels",
-    "href": "/fr/learn/02-text-layout/",
+    "href": "/fr/learn/deep-dive/02-text-layout/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "02 — Texto y Layout: de Unicode a píxeles",
-    "href": "/es/learn/02-text-layout/",
+    "href": "/es/learn/deep-dive/02-text-layout/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "02 — 텍스트와 레이아웃: Unicode부터 픽셀까지",
-    "href": "/ko/learn/02-text-layout/",
+    "href": "/ko/learn/deep-dive/02-text-layout/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "02 — テキストとレイアウト: Unicode からピクセルまで",
-    "href": "/ja/learn/02-text-layout/",
+    "href": "/ja/learn/deep-dive/02-text-layout/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "02 — 文字與布局：從 Unicode 到像素",
-    "href": "/zh-tw/learn/02-text-layout/",
+    "href": "/zh-tw/learn/deep-dive/02-text-layout/",
     "section": "learn",
     "lang": "zh-tw"
   },
   {
     "title": "02 — 文本与布局：从 Unicode 到像素",
-    "href": "/zh-cn/learn/02-text-layout/",
+    "href": "/zh-cn/learn/deep-dive/02-text-layout/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "03 — Projection sémantique + Virtualisation",
-    "href": "/fr/learn/03-semantic-projection/",
+    "href": "/fr/learn/deep-dive/03-semantic-projection/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "03 — Proyección semántica + Virtualización",
-    "href": "/es/learn/03-semantic-projection/",
+    "href": "/es/learn/deep-dive/03-semantic-projection/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "03 — Semantic Projection + Virtualization",
-    "href": "/learn/03-semantic-projection/",
+    "href": "/learn/deep-dive/03-semantic-projection/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "03 — 의미 투영 + 가상화",
-    "href": "/ko/learn/03-semantic-projection/",
+    "href": "/ko/learn/deep-dive/03-semantic-projection/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "03 — セマンティック投影 + 仮想化",
-    "href": "/ja/learn/03-semantic-projection/",
+    "href": "/ja/learn/deep-dive/03-semantic-projection/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "03 — 語意投射與虛擬化",
-    "href": "/zh-tw/learn/03-semantic-projection/",
+    "href": "/zh-tw/learn/deep-dive/03-semantic-projection/",
     "section": "learn",
     "lang": "zh-tw"
   },
   {
     "title": "03 — 语义投影与虚拟化",
-    "href": "/zh-cn/learn/03-semantic-projection/",
+    "href": "/zh-cn/learn/deep-dive/03-semantic-projection/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "04 — Markdown en streaming — Reconciliación incremental",
-    "href": "/es/learn/04-streaming-markdown/",
+    "href": "/es/learn/deep-dive/04-streaming-markdown/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "04 — Streaming Markdown — Incremental Reconcile",
-    "href": "/learn/04-streaming-markdown/",
+    "href": "/learn/deep-dive/04-streaming-markdown/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "04 — Streaming Markdown — Réconciliation incrémentielle",
-    "href": "/fr/learn/04-streaming-markdown/",
+    "href": "/fr/learn/deep-dive/04-streaming-markdown/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "04 — 스트리밍 Markdown — 점진적 Reconcile",
-    "href": "/ko/learn/04-streaming-markdown/",
+    "href": "/ko/learn/deep-dive/04-streaming-markdown/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "04 — ストリーミング Markdown — インクリメンタルなリコンサイル",
-    "href": "/ja/learn/04-streaming-markdown/",
+    "href": "/ja/learn/deep-dive/04-streaming-markdown/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "04 — 串流 Markdown — 增量調和",
-    "href": "/zh-tw/learn/04-streaming-markdown/",
+    "href": "/zh-tw/learn/deep-dive/04-streaming-markdown/",
     "section": "learn",
     "lang": "zh-tw"
   },
   {
     "title": "04 — 流式 Markdown — 增量调和",
-    "href": "/zh-cn/learn/04-streaming-markdown/",
+    "href": "/zh-cn/learn/deep-dive/04-streaming-markdown/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "05 — TeX sin DOM — Composición y emisión SVG",
-    "href": "/es/learn/05-tex/",
+    "href": "/es/learn/deep-dive/05-tex/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "05 — Zero-DOM TeX — Composition et émission SVG",
-    "href": "/fr/learn/05-tex/",
+    "href": "/fr/learn/deep-dive/05-tex/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "05 — Zero-DOM TeX — Typesetting & SVG Emission",
-    "href": "/learn/05-tex/",
+    "href": "/learn/deep-dive/05-tex/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "05 — Zero-DOM TeX — 조판 및 SVG 방출",
-    "href": "/ko/learn/05-tex/",
+    "href": "/ko/learn/deep-dive/05-tex/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "05 — Zero-DOM TeX — 組版と SVG 出力",
-    "href": "/ja/learn/05-tex/",
+    "href": "/ja/learn/deep-dive/05-tex/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "05 — 零 DOM TeX — 排版与 SVG 发射",
-    "href": "/zh-cn/learn/05-tex/",
+    "href": "/zh-cn/learn/deep-dive/05-tex/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "05 — 零 DOM TeX — 排版與 SVG 發射",
-    "href": "/zh-tw/learn/05-tex/",
+    "href": "/zh-tw/learn/deep-dive/05-tex/",
     "section": "learn",
     "lang": "zh-tw"
   },
   {
     "title": "06 — Runtime del VMT — Ciclo de vida / Dirty / Eventos",
-    "href": "/es/learn/06-vmt-runtime/",
+    "href": "/es/learn/deep-dive/06-vmt-runtime/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "06 — VMT Runtime — Cycle de vie / Dirty / Événements",
-    "href": "/fr/learn/06-vmt-runtime/",
+    "href": "/fr/learn/deep-dive/06-vmt-runtime/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "06 — VMT Runtime — Lifecycle / Dirty / Events",
-    "href": "/learn/06-vmt-runtime/",
+    "href": "/learn/deep-dive/06-vmt-runtime/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "06 — VMT Runtime — 라이프사이클 / 더티 / 이벤트",
-    "href": "/ko/learn/06-vmt-runtime/",
+    "href": "/ko/learn/deep-dive/06-vmt-runtime/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "06 — VMT ランタイム — ライフサイクル / Dirty / イベント",
-    "href": "/ja/learn/06-vmt-runtime/",
+    "href": "/ja/learn/deep-dive/06-vmt-runtime/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "06 — VMT 執行期 — 生命週期 / Dirty / 事件",
-    "href": "/zh-tw/learn/06-vmt-runtime/",
+    "href": "/zh-tw/learn/deep-dive/06-vmt-runtime/",
     "section": "learn",
     "lang": "zh-tw"
   },
   {
     "title": "06 — VMT 运行时 — 生命周期 / 脏标记 / 事件",
-    "href": "/zh-cn/learn/06-vmt-runtime/",
+    "href": "/zh-cn/learn/deep-dive/06-vmt-runtime/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "07 — Renderer — Coordenadas / Clipping / Paridad DPR",
-    "href": "/es/learn/07-renderer/",
+    "href": "/es/learn/deep-dive/07-renderer/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "07 — Renderer — Coordinates / Clipping / DPR Parity",
-    "href": "/learn/07-renderer/",
+    "href": "/learn/deep-dive/07-renderer/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "07 — Renderer — Coordonnées / Clipping / Parité DPR",
-    "href": "/fr/learn/07-renderer/",
+    "href": "/fr/learn/deep-dive/07-renderer/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "07 — Renderer — 座標 / クリッピング / DPR 一貫性",
-    "href": "/ja/learn/07-renderer/",
+    "href": "/ja/learn/deep-dive/07-renderer/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "07 — 렌더러 — 좌표 / 클리핑 / DPR 패리티",
-    "href": "/ko/learn/07-renderer/",
+    "href": "/ko/learn/deep-dive/07-renderer/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "07 — 渲染器 — 坐标 / 裁剪 / DPR 一致性",
-    "href": "/zh-cn/learn/07-renderer/",
+    "href": "/zh-cn/learn/deep-dive/07-renderer/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "07 — 渲染器 — 座標 / 裁剪 / DPR 一致性",
-    "href": "/zh-tw/learn/07-renderer/",
+    "href": "/zh-tw/learn/deep-dive/07-renderer/",
     "section": "learn",
     "lang": "zh-tw"
   },
   {
     "title": "08 — Accélérateurs WASM — G1/G2/G3 & parité binaire",
-    "href": "/fr/learn/08-wasm/",
+    "href": "/fr/learn/deep-dive/08-wasm/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "08 — Aceleradores WASM — G1/G2/G3 y paridad de bits",
-    "href": "/es/learn/08-wasm/",
+    "href": "/es/learn/deep-dive/08-wasm/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "08 — WASM Accelerators — G1/G2/G3 & Bit-Parity",
-    "href": "/learn/08-wasm/",
+    "href": "/learn/deep-dive/08-wasm/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "08 — WASM 가속기 — G1/G2/G3 & 비트 패리티",
-    "href": "/ko/learn/08-wasm/",
+    "href": "/ko/learn/deep-dive/08-wasm/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "08 — WASM アクセラレータ — G1/G2/G3 とビットパリティ",
-    "href": "/ja/learn/08-wasm/",
+    "href": "/ja/learn/deep-dive/08-wasm/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "08 — WASM 加速器 — G1/G2/G3 与比特一致性",
-    "href": "/zh-cn/learn/08-wasm/",
+    "href": "/zh-cn/learn/deep-dive/08-wasm/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "08 — WASM 加速器 — G1/G2/G3 與位元一致性",
-    "href": "/zh-tw/learn/08-wasm/",
+    "href": "/zh-tw/learn/deep-dive/08-wasm/",
     "section": "learn",
     "lang": "zh-tw"
   },
   {
     "title": "09 — Pont Three.js / XR — Deux mondes de coordonnées",
-    "href": "/fr/learn/09-three-xr/",
+    "href": "/fr/learn/deep-dive/09-three-xr/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "09 — Puente Three.js / XR — Dos mundos de coordenadas",
-    "href": "/es/learn/09-three-xr/",
+    "href": "/es/learn/deep-dive/09-three-xr/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "09 — Three.js / XR Bridge — Two Coordinate Worlds",
-    "href": "/learn/09-three-xr/",
+    "href": "/learn/deep-dive/09-three-xr/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "09 — Three.js / XR 브리지 — 두 좌표 세계",
-    "href": "/ko/learn/09-three-xr/",
+    "href": "/ko/learn/deep-dive/09-three-xr/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "09 — Three.js / XR ブリッジ — 2 つの座標世界",
-    "href": "/ja/learn/09-three-xr/",
+    "href": "/ja/learn/deep-dive/09-three-xr/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "09 — Three.js / XR 桥接 — 两个坐标世界",
-    "href": "/zh-cn/learn/09-three-xr/",
+    "href": "/zh-cn/learn/deep-dive/09-three-xr/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "09 — Three.js / XR 橋接 — 兩個座標世界",
-    "href": "/zh-tw/learn/09-three-xr/",
+    "href": "/zh-tw/learn/deep-dive/09-three-xr/",
     "section": "learn",
     "lang": "zh-tw"
   },
   {
     "title": "10 — Deterministic Video Export — Fixed-Step Capture",
-    "href": "/learn/10-video-exporter/",
+    "href": "/learn/deep-dive/10-video-exporter/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "10 — Export vidéo déterministe — Capture à pas fixe",
-    "href": "/fr/learn/10-video-exporter/",
+    "href": "/fr/learn/deep-dive/10-video-exporter/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "10 — Exportación de vídeo determinista — Captura de paso fijo",
-    "href": "/es/learn/10-video-exporter/",
+    "href": "/es/learn/deep-dive/10-video-exporter/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "10 — 결정적 비디오 내보내기 — 고정 단계 캡처",
-    "href": "/ko/learn/10-video-exporter/",
+    "href": "/ko/learn/deep-dive/10-video-exporter/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "10 — 決定論的ビデオ書き出し — 固定ステップキャプチャ",
-    "href": "/ja/learn/10-video-exporter/",
+    "href": "/ja/learn/deep-dive/10-video-exporter/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "10 — 确定性视频导出 — 固定步进捕获",
-    "href": "/zh-cn/learn/10-video-exporter/",
+    "href": "/zh-cn/learn/deep-dive/10-video-exporter/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "10 — 確定性影片匯出 — 固定步進擷取",
-    "href": "/zh-tw/learn/10-video-exporter/",
+    "href": "/zh-tw/learn/deep-dive/10-video-exporter/",
     "section": "learn",
     "lang": "zh-tw"
   },
   {
     "title": "11 — Agencement de graphes — Physique à forces et benchmarking",
-    "href": "/fr/learn/11-graph-layout/",
+    "href": "/fr/learn/deep-dive/11-graph-layout/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "11 — Graph Layout — Force-Directed Physics & Benchmarking",
-    "href": "/learn/11-graph-layout/",
+    "href": "/learn/deep-dive/11-graph-layout/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "11 — Layout de Grafos — Física Dirigida por Fuerzas y Benchmarking",
-    "href": "/es/learn/11-graph-layout/",
+    "href": "/es/learn/deep-dive/11-graph-layout/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "11 — 그래프 레이아웃 — 힘 기반 물리 & 벤치마크",
-    "href": "/ko/learn/11-graph-layout/",
+    "href": "/ko/learn/deep-dive/11-graph-layout/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "11 — グラフレイアウト — 力指向物理演算とベンチマーク",
-    "href": "/ja/learn/11-graph-layout/",
+    "href": "/ja/learn/deep-dive/11-graph-layout/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "11 — 图布局 — 力导向物理与基准测试",
-    "href": "/zh-cn/learn/11-graph-layout/",
+    "href": "/zh-cn/learn/deep-dive/11-graph-layout/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "11 — 圖佈局 — 力導向物理與基準測試",
-    "href": "/zh-tw/learn/11-graph-layout/",
+    "href": "/zh-tw/learn/deep-dive/11-graph-layout/",
     "section": "learn",
     "lang": "zh-tw"
   },
   {
     "title": "12 — DevTools — Inspección en Runtime y Auditoría",
-    "href": "/es/learn/12-devtools/",
+    "href": "/es/learn/deep-dive/12-devtools/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "12 — DevTools — Introspection runtime et audits",
-    "href": "/fr/learn/12-devtools/",
+    "href": "/fr/learn/deep-dive/12-devtools/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "12 — DevTools — Runtime Introspection & Auditing",
-    "href": "/learn/12-devtools/",
+    "href": "/learn/deep-dive/12-devtools/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "12 — DevTools — ランタイム内省と監査",
-    "href": "/ja/learn/12-devtools/",
+    "href": "/ja/learn/deep-dive/12-devtools/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "12 — DevTools — 執行期檢視與稽核",
-    "href": "/zh-tw/learn/12-devtools/",
+    "href": "/zh-tw/learn/deep-dive/12-devtools/",
     "section": "learn",
     "lang": "zh-tw"
   },
   {
     "title": "12 — DevTools — 运行时自检与审计",
-    "href": "/zh-cn/learn/12-devtools/",
+    "href": "/zh-cn/learn/deep-dive/12-devtools/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "12 — 개발 도구 — 런타임 검사 및 감사",
-    "href": "/ko/learn/12-devtools/",
+    "href": "/ko/learn/deep-dive/12-devtools/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "13 — Estilos y Theming — Paridad CSS sobre el VMT Numérico",
-    "href": "/es/learn/13-styles/",
+    "href": "/es/learn/deep-dive/13-styles/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "13 — Styles & Thématisation — Parité CSS sur le VMT numérique",
-    "href": "/fr/learn/13-styles/",
+    "href": "/fr/learn/deep-dive/13-styles/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "13 — Styles & Theming — CSS Parity on the Numeric VMT",
-    "href": "/learn/13-styles/",
+    "href": "/learn/deep-dive/13-styles/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "13 — 스타일 & 테마 — 숫자 VMT 위의 CSS 패리티",
-    "href": "/ko/learn/13-styles/",
+    "href": "/ko/learn/deep-dive/13-styles/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "13 — スタイルとテーマ — 数値 VMT 上の CSS 互換",
-    "href": "/ja/learn/13-styles/",
+    "href": "/ja/learn/deep-dive/13-styles/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "13 — 样式与主题 — 数值 VMT 上的 CSS 对等",
-    "href": "/zh-cn/learn/13-styles/",
+    "href": "/zh-cn/learn/deep-dive/13-styles/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "13 — 樣式與主題 — 數值 VMT 上的 CSS 一致性",
-    "href": "/zh-tw/learn/13-styles/",
+    "href": "/zh-tw/learn/deep-dive/13-styles/",
     "section": "learn",
     "lang": "zh-tw"
   },
   {
     "title": "14 — Layout responsive et interaction — Adaptation au viewport et aux entrées",
-    "href": "/fr/learn/14-responsive/",
+    "href": "/fr/learn/deep-dive/14-responsive/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "14 — Layout Responsivo e Interacción — Adaptación a Viewport e Input",
-    "href": "/es/learn/14-responsive/",
+    "href": "/es/learn/deep-dive/14-responsive/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "14 — Responsive Layout & Interaction — Adapting to Viewport & Input",
-    "href": "/learn/14-responsive/",
+    "href": "/learn/deep-dive/14-responsive/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "14 — 반응형 레이아웃 & 상호작용 — 뷰포트 및 입력 적응",
-    "href": "/ko/learn/14-responsive/",
+    "href": "/ko/learn/deep-dive/14-responsive/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "14 — レスポンシブ・レイアウトとインタラクション — ビューポートと入力への適応",
-    "href": "/ja/learn/14-responsive/",
+    "href": "/ja/learn/deep-dive/14-responsive/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "14 — 响应式布局与交互 — 适配视口与输入",
-    "href": "/zh-cn/learn/14-responsive/",
+    "href": "/zh-cn/learn/deep-dive/14-responsive/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "14 — 響應式布局與互動 — 適配視埠與輸入",
-    "href": "/zh-tw/learn/14-responsive/",
+    "href": "/zh-tw/learn/deep-dive/14-responsive/",
     "section": "learn",
     "lang": "zh-tw"
   },
   {
     "title": "15 — Apps verticales — Graphe de connaissances, éditeur de nœuds, bureau et table",
-    "href": "/fr/learn/15-vertical-apps/",
+    "href": "/fr/learn/deep-dive/15-vertical-apps/",
     "section": "learn",
     "lang": "fr"
   },
   {
     "title": "15 — Apps Verticales — Knowledge Graph, Node Editor, Desktop y Table",
-    "href": "/es/learn/15-vertical-apps/",
+    "href": "/es/learn/deep-dive/15-vertical-apps/",
     "section": "learn",
     "lang": "es"
   },
   {
     "title": "15 — Vertical Apps — Knowledge Graph, Node Editor, Desktop & Table",
-    "href": "/learn/15-vertical-apps/",
+    "href": "/learn/deep-dive/15-vertical-apps/",
     "section": "learn",
     "lang": "en"
   },
   {
     "title": "15 — 수직 앱 — 지식 그래프, 노드 편집기, 데스크톱 & 테이블",
-    "href": "/ko/learn/15-vertical-apps/",
+    "href": "/ko/learn/deep-dive/15-vertical-apps/",
     "section": "learn",
     "lang": "ko"
   },
   {
     "title": "15 — バーティカルアプリ — ナレッジグラフ、ノードエディタ、デスクトップとテーブル",
-    "href": "/ja/learn/15-vertical-apps/",
+    "href": "/ja/learn/deep-dive/15-vertical-apps/",
     "section": "learn",
     "lang": "ja"
   },
   {
     "title": "15 — 垂直应用 — 知识图谱、节点编辑器、桌面与表格",
-    "href": "/zh-cn/learn/15-vertical-apps/",
+    "href": "/zh-cn/learn/deep-dive/15-vertical-apps/",
     "section": "learn",
     "lang": "zh-cn"
   },
   {
     "title": "15 — 垂直應用 — 知識圖譜、節點編輯器、桌面與表格",
-    "href": "/zh-tw/learn/15-vertical-apps/",
+    "href": "/zh-tw/learn/deep-dive/15-vertical-apps/",
     "section": "learn",
     "lang": "zh-tw"
   },

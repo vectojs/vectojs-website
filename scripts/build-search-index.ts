@@ -21,6 +21,26 @@ interface Entry {
   lang: string;
 }
 
+export function routeForContent(
+  relativePath: string,
+  lang: string | null,
+): {
+  href: string;
+  section: string;
+} {
+  const parts = relativePath.split(/[\\/]/);
+  const section = parts.shift();
+  if (!section || parts.length === 0) {
+    throw new Error(`content path must include a section and page: ${relativePath}`);
+  }
+  const pagePath = parts
+    .join('/')
+    .replace(/\.(?:zh-cn|zh-tw|ja|fr|es|ko)\.md$/, '')
+    .replace(/\.md$/, '');
+  const prefix = lang ? `/${lang}` : '';
+  return { href: `${prefix}/${section}/${pagePath}/`, section };
+}
+
 function parseTomlFrontmatter(text: string): Record<string, unknown> {
   const m = /^\+{3}\n([\s\S]*?)\n\+{3}\n/.exec(text);
   if (!m) return {};
@@ -61,25 +81,24 @@ function walk(dir: string, out: Entry[]): void {
     const fm = parseTomlFrontmatter(text);
     const title = (fm.title ?? name.replace(/\.md$/, '')) as string;
     const rel = relative(ROOT, full);
-    const parts = rel.split('/');
-    const section = parts[0];
-    const slug = name.replace(/\.(?:zh-cn|zh-tw|ja|fr|es|ko)\.md$/, '').replace(/\.md$/, '');
-    const prefix = lang ? `/${lang}` : '';
+    const { href, section } = routeForContent(rel, lang);
     out.push({
       title: String(title),
-      href: `${prefix}/${section}/${slug}/`,
+      href,
       section,
       lang: lang ?? 'en',
     });
   }
 }
 
-const entries: Entry[] = [];
-for (const section of SECTIONS) {
-  walk(join(ROOT, section), entries);
-}
-entries.sort((a, b) => a.title.localeCompare(b.title));
+if (import.meta.main) {
+  const entries: Entry[] = [];
+  for (const section of SECTIONS) {
+    walk(join(ROOT, section), entries);
+  }
+  entries.sort((a, b) => a.title.localeCompare(b.title));
 
-mkdirSync(join(import.meta.dirname, '..', 'static'), { recursive: true });
-writeFileSync(OUT, JSON.stringify(entries));
-console.log(`search-index.json: ${entries.length} entries`);
+  mkdirSync(join(import.meta.dirname, '..', 'static'), { recursive: true });
+  writeFileSync(OUT, JSON.stringify(entries));
+  console.log(`search-index.json: ${entries.length} entries`);
+}
