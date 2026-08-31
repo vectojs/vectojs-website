@@ -1,19 +1,19 @@
 +++
-title = "00 — Overview: The Twelve Bosses of VectoJS"
-description = "A navigation guide to VectoJS's twelve deep-dive bosses — the game map, architecture invariants, package dependencies, and reading paths for every newcomer."
+title = "00 — Overview: The Sixteen Challenges of VectoJS"
+description = "A navigation guide to VectoJS's sixteen-part deep-dive challenge map — architecture invariants, package dependencies, and reading paths for every newcomer."
 weight = 20
 +++
 
-# 00 — Overview: The Twelve Bosses of VectoJS
+# 00 — Overview: The Sixteen Challenges of VectoJS
 
-## The game
+## The challenge map
 
-VectoJS re-implements browser responsibilities on a single `<canvas>`: layout, hit-testing, event dispatch, text shaping, clipping, scrolling, accessibility, and rendering — all from explicit arithmetic over a retained entity tree. Think of the framework as a game with **twelve bosses**, each guarding one subsystem that the DOM used to give you for free and that VectoJS must now get exactly right. You don't fight them in order, but you do need to know the map before you pick a fight.
+VectoJS re-implements browser responsibilities on a single `<canvas>`: layout, hit-testing, event dispatch, text shaping, clipping, scrolling, accessibility, and rendering — all from explicit arithmetic over a retained entity tree. This sixteen-part series maps the framework's hardest challenges, each covering a subsystem that the DOM used to give you for free and that VectoJS must now get exactly right. You don't need to tackle them in order, but you do need to know the map before choosing where to start.
 
 This document is that map.
 
-- **What you'll learn here**: the runtime architecture in one picture, the package dependency skeleton, which invariant each boss threatens, how to choose a reading order, and where these deep-dives sit relative to the existing `content/learn/*` and `content/reference/*` docs.
-- **What you won't**: the mechanics of any single boss. Each deep-dive owns its boss. This overview links you there and gives you just enough to arrive oriented.
+- **What you'll learn here**: the runtime architecture in one picture, the package dependency skeleton, which invariant each challenge tests, how to choose a reading order, and where these deep-dives sit relative to the existing `content/learn/*` and `content/reference/*` docs.
+- **What you won't**: the mechanics of any single challenge. Each focused deep-dive owns one challenge. This overview links you there and gives you just enough to arrive oriented.
 
 ## Architecture at a glance
 
@@ -74,11 +74,11 @@ Verified against `packages/*/package.json` dependencies (`text`/`math`/`graph-la
 
 Two consumer traps to watch when tracing deps: spurious `references/` paths are hardcoded in `packages/tex/scripts/vendor-katex.ts` (`--source`) and `scripts/compare-pretext.ts` (`VECTO_PRETEXT_PATH`) — moving that tree breaks them silently (per `AGENTS.md`).
 
-## The twelve bosses + this overview
+## The sixteen challenges at a glance
 
-13 documents total: this overview (00) plus one per boss. Difficulty is effort-to-get-wrong, not code volume. "First read" is the fastest path to _useful_ VectoJS work; "deep prerequisite" is the one other boss you should have read before tackling this one.
+16 documents total: this overview (00) plus 15 focused challenges (01–15). Difficulty is effort-to-get-wrong, not code volume. "First read" is the fastest path to _useful_ VectoJS work; "deep prerequisite" is the other challenge you should have read before tackling this one.
 
-| #   | Boss (deep-dive)                                                     | Package(s)                                                                    | Difficulty | Who should read this                       | Deep prereq | First-read for…                          |
+| #   | Challenge (deep-dive)                                                | Package(s)                                                                    | Difficulty | Who should read this                       | Deep prereq | First-read for…                          |
 | --- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ---------- | ------------------------------------------ | ----------- | ---------------------------------------- |
 | 00  | **Overview & navigation** (this doc)                                 | — (meta)                                                                      | ☆          | Everyone, first stop                       | —           | orientation                              |
 | 01  | **Canvas-native selection** — dual-world sync                        | `core` (`ContentGridProjector`, `ContentProjectionManager`), `text`, `layout` | ★★★★       | Text/selection/IME, copy/find/translation  | 02          | selectable text, terminals, code editors |
@@ -93,17 +93,20 @@ Two consumer traps to watch when tracing deps: spurious `references/` paths are 
 | 10  | **Deterministic video export** — fixed-step clock                    | `video-exporter`                                                              | ★★         | Offline capture, replay                    | 06          | screen recording, simulation export      |
 | 11  | **Graph layout** — force-directed + WASM                             | `graph-layout`, `graph3d`, `knowledge-graph`                                  | ★★         | Graph viz, layout tuning                   | 06, 08      | network/knowledge graphs                 |
 | 12  | **DevTools** — runtime introspection & audit                         | `devtools`, `core` (`frameStats`, `syncA11y`)                                 | ★          | Debugging, CI audit                        | 06          | "why is this entity here"                |
+| 13  | **Styles & theming** — CSS parity on the numeric VMT                 | `styles`, `core`                                                              | ★★         | Styling, themes, CSS migration             | 06          | tokens and theme switching               |
+| 14  | **Responsive layout & interaction** — viewport and input adaptation  | `core`, `ui`, `layout`                                                        | ★★★        | Responsive app and layout authors          | 03, 06      | adaptive canvas UI                       |
+| 15  | **Vertical apps** — graph, editor, desktop & table composition       | `knowledge-graph`, `node-editor`, `desktop`, `table`                          | ★★★        | Product and integration authors            | 06          | composing engine primitives              |
 
 Ordering notes:
 
-- 02 and 06 are the two best "second reads" after 00 if you must pick two — most other bosses assume one of them.
+- 02 and 06 are the two best "second reads" after 00 if you must pick two — most other challenges assume one of them.
 - 03 leans on 06's dirty/lifecycle machinery; 04 leans on 02's shaping/layout; 07 and 08 both lean on 06 and therefore cluster naturally after it.
 - 08's difficulty is not Rust syntax but the **bit-identical fallback contract** and its build trap (`RUSTFLAGS` in `crates/vectojs-core-rs/build.sh`).
 - The team tracker already sequences `CTX-0566→…→CTX-0578→CTX-0579`; the table above is the reading order, which is allowed to differ from build/release order.
 
-## Three invariants that govern every boss
+## Three invariants that govern every challenge
 
-Each boss can break one of these. If you remember nothing else, remember the invariants.
+Each challenge can break one of these. If you remember nothing else, remember the invariants.
 
 ### 1. VMT lifecycle invariant
 
@@ -115,32 +118,32 @@ Symptom when broken: stale bounds after `remove(child)` without driver unregistr
 
 > Every **visible interactive** entity has a **synchronized a11y counterpart** whose geometry, role/name/state, and focus/pointer routing match the canvas truth.
 
-Symptom when broken: Playwright `getByRole` finds nothing, screen readers announce stale text, clicks hit the wrong entity, IME lands on the wrong box. Guard: `Entity.ts:295` `A11yAttributes`, `Entity.ts:968` `a11yProjection` modes (`eager`/`onDemand`/`never`), `Entity.ts:1937` `getA11yAttributes()` default, the shared `syncA11y` walk (`A11yProjectionManager.ts:30`, `ContentProjectionManager.ts:26`), and `A11yProjectionManager.ts:227` stale-memo invalidation. `onDemand` materialization and viewport virtualization are the hard parts (boss 03) — that's also where most real-world VectoJS stalls live.
+Symptom when broken: Playwright `getByRole` finds nothing, screen readers announce stale text, clicks hit the wrong entity, IME lands on the wrong box. Guard: `Entity.ts:295` `A11yAttributes`, `Entity.ts:968` `a11yProjection` modes (`eager`/`onDemand`/`never`), `Entity.ts:1937` `getA11yAttributes()` default, the shared `syncA11y` walk (`A11yProjectionManager.ts:30`, `ContentProjectionManager.ts:26`), and `A11yProjectionManager.ts:227` stale-memo invalidation. `onDemand` materialization and viewport virtualization are the hard parts (challenge 03) — that's also where most real-world VectoJS stalls live.
 
 ### 3. Text metric invariant
 
 > **Measure once, layout many** — and measure with the **real** font, on the **right** context, at the **right** DPR.
 
-Symptom when broken: text drifts from its hit box, selection bands offset by a line, CJK sub-pixel gaps paint as white lines, web-font fallback silently changes advances, DPR zoom blurs one subsystem but not the other. Guard: `packages/text/src/fontMetrics.ts:82` `registerFontMetrics`, `packages/text/src/Typography.ts:111` `ctx.measureText('Mg')` with DOM-free fallback to 0.5em, `packages/text/src/measureContext.ts:12` measure-context calibration, `packages/layout/src/LayoutEngine.ts:808` `LayoutEngine` cold/hot split and paragraph memoization. Every boss that touches text (01, 02, 04, 05) re-enters this invariant from a different angle.
+Symptom when broken: text drifts from its hit box, selection bands offset by a line, CJK sub-pixel gaps paint as white lines, web-font fallback silently changes advances, DPR zoom blurs one subsystem but not the other. Guard: `packages/text/src/fontMetrics.ts:82` `registerFontMetrics`, `packages/text/src/Typography.ts:111` `ctx.measureText('Mg')` with DOM-free fallback to 0.5em, `packages/text/src/measureContext.ts:12` measure-context calibration, `packages/layout/src/LayoutEngine.ts:808` `LayoutEngine` cold/hot split and paragraph memoization. Every challenge that touches text (01, 02, 04, 05) re-enters this invariant from a different angle.
 
 Keep these three as a checklist during review: before approving any change, ask "which invariant could this break, and where would it surface first?"
 
 ## How these deep-dives relate to existing docs
 
-| Existing docs                                                                                                                        | Deep-dives (this series)  | Relationship                                                                                                                                                                                                                                                                                               |
-| ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `content/learn/*` (introduction, runtime-architecture, engine-concepts, text-typography, core-scene, accessibility, streaming, etc.) | 00–12                     | **Learn teaches how to _use_ VectoJS**; deep-dives teach **how VectoJS _works_ inside** that usage. Reading a learn chapter first makes the corresponding boss cheaper. Suggested pairs: `text-typography` → boss 02; `core-scene` + `events` → boss 06; `accessibility` → boss 03; `streaming` → boss 04. |
-| `content/reference/*` (core-a11y, core-entities, core-layout, core-text, ui-markdown, three-adapter, graph-layout, etc.)             | 00–12                     | **Reference is API truth** (props, types, subpaths). Deep-dives cite reference pages but do not restate them. When in doubt, the reference signature wins.                                                                                                                                                 |
-| `forge/findings/*` + `forge/baselines/*`                                                                                             | each deep-dive's appendix | Findings are the **field notes**; baselines are the **measured evidence**. Deep-dives synthesize findings into a single narrative per boss and link back to the `file:line` entries that earned the claim.                                                                                                 |
-| `vectojs/AGENTS.md` + `vectojs/README.md`                                                                                            | 00 (this doc)             | Package map, build order, and render/interaction model are **copied from AGENTS.md and README.md verbatim in meaning** and verified against `package.json` — not invented.                                                                                                                                 |
+| Existing docs                                                                                                                        | Deep-dives (this series)  | Relationship                                                                                                                                                                                                                                                                                                                        |
+| ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `content/learn/*` (introduction, runtime-architecture, engine-concepts, text-typography, core-scene, accessibility, streaming, etc.) | 00–15                     | **Learn teaches how to _use_ VectoJS**; deep-dives teach **how VectoJS _works_ inside** that usage. Reading a learn chapter first makes the corresponding challenge cheaper. Suggested pairs: `text-typography` → challenge 02; `core-scene` + `events` → challenge 06; `accessibility` → challenge 03; `streaming` → challenge 04. |
+| `content/reference/*` (core-a11y, core-entities, core-layout, core-text, ui-markdown, three-adapter, graph-layout, etc.)             | 00–15                     | **Reference is API truth** (props, types, subpaths). Deep-dives cite reference pages but do not restate them. When in doubt, the reference signature wins.                                                                                                                                                                          |
+| `forge/findings/*` + `forge/baselines/*`                                                                                             | each deep-dive's appendix | Findings are the **field notes**; baselines are the **measured evidence**. Deep-dives synthesize findings into a single narrative per challenge and link back to the `file:line` entries that earned the claim.                                                                                                                     |
+| `vectojs/AGENTS.md` + `vectojs/README.md`                                                                                            | 00 (this doc)             | Package map, build order, and render/interaction model are **copied from AGENTS.md and README.md verbatim in meaning** and verified against `package.json` — not invented.                                                                                                                                                          |
 
 Rule: **authoritative side first**. If a fact appears both in a learn/reference page and in a deep-dive, the learn/reference page is the correction target. Never `cp -r` between `vectojs-docs/content` and `vectojs-website/src/content` (per `AGENTS.md` — formatting drift + 408 i18n files).
 
 ## Reading paths — pick yours
 
-**"I just joined"** — 00 → 02 (text/layout) → 06 (VMT lifecycle) → 07 (renderer) → the boss nearest your first task. Two afternoons, enough to land a real PR.
+**"I just joined"** — 00 → 02 (text/layout) → 06 (VMT lifecycle) → 07 (renderer) → the challenge nearest your first task. Two afternoons, enough to land a real PR.
 
-**"I own a feature"** — 00 → your boss → its deep prereq row → the corresponding `content/learn/*` chapter → `forge/findings/<area>.md` for that boss. Skim the invariant section again before review.
+**"I own a feature"** — 00 → your challenge → its deep prereq row → the corresponding `content/learn/*` chapter → `forge/findings/<area>.md` for that challenge. Skim the invariant section again before review.
 
 **"I own perf"** — 00 → 06 → 07 → 08 (WASM G1/G2/G3) → 11 (graph) — then `benchmarks/run-browsers.sh` and `forge/baselines/*.json`. Only `run-browsers.sh` numbers are quotable.
 
@@ -159,8 +162,8 @@ Each deep-dive frontmatter declares its `order`, `package` set, and `prereq` lis
 
 ## Next step
 
-Pick your path above. A conventional next read is **Boss 01 — Canvas-native selection** if you touch text, or **Boss 06 — VMT runtime** if you touch lifecycle/events — both are short on-ramps to the harder pair (02, 08).
+Pick your path above. A conventional next read is **Challenge 01 — Canvas-native selection** if you touch text, or **Challenge 06 — VMT runtime** if you touch lifecycle/events — both are short on-ramps to the harder pair (02, 08).
 
 ---
 
-_Series: 00 Overview → 01 Selection → 02 Text+Layout → 03 Projection+Virtualization → 04 Streaming Markdown → 05 TeX → 06 VMT Runtime → 07 Renderer → 08 WASM G1/G2/G3 → 09 Three/XR → 10 Video Export → 11 Graph Layout → 12 DevTools → 99 Synthesis._
+_Series: 00 Overview → 01 Selection → 02 Text+Layout → 03 Projection+Virtualization → 04 Streaming Markdown → 05 TeX → 06 VMT Runtime → 07 Renderer → 08 WASM G1/G2/G3 → 09 Three/XR → 10 Video Export → 11 Graph Layout → 12 DevTools → 13 Styles → 14 Responsive → 15 Vertical Apps → 99 Synthesis._

@@ -1,8 +1,8 @@
----
-title: '08 — WASM 加速器 — G1/G2/G3 與位元一致性'
-description: '@vectojs/core 背後不可見的 WASM 後端：G1 世界矩陣、G2 動畫批次、G3 命中網格（加上 G4 粒子）、使 SIMD 可能的 SoA 儲存，以及使 WASM 保持可選的位元一致性契約。'
-order: 28
----
++++
+title = "08 — WASM 加速器 — G1/G2/G3 與位元一致性"
+description = "@vectojs/core 背後不可見的 WASM 後端：G1 世界矩陣、G2 動畫批次、G3 命中網格（加上 G4 粒子）、使 SIMD 可能的 SoA 儲存，以及使 WASM 保持可選的位元一致性契約。"
+weight = 28
++++
 
 # 08 — WASM 加速器 — G1/G2/G3 與位元一致性
 

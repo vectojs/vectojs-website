@@ -1,8 +1,8 @@
----
-title: '15 — Apps verticales — Graphe de connaissances, éditeur de nœuds, bureau et table'
-description: "Comment les paquets verticaux composent les primitives moteur — knowledge-graph sur graph3d/force layout, commandes et historique de l'éditeur de nœuds, gestion de fenêtres du bureau et virtualisation de table — et où les pièges d'app diffèrent des défauts moteur."
-order: 35
----
++++
+title = "15 — Apps verticales — Graphe de connaissances, éditeur de nœuds, bureau et table"
+description = "Comment les paquets verticaux composent les primitives moteur — knowledge-graph sur graph3d/force layout, commandes et historique de l'éditeur de nœuds, gestion de fenêtres du bureau et virtualisation de table — et où les pièges d'app diffèrent des défauts moteur."
+weight = 35
++++
 
 # 15 — Apps verticales — Graphe de connaissances, éditeur de nœuds, bureau et table
 

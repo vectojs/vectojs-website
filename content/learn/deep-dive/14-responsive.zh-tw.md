@@ -1,8 +1,8 @@
----
-title: '14 — 響應式布局與互動 — 適配視埠與輸入'
-description: '視埠作為約束：重設大小/縮放重排、Stack/Flow 布局遍歷、面板儀表板、VirtualList 開窗、ScrollView 物理、ResizablePanel 手柄、覆蓋層放置與懸停/焦點狀態 — 皆在 VectoJS 的畫布原生世界中。'
-order: 34
----
++++
+title = "14 — 響應式布局與互動 — 適配視埠與輸入"
+description = "視埠作為約束：重設大小/縮放重排、Stack/Flow 布局遍歷、面板儀表板、VirtualList 開窗、ScrollView 物理、ResizablePanel 手柄、覆蓋層放置與懸停/焦點狀態 — 皆在 VectoJS 的畫布原生世界中。"
+weight = 34
++++
 
 # 14 — 響應式布局與互動 — 適配視埠與輸入
 

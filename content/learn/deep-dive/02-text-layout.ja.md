@@ -1,8 +1,8 @@
----
-title: '02 — テキストとレイアウト: Unicode からピクセルまで'
-description: 'テキストパイプラインの全体像 — セグメンテーション、BiDi、アラビア語整形、フォントフォールバック、Typography、改行、LayoutEngine の cold/hot 分離、ワーカー、そして paint と measure のパリティを保つ不変条件。'
-order: 22
----
++++
+title = "02 — テキストとレイアウト: Unicode からピクセルまで"
+description = "テキストパイプラインの全体像 — セグメンテーション、BiDi、アラビア語整形、フォントフォールバック、Typography、改行、LayoutEngine の cold/hot 分離、ワーカー、そして paint と measure のパリティを保つ不変条件。"
+weight = 22
++++
 
 # 02 — テキストとレイアウト: Unicode からピクセルまで
 

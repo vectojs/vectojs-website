@@ -1,8 +1,8 @@
----
-title: '12 — DevTools — 运行时自检与审计'
-description: '为何 canvas 没有 Elements 面板、VMT 检查器如何在状态空间中替代它，以及无头模型层——拾取、几何回读、审计、快照、命中解释、脏帧归因与桥接/插件协议。'
-order: 32
----
++++
+title = "12 — DevTools — 运行时自检与审计"
+description = "为何 canvas 没有 Elements 面板、VMT 检查器如何在状态空间中替代它，以及无头模型层——拾取、几何回读、审计、快照、命中解释、脏帧归因与桥接/插件协议。"
+weight = 32
++++
 
 # 12 — DevTools — 运行时自检与审计
 

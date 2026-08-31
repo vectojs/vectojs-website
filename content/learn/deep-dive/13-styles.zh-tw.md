@@ -1,8 +1,8 @@
----
-title: '13 — 樣式與主題 — 數值 VMT 上的 CSS 一致性'
-description: '為何 VectoJS 樣式位於 Virtual Math Tree、CSS 屬性名稱物件如何映射至數值實體欄位，以及使它們感覺像 CSS 而非 CSS 的每個機制 — token 與 var() 解析、css() 合併、字型組合、逐軸內距、原子主題切換，以及保持數值樹誠實的遷移陷阱。'
-order: 33
----
++++
+title = "13 — 樣式與主題 — 數值 VMT 上的 CSS 一致性"
+description = "為何 VectoJS 樣式位於 Virtual Math Tree、CSS 屬性名稱物件如何映射至數值實體欄位，以及使它們感覺像 CSS 而非 CSS 的每個機制 — token 與 var() 解析、css() 合併、字型組合、逐軸內距、原子主題切換，以及保持數值樹誠實的遷移陷阱。"
+weight = 33
++++
 
 # 13 — 樣式與主題 — 數值 VMT 上的 CSS 一致性
 

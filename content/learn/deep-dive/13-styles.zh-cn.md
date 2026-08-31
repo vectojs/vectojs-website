@@ -1,8 +1,8 @@
----
-title: '13 — 样式与主题 — 数值 VMT 上的 CSS 对等'
-description: '为何 VectoJS 样式位于 Virtual Math Tree、CSS 属性名对象如何映射到数值实体字段，以及使其像 CSS 却非 CSS 的每项机制——token 与 var() 解析、css() 合并、字体组合、按轴内边距、原子主题切换，以及让数值树保持诚实的迁移陷阱。'
-order: 33
----
++++
+title = "13 — 样式与主题 — 数值 VMT 上的 CSS 对等"
+description = "为何 VectoJS 样式位于 Virtual Math Tree、CSS 属性名对象如何映射到数值实体字段，以及使其像 CSS 却非 CSS 的每项机制——token 与 var() 解析、css() 合并、字体组合、按轴内边距、原子主题切换，以及让数值树保持诚实的迁移陷阱。"
+weight = 33
++++
 
 # 13 — 样式与主题 — 数值 VMT 上的 CSS 对等
 

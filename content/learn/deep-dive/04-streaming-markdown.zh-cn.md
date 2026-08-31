@@ -1,8 +1,8 @@
----
-title: '04 — 流式 Markdown — 增量调和'
-description: '为何任何前缀都可能是不完整语法、已提交前缀词法器、worker 增量协议、token→实体调和与就地修改器、O(C·N²) 与 wrapper-instanceof 陷阱，以及安全添加新扩展的方式。'
-order: 24
----
++++
+title = "04 — 流式 Markdown — 增量调和"
+description = "为何任何前缀都可能是不完整语法、已提交前缀词法器、worker 增量协议、token→实体调和与就地修改器、O(C·N²) 与 wrapper-instanceof 陷阱，以及安全添加新扩展的方式。"
+weight = 24
++++
 
 # 04 — 流式 Markdown — 增量调和
 

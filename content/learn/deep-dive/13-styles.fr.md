@@ -1,8 +1,8 @@
----
-title: '13 — Styles & Thématisation — Parité CSS sur le VMT numérique'
-description: "Pourquoi VectoJS style sur le Virtual Math Tree, comment les objets aux noms de propriétés CSS mappent vers les champs numériques des entités, et chaque mécanisme qui les fait ressembler à du CSS sans être du CSS — tokens et résolution var(), fusion css(), composition de fontes, padding par axe, switching atomique de thèmes et les pièges de migration qui gardent l'arbre numérique honnête."
-order: 33
----
++++
+title = "13 — Styles & Thématisation — Parité CSS sur le VMT numérique"
+description = "Pourquoi VectoJS style sur le Virtual Math Tree, comment les objets aux noms de propriétés CSS mappent vers les champs numériques des entités, et chaque mécanisme qui les fait ressembler à du CSS sans être du CSS — tokens et résolution var(), fusion css(), composition de fontes, padding par axe, switching atomique de thèmes et les pièges de migration qui gardent l'arbre numérique honnête."
+weight = 33
++++
 
 # 13 — Styles & Thématisation — Parité CSS sur le VMT numérique
 

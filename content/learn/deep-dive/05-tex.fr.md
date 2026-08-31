@@ -1,8 +1,8 @@
----
-title: '05 — Zero-DOM TeX — Composition et émission SVG'
-description: "Pourquoi le noyau KaTeX → l'émetteur VectoJS → SVG autonome, les invariants de l'espace de coordonnées, les pièges de la géométrie extensible et le chemin sûr vers une nouvelle construction TeX."
-order: 25
----
++++
+title = "05 — Zero-DOM TeX — Composition et émission SVG"
+description = "Pourquoi le noyau KaTeX → l'émetteur VectoJS → SVG autonome, les invariants de l'espace de coordonnées, les pièges de la géométrie extensible et le chemin sûr vers une nouvelle construction TeX."
+weight = 25
++++
 
 # 05 — Zero-DOM TeX — Composition et émission SVG
 

@@ -1,8 +1,8 @@
----
-title: '03 — Projection sémantique + Virtualisation'
-description: 'Le cycle de vie du DOM à trois niveaux – visuel, sémantique, interaction – et comment VectoJS matérialise uniquement ce qui est utilisable, Windows ce qui est sélectionnable et maintient le focus itinérant honnête.'
-order: 23
----
++++
+title = "03 — Projection sémantique + Virtualisation"
+description = "Le cycle de vie du DOM à trois niveaux – visuel, sémantique, interaction – et comment VectoJS matérialise uniquement ce qui est utilisable, Windows ce qui est sélectionnable et maintient le focus itinérant honnête."
+weight = 23
++++
 
 # 03 — Projection sémantique + Virtualisation
 

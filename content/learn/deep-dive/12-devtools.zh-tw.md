@@ -1,8 +1,8 @@
----
-title: '12 — DevTools — 執行期檢視與稽核'
-description: '為何畫布沒有 Elements 面板，VMT 檢視器如何在狀態空間中取代它，以及無頭模型層 — 挑選、幾何讀數、稽核、快照、命中解釋、dirty 影格歸因，以及橋接/外掛協定。'
-order: 32
----
++++
+title = "12 — DevTools — 執行期檢視與稽核"
+description = "為何畫布沒有 Elements 面板，VMT 檢視器如何在狀態空間中取代它，以及無頭模型層 — 挑選、幾何讀數、稽核、快照、命中解釋、dirty 影格歸因，以及橋接/外掛協定。"
+weight = 32
++++
 
 # 12 — DevTools — 執行期檢視與稽核
 

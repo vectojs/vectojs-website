@@ -1,8 +1,8 @@
----
-title: '14 — 반응형 레이아웃 & 상호작용 — 뷰포트 및 입력 적응'
-description: '뷰포트를 제약으로: 크기 조정/확대 리플로우, Stack/Flow 레이아웃 패스, 패널 대시보드, VirtualList 윈도우, ScrollView 물리, ResizablePanel 핸들, 오버레이 배치, 호버/포커스 상태 — VectoJS의 캔버스 네이티브 세계에서 모두.'
-order: 34
----
++++
+title = "14 — 반응형 레이아웃 & 상호작용 — 뷰포트 및 입력 적응"
+description = "뷰포트를 제약으로: 크기 조정/확대 리플로우, Stack/Flow 레이아웃 패스, 패널 대시보드, VirtualList 윈도우, ScrollView 물리, ResizablePanel 핸들, 오버레이 배치, 호버/포커스 상태 — VectoJS의 캔버스 네이티브 세계에서 모두."
+weight = 34
++++
 
 # 14 — 반응형 레이아웃 & 상호작용 — 뷰포트 및 입력 적응
 

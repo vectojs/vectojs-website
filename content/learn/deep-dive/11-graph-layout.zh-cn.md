@@ -1,8 +1,8 @@
----
-title: '11 — 图布局 — 力导向物理与基准测试'
-description: 'ForceLayout2D 无依赖的 2D 引擎、Barnes-Hut 四叉树与分层碰撞网格、增量变更与固定点契约、VectoForceLayout/D3ForceLayout 3D 家族、vectojs-force-rs WASM 内核，以及有头基准测试方法论。'
-order: 31
----
++++
+title = "11 — 图布局 — 力导向物理与基准测试"
+description = "ForceLayout2D 无依赖的 2D 引擎、Barnes-Hut 四叉树与分层碰撞网格、增量变更与固定点契约、VectoForceLayout/D3ForceLayout 3D 家族、vectojs-force-rs WASM 内核，以及有头基准测试方法论。"
+weight = 31
++++
 
 # 11 — 图布局 — 力导向物理与基准测试
 

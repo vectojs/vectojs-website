@@ -1,8 +1,8 @@
----
-title: '10 — 결정적 비디오 내보내기 — 고정 단계 캡처'
-description: '@vectojs/video-exporter가 벽 시계 시간을 고정 단계 씬 시계로 대체하고, 헤드리스 Chromium을 통해 캡처하며, PNG 프레임을 FFmpeg에 파이핑하여 H.264 MP4를 생성하는 방식 — 단계별 출력, 중단, 안전한 대상 유지를 위한 정리된 정리 포함.'
-order: 30
----
++++
+title = "10 — 결정적 비디오 내보내기 — 고정 단계 캡처"
+description = "@vectojs/video-exporter가 벽 시계 시간을 고정 단계 씬 시계로 대체하고, 헤드리스 Chromium을 통해 캡처하며, PNG 프레임을 FFmpeg에 파이핑하여 H.264 MP4를 생성하는 방식 — 단계별 출력, 중단, 안전한 대상 유지를 위한 정리된 정리 포함."
+weight = 30
++++
 
 # 10 — 결정적 비디오 내보내기 — 고정 단계 캡처
 

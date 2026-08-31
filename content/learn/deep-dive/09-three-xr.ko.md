@@ -1,8 +1,8 @@
----
-title: '09 — Three.js / XR 브리지 — 두 좌표 세계'
-description: 'VectoJS의 2D 캔버스 계약과 Three.js 3D 공간 사이의 어댑터: CanvasTexture 패널, 광선→UV→씬 매핑, 오프스크린 포커스/키보드 소유권, 그리고 Graph3D가 순수 Three 대안을 보여주는 방식.'
-order: 29
----
++++
+title = "09 — Three.js / XR 브리지 — 두 좌표 세계"
+description = "VectoJS의 2D 캔버스 계약과 Three.js 3D 공간 사이의 어댑터: CanvasTexture 패널, 광선→UV→씬 매핑, 오프스크린 포커스/키보드 소유권, 그리고 Graph3D가 순수 Three 대안을 보여주는 방식."
+weight = 29
++++
 
 # 09 — Three.js / XR 브리지 — 두 좌표 세계
 

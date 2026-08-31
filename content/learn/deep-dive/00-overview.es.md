@@ -1,19 +1,19 @@
----
-title: '00 — Visión general: Los doce jefes de VectoJS'
-description: 'Una guía de navegación por los doce jefes de profundización de VectoJS: el mapa del juego, las invariantes de arquitectura, las dependencias entre paquetes y las rutas de lectura para cada recién llegado.'
-order: 20
----
++++
+title = "00 — Visión general: Los dieciséis desafíos de VectoJS"
+description = "Una guía de navegación por los dieciséis desafíos de profundización de VectoJS: el mapa de desafíos, las invariantes de arquitectura, las dependencias entre paquetes y las rutas de lectura para cada recién llegado."
+weight = 20
++++
 
-# 00 — Visión general: Los doce jefes de VectoJS
+# 00 — Visión general: Los dieciséis desafíos de VectoJS
 
-## El juego
+## El mapa de desafíos
 
-VectoJS reimplementa responsabilidades del navegador sobre un único `<canvas>`: layout, hit-testing, despacho de eventos, conformado de texto, clipping, scroll, accesibilidad y renderizado — todo a partir de aritmética explícita sobre un árbol de entidades retenido. Piensa en el framework como un juego con **doce jefes**, cada uno custodiando un subsistema que el DOM antes te daba gratis y que VectoJS ahora debe clavar con precisión. No los combates en orden, pero sí necesitas conocer el mapa antes de elegir una pelea.
+VectoJS reimplementa responsabilidades del navegador sobre un único `<canvas>`: layout, hit-testing, despacho de eventos, conformado de texto, clipping, scroll, accesibilidad y renderizado — todo a partir de aritmética explícita sobre un árbol de entidades retenido. Esta serie de dieciséis partes traza los desafíos más difíciles del framework; cada uno cubre un subsistema que el DOM antes te daba gratis y que VectoJS ahora debe clavar con precisión. No necesitas abordarlos en orden, pero sí conocer el mapa antes de elegir por dónde empezar.
 
 Este documento es ese mapa.
 
-- **Qué aprenderás aquí**: la arquitectura del runtime en una sola imagen, el esqueleto de dependencias entre paquetes, qué invariante amenaza cada jefe, cómo elegir un orden de lectura y dónde se sitúan estos deep-dives respecto a los docs existentes en `content/learn/*` y `content/reference/*`.
-- **Qué no aprenderás**: la mecánica de ningún jefe en particular. Cada deep-dive es dueño de su jefe. Esta visión general te enlaza hasta allí y te da lo justo para llegar orientado.
+- **Qué aprenderás aquí**: la arquitectura del runtime en una sola imagen, el esqueleto de dependencias entre paquetes, qué invariante pone a prueba cada desafío, cómo elegir un orden de lectura y dónde se sitúan estos deep-dives respecto a los docs existentes en `content/learn/*` y `content/reference/*`.
+- **Qué no aprenderás**: la mecánica de ningún desafío en particular. Cada deep-dive especializado se ocupa de un desafío. Esta visión general te enlaza hasta allí y te da lo justo para llegar orientado.
 
 ## Arquitectura de un vistazo
 
@@ -74,11 +74,11 @@ Verificado contra las dependencias de `packages/*/package.json` (`text`/`math`/`
 
 Dos trampas para consumidores a vigilar al trazar dependencias: rutas espurias bajo `references/` están hardcodeadas en `packages/tex/scripts/vendor-katex.ts` (`--source`) y `scripts/compare-pretext.ts` (`VECTO_PRETEXT_PATH`) — mover ese árbol las rompe silenciosamente (según `AGENTS.md`).
 
-## Los doce jefes + esta visión general
+## Los dieciséis desafíos de un vistazo
 
-13 documentos en total: esta visión general (00) más uno por jefe. La dificultad es esfuerzo-para-equivocarse, no volumen de código. "Primera lectura" es la ruta más rápida hacia trabajo _útil_ con VectoJS; "prerrequisito profundo" es el otro jefe que deberías haber leído antes de abordar este.
+16 documentos en total: esta visión general (00) más 15 desafíos especializados (01–15). La dificultad mide el esfuerzo necesario para equivocarse, no el volumen de código. "Primera lectura" es la ruta más rápida hacia trabajo _útil_ con VectoJS; "prerrequisito profundo" señala los otros desafíos que deberías leer antes de abordar este.
 
-| #   | Jefe (deep-dive)                                                             | Paquete(s)                                                                    | Dificultad | Quién debería leer esto                                     | Prerrequisito profundo | Primera lectura para…                               |
+| #   | Desafío (deep-dive)                                                          | Paquete(s)                                                                    | Dificultad | Quién debería leer esto                                     | Prerrequisito profundo | Primera lectura para…                               |
 | --- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ---------- | ----------------------------------------------------------- | ---------------------- | --------------------------------------------------- |
 | 00  | **Visión general y navegación** (este doc)                                   | — (meta)                                                                      | ☆          | Todos, primera parada                                       | —                      | orientación                                         |
 | 01  | **Selección nativa en canvas** — sincronización de dos mundos                | `core` (`ContentGridProjector`, `ContentProjectionManager`), `text`, `layout` | ★★★★       | Texto/selección/IME, copiar/buscar/traducción               | 02                     | texto seleccionable, terminales, editores de código |
@@ -93,17 +93,20 @@ Dos trampas para consumidores a vigilar al trazar dependencias: rutas espurias b
 | 10  | **Exportación de vídeo determinista** — reloj de paso fijo                   | `video-exporter`                                                              | ★★         | Captura offline, replay                                     | 06                     | grabación de pantalla, exportación de simulación    |
 | 11  | **Layout de grafos** — force-directed + WASM                                 | `graph-layout`, `graph3d`, `knowledge-graph`                                  | ★★         | Visualización de grafos, ajuste de layout                   | 06, 08                 | grafos de red/conocimiento                          |
 | 12  | **DevTools** — introspección y auditoría en runtime                          | `devtools`, `core` (`frameStats`, `syncA11y`)                                 | ★          | Depuración, auditoría CI                                    | 06                     | "por qué esta entidad está aquí"                    |
+| 13  | **Estilos y temas** — paridad CSS en el VMT numérico                         | `styles`, `core`                                                              | ★★         | Estilos, temas y migración desde CSS                        | 06                     | tokens y cambio de tema                             |
+| 14  | **Layout responsive e interacción** — adaptación al viewport y la entrada    | `core`, `ui`, `layout`                                                        | ★★★        | Autores de apps y layouts responsive                        | 03, 06                 | UI Canvas adaptativa                                |
+| 15  | **Apps verticales** — composición de grafos, editor, escritorio y tabla      | `knowledge-graph`, `node-editor`, `desktop`, `table`                          | ★★★        | Autores de producto e integraciones                         | 06                     | composición de primitivas del motor                 |
 
 Notas de ordenación:
 
-- 02 y 06 son las dos mejores "segundas lecturas" tras 00 si debes elegir dos — la mayoría de los otros jefes asumen uno de ellos.
+- 02 y 06 son las dos mejores "segundas lecturas" tras 00 si debes elegir dos — la mayoría de los otros desafíos asumen uno de ellos.
 - 03 se apoya en la maquinaria de dirty/ciclo de vida de 06; 04 se apoya en el conformado/layout de 02; 07 y 08 se apoyan ambos en 06 y por tanto se agrupan de forma natural después de él.
 - La dificultad de 08 no es la sintaxis de Rust sino el **contrato de fallback bit-idéntico** y su trampa de compilación (`RUSTFLAGS` en `crates/vectojs-core-rs/build.sh`).
 - El tracker del equipo ya secuencia `CTX-0566→…→CTX-0578→CTX-0579`; la tabla de arriba es el orden de lectura, que puede diferir del orden de compilación/lanzamiento.
 
-## Tres invariantes que gobiernan cada jefe
+## Tres invariantes que gobiernan cada desafío
 
-Cada jefe puede romper una de ellas. Si no recuerdas nada más, recuerda las invariantes.
+Cada desafío puede romper una de ellas. Si no recuerdas nada más, recuerda las invariantes.
 
 ### 1. Invariante del ciclo de vida del VMT
 
@@ -115,32 +118,32 @@ Síntoma al romperse: bounds obsoletos tras `remove(child)` sin desregistro del 
 
 > Cada entidad **interactiva visible** tiene una **contraparte a11y sincronizada** cuya geometría, rol/nombre/estado y enrutamiento de foco/puntero coinciden con la verdad del canvas.
 
-Síntoma al romperse: Playwright `getByRole` no encuentra nada, los lectores de pantalla anuncian texto obsoleto, los clics golpean la entidad equivocada, el IME aterriza en la caja equivocada. Guarda: `Entity.ts:295` `A11yAttributes`, modos `Entity.ts:968` `a11yProjection` (`eager`/`onDemand`/`never`), `Entity.ts:1937` `getA11yAttributes()` por defecto, el recorrido compartido `syncA11y` (`A11yProjectionManager.ts:30`, `ContentProjectionManager.ts:26`), e invalidación de memo obsoleto en `A11yProjectionManager.ts:227`. La materialización `onDemand` y la virtualización del viewport son las partes difíciles (jefe 03) — ahí es donde viven la mayoría de los bloqueos reales de VectoJS.
+Síntoma al romperse: Playwright `getByRole` no encuentra nada, los lectores de pantalla anuncian texto obsoleto, los clics golpean la entidad equivocada, el IME aterriza en la caja equivocada. Guarda: `Entity.ts:295` `A11yAttributes`, modos `Entity.ts:968` `a11yProjection` (`eager`/`onDemand`/`never`), `Entity.ts:1937` `getA11yAttributes()` por defecto, el recorrido compartido `syncA11y` (`A11yProjectionManager.ts:30`, `ContentProjectionManager.ts:26`), e invalidación de memo obsoleto en `A11yProjectionManager.ts:227`. La materialización `onDemand` y la virtualización del viewport son las partes difíciles (desafío 03) — ahí es donde viven la mayoría de los bloqueos reales de VectoJS.
 
 ### 3. Invariante de métricas de texto
 
 > **Medir una vez, componer muchas** — y medir con la fuente **real**, en el contexto **correcto**, al **DPR adecuado**.
 
-Síntoma al romperse: el texto se desplaza respecto a su hit box, las bandas de selección se desalinean una línea, los huecos subpíxel CJK se pintan como líneas blancas, el fallback de web-font cambia silenciosamente los avances, el zoom por DPR desenfoca un subsistema pero no el otro. Guarda: `packages/text/src/fontMetrics.ts:82` `registerFontMetrics`, `packages/text/src/Typography.ts:111` `ctx.measureText('Mg')` con fallback DOM-free a 0.5em, calibración del contexto de medida `packages/text/src/measureContext.ts:12`, división frío/caliente de `LayoutEngine` en `packages/layout/src/LayoutEngine.ts:808` y memoización de párrafos. Cada jefe que toca texto (01, 02, 04, 05) reentra en esta invariante desde un ángulo distinto.
+Síntoma al romperse: el texto se desplaza respecto a su hit box, las bandas de selección se desalinean una línea, los huecos subpíxel CJK se pintan como líneas blancas, el fallback de web-font cambia silenciosamente los avances, el zoom por DPR desenfoca un subsistema pero no el otro. Guarda: `packages/text/src/fontMetrics.ts:82` `registerFontMetrics`, `packages/text/src/Typography.ts:111` `ctx.measureText('Mg')` con fallback DOM-free a 0.5em, calibración del contexto de medida `packages/text/src/measureContext.ts:12`, división frío/caliente de `LayoutEngine` en `packages/layout/src/LayoutEngine.ts:808` y memoización de párrafos. Cada desafío que toca texto (01, 02, 04, 05) reentra en esta invariante desde un ángulo distinto.
 
 Mantén estas tres como checklist durante la revisión: antes de aprobar cualquier cambio, pregunta "¿qué invariante podría romper esto y dónde se manifestaría primero?".
 
 ## Cómo se relacionan estos deep-dives con la documentación existente
 
-| Documentación existente                                                                                                              | Deep-dives (esta serie)    | Relación                                                                                                                                                                                                                                                                                                           |
-| ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `content/learn/*` (introduction, runtime-architecture, engine-concepts, text-typography, core-scene, accessibility, streaming, etc.) | 00–12                      | **Learn enseña a _usar_ VectoJS**; los deep-dives enseñan **cómo _funciona por dentro_ VectoJS** en ese uso. Leer primero un capítulo de learn abarata el jefe correspondiente. Pares sugeridos: `text-typography` → jefe 02; `core-scene` + `events` → jefe 06; `accessibility` → jefe 03; `streaming` → jefe 04. |
-| `content/reference/*` (core-a11y, core-entities, core-layout, core-text, ui-markdown, three-adapter, graph-layout, etc.)             | 00–12                      | **Reference es la verdad de la API** (props, tipos, sub-rutas). Los deep-dives citan páginas de referencia pero no las repiten. En caso de duda, gana la firma de referencia.                                                                                                                                      |
-| `forge/findings/*` + `forge/baselines/*`                                                                                             | apéndice de cada deep-dive | Los findings son las **notas de campo**; los baselines son la **evidencia medida**. Los deep-dives sintetizan findings en una única narrativa por jefe y enlazan de vuelta a las entradas `file:line` que sustentan cada afirmación.                                                                               |
-| `vectojs/AGENTS.md` + `vectojs/README.md`                                                                                            | 00 (este doc)              | El mapa de paquetes, el orden de compilación y el modelo de renderizado/interacción están **copiados de AGENTS.md y README.md verbatim en significado** y verificados contra `package.json` — no inventados.                                                                                                       |
+| Documentación existente                                                                                                              | Deep-dives (esta serie)    | Relación                                                                                                                                                                                                                                                                                                                          |
+| ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `content/learn/*` (introduction, runtime-architecture, engine-concepts, text-typography, core-scene, accessibility, streaming, etc.) | 00–15                      | **Learn enseña a _usar_ VectoJS**; los deep-dives enseñan **cómo _funciona por dentro_ VectoJS** en ese uso. Leer primero un capítulo de learn abarata el desafío correspondiente. Pares sugeridos: `text-typography` → desafío 02; `core-scene` + `events` → desafío 06; `accessibility` → desafío 03; `streaming` → desafío 04. |
+| `content/reference/*` (core-a11y, core-entities, core-layout, core-text, ui-markdown, three-adapter, graph-layout, etc.)             | 00–15                      | **Reference es la verdad de la API** (props, tipos, sub-rutas). Los deep-dives citan páginas de referencia pero no las repiten. En caso de duda, gana la firma de referencia.                                                                                                                                                     |
+| `forge/findings/*` + `forge/baselines/*`                                                                                             | apéndice de cada deep-dive | Los findings son las **notas de campo**; los baselines son la **evidencia medida**. Los deep-dives sintetizan findings en una única narrativa por desafío y enlazan de vuelta a las entradas `file:line` que sustentan cada afirmación.                                                                                           |
+| `vectojs/AGENTS.md` + `vectojs/README.md`                                                                                            | 00 (este doc)              | El mapa de paquetes, el orden de compilación y el modelo de renderizado/interacción están **copiados de AGENTS.md y README.md verbatim en significado** y verificados contra `package.json` — no inventados.                                                                                                                      |
 
 Regla: **lado autoritativo primero**. Si un hecho aparece tanto en una página learn/reference como en un deep-dive, la página learn/reference es el objetivo de corrección. Nunca hagas `cp -r` entre `vectojs-docs/content` y `vectojs-website/src/content` (según `AGENTS.md` — deriva de formateo + 408 ficheros i18n).
 
 ## Rutas de lectura — elige la tuya
 
-**"Acabo de llegar"** — 00 → 02 (texto/layout) → 06 (ciclo de vida del VMT) → 07 (renderizador) → el jefe más cercano a tu primera tarea. Dos tardes, suficiente para aterrizar una PR real.
+**"Acabo de llegar"** — 00 → 02 (texto/layout) → 06 (ciclo de vida del VMT) → 07 (renderizador) → el desafío más cercano a tu primera tarea. Dos tardes, suficiente para aterrizar una PR real.
 
-**"Soy dueño de una feature"** — 00 → tu jefe → su fila de prerrequisito profundo → el capítulo correspondiente en `content/learn/*` → `forge/findings/<area>.md` para ese jefe. Repasa de nuevo la sección de invariantes antes de la revisión.
+**"Soy dueño de una feature"** — 00 → tu desafío → su fila de prerrequisito profundo → el capítulo correspondiente en `content/learn/*` → `forge/findings/<area>.md` para ese desafío. Repasa de nuevo la sección de invariantes antes de la revisión.
 
 **"Soy dueño del rendimiento"** — 00 → 06 → 07 → 08 (WASM G1/G2/G3) → 11 (grafo) — luego `benchmarks/run-browsers.sh` y `forge/baselines/*.json`. Solo los números de `run-browsers.sh` son citables.
 
@@ -159,8 +162,8 @@ Cada frontmatter de deep-dive declara su `order`, conjunto de `package` y lista 
 
 ## Siguiente paso
 
-Elige tu ruta arriba. Una siguiente lectura convencional es **Jefe 01 — Selección nativa en canvas** si tocas texto, o **Jefe 06 — Runtime del VMT** si tocas ciclo de vida/eventos — ambos son rampas cortas hacia el par más difícil (02, 08).
+Elige tu ruta arriba. Una siguiente lectura convencional es **Desafío 01 — Selección nativa en canvas** si tocas texto, o **Desafío 06 — Runtime del VMT** si tocas ciclo de vida/eventos — ambos son rampas cortas hacia el par más difícil (02, 08).
 
 ---
 
-_Serie: 00 Visión general → 01 Selección → 02 Texto+Layout → 03 Proyección+Virtualización → 04 Markdown en streaming → 05 TeX → 06 Runtime del VMT → 07 Renderizador → 08 WASM G1/G2/G3 → 09 Three/XR → 10 Exportación de vídeo → 11 Layout de grafos → 12 DevTools → 99 Síntesis._
+_Serie: 00 Visión general → 01 Selección → 02 Texto+Layout → 03 Proyección+Virtualización → 04 Markdown en streaming → 05 TeX → 06 Runtime del VMT → 07 Renderizador → 08 WASM G1/G2/G3 → 09 Three/XR → 10 Exportación de vídeo → 11 Layout de grafos → 12 DevTools → 13 Estilos → 14 Responsive → 15 Apps verticales → 99 Síntesis._

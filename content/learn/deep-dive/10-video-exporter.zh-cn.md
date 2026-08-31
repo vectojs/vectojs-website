@@ -1,8 +1,8 @@
----
-title: '10 — 确定性视频导出 — 固定步进捕获'
-description: '@vectojs/video-exporter 如何以固定步进的场景时钟替代墙钟时间，经无头 Chromium 捕获，并将 PNG 帧管道输送至 FFmpeg 以生成 H.264 MP4——辅以分阶段输出、中止与清理以保障目标文件安全。'
-order: 30
----
++++
+title = "10 — 确定性视频导出 — 固定步进捕获"
+description = "@vectojs/video-exporter 如何以固定步进的场景时钟替代墙钟时间，经无头 Chromium 捕获，并将 PNG 帧管道输送至 FFmpeg 以生成 H.264 MP4——辅以分阶段输出、中止与清理以保障目标文件安全。"
+weight = 30
++++
 
 # 10 — 确定性视频导出 — 固定步进捕获
 

@@ -1,8 +1,8 @@
----
-title: '02 — 텍스트와 레이아웃: Unicode부터 픽셀까지'
-description: '전체 텍스트 파이프라인 — 분절, BiDi, 아랍어 셰이핑, 폰트 폴백, 타이포그래피, 줄 바꿈, LayoutEngine의 cold/hot 분리, 워커 스레딩, 그리고 페인트와 측정을 일치시키는 불변식.'
-order: 22
----
++++
+title = "02 — 텍스트와 레이아웃: Unicode부터 픽셀까지"
+description = "전체 텍스트 파이프라인 — 분절, BiDi, 아랍어 셰이핑, 폰트 폴백, 타이포그래피, 줄 바꿈, LayoutEngine의 cold/hot 분리, 워커 스레딩, 그리고 페인트와 측정을 일치시키는 불변식."
+weight = 22
++++
 
 # 02 — 텍스트와 레이아웃: Unicode부터 픽셀까지
 

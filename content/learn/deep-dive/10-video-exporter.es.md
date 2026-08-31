@@ -1,8 +1,8 @@
----
-title: '10 — Exportación de vídeo determinista — Captura de paso fijo'
-description: 'Cómo @vectojs/video-exporter reemplaza el tiempo de reloj de pared por un reloj de escena de paso fijo, captura a través de Chromium headless y canaliza frames PNG a FFmpeg para MP4 H.264 — con salida por etapas, abort y limpieza que mantienen el destino seguro.'
-order: 30
----
++++
+title = "10 — Exportación de vídeo determinista — Captura de paso fijo"
+description = "Cómo @vectojs/video-exporter reemplaza el tiempo de reloj de pared por un reloj de escena de paso fijo, captura a través de Chromium headless y canaliza frames PNG a FFmpeg para MP4 H.264 — con salida por etapas, abort y limpieza que mantienen el destino seguro."
+weight = 30
++++
 
 # 10 — Exportación de vídeo determinista — Captura de paso fijo
 

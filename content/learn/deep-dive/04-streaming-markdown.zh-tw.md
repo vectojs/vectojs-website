@@ -1,8 +1,8 @@
----
-title: '04 — 串流 Markdown — 增量調和'
-description: '為何任何前綴都可能是未完成語法、已提交前綴詞法器、Worker 差量協定、具原地變更器的 token→實體調和、O(C·N²) 與 wrapper-instanceof 陷阱，以及安全新增擴充的方法。'
-order: 24
----
++++
+title = "04 — 串流 Markdown — 增量調和"
+description = "為何任何前綴都可能是未完成語法、已提交前綴詞法器、Worker 差量協定、具原地變更器的 token→實體調和、O(C·N²) 與 wrapper-instanceof 陷阱，以及安全新增擴充的方法。"
+weight = 24
++++
 
 # 04 — 串流 Markdown — 增量調和
 

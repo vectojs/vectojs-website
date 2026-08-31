@@ -1,8 +1,8 @@
----
-title: '07 — Renderer — 座標 / クリッピング / DPR 一貫性'
-description: 'Canvas2D、WebGL、WebGPU、SVG、Three にまたがるマルチバックエンド一貫性：IRenderer 契約、座標空間、クリップ意味論、DPR／バッキングストア上限、ビューポートカリングとドローコールバッチング — そして同じシーンが別バックエンドで違って見えるすべての罠。'
-order: 27
----
++++
+title = "07 — Renderer — 座標 / クリッピング / DPR 一貫性"
+description = "Canvas2D、WebGL、WebGPU、SVG、Three にまたがるマルチバックエンド一貫性：IRenderer 契約、座標空間、クリップ意味論、DPR／バッキングストア上限、ビューポートカリングとドローコールバッチング — そして同じシーンが別バックエンドで違って見えるすべての罠。"
+weight = 27
++++
 
 # 07 — Renderer — 座標 / クリッピング / DPR 一貫性
 

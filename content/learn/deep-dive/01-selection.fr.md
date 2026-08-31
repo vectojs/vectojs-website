@@ -1,9 +1,9 @@
----
-title: '01 — Sélection Canvas-Native — Parité Dual-World'
-description: "Pourquoi Canvas n'a pas de sélection, comment VectoJS maintient le monde peint et le monde de sélection DOM à parité, ainsi que tous les invariants durs qui le gardent."
-order: 21
-date: 2026-08-29
----
++++
+title = "01 — Sélection Canvas-Native — Parité Dual-World"
+description = "Pourquoi Canvas n'a pas de sélection, comment VectoJS maintient le monde peint et le monde de sélection DOM à parité, ainsi que tous les invariants durs qui le gardent."
+weight = 21
+date = 2026-08-29
++++
 
 # 01 — Sélection Canvas-Native — Parité Dual-World
 

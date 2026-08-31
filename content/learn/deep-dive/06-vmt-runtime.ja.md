@@ -1,8 +1,8 @@
----
-title: '06 — VMT ランタイム — ライフサイクル / Dirty / イベント'
-description: 'Virtual Math Tree ランタイム：Entity ライフサイクル、dirty／無効化の粒度、ワールド行列の合成、capture／bubble イベント配送 — 3 つの不変条件を破る ancestor walk とライフサイクルリークの罠を添えて。'
-order: 26
----
++++
+title = "06 — VMT ランタイム — ライフサイクル / Dirty / イベント"
+description = "Virtual Math Tree ランタイム：Entity ライフサイクル、dirty／無効化の粒度、ワールド行列の合成、capture／bubble イベント配送 — 3 つの不変条件を破る ancestor walk とライフサイクルリークの罠を添えて。"
+weight = 26
++++
 
 # 06 — VMT ランタイム — ライフサイクル / Dirty / イベント
 

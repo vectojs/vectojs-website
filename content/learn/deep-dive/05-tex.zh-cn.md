@@ -1,8 +1,8 @@
----
-title: '05 — 零 DOM TeX — 排版与 SVG 发射'
-description: '为何 KaTeX 内核 → VectoJS 发射器 → 自包含 SVG，坐标空间不变量、伸缩几何陷阱，以及安全添加新 TeX 构造的路径。'
-order: 25
----
++++
+title = "05 — 零 DOM TeX — 排版与 SVG 发射"
+description = "为何 KaTeX 内核 → VectoJS 发射器 → 自包含 SVG，坐标空间不变量、伸缩几何陷阱，以及安全添加新 TeX 构造的路径。"
+weight = 25
++++
 
 # 05 — 零 DOM TeX — 排版与 SVG 发射
 

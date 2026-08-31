@@ -1,8 +1,8 @@
----
-title: '09 — Pont Three.js / XR — Deux mondes de coordonnées'
-description: "L'adapter entre le contrat canvas 2D de VectoJS et l'espace 3D de Three.js : panneaux CanvasTexture, mapping raycast→UV→scène, ownership focus/clavier offscreen, et comment Graph3D montre le pendant pure-Three."
-order: 29
----
++++
+title = "09 — Pont Three.js / XR — Deux mondes de coordonnées"
+description = "L'adapter entre le contrat canvas 2D de VectoJS et l'espace 3D de Three.js : panneaux CanvasTexture, mapping raycast→UV→scène, ownership focus/clavier offscreen, et comment Graph3D montre le pendant pure-Three."
+weight = 29
++++
 
 # 09 — Pont Three.js / XR — Deux mondes de coordonnées
 

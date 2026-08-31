@@ -1,8 +1,8 @@
----
-title: '02 — Texto y Layout: de Unicode a píxeles'
-description: 'El pipeline completo de texto — segmentación, BiDi, conformado árabe, fallback de fuente, Typography, salto de línea, la división frío/caliente de LayoutEngine, hilos worker y las invariantes que mantienen medida y pintado en paridad.'
-order: 22
----
++++
+title = "02 — Texto y Layout: de Unicode a píxeles"
+description = "El pipeline completo de texto — segmentación, BiDi, conformado árabe, fallback de fuente, Typography, salto de línea, la división frío/caliente de LayoutEngine, hilos worker y las invariantes que mantienen medida y pintado en paridad."
+weight = 22
++++
 
 # 02 — Texto y Layout: de Unicode a píxeles
 

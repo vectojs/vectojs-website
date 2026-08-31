@@ -1,8 +1,8 @@
----
-title: '07 — Renderer — Coordonnées / Clipping / Parité DPR'
-description: 'Parité multi-backend sur Canvas2D, WebGL, WebGPU, SVG et Three : le contrat IRenderer, les espaces de coordonnées, la sémantique du clip, les plafonds DPR/backing-store, le culling du viewport et le batching des draw calls — et chaque piège qui fait que la même scène paraît différente selon le backend.'
-order: 27
----
++++
+title = "07 — Renderer — Coordonnées / Clipping / Parité DPR"
+description = "Parité multi-backend sur Canvas2D, WebGL, WebGPU, SVG et Three : le contrat IRenderer, les espaces de coordonnées, la sémantique du clip, les plafonds DPR/backing-store, le culling du viewport et le batching des draw calls — et chaque piège qui fait que la même scène paraît différente selon le backend."
+weight = 27
++++
 
 # 07 — Renderer — Coordonnées / Clipping / Parité DPR
 

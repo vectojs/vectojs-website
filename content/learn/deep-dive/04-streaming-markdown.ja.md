@@ -1,8 +1,8 @@
----
-title: '04 — ストリーミング Markdown — インクリメンタルなリコンサイル'
-description: 'なぜ任意のプレフィックスが不完全な構文になりうるのか、committed-prefix レクサー、ワーカー差分プロトコル、インプレースミューテーターを伴う token→entity リコンサイル、O(C·N²) と wrapper-instanceof の罠、そして安全に新しい拡張を追加する方法。'
-order: 24
----
++++
+title = "04 — ストリーミング Markdown — インクリメンタルなリコンサイル"
+description = "なぜ任意のプレフィックスが不完全な構文になりうるのか、committed-prefix レクサー、ワーカー差分プロトコル、インプレースミューテーターを伴う token→entity リコンサイル、O(C·N²) と wrapper-instanceof の罠、そして安全に新しい拡張を追加する方法。"
+weight = 24
++++
 
 # 04 — ストリーミング Markdown — インクリメンタルなリコンサイル
 

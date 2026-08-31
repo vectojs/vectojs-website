@@ -1,8 +1,8 @@
----
-title: '10 — Export vidéo déterministe — Capture à pas fixe'
-description: "Comment @vectojs/video-exporter remplace le temps d'horloge murale par une horloge de scène à pas fixe, capture via Chromium headless et pipe les frames PNG vers FFmpeg pour un MP4 H.264 — avec sortie étagée, abort et cleanup qui gardent la destination sûre."
-order: 30
----
++++
+title = "10 — Export vidéo déterministe — Capture à pas fixe"
+description = "Comment @vectojs/video-exporter remplace le temps d'horloge murale par une horloge de scène à pas fixe, capture via Chromium headless et pipe les frames PNG vers FFmpeg pour un MP4 H.264 — avec sortie étagée, abort et cleanup qui gardent la destination sûre."
+weight = 30
++++
 
 # 10 — Export vidéo déterministe — Capture à pas fixe
 

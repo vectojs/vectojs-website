@@ -1,8 +1,8 @@
----
-title: '04 — Streaming Markdown — Réconciliation incrémentielle'
-description: "Pourquoi n'importe quel préfixe peut être une syntaxe incomplète, le lexer de préfixe validé, le protocole delta de travail, le jeton → l'entité se réconcilient avec les mutateurs sur place, les pièges O (C · N²) et l'instance de wrapper, et le moyen sûr d'ajouter une nouvelle extension."
-order: 24
----
++++
+title = "04 — Streaming Markdown — Réconciliation incrémentielle"
+description = "Pourquoi n'importe quel préfixe peut être une syntaxe incomplète, le lexer de préfixe validé, le protocole delta de travail, le jeton → l'entité se réconcilient avec les mutateurs sur place, les pièges O (C · N²) et l'instance de wrapper, et le moyen sûr d'ajouter une nouvelle extension."
+weight = 24
++++
 
 # 04 — Streaming Markdown — Réconciliation incrémentielle
 

@@ -1,8 +1,8 @@
----
-title: '13 — 스타일 & 테마 — 숫자 VMT 위의 CSS 패리티'
-description: 'VectoJS 스타일이 Virtual Math Tree 위에 사는 이유, CSS 속성 이름 객체가 숫자 엔티티 필드로 매핑되는 방식, CSS처럼 느껴지면서도 CSS가 아닌 모든 메커니즘 — 토큰과 var() 해석, css() 병합, 폰트 합성, 축별 패딩, 원자적 테마 전환, 숫자 트리의 정직함을 유지하는 이전 함정.'
-order: 33
----
++++
+title = "13 — 스타일 & 테마 — 숫자 VMT 위의 CSS 패리티"
+description = "VectoJS 스타일이 Virtual Math Tree 위에 사는 이유, CSS 속성 이름 객체가 숫자 엔티티 필드로 매핑되는 방식, CSS처럼 느껴지면서도 CSS가 아닌 모든 메커니즘 — 토큰과 var() 해석, css() 병합, 폰트 합성, 축별 패딩, 원자적 테마 전환, 숫자 트리의 정직함을 유지하는 이전 함정."
+weight = 33
++++
 
 # 13 — 스타일 & 테마 — 숫자 VMT 위의 CSS 패리티
 

@@ -1,8 +1,8 @@
----
-title: '02 — 文本与布局：从 Unicode 到像素'
-description: '完整文本管线——分段、BiDi、阿拉伯塑形、字体回退、Typography、断行、LayoutEngine 冷/热分离、Worker 线程化，以及保持绘制与度量对等的各项不变量。'
-order: 22
----
++++
+title = "02 — 文本与布局：从 Unicode 到像素"
+description = "完整文本管线——分段、BiDi、阿拉伯塑形、字体回退、Typography、断行、LayoutEngine 冷/热分离、Worker 线程化，以及保持绘制与度量对等的各项不变量。"
+weight = 22
++++
 
 # 02 — 文本与布局：从 Unicode 到像素
 

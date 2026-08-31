@@ -1,8 +1,8 @@
----
-title: '09 — Three.js / XR 橋接 — 兩個座標世界'
-description: 'VectoJS 2D 畫布契約與 Three.js 3D 空間之間的轉接器：CanvasTexture 面板、raycast→UV→場景映射、離屏焦點/鍵盤擁有權，以及 Graph3D 如何呈現純 Three 對應物。'
-order: 29
----
++++
+title = "09 — Three.js / XR 橋接 — 兩個座標世界"
+description = "VectoJS 2D 畫布契約與 Three.js 3D 空間之間的轉接器：CanvasTexture 面板、raycast→UV→場景映射、離屏焦點/鍵盤擁有權，以及 Graph3D 如何呈現純 Three 對應物。"
+weight = 29
++++
 
 # 09 — Three.js / XR 橋接 — 兩個座標世界
 

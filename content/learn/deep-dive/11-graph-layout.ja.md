@@ -1,8 +1,8 @@
----
-title: '11 — グラフレイアウト — 力指向物理演算とベンチマーク'
-description: 'ForceLayout2D の依存なし 2D エンジン、Barnes-Hut 四分木と階層化された衝突グリッド、増分ミューテーションとピン契約、VectoForceLayout / D3ForceLayout の 3D ファミリー、vectojs-force-rs WASM カーネル、そしてヘッドありベンチマーク手法。'
-order: 31
----
++++
+title = "11 — グラフレイアウト — 力指向物理演算とベンチマーク"
+description = "ForceLayout2D の依存なし 2D エンジン、Barnes-Hut 四分木と階層化された衝突グリッド、増分ミューテーションとピン契約、VectoForceLayout / D3ForceLayout の 3D ファミリー、vectojs-force-rs WASM カーネル、そしてヘッドありベンチマーク手法。"
+weight = 31
++++
 
 # 11 — グラフレイアウト — 力指向物理演算とベンチマーク
 

@@ -1,8 +1,8 @@
----
-title: '03 — 의미 투영 + 가상화'
-description: '3단계 DOM 생명주기 — Visual, Semantic, Interaction — 그리고 VectoJS가 usable한 것만 구체화하고, 선택 가능한 것만 윈도잉하며, roving 포커스를 정직하게 유지하는 방법.'
-order: 23
----
++++
+title = "03 — 의미 투영 + 가상화"
+description = "3단계 DOM 생명주기 — Visual, Semantic, Interaction — 그리고 VectoJS가 usable한 것만 구체화하고, 선택 가능한 것만 윈도잉하며, roving 포커스를 정직하게 유지하는 방법."
+weight = 23
++++
 
 # 03 — 의미 투영 + 가상화
 
