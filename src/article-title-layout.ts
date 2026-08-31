@@ -14,7 +14,7 @@ export function articleTitleMetrics(isMobile: boolean): ArticleTitleMetrics {
   };
 }
 
-/** Height consumed by the measured visual lines of an article title. */
-export function articleTitleHeight(lineCount: number, metrics: ArticleTitleMetrics): number {
-  return Math.max(1, lineCount) * metrics.lineHeight;
+/** Height consumed by an article title, with one full line as the minimum. */
+export function articleTitleHeight(measuredHeight: number, metrics: ArticleTitleMetrics): number {
+  return Math.max(measuredHeight, metrics.lineHeight);
 }

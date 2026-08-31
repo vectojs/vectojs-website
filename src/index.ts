@@ -799,7 +799,7 @@ async function renderApp(): Promise<void> {
     );
     pageTitle.setPosition(0, detailY);
     page.add(pageTitle);
-    detailY += articleTitleHeight(pageTitle.lines.length, titleMetrics) + 24;
+    detailY += articleTitleHeight(pageTitle.height, titleMetrics) + 24;
 
     if (payload.data?.date) {
       const dateText = withWholeLineProjection(
