@@ -235,8 +235,12 @@ classifyProjectionBlocks(content: Stack): ClassifiedProjectionBlock[]
 applyProjectionMode(root: Entity, mode: MarkdownProjectionMode): void
 ```
 
-Kinds attach to top-level blocks only (idempotent — re-running keeps prior
-kinds); nested content keeps its own `domKind` until a finer pass tags it.
+Kinds attach to top-level blocks (idempotent — re-running keeps prior kinds),
+and container blocks (quotes, lists) additionally have their nested prose/code
+tagged recursively (`classifyNestedChildren` in
+`packages/markdown/src/projection-policy.ts`), so nested leaves negotiate
+individually in `'hybrid'` / `'dom'` modes. Tables stay canvas even when nested
+(composite widget, cell text included); canvas leaves keep `domKind ''`.
 Modes: `'canvas'` forces every node to canvas (byte-identical baseline, the
 regression gate); `'dom'` forces `'dom'` where the node has a materializable
 kind (`'prose'` / `'code'`) and canvas elsewhere; `'hybrid'` sets every node to
