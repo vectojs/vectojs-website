@@ -18,8 +18,12 @@ The exception is a DOM-resolved node: its live projected element already carries
 label via the backend's content sync (see
 [`@vectojs/dom`](/reference/dom-projection/#relationship-to-the-a11y-mirror)), so the scene
 suppresses that node's own transparent mirror — the same single-delivery reasoning as the
-`DOMPortalEntity` skip. Explicit `domPolicy: 'dom'` suppresses unconditionally; `'auto'`
-suppresses only while negotiated to `'dom'`. The walk still descends, so canvas-policy
+`DOMPortalEntity` skip. Suppression follows the negotiated resolution
+(`Scene.resolveProjectionFor(node) === 'dom'`), not the requested policy: an
+explicit `domPolicy: 'dom'` that falls back to canvas — no backend mounted,
+unsupported kind, prohibitive cost — still paints on canvas, so it keeps its
+mirror; otherwise the walk and the a11y layer would disagree. The walk still
+descends, so canvas-policy
 descendants of a DOM container keep their mirrors.
 
 The projection root tracks the canvas CSS box: canvas offset and non-uniform CSS

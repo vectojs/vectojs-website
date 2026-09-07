@@ -101,6 +101,17 @@ keeps its perspective shape under rotation. Only 100% browser/display zoom is
 supported: non-100% zoom misaligns `matrix3d` spacing (upstream
 `mrdoob/three.js#3225`). Documented, not fixed.
 
+## Clipping agreement
+
+A `clipChildren` canvas ancestor clips a node's paint, but the flat DOM tree
+(every projected element a sibling under the root) would render it whole.
+`update` therefore applies the clipper chain as CSS `clip-path`
+(`clipPathForNode` in `packages/dom/src/DOMProjection.ts`: the intersection of
+every clipping ancestor's box, expressed in the node's local pixels),
+dirty-checked like every other per-frame write — so rendered output agrees with
+hit-testing. Unclipped nodes write nothing; a pooled element has its previous
+owner's clip cleared on claim.
+
 ## Pooling
 
 Elements are pooled per tag, capped at 8 per tag. Claiming re-applies kind setup
@@ -129,7 +140,9 @@ fills its parent, takes no pointer events itself (`pointer-events: none`), and
 clips (`overflow: hidden`).
 
 Within the layer, document order follows stable mount order: first mount paints
-first, and steady-state frames write no `z-index` at all.
+first, and steady-state frames write no `z-index` at all. An unmount/remount
+cycle restores the same per-id slot instead of taking a fresh one that would
+float the pooled element above later siblings.
 
 ## Prototype nodes
 
@@ -243,7 +256,11 @@ during `'auto'` negotiation so a node never flips backends mid-gesture; a node
 torn down mid-gesture (explicit flip, removal) drops the pin on `unmount` rather
 than reporting a stale gesture forever, since its listeners are gone with the
 element. A release arriving without a matching start (press began outside,
-released inside) is tolerated.
+released inside) is tolerated. Attribution is per node: `getGestureOwner`
+returns the owning node id (first elector wins; a release clears the election
+only when it still names the releasing node, so one scene's release never drops
+another's live gesture), and each bridge exposes `hasGesture(pointerId)` as the
+per-element view of the same election.
 
 ## Relationship to the a11y mirror
 
