@@ -10,14 +10,22 @@ Canvas and WebGL pixels carry no semantic information by themselves. For
 eligible interactive entities, VectoJS maintains a real, invisible DOM element
 in its `a11yRoot` overlay. Screen readers, keyboard navigation, and automation
 tools can interact with those elements while canvas-backed layers provide the
-visuals. This is a projection layer, not the browser's Shadow DOM API, and
-applications still own correct semantics and testing.
+visuals. Nodes whose visual negotiation resolves to DOM are the exception:
+their live projected element already carries role and label, so the Scene
+suppresses that node's own transparent mirror — while a request that falls
+back to canvas keeps it (see [DOM
+projection](/reference/dom-projection/#relationship-to-the-a11y-mirror) and
+[projection policy](/reference/projection-policy/)). This is a projection
+layer, not the browser's Shadow DOM API, and applications still own correct
+semantics and testing.
 
 ## How shadow DOM projection works
 
-When an entity has `interactive = true` (and a non-zero box), the `Scene`
-creates a real HTML element — `<button>`, `<input>`, `<a>`, etc. — and positions
-it above the canvas using absolute CSS. The element has `opacity: 0` and
+When a canvas-resolved entity has `interactive = true` (and a non-zero
+box), the `Scene` creates a real HTML element — `<button>`, `<input>`, `<a>`,
+etc. — and positions it above the canvas using absolute CSS. A DOM-resolved
+node's live element takes this role instead, so no second mirror is projected
+for it. The element has `opacity: 0` and
 `pointer-events: auto`, so it is invisible to the eye but fully functional for
 accessibility tools.
 
@@ -212,6 +220,9 @@ elements** for text entry. This means:
 - The canvas is a **pure visual mirror**: it reads `value`, `selectionStart`,
   `selectionEnd`, and `composition` from the `change` event and draws the caret,
   selection highlight, and IME underline.
+
+For inputs that materialize as live elements instead of a canvas mirror, see
+`DOMInput` in [@vectojs/dom](/reference/dom-projection/#prototype-nodes).
 
 While an input is focused, the sync avoids writing back the same
 user-synchronized value. If application state supplies a genuinely different
