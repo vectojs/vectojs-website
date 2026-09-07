@@ -21,10 +21,10 @@
     "prepare": "lefthook install"
   },
   "dependencies": {
-    "@vectojs/core": "1.39.1",
+    "@vectojs/core": "1.40.0",
     "@vectojs/devtools": "0.11.2",
     "@vectojs/layout": "0.10.0",
-    "@vectojs/markdown": "0.23.3",
+    "@vectojs/markdown": "0.25.0",
     "@vectojs/styles": "0.3.3",
     "@vectojs/ui": "2.20.2"
   },

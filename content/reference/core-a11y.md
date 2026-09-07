@@ -14,6 +14,14 @@ automation/AT can interact; `opacity:0` unless `debugA11y`). Each node carries
 `id` + `data-vecto-id`, plus the role/label/state from
 [`Entity.getA11yAttributes()`](/reference/core-entity/#a11y-batching-hooks-override-to-opt-in).
 
+The exception is a DOM-resolved node: its live projected element already carries role and
+label via the backend's content sync (see
+[`@vectojs/dom`](/reference/dom-projection/#relationship-to-the-a11y-mirror)), so the scene
+suppresses that node's own transparent mirror — the same single-delivery reasoning as the
+`DOMPortalEntity` skip. Explicit `domPolicy: 'dom'` suppresses unconditionally; `'auto'`
+suppresses only while negotiated to `'dom'`. The walk still descends, so canvas-policy
+descendants of a DOM container keep their mirrors.
+
 The projection root tracks the canvas CSS box: canvas offset and non-uniform CSS
 scaling are applied to the shadow and DOM-portal layers while entity geometry
 remains in logical Scene coordinates. Arbitrary CSS rotation/skew of the canvas

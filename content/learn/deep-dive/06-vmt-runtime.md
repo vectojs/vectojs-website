@@ -65,7 +65,7 @@ The causal order is fixed — `Scene.ts:5745` documents it as a correctness cont
 - Local transform: `_x/_y/_scaleX/_scaleY/_rotation/_opacity` (`:805`), with `_hasTransitions` fast-path flag (`:812`) so a passive entity's `x = v` is one boolean check + field write.
 - Lazily allocated `Map`s: `_drivers`, `listeners`, `captureListeners` (`:819`) — null until first use. A scene of 20k particles never allocates them.
 - `_mounted: boolean` (`:816`), `_destroyed: boolean` (`:817`), `_driversTickedFrame: number` (`:828`, `-1` initially).
-- World-matrix cache `_wa.._wf / _worldFrame` (`:845`) and WASM slot `_storeSlot: number` (`:865`, `-1` when not in the store).
+- World-matrix cache ` _wa.._wf / _worldFrame` (`:845`) and WASM slot ` _storeSlot: number` (`:865`, `-1` when not in the store).
 
 Subclasses override `getBounds()`, `drawSelf()`, `getContentProjection()`, `update()`, `onMounted()`, `destroy()`.
 
