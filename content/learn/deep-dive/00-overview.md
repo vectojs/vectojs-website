@@ -44,7 +44,13 @@ This document is that map.
                                          copy/find, AT automation
 ```
 
-Source-of-pixels is always the canvas. The DOM carries **semantics and native input** only; it does not render the visible scene. The two worlds are kept in sync by a depth-first walk (`Scene.syncA11y` / `ContentProjectionManager`, see `packages/core/src/tree/scene/A11yProjectionManager.ts:30`) that runs after layout and before presenting a frame.
+Source-of-pixels is the canvas by default. The DOM carries **semantics and
+native input**, and subtrees with `domPolicy: 'dom'`/`'auto'` additionally
+render as live elements (see [DOM projection](/reference/dom-projection/) and
+[projection policy](/reference/projection-policy/)). The two worlds are kept
+in sync by a depth-first walk (`Scene.syncA11y` / `ContentProjectionManager`,
+see `packages/core/src/tree/scene/A11yProjectionManager.ts:30`) that runs
+after layout and before presenting a frame.
 
 Reference renderings of nearby pictures already live in the docs: [Runtime Architecture](/learn/runtime-architecture/) and [Engine Concepts](/learn/engine-concepts/) (central VMT hub diagram). This text diagram is intentionally code-referenceable and printable.
 

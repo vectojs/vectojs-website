@@ -6,7 +6,15 @@ weight = 23
 
 # 03 — Semantic Projection + Virtualization
 
-VectoJS renders **zero visible DOM**. Everything you see is canvas. Everything a screen reader, keyboard user, or Playwright agent touches is a **thin projected shadow** in `Scene.a11yRoot` (a single `position:absolute` div above the canvas, `packages/core/src/tree/Scene.ts:2390`). That shadow is not one-node-per-entity — it is a three-tier lifecycle that bounds cost to the viewport while keeping off-screen text reachable for find and read-ahead.
+VectoJS renders **zero visible DOM by default**. Everything you see is
+canvas unless a subtree opts into visual DOM projection (see [DOM
+projection](/reference/dom-projection/) and [projection
+policy](/reference/projection-policy/)). Everything a screen reader, keyboard
+user, or Playwright agent touches is a **thin projected shadow** in
+`Scene.a11yRoot` (a single `position:absolute` div above the canvas,
+`packages/core/src/tree/Scene.ts:2390`). That shadow is not
+one-node-per-entity — it is a three-tier lifecycle that bounds cost to the
+viewport while keeping off-screen text reachable for find and read-ahead.
 
 ## The three tiers — one diagram
 
@@ -213,7 +221,16 @@ Precedent: `RadioGroup`/`Tabs` (#160), `Tree`/`Table`/`ContextMenu` (#191); live
 
 ### The `pointerEvents: 'none'` rationale
 
-Canvas input is routed **only through projected mirrors** — `Scene` binds `pointerdown`/`pointerup`/`click`/`wheel` per mirror (`Scene.ts:3512`) and `pointermove`/`pointerleave` on the canvas only for hover tracking. So `pointerEvents: 'none'` on a hotspot does not just "remove it from hit testing" — it removes its mouse input path entirely, while keyboard focus and AT-synthesized `click` still route (`forge/findings/core-a11y-and-input.md:336`). Use it when something _underneath_ owns the pointer:
+Canvas-policy input is routed **only through projected mirrors** — `Scene`
+binds `pointerdown`/`pointerup`/`click`/`wheel` per mirror (`Scene.ts:3512`)
+and `pointermove`/`pointerleave` on the canvas only for hover tracking.
+(DOM-resolved nodes instead receive native events through the backend's event
+bridge — see [DOM projection](/reference/dom-projection/#event-bridge).) So
+`pointerEvents: 'none'` on a hotspot does not just "remove it from hit
+testing" — it removes its mouse input path entirely, while keyboard focus and
+AT-synthesized `click` still route
+(`forge/findings/core-a11y-and-input.md:336`). Use it when something
+_underneath_ owns the pointer:
 
 - selectable cell text (`Table.ts:116`),
 - drag-to-scroll surfaces (`ScrollView.ts:289`),

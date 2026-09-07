@@ -22,7 +22,12 @@ The VMT replaces a visual DOM subtree with a JavaScript scene graph of localized
 
 ## 2. Semantic projection overlay
 
-Eligible interactive entities project real transparent DOM nodes over their canvas bounds. The canvas owns pixels; the DOM projection owns role/name/state and native input behavior.
+Eligible interactive entities project real transparent DOM nodes over their
+canvas bounds. By default the canvas owns pixels while the DOM projection owns
+role/name/state and native input behavior; subtrees that opt into visual DOM
+projection instead materialize as live elements (see [DOM
+projection](/reference/dom-projection/) and [projection
+policy](/reference/projection-policy/)).
 
 - Theory: [Mathematical Foundations: a11yRoot](/learn/math-foundations/#2-semantic-shadow-dom-a11yroot)
 - Practice: [Accessibility](/learn/accessibility/)

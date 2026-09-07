@@ -6,7 +6,12 @@ weight = 16
 
 # UI Components
 
-The `@vectojs/ui` package provides a set of ready-to-use, production-quality components built on top of `@vectojs/core`. Every component renders entirely on canvas; accessibility comes from the automatic A11y shadow DOM layer.
+The `@vectojs/ui` package provides a set of ready-to-use, production-quality
+components built on top of `@vectojs/core`. Every component renders on canvas by
+default; accessibility comes from the automatic A11y shadow DOM layer. Subtrees
+opted into `domPolicy: 'dom'`/`'auto'` instead materialize as live elements —
+see [DOM projection](/reference/dom-projection/) and [projection
+policy](/reference/projection-policy/).
 
 ## All Components Extend `UIComponent`
 
@@ -122,7 +127,12 @@ const input = new Input({
 scene.add(input.setPosition(20, 80));
 ```
 
-Backed by a **real transparent `<input>`** — the browser handles all typing, IME, clipboard, and undo natively. The canvas only draws the visual. IME composition underlines, caret blink, and RTL selection are all rendered.
+Backed by a **real transparent `<input>`** — the browser handles all
+typing, IME, clipboard, and undo natively. The canvas only draws the visual.
+IME composition underlines, caret blink, and RTL selection are all rendered.
+For a natively materialized alternative, see `DOMInput` in
+[@vectojs/dom](/reference/dom-projection/#prototype-nodes) — this `Input`
+component itself is unchanged.
 
 ### `TextArea` (multi-line)
 
@@ -483,7 +493,7 @@ Call `progress.setValue(fraction)` to update — the value is clamped to `[0, 1]
 
 <figure>
   <img src="/images/component-gallery.svg" alt="VectoJS component gallery showing Button, Text, Input, Card, ScrollView, Slider, Toggle, Checkbox, and Dropdown" class="diagram" />
-  <figcaption>All components render entirely on canvas. Shadow DOM nodes (invisible) provide native accessibility and automation support.</figcaption>
+  <figcaption>All components render on canvas by default. Shadow DOM nodes (invisible) provide native accessibility and automation support unless a subtree resolves to live DOM elements.</figcaption>
 </figure>
 
 See the [UI Components Reference](/reference/ui-components/) for complete option signatures.

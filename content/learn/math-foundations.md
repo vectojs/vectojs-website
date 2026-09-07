@@ -43,7 +43,11 @@ VectoJS resolves this via the **Semantic Shadow DOM** (or `a11yRoot`).
 
 ### Active Accessibility Projection
 
-While VectoJS renders all graphics directly inside a single `<canvas>` element, it maintains an invisible, high-fidelity **Semantic Shadow DOM** layered in absolute position directly above the canvas coordinate space.
+While VectoJS renders graphics by default directly inside a single
+`<canvas>` element, it maintains an invisible, high-fidelity **Semantic Shadow
+DOM** layered in absolute position directly above the canvas coordinate space.
+(Subtrees with `domPolicy: 'dom'`/`'auto'` may materialize as live elements
+instead — see [DOM projection](/reference/dom-projection/).)
 
 ```text
 ┌────────────────────────────────────────────────────────┐
