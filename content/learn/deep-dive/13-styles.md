@@ -17,7 +17,7 @@ The VMT stores the scene as numbers. `Entity.x: number` (`packages/core/src/tree
 
 `@vectojs/styles` leans into that constraint instead of fighting it:
 
-- A `Style` is a plain object (`packages/styles/src/types.ts:16`) with **optional** keys — `x?: CssLength` (`types.ts:18`), `backgroundColor?: string` (`types.ts:28`), `fontSize?:`${number}px`` (`types.ts:46`), `display?: 'flex'` (`types.ts:62`). No class, no proxy, no registry.
+- A `Style` is a plain object (`packages/styles/src/types.ts:16`) with **optional** keys — `x?: CssLength` (`types.ts:18`), `backgroundColor?: string` (`types.ts:28`), `fontSize?: `${number}px`` (`types.ts:46`), `display?: 'flex'` (`types.ts:62`). No class, no proxy, no registry.
 - `applyStyle(entity, style)` (`packages/styles/src/apply.ts:294`) is a **fixed lookup table** `RULES: Record<string, Rule>` (`apply.ts:54`) that converts each CSS-named key into one numeric/string/boolean write. Every key is enumerated; an unknown key throws (`apply.ts:258`). No parsing, no inheritance, no `%`.
 - Tokens are flat `Record<string, string|number>` (`packages/styles/src/theme.ts:38` `ThemeTokenSet`), referenced as `var(--key)` in values and resolved by string substitution against the active theme — not by a CSS engine.
 - The package depends only on `@vectojs/core` (`packages/styles/package.json:14`) and has zero runtime deps; `@vectojs/ui` carries zero `@vectojs/styles` dep (the dependency graph is `core → styles`, ingestion is opt-in).
@@ -26,7 +26,7 @@ The payoff is migration comfort — `backgroundColor: 'var(--accent)'` reads lik
 
 ## 2. `Style` and the Rule table — every key is a contract
 
-`CssLength = number |`${number}px`` (`packages/styles/src/types.ts:2`) — bare numbers are px, `px` strings are parsed to numbers. The distinction matters only for `fontSize`, which the type narrows to `` `${number}px` `` (`types.ts:46`) so a bare`16` is a type error — the composed font shorthand must stay valid.
+`CssLength = number | `${number}px`` (`packages/styles/src/types.ts:2`) — bare numbers are px, `px` strings are parsed to numbers. The distinction matters only for `fontSize`, which the type narrows to `` `${number}px` `` (`types.ts:46`) so a bare `16` is a type error — the composed font shorthand must stay valid.
 
 `Style` (`types.ts:16`) groups keys by what they drive:
 
@@ -208,7 +208,7 @@ Why this matters:
 - `normal` ambiguity: `font: normal normal 16px Inter` is valid CSS; the first `normal` fills `weight`, further ones fill `style` then `variant` (`font.ts:48`) instead of falling into the size slot and throwing.
 - Loud failures: `ultra-condensed 700 16px serif` before the size throws naming the offending segment (`issue-608.test.ts:124`). Size-like segments that cannot be placed fail at `font.ts:91` (`unrecognized segment '…' before the font size`) rather than being buried in the family.
 - Missing size/family defaults: `parts.size ??= '16px'` and `family ??= 'sans-serif'` (`font.ts:121`) so an empty `font: ''` plus `fontFamily: 'Inter'` yields `'16px Inter'` (`v2.test.ts:239`), and bare style-prefix shorthands `italic Georgia` normalize to `italic 18px Georgia` (`issue-608.test.ts:129`).
-- Runtime unit enforcement: `fontSize` arriving as `12` (bare number from a token) throws `unit-bearing token (e.g. '16px')` (`apply.ts:223`), `'2em'` throws `fontSize expects a px string` (`apply.ts:233`), and a `fontFamily` containing a digit triggers `looks like a font shorthand` (`apply.ts:214`, `v2.test.ts:272`). The `fontSize:`${number}px`` type (`types.ts:46`) catches the static case; the runtime catches tokens and JS callers.
+- Runtime unit enforcement: `fontSize` arriving as `12` (bare number from a token) throws `unit-bearing token (e.g. '16px')` (`apply.ts:223`), `'2em'` throws `fontSize expects a px string` (`apply.ts:233`), and a `fontFamily` containing a digit triggers `looks like a font shorthand` (`apply.ts:214`, `v2.test.ts:272`). The `fontSize: `${number}px`` type (`types.ts:46`) catches the static case; the runtime catches tokens and JS callers.
 
 ### 7.2 Per-axis padding — `padding: { x, y }`
 

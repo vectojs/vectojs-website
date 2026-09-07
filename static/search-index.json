@@ -72,6 +72,12 @@
     "lang": "zh-tw"
   },
   {
+    "title": "@vectojs/dom",
+    "href": "/reference/dom-projection/",
+    "section": "reference",
+    "lang": "en"
+  },
+  {
     "title": "@vectojs/graph-layout",
     "href": "/es/reference/graph-layout/",
     "section": "reference",
@@ -1799,6 +1805,12 @@
     "href": "/fr/learn/getting-started/",
     "section": "learn",
     "lang": "fr"
+  },
+  {
+    "title": "Projection policy",
+    "href": "/reference/projection-policy/",
+    "section": "reference",
+    "lang": "en"
   },
   { "title": "Recetario", "href": "/es/learn/cookbook/", "section": "learn", "lang": "es" },
   { "title": "Recettes", "href": "/fr/learn/cookbook/", "section": "learn", "lang": "fr" },

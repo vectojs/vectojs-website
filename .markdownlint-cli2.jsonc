@@ -2,13 +2,18 @@
   "$schema": "https://raw.githubusercontent.com/DavidAnson/markdownlint-cli2/main/schema/markdownlint-cli2-config-schema.json",
   // Rules mirror the former .markdownlint.yaml exactly. This repo is prose-heavy
   // documentation, so MD013 (line length) stays off, and the docs embed HTML
-  // (<figure>, <iframe>) plus bare URLs by design.
+  // (<figure>, <iframe>) plus bare URLs by design. MD038 stays off because the
+  // synced reference documents TS template-literal types (`fontSize?: `${number}px``),
+  // where the space inside the code span is REQUIRED for correct CommonMark
+  // parsing (without it the inner backtick terminates the span early) — the
+  // rule cannot distinguish this from a stray space (CTX-0057 / DEC-0035).
   "config": {
     "default": true,
     "MD013": false,
     "MD025": false,
     "MD033": false,
     "MD034": false,
+    "MD038": false,
     "MD024": {
       "siblings_only": true,
     },
