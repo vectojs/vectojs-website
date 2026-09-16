@@ -69,9 +69,9 @@ const USECASE_ICONS = [
 
 const en: HomeStrings = {
   hero: {
-    title: 'VectoJS — the Zero-DOM canvas UI engine an AI agent can actually drive',
+    title: 'VectoJS — the canvas-native UI runtime',
     tagline:
-      'Zero-DOM, accessible, agent-native. The canvas UI runtime that screen readers — and AI agents — can operate by role.',
+      'Render only what is visible, materialize only what is usable, retain only what is necessary. A retained scene graph on one canvas, with a semantic projection that keeps every interface accessible.',
     gallery: 'Gallery',
     github: 'GitHub',
   },
@@ -284,9 +284,9 @@ function mergeHome(base: HomeStrings, over: HomeOverride): HomeStrings {
 const OVERRIDES: Partial<Record<Locale, HomeOverride>> = {
   'zh-cn': {
     hero: {
-      title: 'VectoJS —— AI 智能体真正能驾驭的零 DOM canvas UI 引擎',
+      title: 'VectoJS —— canvas 原生 UI 运行时',
       tagline:
-        '零 DOM、可访问、面向智能体。屏幕阅读器与 AI 智能体都能按角色操作的 canvas UI 运行时。',
+        '只渲染可见，只物化可用，只保留必要。一块画布上的保留式场景图，加上一层让每个界面都可访问的语义投影。',
       gallery: '作品廊',
     },
     features: {
@@ -367,9 +367,9 @@ const OVERRIDES: Partial<Record<Locale, HomeOverride>> = {
   },
   'zh-tw': {
     hero: {
-      title: 'VectoJS —— AI 代理真正能駕馭的零 DOM canvas UI 引擎',
+      title: 'VectoJS —— canvas 原生 UI 執行環境',
       tagline:
-        '零 DOM、可存取、面向代理。螢幕閱讀器與 AI 代理都能按角色操作的 canvas UI 執行環境。',
+        '只渲染可見，只物化可用，只保留必要。一塊畫布上的保留式場景圖，加上一層讓每個介面都可存取的語義投影。',
       gallery: '作品廊',
     },
     features: {
@@ -450,9 +450,9 @@ const OVERRIDES: Partial<Record<Locale, HomeOverride>> = {
   },
   ja: {
     hero: {
-      title: 'VectoJS — AI エージェントが実際に操作できるゼロ DOM canvas UI エンジン',
+      title: 'VectoJS —— キャンバスネイティブ UI ランタイム',
       tagline:
-        'ゼロ DOM、アクセシブル、エージェントネイティブ。スクリーンリーダーと AI エージェントがロールで操作できる canvas UI ランタイム。',
+        '見えるものだけを描画し、使えるものだけを実体化し、必要なものだけを保持。1 枚のキャンバス上の保持型シーングラフと、あらゆる UI をアクセシブルに保つセマンティック投影。',
       gallery: 'ギャラリー',
     },
     features: {
@@ -485,10 +485,9 @@ const OVERRIDES: Partial<Record<Locale, HomeOverride>> = {
   },
   fr: {
     hero: {
-      title:
-        'VectoJS — le moteur d\u2019interface canvas Zero-DOM qu\u2019un agent IA peut réellement piloter',
+      title: 'VectoJS — le runtime d\u2019interface canvas-natif',
       tagline:
-        'Zero-DOM, accessible, natif pour les agents. Le runtime d\u2019interface canvas que les lecteurs d\u2019écran — et les agents IA — pilotent par rôle.',
+        'Ne rendre que le visible, ne mat\u00e9rialiser que l\u2019utile, ne retenir que le n\u00e9cessaire. Un graphe de sc\u00e8ne retenu sur un seul canvas, avec une projection s\u00e9mantique qui garde chaque interface accessible.',
       gallery: 'Galerie',
     },
     features: {
@@ -521,10 +520,9 @@ const OVERRIDES: Partial<Record<Locale, HomeOverride>> = {
   },
   es: {
     hero: {
-      title:
-        'VectoJS: el motor de UI en canvas Zero-DOM que un agente de IA puede manejar de verdad',
+      title: 'VectoJS — el runtime de UI canvas-nativo',
       tagline:
-        'Zero-DOM, accesible, nativo para agentes. El runtime de UI en canvas que los lectores de pantalla — y los agentes de IA — manejan por rol.',
+        'Renderizar solo lo visible, materializar solo lo utilizable, conservar solo lo necesario. Un grafo de escena retenido sobre un único canvas, con una proyección semántica que mantiene accesible cada interfaz.',
       gallery: 'Galería',
     },
     features: {
@@ -557,9 +555,9 @@ const OVERRIDES: Partial<Record<Locale, HomeOverride>> = {
   },
   ko: {
     hero: {
-      title: 'VectoJS — AI 에이전트가 실제로 조작할 수 있는 제로 DOM canvas UI 엔진',
+      title: 'VectoJS —— 캔버스 네이티브 UI 런타임',
       tagline:
-        '제로 DOM, 접근성, 에이전트 네이티브. 스크린 리더와 AI 에이전트가 역할로 조작할 수 있는 canvas UI 런타임.',
+        '보이는 것만 렌더링하고, 쓸 수 있는 것만 실체화하며, 필요한 것만 유지. 하나의 캔버스 위 보존형 씬 그래프와 모든 인터페이스를 접근 가능하게 하는 시맨틱 프로젝션.',
       gallery: '갤러리',
     },
     features: {
