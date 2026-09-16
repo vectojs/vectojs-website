@@ -585,7 +585,7 @@ export function buildHeroSection(opts: HeroSectionOptions): () => void {
   scene.add(title);
 
   const subtitle = new TrackedText(
-    () => 'ZERO-DOM · ACCESSIBLE · AGENT-NATIVE',
+    () => 'ZERO-DOM · ACCESSIBLE · RETAINED-MODE',
     '600 19px Inter, sans-serif',
     theme.subtitle,
     3,
